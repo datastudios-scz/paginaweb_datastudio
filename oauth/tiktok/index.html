@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Autorización de TikTok — DataStudio</title>
+<meta name="description" content="Punto de retorno de la autorización de TikTok para las integraciones de DataStudio.">
+<meta name="robots" content="noindex">
+<style>
+  :root{--tinta:#12151c;--suave:#5b6273;--linea:#e3e6ec;--fondo:#fff;--panel:#f7f8fa;--acento:#1f5ae0}
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+    --tinta:#e9ecf2;--suave:#9aa3b5;--linea:#272c38;--fondo:#0e1116;--panel:#161a22;--acento:#7aa2ff}}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--fondo);color:var(--tinta);
+    font:16px/1.68 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+  .env{max-width:680px;margin:0 auto;padding:0 20px}
+  header{border-bottom:1px solid var(--linea);padding-block:28px}
+  .marca{font-weight:700;font-size:1.15rem;letter-spacing:-.02em;text-decoration:none;color:inherit}
+  .marca span{color:var(--acento)}
+  main{padding-block:44px 64px}
+  h1{font-size:clamp(1.5rem,4vw,2rem);line-height:1.25;letter-spacing:-.02em;margin:0 0 14px}
+  h2{font-size:1.05rem;margin:32px 0 10px}
+  p{margin:0 0 13px} ul{margin:0 0 13px;padding-left:20px} li{margin-bottom:6px}
+  a{color:var(--acento)}
+  .panel{background:var(--panel);border:1px solid var(--linea);border-radius:12px;padding:18px 20px;margin:0 0 16px}
+  .panel p:last-child{margin-bottom:0}
+  code{background:var(--panel);border:1px solid var(--linea);border-radius:5px;padding:1px 6px;font-size:.92em}
+  .legal{margin-top:40px;padding-top:22px;border-top:1px solid var(--linea);
+    display:flex;flex-wrap:wrap;gap:10px 26px;font-size:.97rem}
+  footer{border-top:1px solid var(--linea);padding-block:24px;color:var(--suave);font-size:.9rem}
+</style>
+</head>
+<body>
+
+<header><div class="env"><a class="marca" href="/">Data<span>Studio</span></a></div></header>
+
+<main class="env">
+
+  <h1>Autorización de TikTok</h1>
+
+  <div class="panel">
+    <p><strong>Esta página es el punto de retorno de una autorización, no un formulario.</strong>
+    TikTok redirige hasta acá después de que el titular de una cuenta autoriza la integración, y
+    la dirección trae adjunto un código de un solo uso.</p>
+  </div>
+
+  <h2>Si llegaste acá autorizando una cuenta</h2>
+  <p>Ya está: la autorización se completó. <strong>Copiá la dirección completa de la barra del
+  navegador</strong> —la que empieza con <code>https://datastudio.es/oauth/tiktok?code=…</code>— y
+  pasásela a la persona de DataStudio que te compartió el enlace.</p>
+  <p>Ese código <strong>vence en pocos minutos</strong> y sirve una sola vez.</p>
+
+  <h2>Qué se autoriza</h2>
+  <p>Acceso de <strong>solo lectura</strong> a los datos de la cuenta que autorizó:</p>
+  <ul>
+    <li>Datos del perfil: nombre, biografía, verificación</li>
+    <li>Cantidad de seguidores, seguidos, «me gusta» y videos</li>
+    <li>La lista de videos publicados y sus métricas públicas</li>
+  </ul>
+  <p>La integración <strong>no publica, no modifica y no elimina</strong> contenido, y no accede a
+  datos de ninguna cuenta distinta de la que autorizó.</p>
+
+  <h2>Cómo se retira el acceso</h2>
+  <p>En cualquier momento y sin contactarnos, desde la app de TikTok:
+  <strong>Perfil → Configuración y privacidad → Seguridad y permisos → Administrar
+  aplicaciones</strong>.</p>
+
+  <div class="legal">
+    <a href="/privacidad">Política de Privacidad</a>
+    <a href="/terminos">Condiciones del Servicio</a>
+    <a href="mailto:datastudio.scz@gmail.com">datastudio.scz@gmail.com</a>
+  </div>
+
+</main>
+
+<footer><div class="env">DataStudio · Santa Cruz de la Sierra, Bolivia</div></footer>
+
+</body>
+</html>
