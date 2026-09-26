@@ -1,0 +1,362 @@
+---
+import Icono from './Icono.astro';
+import { SOLUCIONES, MENSAJES, SITIO, enlaceWhatsApp } from '../data/sitio';
+---
+
+<section class="hero" data-tema="oscuro" aria-labelledby="hero-titulo">
+  <div class="contenedor hero__cabecera">
+    <h1 id="hero-titulo" class="hero__titulo">Datos que toda tu empresa puede usar.</h1>
+
+    <div class="hero__lateral">
+      <p class="hero__entrada">
+        Tus tableros de Power BI para toda la empresa con una sola licencia, tus redes sociales en un solo
+        tablero y un equipo que ordena tus datos. Desde Santa Cruz, Bolivia.
+      </p>
+      <div class="acciones">
+        <a class="boton boton--primario" href={enlaceWhatsApp(MENSAJES.general)} target="_blank" rel="noopener noreferrer">
+          <Icono nombre="whatsapp" />
+          <span>Escríbenos por WhatsApp</span>
+        </a>
+        <a class="boton boton--secundario" href="/portal-bi/">
+          <span>Conoce el Portal BI</span>
+          <Icono nombre="flecha" />
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="contenedor">
+    <!-- Las cuatro barras del ícono de Data Studio, a escala: una por solución. -->
+    <ul class="grafico" role="list" aria-label="Nuestras cuatro soluciones">
+      {SOLUCIONES.map((solucion, i) => (
+        <li class:list={['barra', `barra--${solucion.altura}`, `barra--i${i}`, { 'barra--destacada': 'destacado' in solucion }]}>
+          <a class="barra__enlace" href={solucion.href}>
+            <span class="barra__relleno" aria-hidden="true" />
+            <span class="barra__contenido">
+              {'destacado' in solucion && <span class="barra__insignia">{solucion.destacado}</span>}
+              <span class="barra__nombre">{solucion.nombre}</span>
+              <span class="barra__resumen">{solucion.resumen}</span>
+              <Icono nombre="flecha" class="barra__flecha" />
+            </span>
+          </a>
+        </li>
+      ))}
+    </ul>
+    <div class="grafico__base" aria-hidden="true">
+      <span></span><span></span><span></span>
+    </div>
+    <p class="hero__lema">{SITIO.lema}</p>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    isolation: isolate;
+    padding-block: var(--space-7) var(--space-7);
+    background:
+      radial-gradient(60rem 32rem at 85% -10%, rgb(0 57 78 / 0.9), transparent 70%),
+      var(--fondo);
+    color: var(--texto);
+  }
+
+  .hero__cabecera {
+    display: grid;
+    gap: var(--space-6);
+    align-items: end;
+    margin-bottom: var(--space-8);
+  }
+
+  .hero__titulo {
+    font-size: var(--text-display);
+    font-weight: var(--peso-semi);
+    line-height: 1.02;
+    letter-spacing: var(--tracking-display);
+    text-wrap: balance;
+    overflow-wrap: anywhere;
+    min-width: 0;
+  }
+
+  .hero__lateral {
+    display: grid;
+    gap: var(--space-5);
+    max-width: 34rem;
+  }
+
+  .hero__entrada {
+    font-size: var(--text-md);
+    line-height: 1.65;
+    color: var(--texto-2);
+    text-wrap: pretty;
+  }
+
+  /* ── Gráfico de barras = navegación ──────────────────────────────── */
+  .grafico {
+    --alto-grafico: clamp(20rem, 27vw, 23rem);
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: clamp(0.75rem, 1.6vw, 1.5rem);
+    height: var(--alto-grafico);
+    margin: 0;
+    padding: 0;
+    /* Líneas de referencia cada 25 %, como en un gráfico real */
+    background-image: linear-gradient(to top, var(--linea) 1px, transparent 1px);
+    background-size: 100% 25%;
+    background-position: 0 100%;
+  }
+
+  .barra {
+    position: relative;
+    min-width: 0;
+  }
+
+  .barra--b60 { --h: 60.2%; }
+  .barra--b80 { --h: 79.6%; }
+  .barra--b100 { --h: 100%; }
+
+  .barra__enlace {
+    position: absolute;
+    inset: 0;
+    display: block;
+    color: var(--texto);
+    text-decoration: none;
+    border-radius: 2px;
+  }
+
+  .barra__relleno {
+    position: absolute;
+    inset: auto 0 0 0;
+    height: var(--h);
+    background: var(--color-petroleo);
+    border-top: 3px solid var(--color-verde-claro);
+    transform-origin: 50% 100%;
+    transition: background-color var(--dur-2) var(--ease-out), border-color var(--dur-2) var(--ease-out);
+  }
+
+  .barra--destacada .barra__relleno {
+    background: var(--color-verde);
+    border-top-color: var(--color-blanco);
+  }
+
+  .barra__contenido {
+    position: absolute;
+    inset: auto 0 0 0;
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-5) clamp(0.875rem, 1.4vw, 1.5rem);
+  }
+
+  .barra__insignia {
+    justify-self: start;
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radio-pill);
+    background: rgb(0 23 32 / 0.38);
+    font-size: 0.6875rem;
+    font-weight: var(--peso-medio);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .barra__nombre {
+    font-size: var(--text-lg);
+    font-weight: var(--peso-semi);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    overflow-wrap: anywhere;
+  }
+
+  .barra__resumen {
+    font-size: var(--text-sm);
+    line-height: 1.5;
+    color: var(--texto-2);
+    transition: color var(--dur-2) var(--ease-out);
+  }
+
+  .barra--destacada .barra__resumen {
+    color: var(--color-blanco);
+  }
+
+  .barra :global(.barra__flecha) {
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-top: var(--space-1);
+    color: var(--acento);
+    transition: transform var(--dur-2) var(--ease-out);
+  }
+
+  .barra--destacada .barra :global(.barra__flecha) {
+    color: var(--color-blanco);
+  }
+
+  .barra__enlace:hover .barra__relleno {
+    background: var(--color-verde);
+    border-top-color: var(--color-blanco);
+  }
+
+  .barra--destacada .barra__enlace:hover .barra__relleno {
+    background: var(--color-verde-oscuro);
+  }
+
+  .barra__enlace:hover .barra__resumen {
+    color: var(--color-blanco);
+  }
+
+  .barra__enlace:hover .barra :global(.barra__flecha) {
+    color: var(--color-blanco);
+    transform: translateX(4px);
+  }
+
+  .barra__enlace:focus-visible {
+    outline-offset: 4px;
+  }
+
+  /* Base del monitor: línea de base + los tres botones del bisel del logo */
+  .grafico__base {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-3);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--linea-fuerte);
+  }
+
+  .grafico__base span {
+    width: 1.5rem;
+    height: 0.4375rem;
+    border-radius: var(--radio-pill);
+    background: var(--linea-fuerte);
+  }
+
+  .hero__lema {
+    margin-top: var(--space-4);
+    text-align: center;
+    font-size: var(--text-xs);
+    font-weight: var(--peso-medio);
+    letter-spacing: var(--tracking-etiqueta);
+    text-transform: uppercase;
+    color: var(--texto-3);
+  }
+
+  /* ── Entrada orquestada: las barras crecen desde la base ─────────── */
+  @media (prefers-reduced-motion: no-preference) {
+    .barra__relleno {
+      animation: crecer-y var(--dur-4) var(--ease-out) both;
+    }
+
+    .barra__contenido {
+      animation: aparecer var(--dur-3) var(--ease-out) both;
+    }
+
+    .barra--i0 .barra__relleno { animation-delay: 100ms; }
+    .barra--i1 .barra__relleno { animation-delay: 180ms; }
+    .barra--i2 .barra__relleno { animation-delay: 260ms; }
+    .barra--i3 .barra__relleno { animation-delay: 340ms; }
+    .barra--i0 .barra__contenido { animation-delay: 520ms; }
+    .barra--i1 .barra__contenido { animation-delay: 600ms; }
+    .barra--i2 .barra__contenido { animation-delay: 680ms; }
+    .barra--i3 .barra__contenido { animation-delay: 760ms; }
+  }
+
+  @keyframes crecer-y {
+    from { transform: scaleY(0); }
+    to { transform: scaleY(1); }
+  }
+
+  @keyframes crecer-x {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+  }
+
+  @keyframes aparecer {
+    from { opacity: 0; transform: translateY(0.5rem); }
+    to { opacity: 1; transform: none; }
+  }
+
+  /* ── Escritorio: título a la izquierda, apoyo a la derecha ───────── */
+  @media (min-width: 64rem) {
+    .hero {
+      padding-block: var(--space-8) var(--space-7);
+    }
+
+    .hero__cabecera {
+      grid-template-columns: minmax(0, 8fr) minmax(0, 4fr);
+      gap: var(--space-7);
+    }
+
+    .hero__lateral .acciones {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+
+  /* ── Tablet y móvil: el gráfico rota a barras horizontales ───────── */
+  @media (max-width: 71.99rem) {
+    .grafico {
+      grid-template-columns: minmax(0, 1fr);
+      height: auto;
+      gap: var(--space-3);
+      background: none;
+    }
+
+    .barra__enlace {
+      position: relative;
+      inset: auto;
+      display: block;
+      min-height: 5.5rem;
+      background: var(--color-abismo-2);
+    }
+
+    .barra__relleno {
+      inset: 0 auto 0 0;
+      height: auto;
+      width: var(--h);
+      border-top: 0;
+      border-right: 2px solid rgb(77 207 193 / 0.6);
+      transform-origin: 0 50%;
+    }
+
+    .barra--destacada .barra__relleno {
+      border-right-color: var(--color-blanco);
+    }
+
+    .barra__enlace:hover .barra__relleno {
+      border-right-color: var(--color-blanco);
+    }
+
+    .barra__contenido {
+      position: relative;
+      inset: auto;
+      grid-template-columns: minmax(0, 1fr) auto;
+      column-gap: var(--space-4);
+      row-gap: var(--space-1);
+      align-items: center;
+      padding: var(--space-4) var(--space-5);
+    }
+
+    .barra__insignia,
+    .barra__nombre,
+    .barra__resumen {
+      grid-column: 1;
+    }
+
+    .barra__nombre {
+      font-size: var(--text-lg);
+    }
+
+    .barra :global(.barra__flecha) {
+      grid-column: 2;
+      grid-row: 1 / span 3;
+      margin: 0;
+    }
+
+    .grafico__base {
+      margin-top: var(--space-4);
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .barra__relleno {
+        animation-name: crecer-x;
+      }
+    }
+  }
+</style>

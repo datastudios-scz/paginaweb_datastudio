@@ -1,0 +1,276 @@
+---
+import Logo from './Logo.astro';
+import Icono from './Icono.astro';
+import { NAVEGACION, MENSAJES, enlaceWhatsApp } from '../data/sitio';
+
+const whatsapp = enlaceWhatsApp(MENSAJES.general);
+---
+
+<header class="encabezado" data-tema="oscuro" data-encabezado>
+  <div class="contenedor encabezado__fila">
+    <a class="encabezado__marca" href="/" aria-label="Data Studio, ir al inicio">
+      <Logo class="encabezado__logo" decorativo />
+    </a>
+
+    <nav class="encabezado__nav" aria-label="Principal">
+      <ul role="list">
+        {NAVEGACION.map((item) => (
+          <li>
+            <a href={item.href}>{item.etiqueta}</a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <div class="encabezado__acciones">
+      <a class="boton boton--primario encabezado__cta" href={whatsapp} target="_blank" rel="noopener noreferrer">
+        <Icono nombre="whatsapp" />
+        <span>Escríbenos</span>
+      </a>
+      <button
+        class="encabezado__alternar"
+        type="button"
+        aria-expanded="false"
+        aria-controls="menu-movil"
+        data-alternar-menu
+      >
+        <Icono nombre="menu" class="icono-abrir" />
+        <Icono nombre="cerrar" class="icono-cerrar" />
+        <span class="solo-lectores">Menú</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="menu-movil" id="menu-movil" hidden data-menu-movil>
+    <nav class="contenedor" aria-label="Principal (móvil)">
+      <ul role="list">
+        {NAVEGACION.map((item) => (
+          <li>
+            <a href={item.href}>
+              <span>{item.etiqueta}</span>
+              <Icono nombre="flecha" />
+            </a>
+          </li>
+        ))}
+      </ul>
+      <a class="boton boton--primario menu-movil__cta" href={whatsapp} target="_blank" rel="noopener noreferrer">
+        <Icono nombre="whatsapp" />
+        <span>Escríbenos por WhatsApp</span>
+      </a>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .encabezado {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    color: var(--texto);
+    background: var(--color-abismo);
+    border-bottom: 1px solid transparent;
+    transition: border-color var(--dur-2) var(--ease-out);
+  }
+
+  .encabezado.con-scroll {
+    border-bottom-color: var(--linea);
+  }
+
+  .encabezado__fila {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-5);
+    min-height: var(--alto-encabezado);
+  }
+
+  .encabezado__marca {
+    display: inline-flex;
+    padding-block: var(--space-2);
+    color: var(--color-blanco);
+    border-radius: var(--radio-sm);
+  }
+
+  /* El SVG lo dibuja <Logo>: los estilos con alcance no lo alcanzan sin :global */
+  .encabezado__marca :global(svg) {
+    height: 1.375rem;
+    width: auto;
+  }
+
+  .encabezado__nav {
+    display: none;
+  }
+
+  .encabezado__nav ul {
+    display: flex;
+    gap: var(--space-1);
+    margin: 0;
+    padding: 0;
+  }
+
+  .encabezado__nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding-inline: var(--space-3);
+    border-radius: var(--radio-pill);
+    font-size: var(--text-sm);
+    font-weight: var(--peso-medio);
+    color: var(--texto-2);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color var(--dur-1) var(--ease-out), background-color var(--dur-1) var(--ease-out);
+  }
+
+  .encabezado__nav a:hover {
+    color: var(--texto);
+    background: rgb(206 217 189 / 0.08);
+  }
+
+  .encabezado__acciones {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .encabezado__cta {
+    min-height: 2.5rem;
+    padding-inline: var(--space-4);
+    font-size: var(--text-sm);
+  }
+
+  .encabezado__alternar {
+    display: inline-grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radio-pill);
+    background: transparent;
+    color: var(--texto);
+    cursor: pointer;
+    box-shadow: inset 0 0 0 1px var(--linea-fuerte);
+  }
+
+  .encabezado__alternar :global(svg) {
+    width: 1.375rem;
+    height: 1.375rem;
+    grid-area: 1 / 1;
+  }
+
+  .encabezado__alternar :global(.icono-cerrar),
+  .encabezado__alternar[aria-expanded='true'] :global(.icono-abrir) {
+    display: none;
+  }
+
+  .encabezado__alternar[aria-expanded='true'] :global(.icono-cerrar) {
+    display: block;
+  }
+
+  .menu-movil {
+    border-top: 1px solid var(--linea);
+    background: var(--color-abismo);
+    max-height: calc(100dvh - var(--alto-encabezado));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .menu-movil nav {
+    display: grid;
+    gap: var(--space-5);
+    padding-block: var(--space-4) var(--space-6);
+  }
+
+  .menu-movil ul {
+    margin: 0;
+    padding: 0;
+  }
+
+  .menu-movil li + li {
+    border-top: 1px solid var(--linea);
+  }
+
+  .menu-movil li a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 3.5rem;
+    font-size: var(--text-lg);
+    font-weight: var(--peso-medio);
+    color: var(--texto);
+    text-decoration: none;
+  }
+
+  .menu-movil li a :global(svg) {
+    width: 1.25rem;
+    height: 1.25rem;
+    color: var(--acento);
+  }
+
+  .menu-movil__cta {
+    width: 100%;
+  }
+
+  /* El CTA del encabezado se oculta en pantallas muy angostas: vive en el menú */
+  @media (max-width: 26rem) {
+    .encabezado__cta {
+      display: none;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .encabezado__marca :global(svg) {
+      height: 1.5rem;
+    }
+
+    .encabezado__nav {
+      display: block;
+    }
+
+    .encabezado__alternar,
+    .menu-movil {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  const encabezado = document.querySelector<HTMLElement>('[data-encabezado]');
+  const boton = document.querySelector<HTMLButtonElement>('[data-alternar-menu]');
+  const menu = document.querySelector<HTMLElement>('[data-menu-movil]');
+
+  if (encabezado && boton && menu) {
+    const abrir = (estado: boolean) => {
+      boton.setAttribute('aria-expanded', String(estado));
+      menu.hidden = !estado;
+    };
+
+    boton.addEventListener('click', () => abrir(menu.hidden));
+
+    menu.addEventListener('click', (evento) => {
+      if ((evento.target as HTMLElement).closest('a')) abrir(false);
+    });
+
+    document.addEventListener('keydown', (evento) => {
+      if (evento.key === 'Escape' && !menu.hidden) {
+        abrir(false);
+        boton.focus();
+      }
+    });
+
+    // Al pasar a escritorio el menú móvil no debe quedar abierto.
+    matchMedia('(min-width: 64rem)').addEventListener('change', (e) => {
+      if (e.matches) abrir(false);
+    });
+
+    // Línea inferior del encabezado cuando la página ya no está arriba (sin escuchar scroll).
+    const centinela = document.createElement('div');
+    centinela.setAttribute('aria-hidden', 'true');
+    centinela.className = 'centinela-scroll';
+    document.body.prepend(centinela);
+    new IntersectionObserver(([entrada]) => {
+      encabezado.classList.toggle('con-scroll', !entrada.isIntersecting);
+    }).observe(centinela);
+  }
+</script>

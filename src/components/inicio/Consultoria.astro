@@ -1,0 +1,197 @@
+---
+import Icono from '../Icono.astro';
+import { MENSAJES, enlaceWhatsApp } from '../../data/sitio';
+
+const CAPACIDADES = [
+  {
+    icono: 'analitica',
+    titulo: 'Analítica de datos',
+    texto: 'KPIs, tableros y reportes que responden preguntas concretas del negocio.',
+  },
+  {
+    icono: 'ingenieria',
+    titulo: 'Ingeniería de datos',
+    texto: 'Procesos ETL que integran tus fuentes y se actualizan solos.',
+  },
+  {
+    icono: 'infraestructura',
+    titulo: 'Infraestructura de datos',
+    texto: 'Bases de datos, data warehouse y nube, a la medida de tu operación.',
+  },
+  {
+    icono: 'tableros',
+    titulo: 'Power BI a medida',
+    texto: 'Modelado, DAX y diseño de tableros con la identidad de tu empresa.',
+  },
+  {
+    icono: 'apis',
+    titulo: 'Integraciones con APIs',
+    texto: 'Conectamos redes sociales, sistemas internos y plataformas externas.',
+  },
+  {
+    icono: 'automatizacion',
+    titulo: 'Automatización de reportes',
+    texto: 'Menos consolidación manual en Excel y reportes siempre al día.',
+  },
+] as const;
+
+// Secuencia real de trabajo: aquí la numeración sí transmite información.
+const PASOS = [
+  { titulo: 'Diagnóstico', texto: 'Conversamos sobre tus fuentes de datos, tus preguntas y tus prioridades.' },
+  { titulo: 'Propuesta', texto: 'Te presentamos el alcance, los entregables y los tiempos.' },
+  { titulo: 'Implementación', texto: 'Construimos la solución con entregas parciales que puedes revisar.' },
+  { titulo: 'Acompañamiento', texto: 'Capacitamos a tu equipo para que la solución se use de verdad.' },
+];
+---
+
+<section class="seccion consultoria" id="consultoria" data-tema="oscuro" aria-labelledby="consultoria-titulo">
+  <div class="contenedor">
+    <header class="cabecera-seccion" data-revelar>
+      <p class="etiqueta">Consultoría de datos</p>
+      <h2 id="consultoria-titulo" class="titulo-seccion">Ordenamos tus datos para que puedas usarlos.</h2>
+      <p class="entrada">
+        Cuando la información está repartida entre planillas, sistemas y plataformas, te ayudamos a integrarla,
+        modelarla y convertirla en reportes confiables.
+      </p>
+    </header>
+
+    <ul class="capacidades" role="list" data-revelar>
+      {CAPACIDADES.map((c) => (
+        <li class="capacidad">
+          <Icono nombre={c.icono} class="capacidad__icono" />
+          <h3 class="capacidad__titulo">{c.titulo}</h3>
+          <p class="capacidad__texto">{c.texto}</p>
+        </li>
+      ))}
+    </ul>
+
+    <div class="proceso" data-revelar>
+      <h3 class="proceso__titulo">Cómo trabajamos</h3>
+      <ol class="pasos" role="list">
+        {PASOS.map((p, i) => (
+          <li class="paso">
+            <span class="paso__numero dato">{String(i + 1).padStart(2, '0')}</span>
+            <h4 class="paso__titulo">{p.titulo}</h4>
+            <p class="paso__texto">{p.texto}</p>
+          </li>
+        ))}
+      </ol>
+      <div class="acciones">
+        <a class="boton boton--primario" href={enlaceWhatsApp(MENSAJES.consultoria)} target="_blank" rel="noopener noreferrer">
+          <Icono nombre="whatsapp" />
+          <span>Agenda un diagnóstico</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .capacidades {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1px;
+    margin: var(--space-8) 0 0;
+    padding: 0;
+    background: var(--linea);
+    border: 1px solid var(--linea);
+    border-radius: var(--radio-lg);
+    overflow: hidden;
+  }
+
+  .capacidad {
+    display: grid;
+    align-content: start;
+    gap: var(--space-3);
+    padding: var(--space-6);
+    background: var(--fondo);
+    transition: background-color var(--dur-2) var(--ease-out);
+  }
+
+  .capacidad:hover {
+    background: var(--superficie);
+  }
+
+  .capacidad :global(.capacidad__icono) {
+    width: 1.75rem;
+    height: 1.75rem;
+    color: var(--acento);
+  }
+
+  .capacidad__titulo {
+    margin-top: var(--space-2);
+    font-size: var(--text-lg);
+    font-weight: var(--peso-semi);
+    letter-spacing: -0.015em;
+    color: var(--texto);
+  }
+
+  .capacidad__texto {
+    color: var(--texto-2);
+    font-size: var(--text-sm);
+    line-height: 1.6;
+  }
+
+  @media (min-width: 40rem) {
+    .capacidades {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .capacidades {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .proceso {
+    display: grid;
+    gap: var(--space-6);
+    margin-top: var(--space-9);
+  }
+
+  .proceso__titulo {
+    font-size: var(--text-2xl);
+    font-weight: var(--peso-semi);
+    letter-spacing: var(--tracking-titulo);
+    color: var(--texto);
+  }
+
+  .pasos {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+    gap: var(--space-6);
+    margin: 0;
+    padding: 0;
+    counter-reset: none;
+  }
+
+  .paso {
+    display: grid;
+    align-content: start;
+    gap: var(--space-2);
+    padding-top: var(--space-4);
+    border-top: 2px solid var(--linea-fuerte);
+  }
+
+  .paso:first-child {
+    border-top-color: var(--acento);
+  }
+
+  .paso__numero {
+    font-size: var(--text-sm);
+    color: var(--acento);
+  }
+
+  .paso__titulo {
+    font-size: var(--text-lg);
+    font-weight: var(--peso-semi);
+    color: var(--texto);
+  }
+
+  .paso__texto {
+    font-size: var(--text-sm);
+    line-height: 1.6;
+    color: var(--texto-2);
+  }
+</style>

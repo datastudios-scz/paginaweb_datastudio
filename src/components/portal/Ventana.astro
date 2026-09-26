@@ -1,0 +1,117 @@
+---
+/**
+ * Marco de pantalla para las maquetas del Portal BI.
+ * Las maquetas reproducen el portal real en HTML/CSS (no son capturas): se ven nítidas,
+ * pesan casi nada y se editan como cualquier componente.
+ * Dentro del marco los colores son fijos: una pantalla no cambia según el tema de quien mira.
+ * Solo la barra de dirección, sin botones de navegador falsos: la URL es lo que informa
+ * (el portal vive en el dominio del cliente).
+ */
+interface Props {
+  url: string;
+  /** Descripción para lectores de pantalla; la maqueta en sí queda oculta para ellos. */
+  descripcion: string;
+  /** Identidad del portal dibujado: el mismo producto con distintas marcas. */
+  marca?: 'datastudio' | 'acme' | 'nordex';
+  variante?: 'normal' | 'mini';
+  class?: string;
+}
+
+const { url, descripcion, marca = 'datastudio', variante = 'normal', class: clase } = Astro.props;
+---
+
+<figure class:list={['ventana', `ventana--${marca}`, { 'ventana--mini': variante === 'mini' }, clase]}>
+  <figcaption class="solo-lectores">{descripcion}</figcaption>
+  <div class="ventana__cuerpo" aria-hidden="true">
+    <div class="ventana__barra">
+      <span class="ventana__url">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></svg>
+        {url}
+      </span>
+    </div>
+    <slot />
+  </div>
+</figure>
+
+<style>
+  .ventana {
+    /* Tokens de la maqueta: colores del portal, no del sitio */
+    --mq-fondo: #f3f5f2;
+    --mq-tarjeta: #ffffff;
+    --mq-borde: #e1e7e0;
+    --mq-borde-2: #ecf0eb;
+    --mq-tinta: #0f1d1c;
+    --mq-tinta-2: #44544f;
+    --mq-tinta-3: #5b6964;
+    --mq-ia: #4338ca;
+    --mq-ia-2: #6366f1;
+    --mq-ia-tenue: #eef2ff;
+    --pbi: #f2c811;
+    --pbi-hondo: #e6a800;
+    --mq-acento: var(--color-verde);
+    --mq-lateral: var(--color-abismo);
+
+    margin: 0;
+    min-width: 0;
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--mq-tarjeta);
+    border: 1px solid rgb(0 23 32 / 0.14);
+    box-shadow: 0 1px 0 rgb(0 23 32 / 0.04), 0 28px 56px -30px rgb(0 23 32 / 0.55);
+    color: var(--mq-tinta);
+    font-family: var(--font-texto);
+    line-height: 1.4;
+  }
+
+  [data-tema='oscuro'] .ventana,
+  [data-tema='petroleo'] .ventana {
+    border-color: rgb(206 217 189 / 0.2);
+    box-shadow: 0 30px 60px -28px rgb(0 0 0 / 0.7);
+  }
+
+  .ventana--acme {
+    --mq-acento: #186b45;
+    --mq-lateral: #111111;
+  }
+
+  .ventana--nordex {
+    --mq-acento: #b45309;
+    --mq-lateral: #14213d;
+  }
+
+  .ventana__barra {
+    display: flex;
+    align-items: center;
+    padding: 9px 12px;
+    background: var(--mq-fondo);
+    border-bottom: 1px solid var(--mq-borde-2);
+  }
+
+  .ventana__url {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    max-width: 100%;
+    padding: 4px 11px;
+    border-radius: var(--radio-pill);
+    background: var(--mq-tarjeta);
+    border: 1px solid var(--mq-borde-2);
+    font-family: var(--font-datos);
+    font-size: 0.6875rem;
+    color: var(--mq-tinta-3);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .ventana__url svg {
+    width: 11px;
+    height: 11px;
+    flex: none;
+  }
+
+  .ventana--mini .ventana__url {
+    font-size: 0.625rem;
+  }
+</style>

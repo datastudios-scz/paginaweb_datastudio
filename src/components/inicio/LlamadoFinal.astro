@@ -1,0 +1,97 @@
+---
+import Icono from '../Icono.astro';
+import { CONTACTO, MENSAJES, enlaceWhatsApp } from '../../data/sitio';
+---
+
+<section class="seccion final" id="contacto" data-tema="verde" aria-labelledby="final-titulo">
+  <div class="contenedor final__contenido" data-revelar>
+    <h2 id="final-titulo" class="final__titulo">¿Qué quieres resolver con tus datos?</h2>
+    <p class="final__texto">
+      Cuéntanos tu caso por WhatsApp y coordinamos una reunión para proponerte la solución que encaja con tu
+      empresa.
+    </p>
+    <div class="acciones">
+      <a class="boton boton--primario" href={enlaceWhatsApp(MENSAJES.general)} target="_blank" rel="noopener noreferrer">
+        <Icono nombre="whatsapp" />
+        <span>Escríbenos por WhatsApp</span>
+      </a>
+      <a class="boton boton--secundario" href={`mailto:${CONTACTO.email}`}>
+        <Icono nombre="correo" />
+        <span>Escríbenos un correo</span>
+      </a>
+    </div>
+    <ul class="final__datos" role="list">
+      <li><span class="dato">{CONTACTO.telefonoVisible}</span></li>
+      <li><span>{CONTACTO.email}</span></li>
+      <li><span>{CONTACTO.ciudad}, {CONTACTO.pais}</span></li>
+    </ul>
+  </div>
+</section>
+
+<style>
+  .final {
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Eco de las barras del logo, en la esquina, muy tenue */
+  .final::after {
+    content: '';
+    position: absolute;
+    right: -2rem;
+    bottom: 0;
+    width: min(38rem, 60vw);
+    height: 70%;
+    background:
+      linear-gradient(to top, rgb(255 255 255 / 0.1), rgb(255 255 255 / 0.1)) 0 100% / 18% 60% no-repeat,
+      linear-gradient(to top, rgb(255 255 255 / 0.1), rgb(255 255 255 / 0.1)) 27% 100% / 18% 80% no-repeat,
+      linear-gradient(to top, rgb(255 255 255 / 0.1), rgb(255 255 255 / 0.1)) 55% 100% / 18% 100% no-repeat,
+      linear-gradient(to top, rgb(255 255 255 / 0.1), rgb(255 255 255 / 0.1)) 82% 100% / 18% 60% no-repeat;
+    pointer-events: none;
+  }
+
+  .final__contenido {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: var(--space-5);
+    justify-items: start;
+  }
+
+  .final__titulo {
+    max-width: 16ch;
+    font-size: var(--text-3xl);
+    font-weight: var(--peso-semi);
+    line-height: 1.06;
+    letter-spacing: var(--tracking-titulo);
+    text-wrap: balance;
+  }
+
+  .final__texto {
+    max-width: 36rem;
+    font-size: var(--text-lg);
+    line-height: 1.6;
+  }
+
+  .final__datos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-6);
+    margin: var(--space-3) 0 0;
+    padding: 0;
+    font-size: var(--text-sm);
+  }
+
+  @media (max-width: 30rem) {
+    .final__contenido .acciones {
+      width: 100%;
+    }
+  }
+
+  /* En pantallas angostas el eco de las barras competiría con el texto */
+  @media (max-width: 47.99rem) {
+    .final::after {
+      display: none;
+    }
+  }
+</style>

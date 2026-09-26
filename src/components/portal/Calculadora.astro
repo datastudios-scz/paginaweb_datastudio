@@ -1,0 +1,258 @@
+---
+/**
+ * Calculadora de ahorro del Portal BI.
+ * El número grande es el AHORRO, no el gasto (si el gasto va en grande se lee como el
+ * precio del producto). La cifra de referencia es de Microsoft, no de Data Studio.
+ */
+import { PRECIO_LICENCIA_USD } from '../../data/sitio';
+import { calcularAhorro, dolares, miles } from '../../scripts/formato';
+
+interface Props {
+  id: string;
+  min?: number;
+  max?: number;
+  paso?: number;
+  inicial?: number;
+  ctaHref: string;
+  ctaTexto: string;
+}
+
+const { id, min = 25, max = 2000, paso = 25, inicial = 1000, ctaHref, ctaTexto } = Astro.props;
+const r = calcularAhorro(inicial, PRECIO_LICENCIA_USD);
+---
+
+<div class="cuenta" data-calculadora data-precio={PRECIO_LICENCIA_USD}>
+  <p class="cuenta__titulo">La cuenta, a precio de lista</p>
+
+  <div class="cuenta__control">
+    <label for={`${id}-personas`}>
+      <span>Personas que necesitan ver los tableros</span>
+      <b class="dato" data-salida="personas">{miles(inicial)}</b>
+    </label>
+    <input type="range" id={`${id}-personas`} min={min} max={max} step={paso} value={inicial} data-entrada />
+  </div>
+
+  <p class="cuenta__mult dato" data-salida="cuenta">
+    US$ {PRECIO_LICENCIA_USD} × {miles(inicial)} personas × 12 meses
+  </p>
+
+  <div class="comp">
+    <div class="comp__fila comp__fila--caro">
+      <span class="comp__etq">Con una licencia para cada una</span>
+      <span class="comp__cifra dato" data-salida="caro">{dolares(r.conLicencias)}</span>
+      <span class="comp__pista"><span class="comp__valor"></span></span>
+    </div>
+    <div class="comp__fila comp__fila--portal">
+      <span class="comp__etq">Con el portal: 1 licencia</span>
+      <span class="comp__cifra dato" data-salida="portal">{dolares(r.conPortal)}</span>
+      <span class="comp__pista"><span class="comp__valor" data-barra-portal></span></span>
+    </div>
+  </div>
+
+  <div class="ahorro">
+    <p class="ahorro__etq">Te ahorras por año</p>
+    <p class="ahorro__cifra" data-salida="ahorro" aria-live="polite">{dolares(r.ahorroAnual)}</p>
+    <p class="ahorro__mes">
+      Son <b class="dato" data-salida="mes">{dolares(r.ahorroMensual)}</b> por cada mes que sigue así.
+    </p>
+    <p class="ahorro__nota">
+      Precio de lista de Power BI Pro: US$ {PRECIO_LICENCIA_USD} por usuario y por mes, por doce meses. Sin
+      descuentos por volumen ni impuestos.
+    </p>
+    <a class="boton boton--primario ahorro__cta" href={ctaHref} target="_blank" rel="noopener noreferrer">
+      {ctaTexto}
+    </a>
+  </div>
+</div>
+
+<style>
+  .cuenta {
+    padding: clamp(1.25rem, 3vw, 2rem);
+    border-radius: var(--radio-lg);
+    background: var(--color-blanco);
+    border: 1px solid var(--color-linea-clara);
+    box-shadow: var(--sombra-tarjeta);
+    color: var(--color-abismo);
+  }
+
+  .cuenta__titulo {
+    margin-bottom: var(--space-5);
+    font-family: var(--font-datos);
+    font-size: var(--text-xs);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-tinta-suave);
+  }
+
+  .cuenta__control label {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-4);
+    margin-bottom: var(--space-3);
+    font-size: var(--text-sm);
+    color: var(--color-tinta-suave);
+  }
+
+  .cuenta__control b {
+    font-size: var(--text-lg);
+    color: var(--color-abismo);
+  }
+
+  .cuenta__control input {
+    width: 100%;
+    height: 2rem;
+    margin: 0;
+    accent-color: var(--color-verde);
+    cursor: pointer;
+  }
+
+  .cuenta__control input:focus-visible {
+    outline: 2px solid var(--color-verde);
+    outline-offset: 4px;
+  }
+
+  .cuenta__mult {
+    margin: var(--space-2) 0 var(--space-5);
+    font-size: var(--text-xs);
+    color: var(--color-tinta-suave);
+  }
+
+  .comp {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .comp__fila {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--space-2) var(--space-4);
+    align-items: baseline;
+  }
+
+  .comp__etq {
+    font-size: var(--text-sm);
+    color: var(--color-tinta-suave);
+  }
+
+  .comp__cifra {
+    font-size: var(--text-base);
+  }
+
+  .comp__pista {
+    grid-column: 1 / -1;
+    height: 0.75rem;
+    overflow: hidden;
+    border-radius: 2px;
+    background: var(--color-papel-2);
+  }
+
+  .comp__valor {
+    display: block;
+    height: 100%;
+    width: 100%;
+    background: var(--color-tinta-suave);
+    transition: width var(--dur-3) var(--ease-out);
+  }
+
+  .comp__fila--portal .comp__valor {
+    width: 1.2%;
+    background: var(--color-verde);
+  }
+
+  .comp__fila--portal .comp__cifra {
+    color: var(--color-verde-oscuro);
+  }
+
+  .ahorro {
+    margin-top: var(--space-6);
+    padding-top: var(--space-5);
+    border-top: 2px solid var(--color-abismo);
+  }
+
+  .ahorro__etq {
+    font-family: var(--font-datos);
+    font-size: var(--text-xs);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-tinta-suave);
+  }
+
+  .ahorro__cifra {
+    margin-top: var(--space-1);
+    font-size: clamp(2.125rem, 1.5rem + 3vw, 3.25rem);
+    font-weight: var(--peso-semi);
+    line-height: 1.02;
+    letter-spacing: -0.035em;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-verde-oscuro);
+    overflow-wrap: anywhere;
+  }
+
+  .ahorro__mes {
+    margin-top: var(--space-3);
+    color: var(--color-tinta-suave);
+  }
+
+  .ahorro__mes b {
+    color: var(--color-abismo);
+  }
+
+  .ahorro__nota {
+    margin-top: var(--space-3);
+    font-size: var(--text-xs);
+    line-height: 1.55;
+    color: var(--color-tinta-suave);
+  }
+
+  .ahorro__cta {
+    width: 100%;
+    margin-top: var(--space-5);
+    --btn-bg: var(--color-verde);
+    --btn-fg: var(--color-blanco);
+    --btn-bg-h: var(--color-verde-oscuro);
+    --btn-fg-h: var(--color-blanco);
+    --foco: var(--color-verde);
+  }
+
+  @media (max-width: 22.5rem) {
+    .ahorro__cta {
+      white-space: normal;
+      padding-block: var(--space-3);
+      line-height: 1.3;
+      text-align: center;
+    }
+  }
+</style>
+
+<script>
+  import { calcularAhorro, dolares, miles } from '../../scripts/formato';
+
+  for (const raiz of document.querySelectorAll<HTMLElement>('[data-calculadora]')) {
+    const entrada = raiz.querySelector<HTMLInputElement>('[data-entrada]');
+    const barra = raiz.querySelector<HTMLElement>('[data-barra-portal]');
+    const precio = Number(raiz.dataset.precio) || 14;
+    const salida = (clave: string) => raiz.querySelector<HTMLElement>(`[data-salida="${clave}"]`);
+    if (!entrada || !barra) continue;
+
+    const pintar = () => {
+      const personas = Number(entrada.value) || 0;
+      const r = calcularAhorro(personas, precio);
+      const poner = (clave: string, texto: string) => {
+        const el = salida(clave);
+        if (el) el.textContent = texto;
+      };
+      poner('personas', miles(personas));
+      poner('cuenta', `US$ ${precio} × ${miles(personas)} personas × 12 meses`);
+      poner('caro', dolares(r.conLicencias));
+      poner('portal', dolares(r.conPortal));
+      poner('ahorro', dolares(r.ahorroAnual));
+      poner('mes', dolares(r.ahorroMensual));
+      // CSSOM (permitido por la CSP), no atributos style en el HTML.
+      barra.style.width = `${r.anchoPortal.toFixed(2)}%`;
+    };
+
+    entrada.addEventListener('input', pintar);
+    pintar();
+  }
+</script>

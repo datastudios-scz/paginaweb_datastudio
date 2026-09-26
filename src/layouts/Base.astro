@@ -1,0 +1,124 @@
+---
+import { Font } from 'astro:assets';
+import Encabezado from '../components/Encabezado.astro';
+import PiePagina from '../components/PiePagina.astro';
+import { SITIO, CONTACTO } from '../data/sitio';
+import '../styles/global.css';
+
+interface Props {
+  titulo?: string;
+  descripcion?: string;
+  /** Imagen para redes sociales (ruta absoluta desde la raíz del sitio). */
+  imagen?: string;
+  imagenAlt?: string;
+  /** Nodos JSON-LD propios de la página; se suman a Organización y Sitio web. */
+  datosEstructurados?: Record<string, unknown>[];
+}
+
+const {
+  titulo = SITIO.titulo,
+  descripcion = SITIO.descripcion,
+  imagen = '/og/inicio.png',
+  imagenAlt = 'Data Studio: datos que toda tu empresa puede usar',
+  datosEstructurados = [],
+} = Astro.props;
+
+const canonica = new URL(Astro.url.pathname, SITIO.url).href;
+const imagenAbsoluta = new URL(imagen, SITIO.url).href;
+const ORG_ID = `${SITIO.url}/#organizacion`;
+
+const grafo = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': ORG_ID,
+      name: SITIO.nombre,
+      alternateName: 'DataStudio',
+      url: `${SITIO.url}/`,
+      logo: `${SITIO.url}/icono-512.png`,
+      slogan: SITIO.lema,
+      email: CONTACTO.email,
+      telephone: CONTACTO.telefono,
+      address: {
+        '@type': 'PostalAddress',
+        addressLocality: CONTACTO.ciudad,
+        addressRegion: CONTACTO.region,
+        addressCountry: CONTACTO.codigoPais,
+      },
+      contactPoint: {
+        '@type': 'ContactPoint',
+        telephone: CONTACTO.telefono,
+        email: CONTACTO.email,
+        contactType: 'sales',
+        availableLanguage: ['es'],
+      },
+      sameAs: [CONTACTO.facebook],
+    },
+    {
+      '@type': 'WebSite',
+      '@id': `${SITIO.url}/#sitio`,
+      url: `${SITIO.url}/`,
+      name: SITIO.nombre,
+      inLanguage: SITIO.idioma,
+      publisher: { '@id': ORG_ID },
+    },
+    ...datosEstructurados,
+  ],
+};
+---
+
+<!doctype html>
+<html lang={SITIO.idioma}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{titulo}</title>
+    <meta name="description" content={descripcion} />
+    <link rel="canonical" href={canonica} />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="theme-color" content="#001720" />
+    <meta name="color-scheme" content="light" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta name="format-detection" content="telephone=no" />
+
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content={SITIO.locale} />
+    <meta property="og:site_name" content={SITIO.nombre} />
+    <meta property="og:title" content={titulo} />
+    <meta property="og:description" content={descripcion} />
+    <meta property="og:url" content={canonica} />
+    <meta property="og:image" content={imagenAbsoluta} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={imagenAlt} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <Font cssVariable="--fuente-poppins" preload={[{ weight: 400 }, { weight: 600 }]} />
+    <Font cssVariable="--fuente-dm-mono" />
+
+    <!-- Marca el documento antes de pintar: lo que aparece al hacer scroll solo
+         se oculta con JS activo. Sin JS la página se ve completa. -->
+    <script is:inline>document.documentElement.classList.add('js');</script>
+
+    <script type="application/ld+json" set:html={JSON.stringify(grafo)} />
+  </head>
+  <body>
+    <a class="saltar-contenido" href="#contenido">Saltar al contenido</a>
+    <Encabezado />
+    <main id="contenido" tabindex="-1">
+      <slot />
+    </main>
+    <PiePagina />
+
+    <script>
+      import '../scripts/revelar';
+    </script>
+  </body>
+</html>

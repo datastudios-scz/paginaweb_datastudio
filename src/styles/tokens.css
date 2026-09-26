@@ -1,0 +1,179 @@
+/*
+ * Tokens de diseño de Data Studio.
+ * Regla: ningún componente usa colores, fuentes o duraciones sueltas; todo sale de aquí.
+ * Contrastes verificados (WCAG 2.2) en docs/marca.md.
+ */
+:root {
+  /* ── Marca: hex exactos del manual ─────────────────────────────── */
+  --color-abismo: #001720;
+  --color-petroleo: #00394e;
+  --color-verde: #037a70;
+  --color-salvia: #ced9bd;
+  --color-blanco: #ffffff;
+
+  /* ── Derivados en OKLCH, mismo matiz que su color de marca ─────── */
+  --color-abismo-2: #04222c;        /* superficie elevada sobre abismo */
+  --color-verde-claro: #4dcfc1;     /* acento de texto sobre fondos oscuros */
+  --color-verde-oscuro: #00635b;    /* hover/enlaces sobre fondos claros */
+  --color-papel: #f4f7ef;           /* fondo claro (salvia muy diluida) */
+  --color-papel-2: #e6eddb;         /* tarjetas sobre papel */
+  --color-tinta-suave: #314c59;     /* texto secundario sobre claro */
+  --color-salvia-suave: #a6ae9a;    /* texto terciario sobre oscuro */
+  --color-linea-clara: rgb(0 23 32 / 0.12);
+  --color-linea-oscura: rgb(206 217 189 / 0.14);
+
+  /* ── Tipografía ────────────────────────────────────────────────── */
+  --font-texto: var(--fuente-poppins);
+  --font-datos: var(--fuente-dm-mono);
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-md: 1.0625rem;
+  --text-lg: clamp(1.125rem, 1.05rem + 0.3vw, 1.25rem);
+  --text-xl: clamp(1.25rem, 1.1rem + 0.6vw, 1.5rem);
+  --text-2xl: clamp(1.5rem, 1.25rem + 1vw, 2rem);
+  --text-3xl: clamp(1.875rem, 1.35rem + 2.1vw, 3.125rem);
+  --text-display: clamp(2.5rem, 1.2rem + 4.4vw, 4.5rem);
+
+  --peso-normal: 400;
+  --peso-medio: 500;
+  --peso-semi: 600;
+  --peso-fuerte: 700;
+
+  --tracking-display: -0.035em;
+  --tracking-titulo: -0.025em;
+  --tracking-etiqueta: 0.16em;
+
+  /* ── Espaciado (escala de 4 px) ────────────────────────────────── */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+  --space-9: 6rem;
+  --space-10: 8rem;
+
+  --seccion-y: clamp(4.5rem, 2.8rem + 6.5vw, 8rem);
+  --gutter: clamp(1.25rem, 0.75rem + 2vw, 2rem);
+  --ancho-max: 75rem;
+  --ancho-texto: 38rem;
+
+  /* ── Formas: contenedores = monitor (redondeados); datos = barras (rectos) ── */
+  --radio-sm: 6px;
+  --radio-md: 12px;
+  --radio-lg: 20px;
+  --radio-pill: 999px;
+
+  /* ── Movimiento ────────────────────────────────────────────────── */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in: cubic-bezier(0.64, 0, 0.78, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-1: 150ms;
+  --dur-2: 250ms;
+  --dur-3: 500ms;
+  --dur-4: 900ms;
+
+  --sombra-tarjeta: 0 1px 0 rgb(0 23 32 / 0.06), 0 24px 48px -28px rgb(0 23 32 / 0.35);
+  --alto-encabezado: 4.5rem;
+}
+
+/* ── Temas por sección: cada bloque declara su fondo y hereda contrastes ── */
+[data-tema='oscuro'] {
+  --fondo: var(--color-abismo);
+  --superficie: var(--color-abismo-2);
+  --texto: var(--color-blanco);
+  --texto-2: var(--color-salvia);
+  --texto-3: var(--color-salvia-suave);
+  --acento: var(--color-verde-claro);
+  --linea: var(--color-linea-oscura);
+  --linea-fuerte: rgb(206 217 189 / 0.32);
+  --btn-bg: var(--color-verde);
+  --btn-fg: var(--color-blanco);
+  --btn-bg-h: var(--color-verde-claro);
+  --btn-fg-h: var(--color-abismo);
+  --foco: var(--color-verde-claro);
+}
+
+[data-tema='petroleo'] {
+  --fondo: var(--color-petroleo);
+  --superficie: rgb(0 23 32 / 0.38);
+  --texto: var(--color-blanco);
+  --texto-2: var(--color-salvia);
+  --texto-3: var(--color-salvia-suave);
+  --acento: var(--color-verde-claro);
+  --linea: rgb(206 217 189 / 0.18);
+  --linea-fuerte: rgb(206 217 189 / 0.36);
+  --btn-bg: var(--color-verde);
+  --btn-fg: var(--color-blanco);
+  --btn-bg-h: var(--color-verde-claro);
+  --btn-fg-h: var(--color-abismo);
+  --foco: var(--color-verde-claro);
+}
+
+[data-tema='claro'] {
+  --fondo: var(--color-papel);
+  --superficie: var(--color-blanco);
+  --texto: var(--color-abismo);
+  --texto-2: var(--color-tinta-suave);
+  --texto-3: var(--color-tinta-suave);
+  --acento: var(--color-verde);
+  --linea: var(--color-linea-clara);
+  --linea-fuerte: rgb(0 23 32 / 0.28);
+  --btn-bg: var(--color-verde);
+  --btn-fg: var(--color-blanco);
+  --btn-bg-h: var(--color-verde-oscuro);
+  --btn-fg-h: var(--color-blanco);
+  --foco: var(--color-verde);
+}
+
+[data-tema='blanco'] {
+  --fondo: var(--color-blanco);
+  --superficie: var(--color-papel);
+  --texto: var(--color-abismo);
+  --texto-2: var(--color-tinta-suave);
+  --texto-3: var(--color-tinta-suave);
+  --acento: var(--color-verde);
+  --linea: var(--color-linea-clara);
+  --linea-fuerte: rgb(0 23 32 / 0.28);
+  --btn-bg: var(--color-verde);
+  --btn-fg: var(--color-blanco);
+  --btn-bg-h: var(--color-verde-oscuro);
+  --btn-fg-h: var(--color-blanco);
+  --foco: var(--color-verde);
+}
+
+[data-tema='salvia'] {
+  --fondo: var(--color-salvia);
+  --superficie: var(--color-papel);
+  --texto: var(--color-abismo);
+  --texto-2: var(--color-petroleo);
+  --texto-3: var(--color-tinta-suave);
+  --acento: var(--color-verde-oscuro);
+  --linea: rgb(0 23 32 / 0.16);
+  --linea-fuerte: rgb(0 23 32 / 0.34);
+  --btn-bg: var(--color-abismo);
+  --btn-fg: var(--color-blanco);
+  --btn-bg-h: var(--color-petroleo);
+  --btn-fg-h: var(--color-blanco);
+  --foco: var(--color-abismo);
+}
+
+[data-tema='verde'] {
+  --fondo: var(--color-verde);
+  --superficie: rgb(0 23 32 / 0.18);
+  --texto: var(--color-blanco);
+  --texto-2: var(--color-blanco);
+  --texto-3: var(--color-blanco);
+  --acento: var(--color-blanco);
+  --linea: rgb(255 255 255 / 0.28);
+  --linea-fuerte: rgb(255 255 255 / 0.6);
+  --btn-bg: var(--color-blanco);
+  --btn-fg: var(--color-abismo);
+  --btn-bg-h: var(--color-salvia);
+  --btn-fg-h: var(--color-abismo);
+  --foco: var(--color-blanco);
+}

@@ -1,0 +1,188 @@
+---
+import Icono from '../Icono.astro';
+import { MENSAJES, enlaceWhatsApp } from '../../data/sitio';
+---
+
+<section class="seccion tienda" id="ecommerce" data-tema="salvia" aria-labelledby="tienda-titulo">
+  <div class="contenedor tienda__rejilla">
+    <div class="tienda__texto" data-revelar>
+      <p class="etiqueta">Tienda e-commerce</p>
+      <h2 id="tienda-titulo" class="titulo-seccion">Tu tienda online, con código propio y pago único.</h2>
+      <p class="entrada">
+        Vende con una imagen moderna, organiza tu catálogo y recibe los pedidos por WhatsApp. Te entregamos el
+        código fuente y una guía de implementación paso a paso: sin mensualidades y 100&nbsp;% tuya.
+      </p>
+      <ul class="lista-check tienda__lista">
+        <li><Icono nombre="check" /><span>Código fuente completo</span></li>
+        <li><Icono nombre="check" /><span>Guía de implementación paso a paso</span></li>
+        <li><Icono nombre="check" /><span>Adaptable a cualquier rubro</span></li>
+        <li><Icono nombre="check" /><span>Pedidos por WhatsApp</span></li>
+        <li><Icono nombre="check" /><span>Pago único, sin suscripciones</span></li>
+      </ul>
+      <div class="acciones">
+        <a class="boton boton--primario" href={enlaceWhatsApp(MENSAJES.ecommerce)} target="_blank" rel="noopener noreferrer">
+          <Icono nombre="whatsapp" />
+          <span>Comprar código + guía</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Ilustración abstracta del catálogo: sin productos ni precios inventados -->
+    <div class="catalogo" aria-hidden="true" data-revelar>
+      <div class="catalogo__barra">
+        <span class="catalogo__marca">Tu tienda</span>
+        <span class="catalogo__carrito">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h2l2.4 11.2a2 2 0 0 0 2 1.6h7.4a2 2 0 0 0 2-1.5L21 8H6.2" /><circle cx="10" cy="20" r="1.2" /><circle cx="17" cy="20" r="1.2" /></svg>
+          <span>2</span>
+        </span>
+      </div>
+      <div class="catalogo__filtros"><span></span><span></span><span></span></div>
+      <div class="catalogo__grilla">
+        <div class="producto producto--a"><span class="producto__foto"></span><span class="producto__linea"></span><span class="producto__linea producto__linea--corta"></span></div>
+        <div class="producto producto--b"><span class="producto__foto"></span><span class="producto__linea"></span><span class="producto__linea producto__linea--corta"></span></div>
+        <div class="producto producto--c"><span class="producto__foto"></span><span class="producto__linea"></span><span class="producto__linea producto__linea--corta"></span></div>
+        <div class="producto producto--d"><span class="producto__foto"></span><span class="producto__linea"></span><span class="producto__linea producto__linea--corta"></span></div>
+      </div>
+      <span class="catalogo__pedido">
+        <Icono nombre="whatsapp" />
+        Pedir por WhatsApp
+      </span>
+    </div>
+  </div>
+</section>
+
+<style>
+  .tienda__rejilla {
+    display: grid;
+    gap: var(--space-8);
+    align-items: center;
+  }
+
+  .tienda__texto {
+    display: grid;
+    gap: var(--space-5);
+  }
+
+  .tienda__lista {
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+    column-gap: var(--space-5);
+  }
+
+  .tienda__lista li {
+    color: var(--texto);
+    font-weight: var(--peso-medio);
+  }
+
+  .catalogo {
+    display: grid;
+    gap: var(--space-4);
+    max-width: 30rem;
+    width: 100%;
+    justify-self: center;
+    padding: var(--space-5);
+    border-radius: var(--radio-lg);
+    background: var(--color-blanco);
+    box-shadow: var(--sombra-tarjeta);
+    color: var(--color-abismo);
+  }
+
+  .catalogo__barra {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--color-linea-clara);
+  }
+
+  .catalogo__marca {
+    font-weight: var(--peso-semi);
+    letter-spacing: -0.01em;
+  }
+
+  .catalogo__carrito {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    font-family: var(--font-datos);
+    font-size: var(--text-xs);
+    color: var(--color-tinta-suave);
+  }
+
+  .catalogo__carrito svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  .catalogo__filtros {
+    display: flex;
+    gap: var(--space-2);
+  }
+
+  .catalogo__filtros span {
+    width: 4rem;
+    height: 1.5rem;
+    border-radius: var(--radio-pill);
+    background: var(--color-papel-2);
+  }
+
+  .catalogo__filtros span:first-child {
+    background: var(--color-abismo);
+  }
+
+  .catalogo__grilla {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
+  }
+
+  .producto {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .producto__foto {
+    aspect-ratio: 4 / 3;
+    border-radius: var(--radio-md);
+  }
+
+  .producto--a .producto__foto { background: linear-gradient(140deg, var(--color-verde), var(--color-petroleo)); }
+  .producto--b .producto__foto { background: linear-gradient(140deg, var(--color-salvia), var(--color-papel-2)); }
+  .producto--c .producto__foto { background: linear-gradient(140deg, var(--color-petroleo), var(--color-abismo)); }
+  .producto--d .producto__foto { background: linear-gradient(140deg, var(--color-verde-claro), var(--color-verde)); }
+
+  .producto__linea {
+    height: 0.5rem;
+    border-radius: var(--radio-pill);
+    background: var(--color-papel-2);
+  }
+
+  .producto__linea--corta {
+    width: 45%;
+    background: var(--color-salvia);
+  }
+
+  .catalogo__pedido {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    min-height: 2.75rem;
+    border-radius: var(--radio-pill);
+    background: var(--color-verde);
+    color: var(--color-blanco);
+    font-size: var(--text-sm);
+    font-weight: var(--peso-semi);
+  }
+
+  .catalogo__pedido :global(svg) {
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+
+  @media (min-width: 64rem) {
+    .tienda__rejilla {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    }
+  }
+</style>

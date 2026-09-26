@@ -1,0 +1,661 @@
+---
+/**
+ * Maqueta del chat con IA del Portal BI: pregunta, pasos de la consulta, el DAX que se
+ * ejecutó y dos gráficos (mapa de calor = ¿dónde?; líneas = ¿hacia dónde?).
+ * Las animaciones se disparan cuando el bloque padre con [data-revelar] entra en pantalla.
+ * Datos de ejemplo, ilustrativos.
+ */
+---
+
+<div class="mkc">
+  <div class="mkc-hilo">
+    <div class="mkc-cab">
+      <span class="mkc-marca">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.9 5.6L19.5 9l-5.6 1.9L12 16.5l-1.9-5.6L4.5 9l5.6-1.4z" /></svg>
+      </span>
+      <div>
+        <p class="mkc-titulo">Ventas 2026</p>
+        <p class="mkc-sub">Pregunta sobre los datos de este tablero</p>
+      </div>
+    </div>
+
+    <p class="burbuja">¿Cómo van las ventas por vendedor este año?</p>
+
+    <div class="pasos">
+      <span class="paso p1"><span class="paso-luz"></span>Leyendo el modelo · <b>24 tablas, 82 medidas</b></span>
+      <span class="paso p2"><span class="paso-luz"></span>Redactando la consulta · <b>5,1 s</b></span>
+      <span class="paso paso--ok p3"><span class="paso-luz"></span>Consultando Power BI · <b>listo</b></span>
+    </div>
+
+    <div>
+      <span class="dax-rotulo">La consulta que se ejecutó</span>
+      <div class="dax">
+        <pre><span class="kw">EVALUATE</span>
+<span class="kw">CALCULATETABLE</span>(
+    <span class="kw">SUMMARIZECOLUMNS</span>(
+        Vendedores[NombVendedor],
+        <span class="st">"Ventas"</span>, <span class="kw">SUM</span>(Ventas[ImpNeto])
+    ),
+    Calendario[Año] = 2026
+)
+<span class="kw">ORDER BY</span> [Ventas] <span class="kw">DESC</span></pre>
+      </div>
+    </div>
+
+    <div class="graf-par">
+      <div class="graf">
+        <div class="graf-cab">
+          <p class="graf-titulo">Vendedor por mes</p>
+          <span>enero – junio</span>
+        </div>
+        <div class="hm">
+          <div class="hm-fila f1">
+            <span class="hm-etq">F. Gutiérrez</span>
+            <span class="hm-c hm-4"></span><span class="hm-c hm-5"></span><span class="hm-c hm-5"></span>
+            <span class="hm-c hm-4"></span><span class="hm-c hm-5"></span><span class="hm-c hm-5"></span>
+          </div>
+          <div class="hm-fila f2">
+            <span class="hm-etq">Supermerc. Bol.</span>
+            <span class="hm-c hm-5"></span><span class="hm-c hm-4"></span><span class="hm-c hm-5"></span>
+            <span class="hm-c hm-5"></span><span class="hm-c hm-4"></span><span class="hm-c hm-5"></span>
+          </div>
+          <div class="hm-fila f3">
+            <span class="hm-etq">N. Ajalla</span>
+            <span class="hm-c hm-3"></span><span class="hm-c hm-3"></span><span class="hm-c hm-2"></span>
+            <span class="hm-c hm-3"></span><span class="hm-c hm-3"></span><span class="hm-c hm-4"></span>
+          </div>
+          <div class="hm-fila f4">
+            <span class="hm-etq">J. Mendoza</span>
+            <span class="hm-c hm-2"></span><span class="hm-c hm-3"></span><span class="hm-c hm-2"></span>
+            <span class="hm-c hm-2"></span><span class="hm-c hm-3"></span><span class="hm-c hm-3"></span>
+          </div>
+          <div class="hm-fila f5">
+            <span class="hm-etq">C. Soliz</span>
+            <span class="hm-c hm-1"></span><span class="hm-c hm-2"></span><span class="hm-c hm-1"></span>
+            <span class="hm-c hm-2"></span><span class="hm-c hm-2"></span><span class="hm-c hm-2"></span>
+          </div>
+          <div class="hm-fila">
+            <span></span>
+            <span class="hm-mes">Ene</span><span class="hm-mes">Feb</span><span class="hm-mes">Mar</span>
+            <span class="hm-mes">Abr</span><span class="hm-mes">May</span><span class="hm-mes">Jun</span>
+          </div>
+        </div>
+        <div class="hm-escala">
+          <span>0</span>
+          <span class="hm-esc hm-1"></span><span class="hm-esc hm-2"></span><span class="hm-esc hm-3"></span>
+          <span class="hm-esc hm-4"></span><span class="hm-esc hm-5"></span>
+          <span>1,2 M de Bs</span>
+        </div>
+      </div>
+
+      <div class="graf">
+        <div class="graf-cab">
+          <p class="graf-titulo">Ventas por mes</p>
+          <span>en miles de Bs</span>
+        </div>
+        <svg class="lin" viewBox="0 0 300 140">
+          <line class="lin-reja" x1="34" y1="14" x2="286" y2="14" />
+          <line class="lin-reja" x1="34" y1="61" x2="286" y2="61" />
+          <line class="lin-eje" x1="34" y1="108" x2="286" y2="108" />
+          <text class="lin-txt" x="28" y="17" text-anchor="end">2.000</text>
+          <text class="lin-txt" x="28" y="64" text-anchor="end">1.000</text>
+          <text class="lin-txt" x="28" y="111" text-anchor="end">0</text>
+          <polyline class="lin-serie lin-a s1" points="34,61.9 56.9,58.7 79.8,55.4 102.7,60.5 125.6,52.5 148.5,49.7 171.5,52.1 194.4,48.8 217.3,46.4 240.2,47.8 263.1,44.6 286,41.3" />
+          <polyline class="lin-serie lin-b s2" points="34,55.4 56.9,51.1 79.8,52.5 102.7,45.0 125.6,41.3 148.5,42.7 171.5,37.0 194.4,33.7 217.3,31.9 240.2,28.6 263.1,25.7 286,19.6" />
+          <circle class="lin-punto" cx="286" cy="19.6" r="3" />
+          <text class="lin-val" x="283" y="12" text-anchor="end">1.880</text>
+          <text class="lin-txt" x="34" y="124" text-anchor="start">Ene</text>
+          <text class="lin-txt" x="148.5" y="124" text-anchor="middle">Jun</text>
+          <text class="lin-txt" x="286" y="124" text-anchor="end">Dic</text>
+        </svg>
+        <div class="lin-leyenda">
+          <span><i class="lin-sw lin-sw--b"></i> 2026</span>
+          <span><i class="lin-sw lin-sw--a"></i> 2025</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="mkc-entrada">
+      <span class="mkc-escribe" data-escribe>Escribe tu pregunta…</span>
+      <span class="mkc-mic">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2a3 3 0 00-3 3v7a3 3 0 006 0V5a3 3 0 00-3-3z" /><path d="M19 11a7 7 0 01-14 0M12 18v4" /></svg>
+      </span>
+    </div>
+  </div>
+
+  <aside class="mkc-panel">
+    <p class="mkc-panel-tit">El modelo</p>
+    <div class="mkc-tabla">
+      <p class="mkc-nom"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M3 5h18M3 12h18M3 19h18" /></svg>Vendedores</p>
+      <div class="mkc-cols"><span class="mkc-col usada">NombVendedor</span><span class="mkc-col">Zona</span><span class="mkc-col">Jefe</span></div>
+    </div>
+    <div class="mkc-tabla">
+      <p class="mkc-nom"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M3 5h18M3 12h18M3 19h18" /></svg>Ventas</p>
+      <div class="mkc-cols"><span class="mkc-col usada">ImpNeto</span><span class="mkc-col">Cantidad</span><span class="mkc-col">Descuento</span></div>
+    </div>
+    <div class="mkc-tabla">
+      <p class="mkc-nom"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M3 5h18M3 12h18M3 19h18" /></svg>Calendario</p>
+      <div class="mkc-cols"><span class="mkc-col usada">Año</span><span class="mkc-col">Mes</span><span class="mkc-col">Trimestre</span></div>
+    </div>
+    <p class="mkc-nota">Toca un término para escribirlo en tu pregunta. Lo que la consulta usó queda marcado.</p>
+  </aside>
+</div>
+
+<style>
+  .mkc {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 13.5rem;
+    background: var(--mq-tarjeta);
+    --hm1: #e9e8fb;
+    --hm2: #c6c3f3;
+    --hm3: #9a96ee;
+    --hm4: #6e68e0;
+    --hm5: #4338ca;
+  }
+
+  .mkc-hilo {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 20px;
+  }
+
+  .mkc-cab {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--mq-borde-2);
+  }
+
+  .mkc-marca {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    flex: none;
+    border-radius: 8px;
+    background: var(--mq-ia-tenue);
+    color: var(--mq-ia);
+  }
+
+  /* Anillo que gira despacio: el modelo está disponible, no trabajando */
+  .mkc-marca::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 10px;
+    background: conic-gradient(from 0deg, transparent 0 62%, rgb(99 102 241 / 0.55) 78%, transparent 92%);
+  }
+
+  .mkc-marca svg {
+    position: relative;
+  }
+
+  .mkc-titulo {
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  .mkc-sub {
+    font-size: 0.6875rem;
+    color: var(--mq-tinta-3);
+  }
+
+  .burbuja {
+    align-self: flex-end;
+    max-width: 86%;
+    padding: 10px 15px;
+    border-radius: 13px 13px 3px 13px;
+    background: var(--mq-ia-2);
+    color: #fff;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  .pasos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .paso {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 9px;
+    border: 1px solid var(--mq-borde);
+    border-radius: var(--radio-pill);
+    font-family: var(--font-datos);
+    font-size: 0.625rem;
+    color: var(--mq-tinta-2);
+  }
+
+  .paso b {
+    font-weight: 500;
+    color: var(--mq-tinta);
+  }
+
+  .paso--ok,
+  .paso--ok b {
+    border-color: #9ccfc9;
+    color: var(--color-verde);
+  }
+
+  .paso-luz {
+    width: 5px;
+    height: 5px;
+    flex: none;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  .dax-rotulo {
+    display: block;
+    margin-bottom: 8px;
+    font-family: var(--font-datos);
+    font-size: 0.5625rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--mq-tinta-3);
+  }
+
+  .dax {
+    overflow-x: auto;
+    padding: 13px 15px;
+    border-radius: 6px;
+    background: var(--mq-fondo);
+    border: 1px solid var(--mq-borde-2);
+  }
+
+  .dax pre {
+    margin: 0;
+    font-family: var(--font-datos);
+    font-size: 0.6875rem;
+    line-height: 1.62;
+    color: var(--mq-tinta-2);
+  }
+
+  .dax .kw {
+    color: var(--mq-ia);
+  }
+
+  .dax .st {
+    color: var(--color-verde);
+  }
+
+  .graf-par {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .graf {
+    min-width: 0;
+    padding: 14px;
+    border: 1px solid var(--mq-borde-2);
+    border-radius: 6px;
+  }
+
+  .graf-cab {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 13px;
+  }
+
+  .graf-titulo {
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .graf-cab span {
+    font-family: var(--font-datos);
+    font-size: 0.5625rem;
+    color: var(--mq-tinta-3);
+    white-space: nowrap;
+  }
+
+  /* Mapa de calor: rampa secuencial de un solo tono, nunca arcoíris */
+  .hm {
+    display: grid;
+    gap: 3px;
+  }
+
+  .hm-fila {
+    display: grid;
+    grid-template-columns: 4.5rem repeat(6, minmax(0, 1fr));
+    gap: 3px;
+    align-items: center;
+  }
+
+  .hm-etq {
+    overflow: hidden;
+    padding-right: 4px;
+    font-size: 0.625rem;
+    color: var(--mq-tinta-2);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .hm-c {
+    height: 21px;
+    border-radius: 2px;
+  }
+
+  .hm-1 { background: var(--hm1); }
+  .hm-2 { background: var(--hm2); }
+  .hm-3 { background: var(--hm3); }
+  .hm-4 { background: var(--hm4); }
+  .hm-5 { background: var(--hm5); }
+
+  .hm-mes {
+    font-family: var(--font-datos);
+    font-size: 0.5rem;
+    text-align: center;
+    color: var(--mq-tinta-3);
+  }
+
+  .hm-escala {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 11px;
+    font-family: var(--font-datos);
+    font-size: 0.5rem;
+    color: var(--mq-tinta-3);
+  }
+
+  .hm-esc {
+    width: 15px;
+    height: 8px;
+    border-radius: 1px;
+  }
+
+  .lin {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .lin-serie {
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .lin-a { stroke: #c7ccd6; }
+  .lin-b { stroke: #4338ca; }
+  .lin-reja { stroke: #e4e9e5; stroke-width: 1; }
+  .lin-eje { stroke: #c9d1cb; stroke-width: 1; }
+
+  .lin-txt {
+    font-family: var(--font-datos);
+    font-size: 8px;
+    fill: #66746f;
+  }
+
+  .lin-punto { fill: #4338ca; }
+
+  .lin-val {
+    font-family: var(--font-datos);
+    font-size: 8.5px;
+    font-weight: 500;
+    fill: #4338ca;
+  }
+
+  .lin-leyenda {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 9px;
+    font-family: var(--font-datos);
+    font-size: 0.5625rem;
+    color: var(--mq-tinta-3);
+  }
+
+  .lin-leyenda span {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .lin-sw {
+    width: 13px;
+    height: 2px;
+    flex: none;
+    border-radius: 2px;
+  }
+
+  .lin-sw--b { background: #4338ca; }
+  .lin-sw--a { background: #c7ccd6; }
+
+  .mkc-entrada {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 11px 13px;
+    border: 1px solid var(--mq-borde);
+    border-radius: var(--radio-pill);
+    font-size: 0.8125rem;
+    color: var(--mq-tinta-3);
+  }
+
+  .mkc-escribe {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    color: var(--mq-tinta-2);
+  }
+
+  .mkc-escribe :global(.cursor) {
+    display: inline-block;
+    width: 1.5px;
+    height: 1em;
+    margin-left: 1px;
+    vertical-align: -2px;
+    background: var(--mq-ia);
+  }
+
+  .mkc-mic {
+    display: grid;
+    place-items: center;
+    width: 29px;
+    height: 29px;
+    flex: none;
+    border-radius: 50%;
+    background: var(--mq-ia-tenue);
+    color: var(--mq-ia);
+  }
+
+  .mkc-panel {
+    padding: 18px 16px;
+    background: var(--mq-fondo);
+    border-left: 1px solid var(--mq-borde-2);
+  }
+
+  .mkc-panel-tit {
+    margin-bottom: 12px;
+    font-family: var(--font-datos);
+    font-size: 0.5625rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--mq-tinta-3);
+  }
+
+  .mkc-tabla {
+    margin-bottom: 11px;
+  }
+
+  .mkc-nom {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.71875rem;
+    font-weight: 600;
+  }
+
+  .mkc-nom svg {
+    color: var(--mq-ia);
+  }
+
+  .mkc-cols {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 6px;
+  }
+
+  .mkc-col {
+    padding: 2px 6px;
+    border-radius: 3px;
+    background: var(--mq-tarjeta);
+    border: 1px solid var(--mq-borde-2);
+    font-family: var(--font-datos);
+    font-size: 0.5625rem;
+    color: var(--mq-tinta-2);
+  }
+
+  .mkc-col.usada {
+    border-color: var(--mq-ia);
+    background: var(--mq-ia-tenue);
+    color: var(--mq-ia);
+  }
+
+  .mkc-nota {
+    margin-top: 14px;
+    font-size: 0.625rem;
+    line-height: 1.5;
+    color: var(--mq-tinta-3);
+  }
+
+  /* ── Movimiento: cada animación dice algo ─────────────────────────── */
+  @media (prefers-reduced-motion: no-preference) {
+    .mkc-marca::before { animation: girar 4.5s linear infinite; }
+    .mkc-escribe :global(.cursor) { animation: parpadeo 1.05s steps(2, start) infinite; }
+    .paso--ok .paso-luz { animation: pulso 2.2s ease-in-out infinite; }
+
+    /* Los pasos se encienden en orden: el portal no adivina, consulta */
+    :global(.js) :global([data-revelar]) .paso { opacity: 0; transform: translateY(6px); }
+    :global(.js) :global([data-revelar].es-visible) .paso {
+      opacity: 1;
+      transform: none;
+      transition: opacity 400ms ease var(--dp, 0s), transform 400ms var(--ease-out) var(--dp, 0s);
+    }
+    .p1 { --dp: 0.15s; }
+    .p2 { --dp: 0.55s; }
+    .p3 { --dp: 0.95s; }
+
+    /* El mapa de calor se llena en diagonal, como una tabla */
+    :global(.js) :global([data-revelar]) .hm-c { opacity: 0; transform: scale(0.7); }
+    :global(.js) :global([data-revelar].es-visible) .hm-c {
+      opacity: 1;
+      transform: none;
+      transition:
+        opacity 380ms ease calc(var(--dc, 0s) + var(--dx, 0s)),
+        transform 380ms var(--ease-out) calc(var(--dc, 0s) + var(--dx, 0s));
+    }
+    .f1 { --dc: 0.1s; }
+    .f2 { --dc: 0.16s; }
+    .f3 { --dc: 0.22s; }
+    .f4 { --dc: 0.28s; }
+    .f5 { --dc: 0.34s; }
+    .hm-c:nth-child(3) { --dx: 0.05s; }
+    .hm-c:nth-child(4) { --dx: 0.1s; }
+    .hm-c:nth-child(5) { --dx: 0.15s; }
+    .hm-c:nth-child(6) { --dx: 0.2s; }
+    .hm-c:nth-child(7) { --dx: 0.25s; }
+
+    /* Las líneas se trazan: una serie de tiempo es un recorrido */
+    :global(.js) :global([data-revelar]) .lin-serie { stroke-dasharray: 460; stroke-dashoffset: 460; }
+    :global(.js) :global([data-revelar].es-visible) .lin-serie {
+      stroke-dashoffset: 0;
+      transition: stroke-dashoffset 1.2s var(--ease-out) var(--db, 0s);
+    }
+    .s1 { --db: 0.18s; }
+    .s2 { --db: 0.34s; }
+    :global(.js) :global([data-revelar]) .lin-punto,
+    :global(.js) :global([data-revelar]) .lin-val { opacity: 0; }
+    :global(.js) :global([data-revelar].es-visible) .lin-punto,
+    :global(.js) :global([data-revelar].es-visible) .lin-val { opacity: 1; transition: opacity 400ms ease 1.05s; }
+  }
+
+  @keyframes girar { to { transform: rotate(360deg); } }
+  @keyframes parpadeo { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+  @keyframes pulso {
+    0%, 100% { box-shadow: 0 0 0 0 rgb(3 122 112 / 0.5); }
+    55% { box-shadow: 0 0 0 4px transparent; }
+  }
+
+  @media (max-width: 53.75rem) {
+    .mkc { grid-template-columns: minmax(0, 1fr); }
+    .mkc-panel { display: none; }
+  }
+
+  @media (max-width: 45rem) {
+    .graf-par { grid-template-columns: minmax(0, 1fr); }
+  }
+
+  @media (max-width: 35rem) {
+    .mkc-hilo { padding: 15px; }
+    .hm-fila { grid-template-columns: 3.875rem repeat(6, minmax(0, 1fr)); }
+  }
+</style>
+
+<script>
+  /* El cursor escribe preguntas de ejemplo donde se escribe de verdad. Arranca cuando la
+     maqueta se ve y no corre si el visitante pidió menos movimiento. */
+  const EJEMPLOS = [
+    '¿Cuánto vendimos este mes contra el año pasado?',
+    '¿Qué sucursal cayó más en margen?',
+    'Dame el top 10 de clientes por facturación',
+  ];
+
+  for (const campo of document.querySelectorAll<HTMLElement>('[data-escribe]')) {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      campo.textContent = EJEMPLOS[0];
+      continue;
+    }
+
+    let i = 0;
+    let j = 0;
+    let borrando = false;
+    const cursor = document.createElement('span');
+    cursor.className = 'cursor';
+
+    const tic = () => {
+      const frase = EJEMPLOS[i];
+      j = borrando ? j - 1 : j + 1;
+      campo.textContent = frase.slice(0, j);
+      campo.appendChild(cursor);
+
+      let espera = borrando ? 28 : 52;
+      if (!borrando && j === frase.length) {
+        borrando = true;
+        espera = 2100;
+      } else if (borrando && j === 0) {
+        borrando = false;
+        i = (i + 1) % EJEMPLOS.length;
+        espera = 320;
+      }
+      setTimeout(tic, espera);
+    };
+
+    const observador = new IntersectionObserver(
+      (entradas) => {
+        if (entradas.some((e) => e.isIntersecting)) {
+          observador.disconnect();
+          campo.textContent = '';
+          tic();
+        }
+      },
+      { threshold: 0.25 },
+    );
+    observador.observe(campo);
+  }
+</script>

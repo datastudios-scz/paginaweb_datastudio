@@ -1,0 +1,381 @@
+---
+/**
+ * Maqueta del Portal BI: barra lateral con menú por empresa y grilla de tarjetas con el
+ * ícono de barras de Power BI (amarillo: identidad de Microsoft, fija).
+ * La tarjeta con IA lleva su distintivo índigo, igual que en el portal real.
+ */
+interface Tarjeta {
+  titulo: string;
+  distintivo?: 'IA' | 'CHAT';
+  /** Modelo semántico: se dibuja el cubo en lugar de las barras. */
+  modelo?: boolean;
+}
+
+interface Props {
+  variante?: 'completa' | 'mini';
+  marca?: string;
+  seccion?: string;
+  usuario?: string;
+  inicial?: string;
+  tarjetas?: Tarjeta[];
+}
+
+const {
+  variante = 'completa',
+  marca = 'PORTAL BI',
+  seccion = 'Comercial',
+  usuario = 'mariana.s',
+  inicial = 'M',
+  tarjetas = [
+    { titulo: 'Ventas por sucursal' },
+    { titulo: 'Cumplimiento de metas', distintivo: 'IA' },
+    { titulo: 'Cartera y cobranzas' },
+    { titulo: 'Modelo de ventas', distintivo: 'CHAT', modelo: true },
+  ],
+} = Astro.props;
+
+const esMini = variante === 'mini';
+const BARRAS_PBI = 'M0.5,12.6h8.7V41H0.5V12.6z M16.7,0.5h8.1V41h-8.1V0.5z M32.9,23.7H41V41h-8.1V23.7z';
+---
+
+<div class:list={['mk', { 'mk--mini': esMini }]}>
+  <div class="mk-lateral">
+    <div class="mk-logo"><span class="mk-cuadro"></span><span class="mk-txt">{marca}</span></div>
+
+    {!esMini && <p class="mk-rotulo">TABLEROS</p>}
+    <div class="mk-item mk-item--activo">
+      <svg class="mk-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" /></svg>
+      <span class="mk-txt">{esMini ? 'Tableros' : 'Tableros BI'}</span>
+    </div>
+    {!esMini && (
+      <div class="mk-sub">
+        <div class="mk-item"><span class="mk-punto"></span><span class="mk-txt">Comercial</span></div>
+        <div class="mk-item"><span class="mk-punto"></span><span class="mk-txt">Operaciones</span></div>
+        <div class="mk-item"><span class="mk-punto"></span><span class="mk-txt">Recursos Humanos</span></div>
+      </div>
+    )}
+
+    {!esMini && <p class="mk-rotulo">MODELOS</p>}
+    <div class="mk-item">
+      <svg class="mk-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l9 5v10l-9 5-9-5V7z" /></svg>
+      <span class="mk-txt">{esMini ? 'Modelos' : 'Modelos semánticos'}</span>
+    </div>
+
+    {!esMini && (
+      <>
+        <p class="mk-rotulo">RECURSOS</p>
+        <div class="mk-item">
+          <svg class="mk-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h18v13H3zM8 7V4h8v3" /></svg>
+          <span class="mk-txt">Herramientas</span>
+        </div>
+      </>
+    )}
+  </div>
+
+  <div class="mk-principal">
+    <div class="mk-cabecera">
+      <span class="mk-titulo">{seccion}</span>
+      <span class="mk-usuario"><span class="mk-avatar">{inicial}</span>{!esMini && usuario}</span>
+    </div>
+    <div class="mk-grilla">
+      {tarjetas.map((t) => (
+        <div class:list={['mk-tarjeta', { 'mk-tarjeta--modelo': t.modelo }]}>
+          {t.distintivo && <span class="mk-distintivo">{t.distintivo}</span>}
+          {t.modelo ? (
+            <svg viewBox="0 0 48 48">
+              <path class="cara-izq" d="M8 18 L22 26 L22 44 L8 36 Z" />
+              <path class="cara-der" d="M36 18 L22 26 L22 44 L36 36 Z" />
+              <path class="cara-sup" d="M22 10 L36 18 L22 26 L8 18 Z" />
+              <path class="rejilla" d="M15 14 L29 22 M29 14 L15 22" />
+              <path class="chispa" d="M39.5 3 L41.1 7.4 L45.5 9 L41.1 10.6 L39.5 15 L37.9 10.6 L33.5 9 L37.9 7.4 Z" />
+            </svg>
+          ) : (
+            <svg viewBox="0 0 41.5 41.5"><path d={BARRAS_PBI} /></svg>
+          )}
+          <span class="mk-nombre">{t.titulo}</span>
+        </div>
+      ))}
+    </div>
+  </div>
+</div>
+
+<style>
+  .mk {
+    display: grid;
+    grid-template-columns: 11.5rem minmax(0, 1fr);
+    min-height: 20rem;
+  }
+
+  .mk-lateral {
+    padding: 16px 12px;
+    background: var(--mq-lateral);
+    color: #fff;
+  }
+
+  .mk-logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 8px 16px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  .mk-cuadro {
+    width: 20px;
+    height: 20px;
+    flex: none;
+    border-radius: 5px;
+    background: var(--mq-acento);
+  }
+
+  .mk-rotulo {
+    margin: 0;
+    padding: 12px 8px 7px;
+    font-family: var(--font-datos);
+    font-size: 0.5625rem;
+    letter-spacing: 0.16em;
+    color: #8a96a0;
+  }
+
+  .mk-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 8px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    color: #d3dade;
+  }
+
+  .mk-item--activo {
+    background: rgb(255 255 255 / 0.1);
+    color: #fff;
+  }
+
+  .mk-ico {
+    width: 13px;
+    height: 13px;
+    flex: none;
+    opacity: 0.9;
+  }
+
+  .mk-sub {
+    padding-left: 14px;
+  }
+
+  .mk-sub .mk-item {
+    padding-block: 6px;
+    font-size: 0.71875rem;
+    color: #a7b1b8;
+  }
+
+  .mk-punto {
+    width: 5px;
+    height: 5px;
+    flex: none;
+    border-radius: 50%;
+    background: var(--mq-acento);
+    box-shadow: 0 0 0 1px rgb(255 255 255 / 0.25);
+  }
+
+  .mk-principal {
+    padding: 18px;
+    background: var(--mq-fondo);
+  }
+
+  .mk-cabecera {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .mk-titulo {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--mq-tinta);
+  }
+
+  .mk-usuario {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.6875rem;
+    color: var(--mq-tinta-3);
+  }
+
+  .mk-avatar {
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--mq-acento);
+    color: #fff;
+    font-size: 0.625rem;
+    font-weight: 600;
+  }
+
+  .mk-grilla {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(7.5rem, 1fr));
+    gap: 12px;
+  }
+
+  .mk-tarjeta {
+    position: relative;
+    overflow: hidden;
+    padding: 18px 12px 14px;
+    border-radius: 13px;
+    background: var(--mq-tarjeta);
+    border: 1px solid var(--mq-borde);
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.05);
+    text-align: center;
+    transition: transform var(--dur-2) var(--ease-out), box-shadow var(--dur-2) var(--ease-out);
+  }
+
+  .mk-tarjeta::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--pbi), var(--pbi-hondo));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 300ms var(--ease-out);
+  }
+
+  .mk-tarjeta:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 22px rgb(0 0 0 / 0.1);
+  }
+
+  .mk-tarjeta:hover::after {
+    transform: scaleX(1);
+  }
+
+  .mk-tarjeta svg {
+    display: block;
+    width: 30px;
+    height: 30px;
+    margin: 0 auto 10px;
+    fill: var(--pbi);
+    filter: drop-shadow(0 2px 5px rgb(242 200 17 / 0.35));
+    transform-origin: 50% 100%;
+  }
+
+  .mk-nombre {
+    display: block;
+    font-size: 0.71875rem;
+    font-weight: 600;
+    line-height: 1.35;
+    color: #1f2937;
+  }
+
+  .mk-distintivo {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 2px 6px;
+    border-radius: var(--radio-pill);
+    background: var(--mq-ia-tenue);
+    color: var(--mq-ia-2);
+    font-size: 0.5rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+
+  .mk-tarjeta--modelo svg {
+    filter: none;
+  }
+
+  .cara-sup { fill: #a5b4fc; }
+  .cara-izq { fill: #6366f1; }
+  .cara-der { fill: #4338ca; }
+
+  .rejilla {
+    fill: none;
+    stroke: #4338ca;
+    stroke-width: 1.1;
+    stroke-linecap: round;
+    opacity: 0.4;
+  }
+
+  .chispa {
+    fill: #818cf8;
+    transform-origin: 39.5px 9px;
+  }
+
+  /* El tablero está vivo: las barras "respiran", desfasadas para no parecer un error de render */
+  @media (prefers-reduced-motion: no-preference) {
+    .mk-tarjeta:not(.mk-tarjeta--modelo) svg {
+      animation: respirar 2.4s ease-in-out infinite;
+    }
+
+    .mk-tarjeta:nth-child(2) svg { animation-delay: 0.3s; }
+    .mk-tarjeta:nth-child(3) svg { animation-delay: 0.6s; }
+
+    .mk-tarjeta--modelo svg {
+      animation: flotar 3.6s ease-in-out infinite;
+    }
+
+    .chispa {
+      animation: destello 3.6s ease-in-out infinite;
+    }
+  }
+
+  @keyframes respirar {
+    0%, 100% { transform: scaleY(1); }
+    50% { transform: scaleY(0.62); }
+  }
+
+  @keyframes flotar {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3.5px); }
+  }
+
+  @keyframes destello {
+    0%, 62%, 100% { opacity: 0.75; transform: scale(1); }
+    74% { opacity: 1; transform: scale(1.35); }
+  }
+
+  /* Versión mini (marca blanca) */
+  .mk--mini {
+    grid-template-columns: 7.25rem minmax(0, 1fr);
+    min-height: 0;
+  }
+
+  .mk--mini .mk-lateral { padding: 14px 10px; }
+  .mk--mini .mk-logo { gap: 7px; padding: 3px 6px 13px; font-size: 0.6875rem; }
+  .mk--mini .mk-cuadro { width: 17px; height: 17px; }
+  .mk--mini .mk-item { gap: 8px; padding: 7px; font-size: 0.6875rem; }
+  .mk--mini .mk-principal { padding: 15px; }
+  .mk--mini .mk-grilla { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 11px; }
+  .mk--mini .mk-tarjeta { padding: 16px 8px 13px; border-radius: 11px; }
+  .mk--mini .mk-tarjeta svg { width: 25px; height: 25px; margin-bottom: 9px; }
+  .mk--mini .mk-nombre { font-size: 0.65rem; }
+  .mk--mini .mk-titulo { font-size: 0.8125rem; }
+  .mk--mini .mk-avatar { width: 19px; height: 19px; font-size: 0.55rem; }
+
+  /* En el teléfono el menú se colapsa al riel de íconos, como hace el portal real */
+  @media (max-width: 45rem) {
+    .mk,
+    .mk--mini {
+      grid-template-columns: 3.25rem minmax(0, 1fr);
+      min-height: 0;
+    }
+
+    .mk-lateral { padding: 12px 7px; }
+    .mk-logo { justify-content: center; padding: 4px 0 10px; }
+    .mk-item { justify-content: center; padding: 9px 0; }
+    .mk-sub { padding-left: 0; }
+    .mk-txt,
+    .mk-rotulo { display: none; }
+    .mk-principal { padding: 14px; }
+    .mk-grilla { grid-template-columns: repeat(auto-fill, minmax(6.25rem, 1fr)); gap: 9px; }
+    .mk--mini .mk-grilla { gap: 8px; }
+  }
+</style>

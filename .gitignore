@@ -1,0 +1,24 @@
+# Dependencias y builds
+node_modules/
+dist/
+.astro/
+
+# Registros
+npm-debug.log*
+*.log
+
+# Entorno y secretos (nunca se versionan)
+.env
+.env.*
+!.env.example
+
+# Sistema operativo / editores
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# Salidas temporales de QA (capturas, reportes Lighthouse)
+qa/

@@ -1,0 +1,60 @@
+---
+import Base from '../layouts/Base.astro';
+import Hero from '../components/Hero.astro';
+import PortalResumen from '../components/inicio/PortalResumen.astro';
+import SocialMetrics from '../components/inicio/SocialMetrics.astro';
+import Ecommerce from '../components/inicio/Ecommerce.astro';
+import Consultoria from '../components/inicio/Consultoria.astro';
+import Preguntas, { type Pregunta } from '../components/Preguntas.astro';
+import LlamadoFinal from '../components/inicio/LlamadoFinal.astro';
+import { MENSAJES, SITIO, enlaceWhatsApp } from '../data/sitio';
+import { faqPage } from '../scripts/esquemas';
+
+const PREGUNTAS: Pregunta[] = [
+  {
+    pregunta: '¿Qué es el Portal BI?',
+    respuesta:
+      '<p>Un portal web con tu marca donde cada persona entra con su usuario y abre los tableros de Power BI que le asignaste, sin necesitar su propia licencia. Incluye un chat con IA para preguntarle a los datos en español.</p><p>Tienes todo el detalle, con la calculadora de ahorro, en <a href="/portal-bi/">la página del Portal BI</a>.</p>',
+  },
+  {
+    pregunta: '¿Qué redes sociales conecta Social Metrics BI?',
+    respuesta:
+      '<p>Facebook e Instagram (Meta), YouTube y TikTok, siempre a través de sus APIs oficiales y con acceso de solo lectura a las cuentas que tú autorizas.</p>',
+  },
+  {
+    pregunta: '¿Qué pasa con los datos de mis redes sociales?',
+    respuesta:
+      '<p>Se usan solo para los tableros de tu empresa. No publicamos nada en tus cuentas, no compartimos la información con terceros y puedes revocar el acceso cuando quieras desde la configuración de cada red.</p><p>El detalle está en nuestra <a href="/privacidad/">Política de Privacidad</a>.</p>',
+  },
+  {
+    pregunta: '¿La tienda e-commerce tiene mensualidades?',
+    respuesta:
+      '<p>No. Es un pago único que incluye el código fuente completo y la guía de implementación paso a paso. La tienda es 100 % tuya.</p>',
+  },
+  {
+    pregunta: '¿Mis datos se quedan en mi empresa?',
+    respuesta:
+      '<p>Sí. El Portal BI no copia ni almacena tus datos: cada tablero se dibuja desde tu propio Power BI. Y la tienda se entrega con su código fuente, para que la alojes donde prefieras.</p>',
+  },
+  {
+    pregunta: '¿Cómo empezamos?',
+    respuesta:
+      '<p>Escríbenos por WhatsApp contándonos qué necesitas. Coordinamos una reunión para entender tu caso y te enviamos una propuesta.</p>',
+  },
+];
+---
+
+<Base datosEstructurados={[faqPage(PREGUNTAS, `${SITIO.url}/`)]}>
+  <Hero />
+  <PortalResumen />
+  <SocialMetrics />
+  <Ecommerce />
+  <Consultoria />
+  <Preguntas titulo="Preguntas frecuentes" preguntas={PREGUNTAS}>
+    <p class="entrada">
+      ¿No encuentras tu respuesta?
+      <a class="enlace" href={enlaceWhatsApp(MENSAJES.general)} target="_blank" rel="noopener noreferrer">Escríbenos por WhatsApp</a>.
+    </p>
+  </Preguntas>
+  <LlamadoFinal />
+</Base>

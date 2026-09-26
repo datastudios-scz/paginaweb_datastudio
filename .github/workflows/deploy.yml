@@ -1,0 +1,84 @@
+# Compila el sitio con Astro y lo publica en GitHub Pages (datastudio.es).
+# Cada acción está fijada a un commit SHA (no a una etiqueta movible): si alguien
+# compromete una etiqueta, este workflow no cambia. Dependabot las mantiene al día.
+name: Publicar sitio
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Permisos mínimos: leer el código y publicar en Pages.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Un solo despliegue a la vez; uno nuevo no cancela al que ya está publicando.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  compilar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Preparar Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Instalar dependencias exactas del lockfile
+        run: npm ci --no-audit --no-fund
+
+      - name: Auditar dependencias de producción (informativo)
+        run: npm audit --omit=dev --audit-level=high
+        continue-on-error: true
+
+      - name: Compilar
+        run: npm run build
+
+      # Red de seguridad: estas rutas están registradas en Google, YouTube y TikTok.
+      # Si alguna falta, no se publica nada.
+      - name: Verificar rutas críticas
+        run: |
+          for archivo in \
+            CNAME \
+            index.html \
+            404.html \
+            portal-bi/index.html \
+            privacidad/index.html \
+            terminos/index.html \
+            oauth/tiktok/index.html \
+            google5af846498ca551c6.html \
+            robots.txt \
+            sitemap-index.xml
+          do
+            test -s "dist/$archivo" || { echo "::error::Falta dist/$archivo"; exit 1; }
+          done
+          grep -qx 'datastudio.es' dist/CNAME || { echo '::error::CNAME alterado'; exit 1; }
+          echo "Rutas críticas presentes."
+
+      - name: Subir artefacto de Pages
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: dist/
+
+  publicar:
+    needs: compilar
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.despliegue.outputs.page_url }}
+    steps:
+      - name: Publicar en GitHub Pages
+        id: despliegue
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

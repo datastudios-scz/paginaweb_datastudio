@@ -1,0 +1,1257 @@
+---
+/**
+ * Página del Portal BI. Adaptada a la marca Data Studio desde la página de producto
+ * preparada en el repositorio del Portal BI (ver docs/contenido.md).
+ * Se lee como un informe de BI: rótulos monoespaciados, reglas finas, cifras tabulares.
+ * El producto está dibujado en la página: las maquetas reproducen el portal real.
+ */
+import Base from '../layouts/Base.astro';
+import Icono from '../components/Icono.astro';
+import Ventana from '../components/portal/Ventana.astro';
+import MaquetaPortal from '../components/portal/MaquetaPortal.astro';
+import MaquetaChat from '../components/portal/MaquetaChat.astro';
+import Calculadora from '../components/portal/Calculadora.astro';
+import Preguntas, { type Pregunta } from '../components/Preguntas.astro';
+import { MENSAJES, PRECIO_LICENCIA_USD, CONTACTO, SITIO, enlaceWhatsApp } from '../data/sitio';
+import { dolares, calcularAhorro } from '../scripts/formato';
+import { faqPage, migas } from '../scripts/esquemas';
+
+const URL_PAGINA = `${SITIO.url}/portal-bi/`;
+const demo = enlaceWhatsApp(MENSAJES.portal);
+const conMil = calcularAhorro(1000, PRECIO_LICENCIA_USD);
+
+const PREGUNTAS: Pregunta[] = [
+  {
+    pregunta: '¿Mis datos salen de Power BI?',
+    respuesta:
+      '<p>No. El portal no copia, no replica y no guarda tus datos. Cada vez que alguien abre un tablero, el portal pide un acceso temporal y el reporte se dibuja desde tu propio Power BI. Si mañana apagas el portal, tus datos siguen exactamente donde estaban.</p>',
+  },
+  {
+    pregunta: '¿Quién lo instala? ¿Hay que contratar el servicio?',
+    respuesta:
+      '<p>Lo instalas tú. El pago incluye el curso grabado y la guía de implementación completa, y con los accesos a mano el portal queda funcionando en dos horas como máximo. No cobramos implementación aparte.</p><p>Lo que suele demorar no es el portal: es que el área de sistemas habilite la aplicación de Azure y agregue la cuenta a los workspaces. Por eso la guía trae esa lista escrita y el portal trae un chequeo que la verifica, para pedir todo junto y una sola vez.</p>',
+  },
+  {
+    pregunta: '¿Cómo hace para que no necesiten licencia?',
+    respuesta:
+      '<p>Usa el mecanismo de inserción que Power BI provee: el portal se autentica con la cuenta que publica y muestra el reporte dentro de tu página. Tus usuarios no entran a Power BI; entran a tu portal.</p><p>Para el encuadre de licenciamiento de tu caso, tu representante de Microsoft es la fuente. Nosotros te explicamos exactamente qué hace el portal, para que esa conversación sea corta.</p>',
+  },
+  {
+    pregunta: 'Atiendo a varias empresas. ¿Se puede?',
+    respuesta:
+      '<p>Sí, y es uno de los motivos por los que existe. Se configura una conexión por cliente, cada una con su propia cuenta de Power BI. El portal resuelve solo con cuál abrir cada tablero, y una conexión nunca alcanza lo de otra.</p>',
+  },
+  {
+    pregunta: '¿Y si quiero que cada persona vea solo sus filas?',
+    respuesta:
+      '<p>El portal aplica una <strong>vista personalizada</strong>: la persona abre el tablero y lo encuentra filtrado a lo suyo. Resuelve el caso cotidiano: que cada uno vea su sucursal sin duplicar el reporte.</p><p>Si necesitas aislamiento estricto, con datos que por contrato no pueden cruzarse, eso se resuelve en el modelo de Power BI y te acompañamos a diseñarlo. Preferimos decirlo antes que prometerlo.</p>',
+  },
+  {
+    pregunta: '¿La IA es obligatoria? ¿Quién paga ese consumo?',
+    respuesta:
+      '<p>No es obligatoria: el portal funciona completo sin ella. El chat se enciende cuando cargas un proveedor y se habilita tablero por tablero.</p><p>Las claves son tuyas, así que el consumo lo controlas tú. Puedes configurar varios proveedores en cadena: si uno se queda sin cuota, el portal pasa al siguiente sin que nadie lo note.</p>',
+  },
+  {
+    pregunta: '¿Qué pasa si mañana quiero dejar de usarlo?',
+    respuesta:
+      '<p>No pasa nada. Tus reportes, tus modelos y tus datos están en tu Power BI y siguen ahí. El portal es una puerta de entrada, no un depósito: apagarlo no te deja sin nada.</p>',
+  },
+];
+
+const RASGOS_PORTAL = [
+  { titulo: 'Cada uno ve lo suyo', texto: 'Las tarjetas se agrupan por empresa en el menú. Un operador ve una; un gerente regional, las de sus cinco sucursales.' },
+  { titulo: 'Vista personalizada', texto: 'Dos personas abren el mismo tablero y lo encuentran filtrado a lo suyo: su sucursal, su cartera, su período. Sin duplicar el reporte.' },
+  { titulo: 'Varias empresas a la vez', texto: 'Si atiendes a más de un cliente, cada uno entra con su propia conexión a Power BI. Un portal, varios orígenes, sin mezclar.' },
+  { titulo: 'Herramientas y enlaces', texto: 'Además de tableros, cada persona recibe los accesos que usa todos los días. El portal es la puerta única, no una más.' },
+  { titulo: 'Queda registrado', texto: 'Quién entró, cuándo y qué abrió. Útil el día que hay que demostrar quién vio qué.' },
+  { titulo: 'Se instala una sola vez', texto: 'Después todo se administra desde el panel: usuarios, asignaciones, colores. Nadie vuelve a tocar un archivo.' },
+];
+
+const RASGOS_IA = [
+  { titulo: 'La consulta queda a la vista', texto: 'Una IA que se equivoca no devuelve un error: devuelve un número creíble. Por eso mostramos el DAX que se ejecutó, para que alguien que conoce el modelo pueda verificarlo antes de decidir.' },
+  { titulo: 'Gráficos a pedido', texto: 'Si la respuesta se entiende mejor dibujada, el chat elige la forma que corresponde y la arma. Se copia como imagen para pegarla en un informe.' },
+  { titulo: 'Preguntar hablando', texto: 'Un botón de micrófono transcribe lo que dices y envía la pregunta. Pensado para quien está en la calle con el celular en la mano.' },
+  { titulo: 'El proveedor lo eliges tú', texto: 'No está casado con ninguno: se configuran varios y si uno se queda sin cuota, salta al siguiente. Las claves son tuyas y el consumo también.' },
+  { titulo: 'También sin tablero', texto: 'Puedes asignar solo el modelo de datos: la persona recibe una tarjeta que abre únicamente el chat. Para quien consulta y no analiza.' },
+  { titulo: 'Se puede apagar', texto: 'El chat se habilita tablero por tablero. El portal funciona completo sin IA: tableros, asignaciones, marca y auditoría.' },
+];
+
+const PASOS_INSTALACION = [
+  { hora: '0:00', titulo: 'Levantas el portal', texto: 'Copias el archivo de configuración y pegas el ID de la planilla. El servidor arranca y te avisa a qué hora arrancó.' },
+  { hora: '0:20', titulo: 'Conectas Power BI', texto: 'Cargas la conexión desde el panel. El portal la prueba al guardar: si algo falta, lo dice ahí mismo y con nombre propio.' },
+  { hora: '1:00', titulo: 'Cargas personas y asignas', texto: 'Usuarios, empresas y tableros desde el panel. El constructor de vistas recorre tu modelo y arma el filtro solo.' },
+  { hora: '1:45', titulo: 'Verificas y publicas', texto: 'Un comando revisa la instalación entera y enumera lo que falte. Cuando todo está en verde, abres el portal a tu equipo.' },
+];
+
+const REQUISITOS = [
+  { titulo: 'Una cuenta de Power BI Pro.', texto: 'La que ya publica tus reportes. Una sola, no una por usuario.' },
+  { titulo: 'Una aplicación registrada en Azure.', texto: 'Diez minutos en Entra ID. El portal la usa para pedir el acceso temporal.' },
+  { titulo: 'Una planilla de Google.', texto: 'Ahí viven los usuarios y las asignaciones. Se administra desde el panel, pero puedes abrirla y verla.' },
+  { titulo: 'Un lugar donde correrlo.', texto: 'Un servidor pequeño alcanza. También corre en la nube, con HTTPS.' },
+];
+
+const LIMITES = [
+  { titulo: 'Reemplaza a Power BI', texto: 'No diseña reportes: los publica. Sigues modelando en Power BI Desktop como hasta hoy, y el portal reparte lo que ya hiciste.' },
+  { titulo: 'Aísla datos por contrato', texto: 'La vista personalizada es de presentación, no de seguridad. Si tienes datos que por contrato no pueden cruzarse, eso se resuelve en el modelo de Power BI, y te acompañamos a diseñarlo.' },
+  { titulo: 'Guarda tus datos', texto: 'No copia, no replica, no almacena. Cada tablero se dibuja contra tu propio Power BI en el momento. Si apagas el portal, no pierdes nada.' },
+  { titulo: 'Inventa respuestas', texto: 'El chat consulta tu modelo y te muestra la consulta que ejecutó. Si el dato no está en el modelo, no lo adivina: te dice que no está.' },
+];
+---
+
+<Base
+  titulo="Portal BI | Power BI para toda la empresa con una sola licencia · Data Studio"
+  descripcion="Tus tableros de Power BI, asignados por persona y por empresa, en un portal con tu marca. Tu equipo entra sin licencia de Power BI y puede preguntarle a los datos en español."
+  imagen="/og/portal-bi.png"
+  imagenAlt="Portal BI de Data Studio: Power BI para toda la empresa con una sola licencia"
+  datosEstructurados={[
+    migas([
+      { nombre: 'Inicio', url: `${SITIO.url}/` },
+      { nombre: 'Portal BI', url: URL_PAGINA },
+    ]),
+    faqPage(PREGUNTAS, URL_PAGINA),
+  ]}
+>
+  <!-- ═════════ HÉROE: a la izquierda el argumento, a la derecha el producto ═════════ -->
+  <section class="pb-heroe" data-tema="oscuro" aria-labelledby="pb-titulo">
+    <div class="contenedor pb-heroe__rejilla">
+      <div class="pb-heroe__texto">
+        <p class="etiqueta">Portal BI</p>
+        <h1 id="pb-titulo" class="pb-heroe__titulo">
+          Power BI para toda la empresa. <span class="pb-acento">Una sola licencia.</span>
+        </h1>
+        <p class="pb-heroe__bajada">
+          Cada persona entra con su usuario y encuentra sus tableros, sin cuenta de Power BI ni una licencia por
+          cabeza. Y puede preguntarle a los datos en español.
+        </p>
+        <p class="pb-ancla">
+          Darle Power BI Pro a 1.000 personas cuesta <b class="dato">{dolares(conMil.conLicencias)} por año</b>.
+          Con el portal, la licencia la necesita una sola cuenta: la que publica.
+        </p>
+        <div class="acciones">
+          <a class="boton boton--primario" href={demo} target="_blank" rel="noopener noreferrer">
+            <Icono nombre="whatsapp" />
+            <span>Pide una demo · 30 min</span>
+          </a>
+          <a class="boton boton--secundario" href="#ahorro">Calcula lo que ahorras</a>
+        </div>
+        <ul class="pb-sellos" role="list">
+          <li><Icono nombre="check" />Tus datos no se mueven</li>
+          <li><Icono nombre="check" />Con tu marca</li>
+          <li><Icono nombre="check" />Funciona en el celular</li>
+        </ul>
+      </div>
+
+      <div class="pb-heroe__visual">
+        <Ventana
+          url="portal.tuempresa.com/tableros"
+          descripcion="Maqueta del Portal BI: menú lateral con tableros agrupados por área, modelos semánticos y herramientas, y tarjetas de tableros de Power BI."
+        >
+          <MaquetaPortal />
+        </Ventana>
+      </div>
+    </div>
+
+    <div class="contenedor">
+      <nav class="pb-indice" aria-label="En esta página">
+        <span class="pb-indice__rotulo">En esta página</span>
+        <a href="#portal">El portal</a>
+        <a href="#chat">Chat con IA</a>
+        <a href="#instalar">Instalación</a>
+        <a href="#ahorro">Lo que ahorras</a>
+        <a href="#preguntas">Preguntas</a>
+      </nav>
+    </div>
+  </section>
+
+  <!-- ═════════ FRANJA DE HECHOS ═════════ -->
+  <div class="pb-franja" data-tema="salvia">
+    <div class="contenedor pb-franja__rejilla">
+      <div class="pb-hecho" data-revelar>
+        <p class="pb-hecho__cifra">1 licencia</p>
+        <p class="pb-hecho__texto">La cuenta de Power BI Pro que ya publica tus reportes. No hace falta otra.</p>
+      </div>
+      <div class="pb-hecho" data-revelar>
+        <p class="pb-hecho__cifra">+1.000 personas</p>
+        <p class="pb-hecho__texto">Entran con su usuario del portal. Ninguna necesita cuenta de Power BI.</p>
+      </div>
+      <div class="pb-hecho" data-revelar>
+        <p class="pb-hecho__cifra">2 horas</p>
+        <p class="pb-hecho__texto">Lo instalas tú, con el curso grabado y la guía. No cobramos implementación.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═════════ EN QUÉ AYUDA ═════════ -->
+  <section class="seccion pb-seccion" data-tema="claro" aria-labelledby="ayuda-titulo">
+    <div class="contenedor">
+      <header class="cabecera-seccion" data-revelar>
+        <p class="etiqueta">En qué ayuda</p>
+        <h2 id="ayuda-titulo" class="titulo-seccion">El reporte deja de pasar por ti.</h2>
+        <p class="entrada">
+          La mayoría de las personas que necesitan mirar un número no necesitan construir nada. Pero hoy, para
+          mirarlo, tienen que pedírselo a alguien.
+        </p>
+      </header>
+      <div class="pb-antes-despues" data-revelar>
+        <div class="pb-ad pb-ad--antes">
+          <h3>Como viene siendo</h3>
+          <ul role="list">
+            <li><Icono nombre="cerrar" />El supervisor pide el reporte por WhatsApp, un lunes a las 8.</li>
+            <li><Icono nombre="cerrar" />Alguien exporta a Excel, lo recorta y lo envía por correo.</li>
+            <li><Icono nombre="cerrar" />A media mañana circulan tres versiones del mismo archivo.</li>
+            <li><Icono nombre="cerrar" />Comprar licencias para todos sale más caro que el proyecto entero.</li>
+          </ul>
+        </div>
+        <div class="pb-ad pb-ad--despues">
+          <h3>Con el portal</h3>
+          <ul role="list">
+            <li><Icono nombre="check" />Cada persona entra con su usuario y el tablero ya está, actualizado.</li>
+            <li><Icono nombre="check" />Ve solo lo suyo: su empresa, su sucursal, su cartera.</li>
+            <li><Icono nombre="check" />Si le falta un dato, se lo pregunta al chat y lo tiene.</li>
+            <li><Icono nombre="check" />Una sola licencia publica para todos los que miran.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════ EL PORTAL ═════════ -->
+  <section class="seccion pb-seccion" id="portal" data-tema="blanco" aria-labelledby="portal-titulo">
+    <div class="contenedor">
+      <header class="cabecera-seccion" data-revelar>
+        <p class="etiqueta">El portal</p>
+        <h2 id="portal-titulo" class="titulo-seccion">Tus tableros de Power BI, con tu marca.</h2>
+        <p class="entrada">
+          El reporte que se abre es el tuyo, completo e interactivo: los mismos filtros, los mismos gráficos, el
+          mismo detalle al hacer clic. Lo que cambia es quién puede abrirlo y cómo le llega.
+        </p>
+      </header>
+
+      <ul class="pb-rasgos" role="list" data-revelar>
+        {RASGOS_PORTAL.map((r) => (
+          <li class="pb-rasgo">
+            <span class="pb-rasgo__marca" aria-hidden="true"></span>
+            <h3>{r.titulo}</h3>
+            <p>{r.texto}</p>
+          </li>
+        ))}
+      </ul>
+
+      <div class="pb-bloque" data-revelar>
+        <h3 class="pb-subtitulo">El mismo portal, tu identidad</h3>
+        <p class="pb-subtexto">
+          Nombre, logo, colores, tipografía y hasta el ícono de la pestaña salen de la configuración. Se cambian
+          desde el panel, sin tocar código y sin reiniciar. Estas dos pantallas son la misma instalación del
+          portal.
+        </p>
+        <div class="pb-dos-marcas">
+          <div>
+            <Ventana url="bi.acme.com" marca="acme" variante="mini" descripcion="El Portal BI con la marca de ejemplo ACME: menú negro y acento verde.">
+              <MaquetaPortal
+                variante="mini"
+                marca="ACME"
+                inicial="A"
+                tarjetas={[{ titulo: 'Ventas' }, { titulo: 'Metas' }, { titulo: 'Cartera' }]}
+              />
+            </Ventana>
+            <p class="pb-pie-marca">Instalación A</p>
+          </div>
+          <div>
+            <Ventana url="datos.nordex.bo" marca="nordex" variante="mini" descripcion="El mismo Portal BI con la marca de ejemplo NORDEX: menú azul marino y acento ámbar.">
+              <MaquetaPortal
+                variante="mini"
+                marca="NORDEX"
+                seccion="Logística"
+                inicial="N"
+                tarjetas={[{ titulo: 'Rutas' }, { titulo: 'Flota' }, { titulo: 'Costos' }]}
+              />
+            </Ventana>
+            <p class="pb-pie-marca">Instalación B</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="pb-bloque pb-par" data-revelar>
+        <div>
+          <h3 class="pb-subtitulo">En el celular, como una app</h3>
+          <p class="pb-subtexto">
+            Se agrega a la pantalla de inicio y abre sin el navegador a la vista. El menú se colapsa al riel de
+            íconos, las tarjetas se apilan y el tablero entra completo: el mismo detalle, para quien está en la
+            calle y necesita el número ahora.
+          </p>
+          <ul class="pb-lista" role="list">
+            <li><span class="dato">·</span><span>El chat con IA funciona igual, y el <strong>micrófono</strong> le sirve a quien tiene las manos ocupadas.</span></li>
+            <li><span class="dato">·</span><span>No hay que instalar nada desde una tienda de aplicaciones ni pedirle permiso a nadie.</span></li>
+            <li><span class="dato">·</span><span>Si la persona cambia de teléfono, entra con su usuario y ya está todo.</span></li>
+          </ul>
+        </div>
+        <figure class="pb-telefono">
+          <figcaption class="solo-lectores">Maqueta del Portal BI en un celular: tarjetas de tableros apiladas.</figcaption>
+          <div class="pb-telefono__cuerpo" aria-hidden="true">
+            <div class="pb-telefono__barra"><span class="pb-telefono__menu"></span>Comercial</div>
+            <div class="pb-telefono__tarjetas">
+              {['Ventas por sucursal', 'Cumplimiento de metas', 'Cartera y cobranzas'].map((t) => (
+                <div class="pb-telefono__tarjeta">
+                  <svg viewBox="0 0 41.5 41.5"><path d="M0.5,12.6h8.7V41H0.5V12.6z M16.7,0.5h8.1V41h-8.1V0.5z M32.9,23.7H41V41h-8.1V23.7z" /></svg>
+                  <span>{t}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════ CHAT CON IA: banda oscura, es lo más diferencial ═════════ -->
+  <section class="seccion pb-chat" id="chat" data-tema="oscuro" aria-labelledby="chat-titulo">
+    <div class="contenedor">
+      <header class="cabecera-seccion" data-revelar>
+        <p class="etiqueta">Chat con los datos</p>
+        <h2 id="chat-titulo" class="titulo-seccion">
+          Pregunta en español. <span class="pb-acento">Mira la consulta.</span>
+        </h2>
+        <p class="entrada">
+          Al lado del tablero hay un chat que conoce tu modelo: sus tablas, sus columnas y sus medidas. Escribes
+          como se lo pedirías a un analista, y responde con los datos reales, no con un resumen inventado.
+        </p>
+      </header>
+
+      <div class="pb-bloque" data-revelar>
+        <Ventana
+          url="portal.tuempresa.com/tableros/chat?nombre=Ventas"
+          descripcion="Maqueta del chat con IA del Portal BI: una pregunta sobre ventas por vendedor, los pasos de la consulta, el código DAX ejecutado, un mapa de calor y un gráfico de líneas con datos de ejemplo."
+        >
+          <MaquetaChat />
+        </Ventana>
+      </div>
+
+      <ul class="pb-rasgos pb-rasgos--ia" role="list" data-revelar>
+        {RASGOS_IA.map((r) => (
+          <li class="pb-rasgo">
+            <span class="pb-rasgo__marca" aria-hidden="true"></span>
+            <h3>{r.titulo}</h3>
+            <p>{r.texto}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- ═════════ ADMINISTRACIÓN ═════════ -->
+  <section class="seccion pb-seccion" id="admin" data-tema="claro" aria-labelledby="admin-titulo">
+    <div class="contenedor">
+      <header class="cabecera-seccion" data-revelar>
+        <p class="etiqueta">Administración</p>
+        <h2 id="admin-titulo" class="titulo-seccion">Sumar a alguien es una fila.</h2>
+        <p class="entrada">
+          Todo se administra desde el panel: usuarios, asignaciones, conexiones a Power BI, colores y logos. Sin
+          tocar código y sin reiniciar nada.
+        </p>
+      </header>
+
+      <div class="pb-bloque" data-revelar>
+        <Ventana
+          url="portal.tuempresa.com/admin/asignaciones"
+          descripcion="Maqueta del panel de administración: tabla de asignaciones de tableros por usuario, con empresa, vista personalizada y chat de IA."
+        >
+          <div class="mka">
+            <div class="mka__cabecera">
+              <p class="mka__titulo">Asignaciones de tableros</p>
+              <span class="mka__boton">+ Asignar tablero</span>
+            </div>
+            <div class="mka__tabla">
+              <table>
+                <thead>
+                  <tr><th>Usuario</th><th>Tablero</th><th>Empresa</th><th>Vista</th><th>Chat</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>mariana.s</td><td>Ventas por sucursal</td><td><span class="mka__pill">Comercial</span></td><td>Sucursal Norte</td><td><span class="mka__pill mka__pill--ia">IA</span></td></tr>
+                  <tr><td>mariana.s</td><td>Cumplimiento de metas</td><td><span class="mka__pill">Comercial</span></td><td>Sucursal Norte</td><td><span class="mka__pill mka__pill--ia">IA</span></td></tr>
+                  <tr><td>r.quiroga</td><td>Cartera y cobranzas</td><td><span class="mka__pill">Comercial</span></td><td>Cartera propia</td><td>—</td></tr>
+                  <tr><td>opersup</td><td>Productividad por turno</td><td><span class="mka__pill">Operaciones</span></td><td>Todo</td><td>—</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </Ventana>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════ PUESTA EN MARCHA ═════════ -->
+  <section class="seccion pb-seccion" id="instalar" data-tema="blanco" aria-labelledby="instalar-titulo">
+    <div class="contenedor">
+      <header class="cabecera-seccion" data-revelar>
+        <p class="etiqueta">Puesta en marcha</p>
+        <h2 id="instalar-titulo" class="titulo-seccion">Lo instalas tú. En una tarde.</h2>
+        <p class="entrada">
+          No cobramos implementación ni te dejamos esperando una agenda. El pago incluye el
+          <strong>curso grabado</strong> y la <strong>guía de implementación completa</strong>, paso a paso. Con
+          los accesos a mano, el portal queda funcionando en <strong>dos horas como máximo</strong>.
+        </p>
+      </header>
+
+      <ol class="pb-reloj" role="list" data-revelar>
+        {PASOS_INSTALACION.map((p) => (
+          <li>
+            <p class="pb-reloj__hora dato">{p.hora}</p>
+            <h3>{p.titulo}</h3>
+            <p>{p.texto}</p>
+          </li>
+        ))}
+      </ol>
+
+      <div class="pb-bloque pb-par pb-par--inicio" data-revelar>
+        <div>
+          <h3 class="pb-subtitulo">No te quedas adivinando si está bien</h3>
+          <p class="pb-subtexto">
+            El portal trae su propio chequeo. Revisa la planilla, la conexión a Power BI, los permisos, las
+            asignaciones y el cifrado de las claves, y te contesta punto por punto. Lo que falte sale con el nombre
+            exacto de lo que hay que pedirle a sistemas, para pedirlo todo junto y una sola vez.
+          </p>
+          <ol class="pb-lista pb-lista--numerada" role="list">
+            <li><span class="dato">01</span><span><strong>Curso grabado.</strong> Capítulo por capítulo, con la pantalla a la vista. Se mira al ritmo de cada uno y queda para quien entre después.</span></li>
+            <li><span class="dato">02</span><span><strong>Guía de implementación completa.</strong> Escrita, con la lista literal de permisos de Azure y de Power BI que hay que solicitar.</span></li>
+            <li><span class="dato">03</span><span><strong>El chequeo automático.</strong> El de aquí al lado. Se corre las veces que quieras, también después de cada cambio.</span></li>
+          </ol>
+        </div>
+        <figure class="pb-terminal">
+          <figcaption class="pb-terminal__barra">verificación de la instalación</figcaption>
+          <pre class="pb-terminal__cuerpo"><span class="t-pr">$</span> <span class="t-cmd">node scripts/revisar-instalacion.js</span>
+
+  <span class="t-ok">✓</span> La planilla responde y tiene sus hojas
+  <span class="t-ok">✓</span> La cuenta de Power BI autentica
+  <span class="t-ok">✓</span> Es miembro de los workspaces que el portal usa
+  <span class="t-ok">✓</span> Los tableros asignados existen y abren
+  <span class="t-ok">✓</span> Las contraseñas están hasheadas
+  <span class="t-ok">✓</span> Las claves guardadas se descifran
+  <span class="t-ok">✓</span> La marca y los colores están cargados
+  <span class="t-gris">…</span>
+
+  <span class="t-fin">29 bien · 0 a medias · 0 mal</span>
+  <span class="t-gris">El portal está listo para este tenant.</span></pre>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════ LO QUE AHORRAS: el número grande es el ahorro, no el gasto ═════════ -->
+  <section class="seccion pb-seccion" id="ahorro" data-tema="salvia" aria-labelledby="ahorro-titulo">
+    <div class="contenedor pb-ahorro">
+      <div class="pb-ahorro__texto" data-revelar>
+        <p class="etiqueta">Lo que ahorras</p>
+        <h2 id="ahorro-titulo" class="titulo-seccion">Esto no es lo que cuesta. Es lo que dejas de pagar.</h2>
+        <p class="entrada">
+          Power BI Pro se cobra por persona y por mes. En una empresa donde la mayoría solo mira, esa se vuelve la
+          partida más cara del proyecto, y la única que nunca deja de pagarse.
+        </p>
+        <p class="entrada">
+          Con el portal, la licencia la necesita <strong>la cuenta que publica</strong>. Una. El resto de tu equipo
+          entra por el portal. Mueve el control hasta tu número y mira la diferencia.
+        </p>
+      </div>
+      <div data-revelar>
+        <Calculadora id="calc-portal" ctaHref={enlaceWhatsApp(MENSAJES.portalAhorro)} ctaTexto="Quiero verlo con mis tableros" />
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════ QUÉ NECESITAS ═════════ -->
+  <section class="seccion pb-seccion" id="necesitas" data-tema="claro" aria-labelledby="necesitas-titulo">
+    <div class="contenedor pb-par pb-par--inicio">
+      <header class="cabecera-seccion" data-revelar>
+        <p class="etiqueta">Qué necesitas</p>
+        <h2 id="necesitas-titulo" class="titulo-seccion">Cuatro cosas, y ninguna es nueva.</h2>
+        <p class="entrada">
+          Si ya tienes Power BI funcionando, probablemente tengas tres de las cuatro. Y la lista de permisos que hay
+          que pedirle a sistemas viene escrita, para pedirla completa de una sola vez.
+        </p>
+      </header>
+      <ol class="pb-lista pb-lista--numerada pb-lista--grande" role="list" data-revelar>
+        {REQUISITOS.map((r, i) => (
+          <li><span class="dato">{String(i + 1).padStart(2, '0')}</span><span><strong>{r.titulo}</strong> {r.texto}</span></li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <!-- ═════════ LOS LÍMITES: decir lo que no hace ═════════ -->
+  <section class="seccion pb-seccion" id="limites" data-tema="blanco" aria-labelledby="limites-titulo">
+    <div class="contenedor">
+      <header class="cabecera-seccion" data-revelar>
+        <p class="etiqueta">Los límites</p>
+        <h2 id="limites-titulo" class="titulo-seccion">Lo que este portal no hace.</h2>
+        <p class="entrada">
+          Preferimos que lo sepas antes. Si alguna de estas cuatro cosas es lo que estás buscando, el portal no es
+          la respuesta y te lo decimos ahora.
+        </p>
+      </header>
+      <ul class="pb-limites" role="list" data-revelar>
+        {LIMITES.map((l) => (
+          <li>
+            <h3><span class="pb-no dato">NO</span>{l.titulo}</h3>
+            <p>{l.texto}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <Preguntas id="preguntas" titulo="Lo que suelen preguntarnos" preguntas={PREGUNTAS} />
+
+  <!-- ═════════ CIERRE ═════════ -->
+  <section class="seccion pb-cierre" id="contacto" data-tema="oscuro" aria-labelledby="cierre-titulo">
+    <div class="contenedor" data-revelar>
+      <h2 id="cierre-titulo" class="pb-cierre__titulo">Veámoslo con tus propios tableros.</h2>
+      <p class="pb-cierre__texto">
+        Una demo de treinta minutos, sobre tu Power BI, sin instalar nada. Sales sabiendo cuánto ahorras y qué hace
+        falta para empezar.
+      </p>
+      <div class="acciones">
+        <a class="boton boton--primario" href={demo} target="_blank" rel="noopener noreferrer">
+          <Icono nombre="whatsapp" />
+          <span>Pedir la demo por WhatsApp</span>
+        </a>
+        <a class="boton boton--secundario" href={`mailto:${CONTACTO.email}?subject=${encodeURIComponent('Demo del Portal BI')}`}>
+          <Icono nombre="correo" />
+          <span>Escríbenos un correo</span>
+        </a>
+      </div>
+      <div class="pb-recuerdo">
+        <div>
+          <p class="pb-recuerdo__tit">Lo que está en juego</p>
+          <p class="pb-recuerdo__txt">Con 1.000 personas mirando tableros, son <b>{dolares(conMil.ahorroAnual)}</b> por año en licencias que hoy se pagan.</p>
+        </div>
+        <div>
+          <p class="pb-recuerdo__tit">Lo que arriesgas</p>
+          <p class="pb-recuerdo__txt">Nada queda atado. Tus reportes y tus datos viven en tu Power BI: <b>apagar el portal no te deja sin nada</b>.</p>
+        </div>
+        <div>
+          <p class="pb-recuerdo__tit">Lo que te toma</p>
+          <p class="pb-recuerdo__txt">Media hora de demo. Y si avanzas, <b>dos horas de instalación</b> que haces tú.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* ── Héroe ─────────────────────────────────────────────────────────── */
+  .pb-heroe {
+    padding-block: var(--space-8) var(--space-6);
+    background:
+      radial-gradient(56rem 30rem at 90% 0%, rgb(0 57 78 / 0.95), transparent 70%),
+      var(--fondo);
+    color: var(--texto);
+  }
+
+  .pb-heroe__rejilla {
+    display: grid;
+    gap: var(--space-8);
+    align-items: center;
+  }
+
+  .pb-heroe__texto {
+    display: grid;
+    gap: var(--space-5);
+  }
+
+  .pb-heroe__titulo {
+    font-size: clamp(2.375rem, 1.4rem + 3.6vw, 4rem);
+    font-weight: var(--peso-semi);
+    line-height: 1.03;
+    letter-spacing: var(--tracking-display);
+    text-wrap: balance;
+    overflow-wrap: anywhere;
+  }
+
+  .pb-acento {
+    color: var(--acento);
+  }
+
+  .pb-heroe__bajada {
+    max-width: 34rem;
+    font-size: var(--text-lg);
+    line-height: 1.6;
+    color: var(--texto-2);
+  }
+
+  .pb-ancla {
+    max-width: 32rem;
+    padding: var(--space-4) var(--space-5);
+    border-left: 3px solid var(--acento);
+    border-radius: 0 var(--radio-sm) var(--radio-sm) 0;
+    background: var(--superficie);
+    color: var(--texto-2);
+  }
+
+  .pb-ancla b {
+    color: var(--texto);
+  }
+
+  .pb-sellos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3) var(--space-5);
+    margin: 0;
+    padding: 0;
+    font-size: var(--text-sm);
+    color: var(--texto-2);
+  }
+
+  .pb-sellos li {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .pb-sellos :global(svg) {
+    width: 1rem;
+    height: 1rem;
+    color: var(--acento);
+  }
+
+  .pb-indice {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-5);
+    margin-top: var(--space-8);
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--linea);
+    font-size: var(--text-sm);
+  }
+
+  .pb-indice__rotulo {
+    font-family: var(--font-datos);
+    font-size: var(--text-xs);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--texto-3);
+  }
+
+  .pb-indice a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.5rem;
+    color: var(--texto-2);
+    text-decoration: none;
+    font-weight: var(--peso-medio);
+    transition: color var(--dur-1) var(--ease-out);
+  }
+
+  .pb-indice a:hover {
+    color: var(--acento);
+  }
+
+  /* ── Franja de hechos ──────────────────────────────────────────────── */
+  .pb-franja {
+    background: var(--fondo);
+    color: var(--texto);
+  }
+
+  .pb-franja__rejilla {
+    display: grid;
+  }
+
+  .pb-hecho {
+    padding-block: var(--space-6);
+  }
+
+  .pb-hecho + .pb-hecho {
+    border-top: 1px solid var(--linea);
+  }
+
+  .pb-hecho__cifra {
+    font-size: clamp(1.75rem, 1.2rem + 2vw, 2.375rem);
+    font-weight: var(--peso-semi);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .pb-hecho__texto {
+    max-width: 30ch;
+    margin-top: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--texto-2);
+  }
+
+  /* ── Secciones claras separadas por reglas finas, como un informe ──── */
+  .pb-seccion + .pb-seccion {
+    border-top: 1px solid var(--linea);
+  }
+
+  .pb-bloque {
+    margin-top: var(--space-8);
+  }
+
+  .pb-subtitulo {
+    margin-bottom: var(--space-3);
+    font-size: var(--text-xl);
+    font-weight: var(--peso-semi);
+    letter-spacing: -0.02em;
+    color: var(--texto);
+  }
+
+  .pb-subtexto {
+    max-width: 38rem;
+    color: var(--texto-2);
+  }
+
+  .pb-par {
+    display: grid;
+    gap: var(--space-7);
+    align-items: center;
+  }
+
+  .pb-par--inicio {
+    align-items: start;
+  }
+
+  /* ── Antes / después ───────────────────────────────────────────────── */
+  .pb-antes-despues {
+    display: grid;
+    gap: 1px;
+    margin-top: var(--space-7);
+    overflow: hidden;
+    border: 1px solid var(--linea);
+    border-radius: var(--radio-md);
+    background: var(--linea);
+  }
+
+  .pb-ad {
+    padding: var(--space-6);
+    background: var(--fondo);
+  }
+
+  .pb-ad--despues {
+    background: var(--superficie);
+  }
+
+  .pb-ad h3 {
+    margin-bottom: var(--space-5);
+    font-family: var(--font-datos);
+    font-size: var(--text-xs);
+    font-weight: var(--peso-medio);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--texto-3);
+  }
+
+  .pb-ad--despues h3 {
+    color: var(--acento);
+  }
+
+  .pb-ad ul {
+    display: grid;
+    gap: var(--space-4);
+    margin: 0;
+    padding: 0;
+  }
+
+  .pb-ad li {
+    display: grid;
+    grid-template-columns: 1.125rem minmax(0, 1fr);
+    gap: var(--space-3);
+    line-height: 1.55;
+    color: var(--texto-2);
+  }
+
+  .pb-ad :global(svg) {
+    width: 1.125rem;
+    height: 1.125rem;
+    margin-top: 0.2em;
+    color: var(--texto-3);
+  }
+
+  .pb-ad--despues :global(svg) {
+    color: var(--acento);
+  }
+
+  /* ── Rasgos ────────────────────────────────────────────────────────── */
+  .pb-rasgos {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+    gap: var(--space-7) var(--space-7);
+    margin: var(--space-8) 0 0;
+    padding: 0;
+  }
+
+  .pb-rasgo h3 {
+    margin-bottom: var(--space-2);
+    font-size: var(--text-lg);
+    font-weight: var(--peso-semi);
+    letter-spacing: -0.015em;
+    color: var(--texto);
+  }
+
+  .pb-rasgo p {
+    font-size: var(--text-sm);
+    line-height: 1.65;
+    color: var(--texto-2);
+  }
+
+  .pb-rasgo__marca {
+    display: block;
+    width: 1.5rem;
+    height: 2px;
+    margin-bottom: var(--space-4);
+    background: var(--acento);
+    transition: width 300ms var(--ease-out);
+  }
+
+  .pb-rasgo:hover .pb-rasgo__marca {
+    width: 2.75rem;
+  }
+
+  .pb-rasgos--ia .pb-rasgo__marca {
+    background: #8b85f0;
+  }
+
+  /* ── Marca blanca ──────────────────────────────────────────────────── */
+  .pb-dos-marcas {
+    display: grid;
+    gap: var(--space-6);
+    margin-top: var(--space-6);
+  }
+
+  .pb-pie-marca {
+    margin-top: var(--space-3);
+    font-family: var(--font-datos);
+    font-size: var(--text-xs);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--texto-3);
+  }
+
+  /* ── Listas del informe ────────────────────────────────────────────── */
+  .pb-lista {
+    margin: var(--space-5) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .pb-lista li {
+    display: grid;
+    grid-template-columns: 1.75rem minmax(0, 1fr);
+    gap: var(--space-3);
+    padding-block: var(--space-3);
+    border-bottom: 1px solid var(--linea);
+    color: var(--texto-2);
+  }
+
+  .pb-lista li:last-child {
+    border-bottom: 0;
+  }
+
+  .pb-lista .dato {
+    padding-top: 0.15em;
+    font-size: var(--text-sm);
+    color: var(--acento);
+  }
+
+  .pb-lista strong {
+    color: var(--texto);
+  }
+
+  .pb-lista--grande li {
+    padding-block: var(--space-4);
+  }
+
+  /* ── Teléfono ──────────────────────────────────────────────────────── */
+  .pb-telefono {
+    margin: 0;
+    justify-self: center;
+  }
+
+  .pb-telefono__cuerpo {
+    width: 15.75rem;
+    max-width: 100%;
+    overflow: hidden;
+    border: 10px solid var(--color-abismo);
+    border-radius: 34px;
+    background: #f3f5f2;
+    box-shadow: 0 22px 46px -22px rgb(0 23 32 / 0.55);
+  }
+
+  .pb-telefono__barra {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 26px 15px 13px;
+    background: var(--color-abismo);
+    color: #fff;
+    font-size: 0.8125rem;
+    font-weight: 600;
+  }
+
+  .pb-telefono__menu {
+    width: 16px;
+    height: 11px;
+    flex: none;
+    border-top: 2px solid #fff;
+    border-bottom: 2px solid #fff;
+  }
+
+  .pb-telefono__tarjetas {
+    display: grid;
+    gap: 11px;
+    padding: 14px;
+  }
+
+  .pb-telefono__tarjeta {
+    padding: 16px 11px;
+    border-radius: 13px;
+    background: #fff;
+    border: 1px solid #e1e7e0;
+    box-shadow: 0 2px 7px rgb(0 0 0 / 0.05);
+    text-align: center;
+  }
+
+  .pb-telefono__tarjeta svg {
+    display: block;
+    width: 26px;
+    height: 26px;
+    margin: 0 auto 9px;
+    fill: #f2c811;
+  }
+
+  .pb-telefono__tarjeta span {
+    font-size: 0.71875rem;
+    font-weight: 600;
+    color: #1f2937;
+  }
+
+  /* ── Chat ──────────────────────────────────────────────────────────── */
+  .pb-chat {
+    background:
+      radial-gradient(48rem 26rem at 50% -6rem, rgb(0 57 78 / 0.9), transparent 72%),
+      var(--fondo);
+  }
+
+  /* ── Panel de administración ───────────────────────────────────────── */
+  .mka {
+    padding: 18px;
+    background: var(--mq-tarjeta);
+  }
+
+  .mka__cabecera {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+
+  .mka__titulo {
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  .mka__boton {
+    padding: 6px 13px;
+    border-radius: var(--radio-pill);
+    background: var(--mq-acento);
+    color: #fff;
+    font-size: 0.6875rem;
+    font-weight: 600;
+  }
+
+  .mka__tabla {
+    overflow-x: auto;
+  }
+
+  .mka table {
+    width: 100%;
+    min-width: 30rem;
+    border-collapse: collapse;
+    font-size: 0.75rem;
+  }
+
+  .mka th {
+    padding: 8px 12px 8px 0;
+    border-bottom: 1px solid var(--mq-borde);
+    font-family: var(--font-datos);
+    font-size: 0.5625rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-align: left;
+    text-transform: uppercase;
+    color: var(--mq-tinta-3);
+  }
+
+  .mka td {
+    padding: 10px 12px 10px 0;
+    border-bottom: 1px solid var(--mq-borde-2);
+    color: var(--mq-tinta-2);
+  }
+
+  .mka td:first-child {
+    font-weight: 600;
+    color: var(--mq-tinta);
+  }
+
+  .mka tbody tr {
+    transition: background-color var(--dur-1) var(--ease-out);
+  }
+
+  .mka tbody tr:hover {
+    background: var(--mq-fondo);
+  }
+
+  .mka__pill {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: var(--radio-pill);
+    background: #dcefe9;
+    color: var(--color-verde-oscuro);
+    font-size: 0.625rem;
+    font-weight: 600;
+  }
+
+  .mka__pill--ia {
+    background: var(--mq-ia-tenue);
+    color: var(--mq-ia);
+  }
+
+  /* ── Reloj de instalación ──────────────────────────────────────────── */
+  .pb-reloj {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+    gap: 1px;
+    margin: var(--space-7) 0 0;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid var(--linea);
+    border-radius: var(--radio-md);
+    background: var(--linea);
+  }
+
+  .pb-reloj li {
+    padding: var(--space-6) var(--space-5);
+    background: var(--superficie);
+  }
+
+  .pb-reloj__hora {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-3);
+    font-size: var(--text-xs);
+    letter-spacing: 0.08em;
+    color: var(--acento);
+  }
+
+  .pb-reloj__hora::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    flex: none;
+    border-radius: 50%;
+    background: var(--acento);
+  }
+
+  .pb-reloj h3 {
+    margin-bottom: var(--space-2);
+    font-size: var(--text-md);
+    font-weight: var(--peso-semi);
+    color: var(--texto);
+  }
+
+  .pb-reloj p:not(.pb-reloj__hora) {
+    font-size: var(--text-sm);
+    line-height: 1.6;
+    color: var(--texto-2);
+  }
+
+  /* ── Terminal: siempre oscura ──────────────────────────────────────── */
+  .pb-terminal {
+    margin: 0;
+    min-width: 0;
+    overflow: hidden;
+    border-radius: var(--radio-md);
+    background: var(--color-abismo);
+    border: 1px solid #0f3140;
+    box-shadow: 0 18px 44px -26px rgb(0 0 0 / 0.6);
+  }
+
+  .pb-terminal__barra {
+    padding: 10px 16px;
+    background: var(--color-abismo-2);
+    border-bottom: 1px solid #0f3140;
+    font-family: var(--font-datos);
+    font-size: var(--text-xs);
+    color: var(--color-salvia-suave);
+  }
+
+  .pb-terminal__cuerpo {
+    margin: 0;
+    padding: 17px 18px;
+    overflow-x: auto;
+    font-family: var(--font-datos);
+    font-size: 0.75rem;
+    line-height: 1.85;
+    color: #c6d3cd;
+  }
+
+  .t-cmd,
+  .t-fin { color: #eef4f0; }
+  .t-pr,
+  .t-ok { color: var(--color-verde-claro); }
+  .t-gris { color: var(--color-salvia-suave); }
+
+  /* ── Ahorro ────────────────────────────────────────────────────────── */
+  .pb-ahorro {
+    display: grid;
+    gap: var(--space-7);
+    align-items: center;
+  }
+
+  .pb-ahorro__texto {
+    display: grid;
+    gap: var(--space-5);
+  }
+
+  .pb-ahorro__texto strong {
+    color: var(--texto);
+  }
+
+  /* ── Límites ───────────────────────────────────────────────────────── */
+  .pb-limites {
+    display: grid;
+    gap: 1px;
+    margin: var(--space-7) 0 0;
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid var(--linea);
+    border-radius: var(--radio-md);
+    background: var(--linea);
+  }
+
+  .pb-limites li {
+    padding: var(--space-6);
+    background: var(--fondo);
+  }
+
+  .pb-limites h3 {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-3);
+    margin-bottom: var(--space-2);
+    font-size: var(--text-md);
+    font-weight: var(--peso-semi);
+    color: var(--texto);
+  }
+
+  .pb-no {
+    position: relative;
+    top: -2px;
+    flex: none;
+    padding: 1px 6px;
+    border: 1px solid var(--linea-fuerte);
+    border-radius: 3px;
+    font-size: 0.625rem;
+    letter-spacing: 0.1em;
+    color: var(--texto-3);
+  }
+
+  .pb-limites p {
+    font-size: var(--text-sm);
+    line-height: 1.65;
+    color: var(--texto-2);
+  }
+
+  /* ── Cierre ────────────────────────────────────────────────────────── */
+  .pb-cierre__titulo {
+    max-width: 18ch;
+    font-size: var(--text-3xl);
+    font-weight: var(--peso-semi);
+    line-height: 1.06;
+    letter-spacing: var(--tracking-titulo);
+    color: var(--texto);
+    text-wrap: balance;
+  }
+
+  .pb-cierre__texto {
+    max-width: 36rem;
+    margin-block: var(--space-5) var(--space-6);
+    font-size: var(--text-lg);
+    color: var(--texto-2);
+  }
+
+  .pb-recuerdo {
+    display: grid;
+    gap: var(--space-5);
+    margin-top: var(--space-8);
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--linea);
+  }
+
+  .pb-recuerdo__tit {
+    margin-bottom: var(--space-2);
+    font-family: var(--font-datos);
+    font-size: var(--text-xs);
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--texto-3);
+  }
+
+  .pb-recuerdo__txt {
+    font-size: var(--text-sm);
+    color: var(--texto-2);
+  }
+
+  .pb-recuerdo__txt b {
+    font-weight: var(--peso-semi);
+    color: var(--texto);
+  }
+
+  /* ── Tablet ────────────────────────────────────────────────────────── */
+  @media (min-width: 48rem) {
+    .pb-franja__rejilla {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .pb-hecho + .pb-hecho {
+      border-top: 0;
+      border-left: 1px solid var(--linea);
+      padding-left: var(--space-6);
+    }
+
+    .pb-antes-despues,
+    .pb-dos-marcas,
+    .pb-limites {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .pb-recuerdo {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-6);
+    }
+  }
+
+  /* ── Escritorio ────────────────────────────────────────────────────── */
+  @media (min-width: 64rem) {
+    .pb-heroe__rejilla {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+      gap: var(--space-8);
+    }
+
+    .pb-par {
+      grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
+      gap: var(--space-8);
+    }
+
+    .pb-par--inicio {
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    }
+
+    .pb-ahorro {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+      gap: var(--space-8);
+    }
+  }
+</style>

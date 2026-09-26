@@ -1,0 +1,92 @@
+---
+import Icono from '../Icono.astro';
+import Ventana from '../portal/Ventana.astro';
+import MaquetaPortal from '../portal/MaquetaPortal.astro';
+import { MENSAJES, PRECIO_LICENCIA_USD, enlaceWhatsApp } from '../../data/sitio';
+import { dolares } from '../../scripts/formato';
+
+const anualMil = 1000 * PRECIO_LICENCIA_USD * 12;
+---
+
+<section class="seccion portal" id="portal-bi" data-tema="claro" aria-labelledby="portal-titulo">
+  <div class="contenedor portal__rejilla">
+    <div class="portal__texto" data-revelar>
+      <p class="etiqueta">Producto estrella · Portal BI</p>
+      <h2 id="portal-titulo" class="titulo-seccion">Power BI para toda la empresa. Una sola licencia.</h2>
+      <p class="entrada">
+        Cada persona entra con su usuario y encuentra sus tableros, sin cuenta de Power BI y sin una licencia
+        por cabeza. Y puede preguntarle a los datos en español.
+      </p>
+
+      <ul class="lista-check portal__lista">
+        <li><Icono nombre="check" /><span><strong>Cada uno ve lo suyo:</strong> tableros asignados por persona y por empresa.</span></li>
+        <li><Icono nombre="check" /><span><strong>Chat con IA</strong> sobre tu modelo, que te muestra la consulta que ejecutó.</span></li>
+        <li><Icono nombre="check" /><span><strong>Con tu marca:</strong> nombre, logo y colores desde el panel, sin tocar código.</span></li>
+        <li><Icono nombre="check" /><span><strong>En el celular</strong>, como una app, para quien necesita el número en la calle.</span></li>
+      </ul>
+
+      <p class="portal__ancla">
+        Darle Power BI Pro a 1.000 personas cuesta <b class="dato">{dolares(anualMil)} por año</b>. Con el
+        portal, la licencia la necesita una sola cuenta: la que publica.
+      </p>
+
+      <div class="acciones">
+        <a class="boton boton--primario" href="/portal-bi/">
+          <span>Ver el Portal BI</span>
+          <Icono nombre="flecha" />
+        </a>
+        <a class="boton boton--secundario" href={enlaceWhatsApp(MENSAJES.portal)} target="_blank" rel="noopener noreferrer">
+          <Icono nombre="whatsapp" />
+          <span>Pide una demo de 30 min</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="portal__visual" data-revelar>
+      <Ventana
+        url="portal.tuempresa.com/tableros"
+        descripcion="Maqueta del Portal BI: menú lateral con los tableros agrupados por área y tarjetas de tableros de Power BI, una de ellas con chat de IA."
+      >
+        <MaquetaPortal />
+      </Ventana>
+    </div>
+  </div>
+</section>
+
+<style>
+  .portal__rejilla {
+    display: grid;
+    gap: var(--space-8);
+    align-items: center;
+  }
+
+  .portal__texto {
+    display: grid;
+    gap: var(--space-5);
+  }
+
+  .portal__lista strong {
+    color: var(--texto);
+    font-weight: var(--peso-semi);
+  }
+
+  .portal__ancla {
+    max-width: 34rem;
+    padding: var(--space-4) var(--space-5);
+    border-left: 3px solid var(--color-verde);
+    border-radius: 0 var(--radio-sm) var(--radio-sm) 0;
+    background: var(--superficie);
+    color: var(--texto-2);
+  }
+
+  .portal__ancla b {
+    color: var(--texto);
+  }
+
+  @media (min-width: 64rem) {
+    .portal__rejilla {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+      gap: var(--space-8);
+    }
+  }
+</style>

@@ -1,0 +1,180 @@
+---
+import Logo from './Logo.astro';
+import Icono from './Icono.astro';
+import { SITIO, CONTACTO, LEGALES, SOLUCIONES, MENSAJES, enlaceWhatsApp } from '../data/sitio';
+
+const anio = new Date().getFullYear();
+---
+
+<footer class="pie" data-tema="oscuro">
+  <div class="contenedor">
+    <div class="pie__rejilla">
+      <div class="pie__marca">
+        <a href="/" class="pie__logo" aria-label="Data Studio, ir al inicio">
+          <Logo decorativo />
+        </a>
+        <p class="pie__lema">{SITIO.lema}</p>
+        <p class="pie__texto">
+          Soluciones de datos para empresas de Bolivia: Power BI, analítica de redes sociales, comercio
+          electrónico y consultoría.
+        </p>
+      </div>
+
+      <nav class="pie__columna" aria-label="Soluciones">
+        <h2 class="pie__titulo">Soluciones</h2>
+        <ul role="list">
+          {SOLUCIONES.map((s) => (
+            <li><a href={s.href}>{s.nombre}</a></li>
+          ))}
+        </ul>
+      </nav>
+
+      <div class="pie__columna">
+        <h2 class="pie__titulo">Contacto</h2>
+        <ul role="list" class="pie__contacto">
+          <li>
+            <a href={enlaceWhatsApp(MENSAJES.general)} target="_blank" rel="noopener noreferrer">
+              <Icono nombre="whatsapp" />
+              <span>{CONTACTO.telefonoVisible}</span>
+            </a>
+          </li>
+          <li>
+            <a href={`mailto:${CONTACTO.email}`}>
+              <Icono nombre="correo" />
+              <span>{CONTACTO.email}</span>
+            </a>
+          </li>
+          <li>
+            <a href={CONTACTO.facebook} target="_blank" rel="noopener noreferrer">
+              <Icono nombre="facebook" />
+              <span>Facebook</span>
+            </a>
+          </li>
+          <li class="pie__ubicacion">
+            <Icono nombre="ubicacion" />
+            <span>{CONTACTO.ciudad}, {CONTACTO.pais}</span>
+          </li>
+        </ul>
+      </div>
+
+      <nav class="pie__columna" aria-label="Legal">
+        <h2 class="pie__titulo">Legal</h2>
+        <ul role="list">
+          {LEGALES.map((l) => (
+            <li><a href={l.href}>{l.etiqueta}</a></li>
+          ))}
+        </ul>
+      </nav>
+    </div>
+
+    <div class="pie__base">
+      <p>© {anio} {SITIO.nombre}. {CONTACTO.ciudad}, {CONTACTO.pais}.</p>
+      <p>Power BI es una marca de Microsoft. Data Studio no está afiliada a Microsoft.</p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .pie {
+    padding-block: var(--space-9) var(--space-6);
+    background: var(--fondo);
+    color: var(--texto-2);
+    border-top: 1px solid var(--linea);
+    font-size: var(--text-sm);
+  }
+
+  .pie__rejilla {
+    display: grid;
+    gap: var(--space-7);
+  }
+
+  .pie__logo {
+    display: inline-flex;
+    color: var(--color-blanco);
+    border-radius: var(--radio-sm);
+  }
+
+  .pie__logo :global(svg) {
+    height: 1.5rem;
+    width: auto;
+  }
+
+  .pie__lema {
+    margin-top: var(--space-4);
+    font-size: var(--text-xs);
+    font-weight: var(--peso-medio);
+    letter-spacing: var(--tracking-etiqueta);
+    text-transform: uppercase;
+    color: var(--texto-3);
+  }
+
+  .pie__texto {
+    margin-top: var(--space-4);
+    max-width: 30rem;
+    line-height: 1.6;
+  }
+
+  .pie__titulo {
+    margin-bottom: var(--space-4);
+    font-family: var(--font-datos);
+    font-size: var(--text-xs);
+    font-weight: var(--peso-medio);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--texto-3);
+  }
+
+  .pie__columna ul {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+  }
+
+  .pie__columna a,
+  .pie__ubicacion {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-height: 2.25rem;
+    color: var(--texto-2);
+    text-decoration: none;
+    transition: color var(--dur-1) var(--ease-out);
+  }
+
+  .pie__columna a:hover {
+    color: var(--texto);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  .pie__contacto :global(svg) {
+    width: 1.125rem;
+    height: 1.125rem;
+    flex: none;
+    color: var(--acento);
+  }
+
+  .pie__contacto span {
+    overflow-wrap: anywhere;
+  }
+
+  .pie__base {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-3) var(--space-6);
+    margin-top: var(--space-8);
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--linea);
+    font-size: var(--text-xs);
+    color: var(--texto-3);
+  }
+
+  @media (min-width: 48rem) {
+    .pie__rejilla {
+      grid-template-columns: minmax(0, 1.4fr) repeat(3, minmax(0, 1fr));
+      gap: var(--space-6);
+    }
+  }
+</style>

@@ -1,0 +1,231 @@
+---
+/**
+ * Social Metrics BI. Además de vender, esta sección es la descripción pública de las
+ * integraciones con YouTube, TikTok y Meta que las plataformas revisan en la página de
+ * inicio de una app verificada: qué leemos, para qué, y cómo se revoca. Ver docs/seguridad.md.
+ */
+import Icono from '../Icono.astro';
+import { MENSAJES, enlaceWhatsApp } from '../../data/sitio';
+
+const PLATAFORMAS = [
+  { nombre: 'Facebook', icono: 'facebook' },
+  { nombre: 'Instagram', icono: 'instagram' },
+  { nombre: 'YouTube', icono: 'youtube' },
+  { nombre: 'TikTok', icono: 'tiktok' },
+] as const;
+
+const METRICAS = [
+  'Alcance',
+  'Interacciones',
+  'Campañas',
+  'Seguidores y suscriptores',
+  'Visualizaciones',
+  'Tiempo de reproducción',
+  'Retención de audiencia',
+  'Fuentes de tráfico',
+  'Audiencia por país, edad y género',
+];
+---
+
+<section class="seccion social" id="social-metrics" data-tema="petroleo" aria-labelledby="social-titulo">
+  <div class="contenedor">
+    <header class="cabecera-seccion" data-revelar>
+      <p class="etiqueta">Social Metrics BI</p>
+      <h2 id="social-titulo" class="titulo-seccion">Todas tus redes, en un solo tablero.</h2>
+      <p class="entrada">
+        Nos conectamos a las APIs oficiales de cada plataforma y llevamos tus métricas, con todo tu histórico,
+        a Power BI. Así marketing, comercial y gerencia miran los mismos números, siempre al día.
+      </p>
+    </header>
+
+    <div class="social__rejilla">
+      <div class="social__detalle" data-revelar>
+        <ul class="plataformas" role="list" aria-label="Plataformas que integramos">
+          {PLATAFORMAS.map((p) => (
+            <li><Icono nombre={p.icono} /><span>{p.nombre}</span></li>
+          ))}
+        </ul>
+
+        <div>
+          <h3 class="social__subtitulo">Lo que medimos</h3>
+          <ul class="metricas" role="list">
+            {METRICAS.map((m) => <li>{m}</li>)}
+          </ul>
+        </div>
+
+        <ul class="lista-check">
+          <li><Icono nombre="check" /><span>Todos los datos históricos de tus cuentas, no solo los últimos días.</span></li>
+          <li><Icono nombre="check" /><span>Acceso con usuario y contraseña desde el Portal BI.</span></li>
+          <li><Icono nombre="check" /><span>Tableros que puedes incrustar en tu sitio web.</span></li>
+          <li><Icono nombre="check" /><span>Actualizaciones automáticas programadas.</span></li>
+        </ul>
+
+        <p class="social__nota">
+          Definimos contigo la infraestructura del servicio y los usuarios en reuniones de coordinación.
+        </p>
+
+        <div class="acciones">
+          <a class="boton boton--primario" href={enlaceWhatsApp(MENSAJES.social)} target="_blank" rel="noopener noreferrer">
+            <Icono nombre="whatsapp" />
+            <span>Implementar Social Metrics BI</span>
+          </a>
+        </div>
+      </div>
+
+      <aside class="datos" aria-labelledby="datos-titulo" data-revelar>
+        <h3 id="datos-titulo" class="datos__titulo">Cómo tratamos tus datos</h3>
+        <dl class="datos__lista">
+          <div>
+            <dt>Solo lectura</dt>
+            <dd>No publicamos, editamos ni eliminamos nada en tus cuentas.</dd>
+          </div>
+          <div>
+            <dt>Solo lo que autorizas</dt>
+            <dd>Accedemos únicamente a las cuentas que tú autorizas, con el acceso oficial de cada plataforma.</dd>
+          </div>
+          <div>
+            <dt>Uso interno</dt>
+            <dd>Los datos alimentan los tableros de tu empresa y nada más.</dd>
+          </div>
+          <div>
+            <dt>Sin redistribución</dt>
+            <dd>No vendemos, cedemos ni compartimos tu información con terceros.</dd>
+          </div>
+          <div>
+            <dt>Revocable</dt>
+            <dd>Puedes retirar el acceso cuando quieras desde la configuración de cada red.</dd>
+          </div>
+        </dl>
+        <p class="datos__legal">
+          Detalle completo en la <a class="enlace" href="/privacidad/">Política de Privacidad</a> y las
+          <a class="enlace" href="/terminos/">Condiciones del Servicio</a>.
+        </p>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<style>
+  .social__rejilla {
+    display: grid;
+    gap: var(--space-7);
+    margin-top: var(--space-8);
+  }
+
+  .social__detalle {
+    display: grid;
+    gap: var(--space-6);
+    align-content: start;
+  }
+
+  .plataformas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+  }
+
+  .plataformas li {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: 2.75rem;
+    padding: 0 var(--space-4);
+    border-radius: var(--radio-pill);
+    box-shadow: inset 0 0 0 1px var(--linea-fuerte);
+    font-weight: var(--peso-medio);
+    color: var(--texto);
+  }
+
+  .plataformas :global(svg) {
+    width: 1.125rem;
+    height: 1.125rem;
+    color: var(--texto-2);
+  }
+
+  .social__subtitulo {
+    margin-bottom: var(--space-3);
+    font-family: var(--font-datos);
+    font-size: var(--text-xs);
+    font-weight: var(--peso-medio);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--texto-3);
+  }
+
+  .metricas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+  }
+
+  .metricas li {
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radio-sm);
+    background: var(--superficie);
+    font-family: var(--font-datos);
+    font-size: var(--text-sm);
+    color: var(--texto-2);
+  }
+
+  .social__nota {
+    max-width: var(--ancho-texto);
+    font-size: var(--text-sm);
+    color: var(--texto-3);
+  }
+
+  .datos {
+    align-self: start;
+    padding: clamp(1.5rem, 3vw, 2.25rem);
+    border-radius: var(--radio-lg);
+    background: var(--superficie);
+    border: 1px solid var(--linea);
+  }
+
+  .datos__titulo {
+    font-size: var(--text-xl);
+    font-weight: var(--peso-semi);
+    letter-spacing: -0.02em;
+    color: var(--texto);
+  }
+
+  .datos__lista {
+    display: grid;
+    margin-top: var(--space-5);
+  }
+
+  .datos__lista div {
+    display: grid;
+    gap: var(--space-1);
+    padding-block: var(--space-4);
+    border-top: 1px solid var(--linea);
+  }
+
+  .datos__lista dt {
+    font-weight: var(--peso-semi);
+    color: var(--texto);
+  }
+
+  .datos__lista dd {
+    color: var(--texto-2);
+    font-size: var(--text-sm);
+    line-height: 1.6;
+  }
+
+  .datos__legal {
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--linea);
+    font-size: var(--text-sm);
+    color: var(--texto-2);
+  }
+
+  @media (min-width: 64rem) {
+    .social__rejilla {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      gap: var(--space-8);
+    }
+  }
+</style>
