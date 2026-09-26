@@ -21,7 +21,8 @@ concurrency:
 
 jobs:
   compilar:
-    runs-on: ubuntu-latest
+    # Imagen fija: ubuntu-latest migra a Ubuntu 26 el 19/10/2026 y no queremos cambios sin aviso.
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - name: Descargar el código
@@ -73,7 +74,7 @@ jobs:
 
   publicar:
     needs: compilar
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     environment:
       name: github-pages

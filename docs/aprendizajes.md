@@ -53,6 +53,10 @@ Cada entrada: **síntoma → causa → solución → cómo evitarlo**.
 ### Titular del hero en 3 líneas
 - A 76 px "empresa puede usar." no cabía en la columna de 768 px. Tope de `--text-display` en 72 px.
 
+## GitHub Actions
+
+- `ubuntu-latest` cambia de versión mayor sin aviso en el workflow (migra a Ubuntu 26 el 19/10/2026). El workflow usa `ubuntu-24.04` fijo; actualizarlo a mano cuando convenga, probando el build.
+
 ## Imágenes OG con Playwright
 
 - Chromium no carga fuentes `file://` desde una página `about:blank` (`setContent`): la imagen salía en Times. Solución: fuentes en base64 (`data:`) en la plantilla.

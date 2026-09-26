@@ -1,5 +1,10 @@
 # Bitácora de cambios
 
+## 25/09/2026 · Publicación y ajustes de CI
+
+- GitHub Pages pasó de "rama main" (legacy) a **GitHub Actions** y se **forzó HTTPS**. Primer despliegue exitoso (27 s); verificado en producción: rutas legales idénticas, callback de TikTok con query string, HTTP → HTTPS, QA sin problemas en 18 combinaciones de página y ancho.
+- Runner del workflow fijado en `ubuntu-24.04`.
+
 ## 25/09/2026 · Nuevo sitio en Astro: inicio y página del Portal BI
 
 - Migración de HTML suelto (GitHub Pages legacy) a **Astro 7.3** con build en GitHub Actions.
