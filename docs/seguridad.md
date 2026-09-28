@@ -59,13 +59,13 @@ Las apps de integración de Data Studio están verificadas con estas URLs, que *
 
 | URL | Archivo | Para qué |
 | --- | --- | --- |
-| `https://datastudio.es/` | `src/pages/index.astro` | Página de inicio de la app: debe describir la funcionalidad y enlazar la Política de Privacidad (sección Social Metrics BI + pie) |
+| `https://datastudio.es/` | `src/pages/index.astro` | Página de inicio de la app: debe describir la funcionalidad y enlazar la Política de Privacidad (vitrina de Social Metrics BI en `src/components/inicio/Vitrinas.astro` + pie) |
 | `https://datastudio.es/privacidad` | `public/privacidad/index.html` | Política de Privacidad (requisitos de YouTube API Services incluidos) |
 | `https://datastudio.es/terminos` | `public/terminos/index.html` | Condiciones del Servicio |
 | `https://datastudio.es/oauth/tiktok` | `public/oauth/tiktok/index.html` | Redirect URI de OAuth de TikTok |
 | `https://datastudio.es/google5af846498ca551c6.html` | `public/…` | Verificación del dominio en Search Console |
 
-- El home mantiene visible: qué datos se leen, solo lectura, solo cuentas autorizadas, uso interno, sin redistribución, revocable, y enlaces a Privacidad y Términos.
+- El home mantiene visible: qué datos se leen, solo lectura, solo cuentas autorizadas, uso interno, sin redistribución, revocable, y enlaces a Privacidad y Términos. Desde el 27/09/2026 está en la vitrina de Social Metrics BI (3 puntos + nota con enlace "Política de Privacidad") y en el pie. La descripción completa vive en `/social-metrics-bi/` (sección "Tus datos").
 - Al editar las páginas legales, actualizar su fecha "Última actualización".
 - El workflow falla si alguna de estas rutas no está en el build.
 

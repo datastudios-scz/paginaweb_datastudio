@@ -55,6 +55,9 @@ jobs:
             index.html \
             404.html \
             portal-bi/index.html \
+            social-metrics-bi/index.html \
+            tienda-ecommerce/index.html \
+            consultoria/index.html \
             privacidad/index.html \
             terminos/index.html \
             oauth/tiktok/index.html \

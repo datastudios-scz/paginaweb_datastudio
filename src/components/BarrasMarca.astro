@@ -1,0 +1,53 @@
+---
+/**
+ * Las cuatro barras del ícono en miniatura, con la del producto encendida.
+ * Lleva la tesis del inicio ("cada barra del logo es una solución") a las vitrinas y a las
+ * migas de las subpáginas: el visitante ve en qué barra está.
+ * Geometría exacta del ícono (Logo.astro): barras de 233 px, alturas 473/626/786/473.
+ * Decorativo (aria-hidden): el nombre del producto siempre está escrito al lado.
+ */
+import { SOLUCIONES } from '../data/sitio';
+
+interface Props {
+  activa: (typeof SOLUCIONES)[number]['id'];
+  class?: string;
+}
+
+const { activa, class: clase } = Astro.props;
+
+// x, y (tope) y alto de cada barra, recortadas a su propio rectángulo (base común en y = 1028).
+const BARRAS = [
+  { x: 0, y: 313, h: 473 },
+  { x: 393, y: 160, h: 626 },
+  { x: 787, y: 0, h: 786 },
+  { x: 1180, y: 313, h: 473 },
+];
+const indice = SOLUCIONES.findIndex((s) => s.id === activa);
+---
+
+<svg class:list={['barras-marca', clase]} viewBox="0 0 1413 786" aria-hidden="true" focusable="false">
+  {BARRAS.map((b, i) => (
+    <rect class:list={['barras-marca__barra', { 'es-activa': i === indice }]} x={b.x} y={b.y} width="233" height={b.h} />
+  ))}
+</svg>
+
+<style>
+  .barras-marca {
+    display: inline-block;
+    width: auto;
+    height: 1em;
+    aspect-ratio: 1413 / 786;
+    flex: none;
+    vertical-align: baseline;
+  }
+
+  .barras-marca__barra {
+    fill: currentColor;
+    opacity: 0.28;
+  }
+
+  .barras-marca__barra.es-activa {
+    fill: var(--acento);
+    opacity: 1;
+  }
+</style>

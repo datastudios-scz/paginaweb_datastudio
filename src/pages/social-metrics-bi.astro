@@ -1,0 +1,904 @@
+---
+/**
+ * Página de Social Metrics BI (SMB). Contenido entregado por el dueño (ortografía corregida)
+ * y verdad del producto en public/privacidad/: Meta es el núcleo; también YouTube y TikTok,
+ * siempre de solo lectura. Se contrata como servicio (MENSAJES.social).
+ * La sección "Tus datos" es además la descripción pública que revisan las plataformas:
+ * no quitarla sin revisar docs/seguridad.md.
+ */
+import Base from '../layouts/Base.astro';
+import Icono from '../components/Icono.astro';
+import Migas from '../components/Migas.astro';
+import Ventana from '../components/portal/Ventana.astro';
+import MaquetaTablero from '../components/social/MaquetaTablero.astro';
+import Preguntas, { type Pregunta } from '../components/Preguntas.astro';
+import { CONTACTO, MENSAJES, SITIO, enlaceWhatsApp } from '../data/sitio';
+import { faqPage, migas } from '../scripts/esquemas';
+import '../styles/producto.css';
+
+const URL_PAGINA = `${SITIO.url}/social-metrics-bi/`;
+const contratar = enlaceWhatsApp(MENSAJES.social);
+const correo = `mailto:${CONTACTO.email}?subject=${encodeURIComponent('Social Metrics BI')}`;
+
+const PREGUNTAS: Pregunta[] = [
+  {
+    pregunta: '¿Qué redes sociales puedo conectar?',
+    respuesta:
+      '<p>El núcleo es Meta: <strong>Facebook e Instagram</strong>, a través de sus APIs oficiales. También conectamos <strong>YouTube y TikTok</strong>.</p><p>En todos los casos el acceso es de solo lectura y se limita a las cuentas que tú autorizas.</p>',
+  },
+  {
+    pregunta: '¿Qué métricas voy a ver en el tablero?',
+    respuesta:
+      '<p>Las métricas clave de tus redes: alcance, interacciones, campañas, reacciones, comentarios, veces compartido, seguidores y publicaciones. En video, también visualizaciones, tiempo de reproducción y retención de audiencia.</p><p>La audiencia se muestra siempre en forma agregada (por país, edad, género y fuentes de tráfico), y con todo el histórico de tus cuentas. Cada red entrega sus propias métricas, así que no todas existen en todas las plataformas.</p>',
+  },
+  {
+    pregunta: '¿Cómo entra mi equipo al tablero?',
+    respuesta:
+      '<p>De dos formas: con su usuario y contraseña en nuestro <a href="/portal-bi/">Portal BI</a>, o incrustado en una página de tu sitio web (modalidad iframe).</p><p>Quiénes tienen acceso se define en las reuniones de coordinación, junto con el aprovisionamiento de usuarios.</p>',
+  },
+  {
+    pregunta: '¿Cómo se actualizan los datos?',
+    respuesta:
+      '<p>Solos. Las actualizaciones son automáticas y programadas, así que nadie tiene que exportar ni cargar archivos. Los detalles se definen en las reuniones de coordinación, junto con la infraestructura del servicio.</p>',
+  },
+  {
+    pregunta: '¿Qué hacen con mis datos? ¿Puedo retirar el acceso?',
+    respuesta:
+      '<p>Solo los leemos: no publicamos, no editamos y no eliminamos nada en tus cuentas. Los usamos únicamente para los tableros de tu empresa y no los vendemos ni los compartimos con terceros.</p><p>Puedes revocar el acceso cuando quieras, sin pedírnoslo: en Meta, desde Configuración, en «Aplicaciones y sitios web»; en YouTube, desde los permisos de tu cuenta de Google; en TikTok, desde Configuración, en «Seguridad y permisos» y luego «Administrar aplicaciones». El detalle está en la <a href="/privacidad/">Política de Privacidad</a>.</p>',
+  },
+  {
+    pregunta: '¿Cómo empezamos?',
+    respuesta:
+      '<p>Escríbenos por WhatsApp. Coordinamos una primera reunión para definir la infraestructura del servicio y los usuarios, y seguimos a distancia: todo el proceso es 100 % remoto, desde cualquier país.</p>',
+  },
+];
+
+const METRICAS = [
+  { grupo: 'Alcance y rendimiento', lista: ['alcance', 'interacciones', 'campañas', 'reacciones', 'comentarios', 'veces compartido'] },
+  { grupo: 'Video', lista: ['visualizaciones', 'tiempo de reproducción', 'retención de audiencia'] },
+  { grupo: 'Comunidad', lista: ['seguidores', 'suscriptores', 'publicaciones'] },
+  { grupo: 'Audiencia, siempre agregada', lista: ['país', 'edad', 'género', 'fuentes de tráfico'] },
+];
+
+const INCLUYE = [
+  { fuerte: 'Conexión directa con Meta', resto: '(Facebook e Instagram). También YouTube y TikTok.' },
+  { fuerte: 'Todos los datos históricos', resto: 'de tus redes sociales, no solo los últimos días.' },
+  { fuerte: 'Métricas clave:', resto: 'alcance, interacciones, campañas y más.' },
+  { fuerte: 'Visualización integrada en Power BI.', resto: '' },
+  { fuerte: 'Monitorea y actúa', resto: 'sin depender de múltiples plataformas.' },
+  { fuerte: 'Interfaz de login de usuario:', resto: 'tus datos seguros en nuestro Portal BI.' },
+  { fuerte: 'Apertura de tableros', resto: 'en modalidad iframe, incrustados en tu sitio web.' },
+  { fuerte: 'Actualizaciones automáticas', resto: 'programadas.' },
+];
+
+const PASOS = [
+  { titulo: 'Reuniones de coordinación', texto: 'Definimos contigo la infraestructura del servicio: qué cuentas se conectan y dónde se procesan los datos.' },
+  { titulo: 'Conexión de tus cuentas', texto: 'Autorizas cada cuenta con el acceso oficial de su plataforma, en modo solo lectura.' },
+  { titulo: 'Aprovisionamiento de usuarios', texto: 'Damos de alta a las personas de tu equipo que van a abrir el tablero.' },
+  { titulo: 'Tablero funcionando', texto: 'Tu equipo entra con su usuario o lo ve en tu sitio, y los datos se actualizan solos.' },
+];
+
+const REGLAS = [
+  { titulo: 'Solo lectura', texto: 'No publicamos, no editamos y no eliminamos nada en tus cuentas.' },
+  { titulo: 'Solo lo que autorizas', texto: 'Accedemos únicamente a las cuentas que tú autorizas, con el acceso oficial de cada plataforma.' },
+  { titulo: 'Uso interno', texto: 'Los datos alimentan los tableros de tu empresa y nada más. No los usamos para publicidad ni para entrenar modelos.' },
+  { titulo: 'Sin terceros', texto: 'No vendemos, no cedemos y no compartimos tu información con terceros.' },
+  { titulo: 'Revocable', texto: 'Retiras el acceso cuando quieras desde la configuración de cada red, sin tener que pedírnoslo.' },
+];
+---
+
+<Base
+  titulo="Social Metrics BI | Métricas de Facebook, Instagram, YouTube y TikTok en Power BI · Data Studio"
+  descripcion="Métricas de Facebook e Instagram, y también de YouTube y TikTok, desde las APIs oficiales a un tablero de Power BI con todo tu histórico. Solo lectura."
+  imagen="/og/social-metrics-bi.png"
+  imagenAlt="Social Metrics BI de Data Studio: tus redes sociales en un solo tablero de Power BI"
+  datosEstructurados={[
+    migas([
+      { nombre: 'Inicio', url: `${SITIO.url}/` },
+      { nombre: 'Social Metrics BI', url: URL_PAGINA },
+    ]),
+    faqPage(PREGUNTAS, URL_PAGINA),
+    {
+      '@type': 'Service',
+      '@id': `${URL_PAGINA}#servicio`,
+      name: 'Social Metrics BI',
+      alternateName: 'SMB',
+      serviceType: 'Analítica de redes sociales en Power BI',
+      description:
+        'Métricas de Facebook e Instagram desde las APIs oficiales de Meta, y también de YouTube y TikTok, integradas en un tablero de Power BI con histórico y actualizaciones automáticas programadas. Acceso de solo lectura.',
+      provider: { '@id': `${SITIO.url}/#organizacion` },
+      areaServed: 'Worldwide',
+      url: URL_PAGINA,
+    },
+  ]}
+>
+  <!-- ═════════ HÉROE: la frase del dueño a la izquierda, el tablero a la derecha ═════════ -->
+  <section class="prod-heroe" data-tema="oscuro" aria-labelledby="smb-titulo">
+    <div class="contenedor">
+      <Migas actual="Social Metrics BI" solucion="social-metrics" />
+
+      <div class="prod-heroe__rejilla">
+        <div class="prod-heroe__texto">
+          <h1 id="smb-titulo" class="prod-heroe__titulo">
+            Empodera tu marketing con <span class="prod-acento">Social Metrics BI.</span>
+          </h1>
+          <p class="prod-heroe__bajada">
+            Impulsa tu equipo de marketing con análisis detallados, resultados medibles y los datos clave al alcance
+            de tu mano.
+          </p>
+          <div class="acciones">
+            <a class="boton boton--primario" href={contratar} target="_blank" rel="noopener noreferrer">
+              <Icono nombre="whatsapp" />
+              <span>Contratar servicio</span>
+            </a>
+            <a class="boton boton--secundario" href="#tablero">Ver el tablero</a>
+          </div>
+          <ul class="prod-sellos" role="list">
+            <li><Icono nombre="check" />APIs oficiales</li>
+            <li><Icono nombre="check" />Solo lectura</li>
+            <li><Icono nombre="check" />Con todo tu histórico</li>
+          </ul>
+        </div>
+
+        <div class="smb-heroe__visual">
+          <Ventana
+            url="portal.tuempresa.com/tableros/redes"
+            descripcion="Maqueta de la vista de publicaciones de Social Metrics BI con datos de ejemplo: publicaciones del período, alcance medio, tasa de interacción y el ranking de las publicaciones de Instagram con más alcance."
+          >
+            <MaquetaTablero variante="publicaciones" />
+          </Ventana>
+        </div>
+      </div>
+
+      <nav class="prod-indice" aria-label="En esta página">
+        <span class="prod-indice__rotulo">En esta página</span>
+        <a href="#que-es">Qué es</a>
+        <a href="#tablero">El tablero</a>
+        <a href="#incluye">Qué incluye</a>
+        <a href="#acceso">Acceso</a>
+        <a href="#implementacion">Implementación</a>
+        <a href="#datos">Tus datos</a>
+        <a href="#preguntas">Preguntas</a>
+      </nav>
+    </div>
+  </section>
+
+  <!-- ═════════ QUÉ ES: el texto del dueño + el recorrido de los datos ═════════ -->
+  <section class="seccion prod-seccion" id="que-es" data-tema="claro" aria-labelledby="que-es-titulo">
+    <div class="contenedor prod-par prod-par--inicio">
+      <div class="smb-columna">
+        <header class="prod-cabecera">
+          <h2 id="que-es-titulo" class="titulo-seccion">Tus redes sociales, directo a Power BI.</h2>
+          <p class="entrada">
+            <strong>SMB, Social Metrics BI,</strong> conecta directamente con las APIs oficiales de Meta (Facebook e
+            Instagram) y visualiza todas las métricas clave de tus redes sociales, integradas en un solo tablero de
+            Power BI.
+          </p>
+          <p class="entrada">
+            Ideal para equipos de marketing, comercial y alta gerencia que necesitan tomar decisiones con datos
+            frescos, claros y visuales.
+          </p>
+        </header>
+
+        <div class="smb-metricas">
+          <h3 class="prod-subtitulo">Lo que llega a tu tablero</h3>
+          <dl class="smb-metricas__lista">
+            {METRICAS.map((m) => (
+              <div>
+                <dt>{m.grupo}</dt>
+                <dd>{m.lista.join(' · ')}</dd>
+              </div>
+            ))}
+          </dl>
+          <p class="smb-nota">Cada red entrega sus propias métricas: no todas existen en todas las plataformas.</p>
+        </div>
+      </div>
+
+      <figure class="smb-flujo">
+        <figcaption class="solo-lectores">Cómo llegan tus datos al tablero, de tus cuentas a tu equipo.</figcaption>
+        <ol class="smb-flujo__etapas" role="list">
+          <li class="smb-etapa">
+            <span class="smb-etapa__nodo"><Icono nombre="redes" /></span>
+            <div class="smb-etapa__cuerpo">
+              <h3 class="smb-etapa__titulo">Tus cuentas</h3>
+              <ul class="smb-redes" role="list">
+                <li class="smb-red smb-red--nucleo"><Icono nombre="facebook" />Facebook</li>
+                <li class="smb-red smb-red--nucleo"><Icono nombre="instagram" />Instagram</li>
+                <li class="smb-red"><Icono nombre="youtube" />YouTube</li>
+                <li class="smb-red"><Icono nombre="tiktok" />TikTok</li>
+              </ul>
+              <p class="smb-etapa__texto">Meta es el núcleo. También YouTube y TikTok.</p>
+            </div>
+          </li>
+          <li class="smb-etapa">
+            <span class="smb-etapa__nodo"><Icono nombre="tableros" /></span>
+            <div class="smb-etapa__cuerpo">
+              <h3 class="smb-etapa__titulo">Un solo tablero de Power BI</h3>
+              <p class="smb-etapa__texto">Leído por las APIs oficiales, solo en lectura. Con todo el histórico de tus cuentas y actualizaciones automáticas programadas.</p>
+            </div>
+          </li>
+          <li class="smb-etapa">
+            <span class="smb-etapa__nodo"><Icono nombre="usuarios" /></span>
+            <div class="smb-etapa__cuerpo">
+              <h3 class="smb-etapa__titulo">Tu equipo</h3>
+              <ul class="smb-redes" role="list">
+                <li class="smb-red"><Icono nombre="portal" />Portal BI, con login</li>
+                <li class="smb-red"><Icono nombre="globo" />Tu sitio web, por iframe</li>
+              </ul>
+            </div>
+          </li>
+        </ol>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ═════════ EL TABLERO ═════════ -->
+  <section class="seccion prod-seccion" id="tablero" data-tema="blanco" aria-labelledby="tablero-titulo">
+    <div class="contenedor">
+      <header class="prod-cabecera">
+        <h2 id="tablero-titulo" class="titulo-seccion">Así se ve tu tablero.</h2>
+        <p class="entrada">
+          Un informe de Power BI con todas tus redes juntas: filtras por plataforma, comparas contra el período
+          anterior y encuentras la publicación que mejor funcionó.
+        </p>
+      </header>
+
+      <div class="prod-bloque">
+        <Ventana
+          url="portal.tuempresa.com/tableros/redes"
+          descripcion="Maqueta completa del tablero de Social Metrics BI con datos de ejemplo: filtros por plataforma, cuatro indicadores con su variación contra el período anterior, alcance por semana, interacciones por plataforma, publicaciones destacadas y pestañas del informe."
+        >
+          <MaquetaTablero variante="completa" />
+        </Ventana>
+        <p class="smb-nota smb-nota--pie">
+          Maqueta con datos de ejemplo. Tu tablero muestra los datos de tus propias cuentas.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════ QUÉ INCLUYE: las ocho características del dueño ═════════ -->
+  <section class="seccion prod-seccion" id="incluye" data-tema="petroleo" aria-labelledby="incluye-titulo">
+    <div class="contenedor prod-par prod-par--inicio">
+      <header class="prod-cabecera">
+        <h2 id="incluye-titulo" class="titulo-seccion">Lo que incluye tu Social Metrics BI.</h2>
+        <p class="entrada">
+          Sin entrar a cada red por separado ni copiar números a una planilla: todo lo que necesitas para medir tus
+          redes y compartir los resultados con tu equipo.
+        </p>
+      </header>
+      <ul class="prod-lista prod-lista--grande" role="list">
+        {INCLUYE.map((c) => (
+          <li>
+            <Icono nombre="check" />
+            <span><strong>{c.fuerte}</strong> {c.resto}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- ═════════ ACCESO: login en el Portal BI o incrustado en tu sitio ═════════ -->
+  <section class="seccion prod-seccion" id="acceso" data-tema="claro" aria-labelledby="acceso-titulo">
+    <div class="contenedor">
+      <header class="prod-cabecera">
+        <h2 id="acceso-titulo" class="titulo-seccion">Tu equipo lo abre con su usuario, o dentro de tu sitio.</h2>
+        <p class="entrada">Dos formas de abrir el mismo tablero. En las dos, los datos se actualizan solos.</p>
+      </header>
+
+      <div class="smb-accesos">
+        <div class="smb-acceso">
+          <Ventana
+            url="portal.tuempresa.com"
+            variante="mini"
+            descripcion="Maqueta de la pantalla de inicio de sesión del Portal BI: usuario, contraseña y botón para entrar."
+          >
+            <div class="smb-login">
+              <div class="smb-login__caja">
+                <span class="smb-login__marca"><span class="smb-login__cuadro"></span>PORTAL BI</span>
+                <p class="smb-login__titulo">Inicia sesión</p>
+                <span class="smb-login__campo"><span>Usuario</span>mariana.s</span>
+                <span class="smb-login__campo"><span>Contraseña</span>········</span>
+                <span class="smb-login__boton">Entrar</span>
+              </div>
+            </div>
+          </Ventana>
+          <h3 class="prod-subtitulo">Con login en el Portal BI</h3>
+          <p class="prod-subtexto">
+            Cada persona entra con su usuario y su contraseña a nuestro Portal BI y encuentra el tablero listo. Tus
+            datos quedan protegidos detrás del inicio de sesión.
+          </p>
+          <a class="enlace smb-acceso__enlace" href="/portal-bi/">Conoce el Portal BI</a>
+        </div>
+
+        <div class="smb-acceso">
+          <Ventana
+            url="www.tuempresa.com/resultados"
+            variante="mini"
+            descripcion="Maqueta de un sitio web con el tablero de Social Metrics BI incrustado en una de sus páginas."
+          >
+            <div class="smb-sitio">
+              <div class="smb-sitio__nav">
+                <span class="smb-sitio__logo">tuempresa</span>
+                <span class="smb-sitio__links"><i></i><i></i><i></i></span>
+              </div>
+              <p class="smb-sitio__titulo">Resultados en redes</p>
+              <div class="smb-sitio__marco">
+                <span class="smb-sitio__etiqueta">iframe</span>
+                <div class="smb-sitio__kpis">
+                  <span><b>1,28&nbsp;M</b>Alcance</span>
+                  <span><b>86,4&nbsp;mil</b>Interacciones</span>
+                  <span><b>5.920</b>Seguidores</span>
+                </div>
+                <div class="smb-sitio__barras">
+                  <i class="smb-sitio__b1"></i><i class="smb-sitio__b2"></i><i class="smb-sitio__b3"></i><i class="smb-sitio__b4"></i><i class="smb-sitio__b5"></i><i class="smb-sitio__b6"></i><i class="smb-sitio__b7"></i><i class="smb-sitio__b8"></i>
+                </div>
+              </div>
+            </div>
+          </Ventana>
+          <h3 class="prod-subtitulo">Incrustado en tu sitio web</h3>
+          <p class="prod-subtexto">
+            El tablero se abre dentro de una página de tu sitio, en modalidad iframe. Quien lo consulta no tiene que
+            salir de tu web ni entrar a otra plataforma.
+          </p>
+        </div>
+      </div>
+
+      <p class="smb-actualiza">
+        <Icono nombre="reloj" />
+        <span><strong>Actualizaciones automáticas programadas.</strong> Nadie exporta ni carga archivos: el tablero
+          se refresca solo.</span>
+      </p>
+    </div>
+  </section>
+
+  <!-- ═════════ IMPLEMENTACIÓN: la secuencia importa, por eso va en pasos ═════════ -->
+  <section class="seccion prod-seccion" id="implementacion" data-tema="blanco" aria-labelledby="implementacion-titulo">
+    <div class="contenedor">
+      <header class="prod-cabecera">
+        <h2 id="implementacion-titulo" class="titulo-seccion">Lo ponemos en marcha contigo, a distancia.</h2>
+        <p class="entrada">
+          Coordinación mediante reuniones para definir la infraestructura del servicio y el aprovisionamiento de
+          usuarios. Todo el proceso es 100&nbsp;% remoto, desde cualquier país.
+        </p>
+      </header>
+      <ol class="prod-pasos" role="list">
+        {PASOS.map((p, i) => (
+          <li>
+            <p class="prod-pasos__marca dato">Paso {i + 1}</p>
+            <h3>{p.titulo}</h3>
+            <p>{p.texto}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <!-- ═════════ TUS DATOS: requisito de las plataformas (Meta, Google, TikTok) ═════════ -->
+  <section class="seccion prod-seccion" id="datos" data-tema="salvia" aria-labelledby="datos-titulo">
+    <div class="contenedor prod-par prod-par--inicio">
+      <header class="prod-cabecera">
+        <h2 id="datos-titulo" class="titulo-seccion">Leemos tus métricas. Nada más.</h2>
+        <p class="entrada">
+          Las integraciones usan el acceso oficial de cada plataforma y funcionan con las mismas reglas para Meta,
+          YouTube y TikTok.
+        </p>
+        <p class="smb-legales">
+          El detalle está en la <a class="enlace" href="/privacidad/">Política de Privacidad</a> y en las
+          <a class="enlace" href="/terminos/">Condiciones del Servicio</a>.
+        </p>
+      </header>
+      <dl class="smb-reglas">
+        {REGLAS.map((r) => (
+          <div>
+            <dt>{r.titulo}</dt>
+            <dd>{r.texto}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  </section>
+
+  <Preguntas id="preguntas" titulo="Lo que suelen preguntarnos" preguntas={PREGUNTAS} />
+
+  <!-- ═════════ CIERRE: el llamado del dueño ═════════ -->
+  <section class="seccion smb-cierre" id="contacto" data-tema="oscuro" aria-labelledby="cierre-titulo">
+    <div class="contenedor">
+      <h2 id="cierre-titulo" class="prod-cierre__titulo">¿Qué esperas para tener tu propio Social Metrics BI?</h2>
+      <p class="prod-cierre__texto">
+        Es hora de innovar, crecer y tomar decisiones basadas en datos. Implementa esta solución en tu empresa o
+        proyecto.
+      </p>
+      <div class="acciones">
+        <a class="boton boton--primario" href={contratar} target="_blank" rel="noopener noreferrer">
+          <Icono nombre="whatsapp" />
+          <span>Contratar servicio</span>
+        </a>
+        <a class="boton boton--secundario" href={correo}>
+          <Icono nombre="correo" />
+          <span>Escríbenos un correo</span>
+        </a>
+      </div>
+      <div class="prod-recuerdo">
+        <div>
+          <p class="prod-recuerdo__tit">Lo que conectas</p>
+          <p class="prod-recuerdo__txt">Facebook e Instagram, y también YouTube y TikTok. <b>Siempre de solo lectura.</b></p>
+        </div>
+        <div>
+          <p class="prod-recuerdo__tit">Dónde lo ves</p>
+          <p class="prod-recuerdo__txt">En Power BI, con login en el Portal BI o <b>incrustado en tu sitio web</b>.</p>
+        </div>
+        <div>
+          <p class="prod-recuerdo__tit">Cómo trabajamos</p>
+          <p class="prod-recuerdo__txt">Reuniones de coordinación y <b>100&nbsp;% remoto</b>, desde cualquier país.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* ── Héroe ─────────────────────────────────────────────────────────── */
+  .smb-heroe__visual {
+    min-width: 0;
+  }
+
+  /* ── Qué es ────────────────────────────────────────────────────────── */
+  .smb-columna {
+    display: grid;
+    gap: var(--space-7);
+    min-width: 0;
+  }
+
+  .smb-columna .entrada strong {
+    color: var(--texto);
+    font-weight: var(--peso-semi);
+  }
+
+  .smb-metricas__lista {
+    margin: 0;
+    border-top: 1px solid var(--linea-fuerte);
+  }
+
+  .smb-metricas__lista div {
+    display: grid;
+    gap: var(--space-1) var(--space-5);
+    padding-block: var(--space-3);
+    border-bottom: 1px solid var(--linea);
+  }
+
+  .smb-metricas__lista dt {
+    font-size: var(--text-sm);
+    font-weight: var(--peso-semi);
+    color: var(--texto);
+  }
+
+  .smb-metricas__lista dd {
+    margin: 0;
+    font-size: var(--text-sm);
+    line-height: 1.6;
+    color: var(--texto-2);
+    overflow-wrap: anywhere;
+  }
+
+  .smb-nota {
+    margin-top: var(--space-4);
+    font-size: var(--text-sm);
+    color: var(--texto-3);
+  }
+
+  .smb-nota--pie {
+    margin-top: var(--space-4);
+  }
+
+  /* Recorrido de los datos: un riel fino une las etapas (conector, no borde de tarjeta) */
+  .smb-flujo {
+    margin: 0;
+    min-width: 0;
+    padding: var(--space-6) var(--space-5);
+    border: 1px solid var(--linea);
+    border-radius: var(--radio-lg);
+    background: var(--superficie);
+  }
+
+  .smb-flujo__etapas {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .smb-etapa {
+    position: relative;
+    display: grid;
+    grid-template-columns: 2.5rem minmax(0, 1fr);
+    gap: var(--space-4);
+  }
+
+  .smb-etapa + .smb-etapa {
+    padding-top: var(--space-6);
+  }
+
+  .smb-etapa:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 2.75rem;
+    bottom: -0.25rem;
+    left: calc(1.25rem - 0.5px);
+    width: 1px;
+    background: var(--linea-fuerte);
+  }
+
+  .smb-etapa + .smb-etapa .smb-etapa__nodo {
+    margin-top: 1.875rem;
+  }
+
+  .smb-etapa__nodo {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background: var(--color-abismo);
+    color: var(--color-verde-claro);
+  }
+
+  .smb-etapa__nodo :global(svg) {
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+
+  .smb-etapa__cuerpo {
+    display: grid;
+    gap: var(--space-2);
+    min-width: 0;
+    padding-top: 0.45rem;
+  }
+
+  .smb-etapa__titulo {
+    font-size: var(--text-md);
+    font-weight: var(--peso-semi);
+    line-height: 1.3;
+    color: var(--texto);
+  }
+
+  .smb-etapa__texto {
+    font-size: var(--text-sm);
+    line-height: 1.6;
+    color: var(--texto-2);
+  }
+
+  .smb-redes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: var(--space-1) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .smb-red {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 0.375rem 0.75rem;
+    border-radius: var(--radio-sm);
+    box-shadow: inset 0 0 0 1px var(--linea-fuerte);
+    font-size: var(--text-sm);
+    color: var(--texto-2);
+  }
+
+  .smb-red--nucleo {
+    background: var(--color-abismo);
+    box-shadow: none;
+    color: var(--color-blanco);
+    font-weight: var(--peso-medio);
+  }
+
+  .smb-red :global(svg) {
+    width: 0.9375rem;
+    height: 0.9375rem;
+    flex: none;
+  }
+
+  /* ── Acceso ────────────────────────────────────────────────────────── */
+  .smb-accesos {
+    display: grid;
+    gap: var(--space-8);
+    margin-top: var(--space-8);
+  }
+
+  .smb-acceso {
+    display: grid;
+    align-content: start;
+    gap: var(--space-2);
+    min-width: 0;
+  }
+
+  .smb-acceso > :global(.ventana) {
+    margin-bottom: var(--space-4);
+  }
+
+  .smb-acceso__enlace {
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+  }
+
+  /* Maqueta: inicio de sesión del Portal BI */
+  .smb-login {
+    display: grid;
+    place-items: center;
+    min-height: 15rem;
+    padding: 20px;
+    background: var(--mq-fondo);
+  }
+
+  .smb-login__caja {
+    display: grid;
+    gap: 9px;
+    width: 100%;
+    max-width: 15rem;
+    padding: 18px;
+    border: 1px solid var(--mq-borde);
+    border-radius: var(--radio-md);
+    background: var(--mq-tarjeta);
+  }
+
+  .smb-login__marca {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--mq-tinta);
+  }
+
+  .smb-login__cuadro {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    background: var(--mq-acento);
+  }
+
+  .smb-login__titulo {
+    margin-top: 4px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--mq-tinta);
+  }
+
+  .smb-login__campo {
+    display: grid;
+    gap: 2px;
+    padding: 6px 9px;
+    border: 1px solid var(--mq-borde);
+    border-radius: 6px;
+    font-size: 0.6875rem;
+    color: var(--mq-tinta);
+  }
+
+  .smb-login__campo span {
+    font-size: 0.5625rem;
+    color: var(--mq-tinta-3);
+  }
+
+  .smb-login__boton {
+    margin-top: 3px;
+    padding: 7px;
+    border-radius: var(--radio-pill);
+    background: var(--mq-acento);
+    color: #ffffff;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-align: center;
+  }
+
+  /* Maqueta: tablero incrustado en un sitio web */
+  .smb-sitio {
+    display: grid;
+    align-content: start;
+    gap: 12px;
+    min-height: 15rem;
+    padding: 14px 16px 18px;
+    background: var(--mq-tarjeta);
+  }
+
+  .smb-sitio__nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--mq-borde-2);
+  }
+
+  .smb-sitio__logo {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--mq-tinta);
+  }
+
+  .smb-sitio__links {
+    display: flex;
+    gap: 8px;
+  }
+
+  .smb-sitio__links i {
+    display: block;
+    width: 26px;
+    height: 5px;
+    border-radius: 3px;
+    background: var(--mq-borde);
+  }
+
+  .smb-sitio__titulo {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--mq-tinta);
+  }
+
+  .smb-sitio__marco {
+    position: relative;
+    display: grid;
+    gap: 12px;
+    padding: 14px 12px 12px;
+    border: 1px dashed var(--mq-tinta-3);
+    border-radius: 8px;
+    background: var(--mq-fondo);
+  }
+
+  .smb-sitio__etiqueta {
+    position: absolute;
+    top: -8px;
+    right: 10px;
+    padding: 0 6px;
+    background: var(--mq-tarjeta);
+    font-family: var(--font-datos);
+    font-size: 0.5625rem;
+    line-height: 16px;
+    color: var(--mq-tinta-3);
+  }
+
+  .smb-sitio__kpis {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .smb-sitio__kpis span {
+    display: grid;
+    gap: 1px;
+    min-width: 0;
+    padding: 7px 8px;
+    border-radius: 6px;
+    background: var(--mq-tarjeta);
+    font-size: 0.5625rem;
+    color: var(--mq-tinta-3);
+  }
+
+  .smb-sitio__kpis b {
+    font-family: var(--font-datos);
+    font-size: 0.75rem;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-abismo);
+    white-space: nowrap;
+  }
+
+  .smb-sitio__barras {
+    display: flex;
+    align-items: flex-end;
+    gap: 5px;
+    height: 3.5rem;
+    padding: 0 2px;
+    border-bottom: 1px solid var(--mq-borde);
+  }
+
+  .smb-sitio__barras i {
+    flex: 1;
+    height: 100%;
+    background: var(--color-verde);
+    transform-origin: bottom;
+  }
+
+  .smb-sitio__b1 { transform: scaleY(0.55); }
+  .smb-sitio__b2 { transform: scaleY(0.62); }
+  .smb-sitio__b3 { transform: scaleY(0.58); }
+  .smb-sitio__b4 { transform: scaleY(0.7); }
+  .smb-sitio__b5 { transform: scaleY(0.76); }
+  .smb-sitio__b6 { transform: scaleY(0.72); }
+  .smb-sitio__b7 { transform: scaleY(0.88); }
+  .smb-sitio__b8 { transform: scaleY(1); }
+
+  .smb-actualiza {
+    display: grid;
+    grid-template-columns: 1.5rem minmax(0, 1fr);
+    gap: var(--space-3);
+    max-width: 44rem;
+    margin-top: var(--space-8);
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--linea);
+    color: var(--texto-2);
+  }
+
+  .smb-actualiza :global(svg) {
+    width: 1.5rem;
+    height: 1.5rem;
+    color: var(--acento);
+  }
+
+  .smb-actualiza strong {
+    color: var(--texto);
+  }
+
+  /* ── Tus datos ─────────────────────────────────────────────────────── */
+  .smb-legales {
+    max-width: var(--ancho-texto);
+    color: var(--texto-2);
+  }
+
+  .smb-reglas {
+    margin: 0;
+    border-top: 1px solid var(--linea-fuerte);
+  }
+
+  .smb-reglas div {
+    display: grid;
+    gap: var(--space-1) var(--space-6);
+    padding-block: var(--space-5);
+    border-bottom: 1px solid var(--linea);
+  }
+
+  .smb-reglas dt {
+    font-size: var(--text-md);
+    font-weight: var(--peso-semi);
+    color: var(--texto);
+  }
+
+  .smb-reglas dd {
+    margin: 0;
+    color: var(--texto-2);
+  }
+
+  /* ── Cierre ────────────────────────────────────────────────────────── */
+  .smb-cierre {
+    background:
+      var(--fondo);
+  }
+
+  /* ── Tablet ────────────────────────────────────────────────────────── */
+  @media (min-width: 40rem) {
+    .smb-metricas__lista div {
+      grid-template-columns: 11rem minmax(0, 1fr);
+    }
+
+    .smb-reglas div {
+      grid-template-columns: 12rem minmax(0, 1fr);
+    }
+
+    .smb-flujo {
+      padding: var(--space-7) var(--space-6);
+    }
+  }
+
+  @media (min-width: 48rem) {
+    .smb-accesos {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-7);
+    }
+  }
+
+  /* ── Escritorio ────────────────────────────────────────────────────── */
+  @media (min-width: 64rem) {
+    .smb-flujo {
+      position: sticky;
+      top: calc(var(--alto-encabezado) + var(--space-6));
+    }
+  }
+</style>

@@ -1,0 +1,188 @@
+---
+/**
+ * Vitrinas del inicio: un bloque por producto, con su maqueta real, lo esencial en tres
+ * puntos y un enlace a su subpágina. El inicio NO explica todo ni lleva a WhatsApp:
+ * distribuye (la explicación completa y los botones de contacto viven en cada subpágina).
+ * Cada vitrina tiene su propio campo de color para que se lea como un producto distinto.
+ */
+import Icono from '../Icono.astro';
+import Ventana from '../portal/Ventana.astro';
+import MaquetaPortal from '../portal/MaquetaPortal.astro';
+import MaquetaTablero from '../social/MaquetaTablero.astro';
+import Catalogo from '../tienda/Catalogo.astro';
+import BarrasMarca from '../BarrasMarca.astro';
+import Flujo from '../consultoria/Flujo.astro';
+
+const VITRINAS = [
+  {
+    id: 'portal-bi',
+    tema: 'oscuro',
+    nombre: 'Portal BI',
+    frase: 'Power BI para toda la empresa, con una sola licencia.',
+    puntos: [
+      'Cada persona entra con su usuario y ve solo sus tableros.',
+      'Chat con IA que responde con tus datos y te muestra la consulta.',
+      'Compras el código y la guía de implementación: el portal es tuyo.',
+    ],
+    href: '/portal-bi/',
+    accion: 'Conoce el Portal BI',
+  },
+  {
+    id: 'social-metrics',
+    tema: 'petroleo',
+    nombre: 'Social Metrics BI',
+    frase: 'Todas tus redes sociales en un solo tablero de Power BI.',
+    puntos: [
+      'Conexión de solo lectura con las APIs oficiales de Meta, YouTube y TikTok.',
+      'Todo tu histórico y actualizaciones automáticas programadas.',
+      'Tableros con acceso por usuario o incrustados en tu sitio web.',
+    ],
+    href: '/social-metrics-bi/',
+    accion: 'Conoce Social Metrics BI',
+  },
+  {
+    id: 'ecommerce',
+    tema: 'salvia',
+    nombre: 'Tienda e‑commerce',
+    frase: 'Tu tienda online con código propio y pago único.',
+    puntos: [
+      'Código fuente completo y guía de implementación paso a paso.',
+      'Los pedidos llegan directo a tu WhatsApp.',
+      'Sin mensualidades: la tienda es 100 % tuya.',
+    ],
+    href: '/tienda-ecommerce/',
+    accion: 'Conoce la tienda',
+  },
+  {
+    id: 'consultoria',
+    tema: 'blanco',
+    nombre: 'Consultoría de datos',
+    frase: 'Ordenamos tus datos para que puedas usarlos.',
+    puntos: [
+      'Integramos tus fuentes con procesos que se actualizan solos.',
+      'Infraestructura de datos y Power BI a la medida de tu empresa.',
+      'Reportes automáticos, sin consolidar planillas a mano.',
+    ],
+    href: '/consultoria/',
+    accion: 'Conoce la consultoría',
+  },
+] as const;
+---
+
+{VITRINAS.map((v, i) => (
+  <section
+    class:list={['seccion', 'vitrina', { 'vitrina--invertida': i % 2 === 1 }]}
+    id={`vitrina-${v.id}`}
+    data-tema={v.tema}
+    aria-labelledby={`vitrina-${v.id}-titulo`}
+  >
+    <div class="contenedor vitrina__rejilla">
+      <div class="vitrina__texto">
+        <h2 id={`vitrina-${v.id}-titulo`} class="vitrina__nombre">
+          <BarrasMarca activa={v.id} class="vitrina__barras" />{v.nombre}
+        </h2>
+        <p class="vitrina__frase">{v.frase}</p>
+        <ul class="lista-check vitrina__puntos">
+          {v.puntos.map((p) => (
+            <li><Icono nombre="check" /><span>{p}</span></li>
+          ))}
+        </ul>
+        {v.id === 'social-metrics' && (
+          <p class="vitrina__nota">
+            Solo leemos las métricas de las cuentas que tú autorizas, para tus tableros internos: no las compartimos
+            con terceros y puedes revocar el acceso cuando quieras. <a class="enlace" href="/privacidad/">Política de Privacidad</a>
+          </p>
+        )}
+        <div class="acciones">
+          <a class="boton boton--primario" href={v.href}>
+            <span>{v.accion}</span>
+            <Icono nombre="flecha" />
+          </a>
+        </div>
+      </div>
+
+      <div class="vitrina__visual">
+        {v.id === 'portal-bi' && (
+          <Ventana url="portal.tuempresa.com/tableros" descripcion="Maqueta del Portal BI: menú lateral con tableros por área y tarjetas de tableros de Power BI, una con chat de IA.">
+            <MaquetaPortal />
+          </Ventana>
+        )}
+        {v.id === 'social-metrics' && (
+          <Ventana url="portal.tuempresa.com/tableros/redes" descripcion="Maqueta de un tablero de Social Metrics BI con indicadores y gráficos de redes sociales, con datos de ejemplo.">
+            <MaquetaTablero variante="compacta" />
+          </Ventana>
+        )}
+        {v.id === 'ecommerce' && <Catalogo variante="compacta" />}
+        {v.id === 'consultoria' && <Flujo variante="compacta" />}
+      </div>
+    </div>
+  </section>
+))}
+
+<style>
+  .vitrina__rejilla {
+    display: grid;
+    gap: var(--space-8);
+    align-items: center;
+  }
+
+  .vitrina__texto {
+    display: grid;
+    gap: var(--space-5);
+    align-content: start;
+  }
+
+  /* Las barras del logo con la de este producto encendida: la tesis de la portada, en cada vitrina */
+  .vitrina__nombre :global(.vitrina__barras) {
+    height: 0.62em;
+    margin-inline-end: 0.28em;
+  }
+
+  .vitrina__nombre {
+    font-size: clamp(2.25rem, 1.4rem + 3.2vw, 3.75rem);
+    font-weight: var(--peso-semi);
+    line-height: 1;
+    letter-spacing: var(--tracking-display);
+    color: var(--texto);
+    overflow-wrap: anywhere;
+    text-wrap: balance;
+  }
+
+  .vitrina__frase {
+    max-width: 26ch;
+    font-size: var(--text-2xl);
+    font-weight: var(--peso-medio);
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    color: var(--acento);
+    text-wrap: balance;
+  }
+
+  .vitrina__puntos li {
+    max-width: 34rem;
+  }
+
+  .vitrina__nota {
+    font-size: var(--text-sm);
+    color: var(--texto-3);
+  }
+
+  .vitrina__visual {
+    min-width: 0;
+  }
+
+  @media (min-width: 64rem) {
+    .vitrina__rejilla {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+      gap: var(--space-9);
+    }
+
+    .vitrina--invertida .vitrina__texto {
+      order: 2;
+    }
+
+    .vitrina--invertida .vitrina__rejilla {
+      grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+    }
+  }
+</style>

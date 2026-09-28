@@ -13,6 +13,8 @@ interface Props {
   imagenAlt?: string;
   /** Nodos JSON-LD propios de la página; se suman a Organización y Sitio web. */
   datosEstructurados?: Record<string, unknown>[];
+  /** Solo el inicio: el encabezado arranca transparente sobre la portada. */
+  inicio?: boolean;
 }
 
 const {
@@ -21,6 +23,7 @@ const {
   imagen = '/og/inicio.png',
   imagenAlt = 'Data Studio: datos que toda tu empresa puede usar',
   datosEstructurados = [],
+  inicio = false,
 } = Astro.props;
 
 const canonica = new URL(Astro.url.pathname, SITIO.url).href;
@@ -40,18 +43,14 @@ const grafo = {
       slogan: SITIO.lema,
       email: CONTACTO.email,
       telephone: CONTACTO.telefono,
-      address: {
-        '@type': 'PostalAddress',
-        addressLocality: CONTACTO.ciudad,
-        addressRegion: CONTACTO.region,
-        addressCountry: CONTACTO.codigoPais,
-      },
+      areaServed: 'Worldwide',
       contactPoint: {
         '@type': 'ContactPoint',
         telephone: CONTACTO.telefono,
         email: CONTACTO.email,
         contactType: 'sales',
         availableLanguage: ['es'],
+        areaServed: 'Worldwide',
       },
       sameAs: [CONTACTO.facebook],
     },
@@ -110,8 +109,16 @@ const grafo = {
     <script type="application/ld+json" set:html={JSON.stringify(grafo)} />
   </head>
   <body>
+    <!--
+      THESIS: Data Studio se presenta con su propio logo en movimiento: las cuatro barras del monitor son sus cuatro soluciones. Rechaza el héroe SaaS de captura + métricas.
+      OWN-WORLD: abismo #001720, petróleo #00394e, verde #037a70 / #4dcfc1, salvia #ced9bd; Poppins, DM Mono solo para datos; barras rectas, contenedores de 12–16 px, botones pastilla; el producto dibujado en HTML.
+      STORY: el visitante reconoce la marca, ve cuatro soluciones, elige una y en su subpágina escribe por WhatsApp.
+      FIRST VIEWPORT: portada a pantalla completa sobre un tablero en perspectiva tenue; al centro, Bienvenido, el ícono plateado que se arma, el wordmark, el lema y ¿Estás preparado para innovar?; abajo, Descubre nuestras soluciones.
+      FORM: extensión del mundo ya establecido; dirección fijada por el dueño (sin sorteo). Semilla: brief-pinned.
+      FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md
+    -->
     <a class="saltar-contenido" href="#contenido">Saltar al contenido</a>
-    <Encabezado />
+    <Encabezado sobrePortada={inicio} />
     <main id="contenido" tabindex="-1">
       <slot />
     </main>

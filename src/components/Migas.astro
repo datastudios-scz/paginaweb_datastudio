@@ -1,0 +1,72 @@
+---
+/**
+ * Migas de pan visibles de una subpágina ("Inicio / Portal BI").
+ * Orientan de verdad (no son un rótulo decorativo) y coinciden con el BreadcrumbList
+ * del JSON-LD que arma `migas()` en src/scripts/esquemas.ts.
+ * Heredan colores del `data-tema` de la sección donde se usan.
+ * Con `solucion`, la página actual lleva las barras del logo con la suya encendida.
+ */
+import BarrasMarca from './BarrasMarca.astro';
+import type { SOLUCIONES } from '../data/sitio';
+
+interface Props {
+  actual: string;
+  solucion?: (typeof SOLUCIONES)[number]['id'];
+  class?: string;
+}
+
+const { actual, solucion, class: clase } = Astro.props;
+---
+
+<nav class:list={['migas', clase]} aria-label="Ruta de navegación">
+  <ol role="list">
+    <li><a href="/">Inicio</a></li>
+    <li aria-current="page">{solucion && <BarrasMarca activa={solucion} class="migas__barras" />}{actual}</li>
+  </ol>
+</nav>
+
+<style>
+  .migas ol {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    font-size: var(--text-sm);
+    color: var(--texto-3);
+  }
+
+  .migas li {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .migas li + li::before {
+    content: '/';
+    color: var(--linea-fuerte);
+  }
+
+  .migas a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.25rem;
+    color: var(--texto-2);
+    text-decoration: none;
+    transition: color var(--dur-1) var(--ease-out);
+  }
+
+  .migas a:hover {
+    color: var(--acento);
+  }
+
+  .migas [aria-current='page'] {
+    color: var(--texto);
+    font-weight: var(--peso-medio);
+  }
+
+  .migas [aria-current='page'] :global(.migas__barras) {
+    height: 0.875em;
+  }
+</style>

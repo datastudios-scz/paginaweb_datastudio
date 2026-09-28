@@ -1,0 +1,62 @@
+---
+/**
+ * Cómo trabaja Data Studio, dicho en una afirmación tipográfica (no en tarjetas).
+ * Todo lo que dice está confirmado: trabajo remoto con cualquier país, compra de código
+ * (Portal BI y tienda), APIs oficiales (Social Metrics) y marca propia del cliente.
+ */
+---
+
+<section class="seccion manifiesto" data-tema="verde" aria-labelledby="manifiesto-titulo">
+  <div class="contenedor">
+    <h2 id="manifiesto-titulo" class="manifiesto__titulo">
+      Trabajamos 100&nbsp;% en remoto, con empresas de cualquier país.
+    </h2>
+    <ul class="manifiesto__lista" role="list">
+      <li><strong>El código es tuyo.</strong> Cuando compras el Portal BI o la tienda, te entregamos el código y la guía.</li>
+      <li><strong>Solo APIs oficiales.</strong> Tus datos se leen con el acceso que cada plataforma ofrece, nada más.</li>
+      <li><strong>Con tu marca.</strong> Portales y tableros con tu logo y tus colores, no con los nuestros.</li>
+    </ul>
+  </div>
+</section>
+
+<style>
+  .manifiesto__titulo {
+    max-width: 20ch;
+    font-size: clamp(2rem, 1.2rem + 3.4vw, 4rem);
+    font-weight: var(--peso-semi);
+    line-height: 1.04;
+    letter-spacing: var(--tracking-display);
+    color: var(--texto);
+    text-wrap: balance;
+  }
+
+  .manifiesto__lista {
+    display: grid;
+    gap: var(--space-5);
+    margin: var(--space-8) 0 0;
+    padding: var(--space-6) 0 0;
+    border-top: 1px solid var(--linea-fuerte);
+  }
+
+  .manifiesto__lista li {
+    max-width: 30rem;
+    font-size: var(--text-md);
+    line-height: 1.6;
+    color: var(--texto-2);
+  }
+
+  .manifiesto__lista strong {
+    display: block;
+    margin-bottom: var(--space-1);
+    font-size: var(--text-lg);
+    font-weight: var(--peso-semi);
+    color: var(--texto);
+  }
+
+  @media (min-width: 56rem) {
+    .manifiesto__lista {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-7);
+    }
+  }
+</style>

@@ -2,6 +2,36 @@
 
 Formato: contexto → decisión → consecuencias. Las decisiones nuevas van arriba.
 
+## ADR-013 · Maquetas con datos de ejemplo rotulados (27/09/2026)
+
+- **Contexto**: la revisión de diseño marcó que la maqueta de la tienda (líneas grises y formas) no mostraba nada, y que los héroes de Social Metrics y Consultoría repetían el diagrama de más abajo.
+- **Decisión**: las maquetas muestran contenido de ejemplo creíble (una cafetería con productos y precios, un ranking de publicaciones, tres planillas que no cuadran frente a un reporte único), siempre con el rótulo "Datos de ejemplo". Lo que no se inventa son afirmaciones comerciales: clientes, testimonios, precios reales, cifras de resultados.
+- **Consecuencias**: cada héroe enseña algo distinto a su sección principal. Si llega material real (capturas, clientes), reemplaza a la maqueta.
+
+## ADR-012 · Menú móvil como cajón lateral con `<dialog>` (27/09/2026)
+
+- **Contexto**: el menú móvil anterior se abría de arriba abajo y se sentía básico.
+- **Decisión**: cajón lateral con `<dialog>` + `showModal()` (foco atrapado, Esc, fondo inerte gratis), entrada con `@starting-style`, cierre con clic en el fondo, bloqueo del scroll y "Estás aquí" en la página actual. En escritorio, el enlace activo lleva `aria-current="page"` y subrayado.
+- **Consecuencias**: sin librerías; funciona con teclado y lector de pantalla. Requiere navegadores de 2023 en adelante para la animación (sin ella, abre igual).
+
+## ADR-011 · Público internacional y trabajo 100 % remoto (27/09/2026)
+
+- **Contexto**: el dueño aclaró que sus clientes son de todo el mundo y que todo se implementa en remoto.
+- **Decisión**: se quitaron ciudad y país del sitio nuevo (textos, pie, JSON-LD); `CONTACTO.modalidad` = "Implementación remota en cualquier país"; `areaServed: 'Worldwide'`; locale `es_LA`. Las páginas legales no se tocan.
+- **Consecuencias**: el teléfono sigue siendo boliviano (+591); es el canal real.
+
+## ADR-010 · El inicio distribuye; cada producto tiene su subpágina (27/09/2026)
+
+- **Contexto**: el inicio explicaba los cuatro productos a fondo y competía con sus propias páginas.
+- **Decisión**: inicio = marca + índice. Portada → gráfico de soluciones → una vitrina por producto (nombre, frase, 3 puntos, enlace) → manifiesto de trabajo remoto. Los botones de WhatsApp viven solo en las subpáginas (`/portal-bi/`, `/social-metrics-bi/`, `/tienda-ecommerce/`, `/consultoria/`), que comparten `src/styles/producto.css`. El orden del logo (Consultoría, Social, Portal, Tienda) solo se usa en el gráfico; menú, pie y vitrinas usan el orden comercial (Portal BI primero).
+- **Consecuencias**: el inicio mantiene la descripción de las integraciones con redes y el enlace a la Política de Privacidad (requisito de las plataformas) en la vitrina de Social Metrics.
+
+## ADR-009 · Portada de marca a pantalla completa con telón y scroll (27/09/2026)
+
+- **Contexto**: el dueño pidió que el inicio empiece con la marca, como la portada del Google Sites, con animación al bajar.
+- **Decisión**: portada `sticky` (100svh) con el ícono y el wordmark en SVG que se arman al cargar, y un tablero en perspectiva hecho en HTML/SVG de fondo. La sección de soluciones sube como un telón; con CSS scroll-driven animations las barras del logo se vacían en el mismo tramo de scroll en que se llenan las cuatro barras del gráfico (línea de tiempo `--grafico`). Sin soporte (Firefox) o con movimiento reducido, todo queda quieto y visible.
+- **Consecuencias**: cero JS para el efecto y 100 en Lighthouse. Reemplaza al hero de ADR-005: el signo de las cuatro barras sigue, ahora como sección bajo la portada, con el bisel del monitor del logo como base.
+
 ## ADR-008 · Página del Portal BI adaptada desde la página de producto del repo del Portal BI (25/09/2026)
 
 - **Contexto**: el dueño entregó `producto.ejs`, una página de producto hecha en el repo del Portal BI, con maquetas fieles del portal y del chat con IA.

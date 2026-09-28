@@ -32,18 +32,25 @@
 ├── scripts/
 │   ├── generar-recursos.mjs     Favicons, íconos de app e imágenes OG desde el logo vectorial
 │   ├── qa.mjs                   QA visual y técnico en 6 anchos (necesita `npm run preview`)
+│   ├── capturas-scroll.mjs      Capturas del viewport en varias posiciones de scroll, con movimiento (portada → telón)
 │   └── cortar-capturas.mjs      Corta capturas de página completa en tramos
 ├── src/
 │   ├── assets/fuentes/          woff2 + licencias OFL
 │   ├── components/
-│   │   ├── Encabezado.astro, PiePagina.astro, Logo.astro, Icono.astro, Hero.astro, Preguntas.astro
-│   │   ├── inicio/              Secciones del home (PortalResumen, SocialMetrics, Ecommerce, Consultoria, LlamadoFinal)
-│   │   └── portal/              Maquetas del Portal BI (Ventana, MaquetaPortal, MaquetaChat) y Calculadora
+│   │   ├── Encabezado.astro     Barra con enlace activo + cajón lateral (<dialog>); transparente sobre la portada
+│   │   ├── PiePagina.astro, Logo.astro, Icono.astro, Preguntas.astro
+│   │   ├── Migas.astro          Migas de pan de las subpáginas (con BarrasMarca)
+│   │   ├── BarrasMarca.astro    Las 4 barras del logo en miniatura, con la del producto encendida
+│   │   ├── inicio/              Portada (sticky), Soluciones (telón + gráfico), Vitrinas, Manifiesto
+│   │   ├── portal/              Maquetas del Portal BI (Ventana, MaquetaPortal, MaquetaChat) y Calculadora
+│   │   ├── social/              MaquetaTablero (variantes completa, compacta y publicaciones)
+│   │   ├── tienda/              Catalogo (tienda de ejemplo, variantes completa y compacta)
+│   │   └── consultoria/         Flujo (recorrido de los datos) y Consolidado (héroe: planillas → reporte)
 │   ├── data/sitio.ts            ★ Fuente única de verdad: contacto, WhatsApp, navegación, soluciones, precio de licencia
 │   ├── layouts/Base.astro       <head> (SEO, OG, JSON-LD, fuentes), encabezado, pie
-│   ├── pages/                   index.astro (/), portal-bi.astro (/portal-bi/), 404.astro
+│   ├── pages/                   index, portal-bi, social-metrics-bi, tienda-ecommerce, consultoria, 404
 │   ├── scripts/                 formato.ts (miles, cálculo de ahorro), esquemas.ts (JSON-LD), revelar.ts
-│   └── styles/                  tokens.css (diseño), global.css (base y utilidades)
+│   └── styles/                  tokens.css (diseño), global.css (base y utilidades), producto.css (clases prod-* de las subpáginas)
 ├── astro.config.mjs             Sitio, fuentes, CSP, sitemap
 └── CLAUDE.md                    Reglas para agentes de IA que trabajen en el repo
 ```
@@ -52,8 +59,11 @@
 
 | Ruta | Archivo | Contenido |
 | --- | --- | --- |
-| `/` | `src/pages/index.astro` | Hero con las 4 barras del logo = 4 soluciones → Portal BI (resumen) → Social Metrics BI → Tienda e-commerce → Consultoría → Preguntas → Llamado final |
-| `/portal-bi/` | `src/pages/portal-bi.astro` | Página de producto completa con maquetas del portal y del chat con IA, instalación, calculadora de ahorro, requisitos, límites y preguntas |
+| `/` | `src/pages/index.astro` | Portada de marca (sticky) → Soluciones: gráfico de 4 barras = 4 soluciones (telón) → Vitrinas por producto → Manifiesto. Solo distribuye: sin WhatsApp |
+| `/portal-bi/` | `src/pages/portal-bi.astro` | Producto completo: maquetas del portal y del chat con IA, compra de código + guía, instalación, calculadora de ahorro, requisitos, límites y preguntas |
+| `/social-metrics-bi/` | `src/pages/social-metrics-bi.astro` | Métricas de redes en Power BI: vista de publicaciones, recorrido de los datos, tablero completo, acceso, implementación, tratamiento de datos y preguntas |
+| `/tienda-ecommerce/` | `src/pages/tienda-ecommerce.astro` | Código de tienda online + guía, pago único, pedidos por WhatsApp |
+| `/consultoria/` | `src/pages/consultoria.astro` | Consultoría de datos: planillas → reporte, recorrido de los datos, qué resolvemos, proceso y preguntas |
 | `/404.html` | `src/pages/404.astro` | Página de error con enlaces a las soluciones (GitHub Pages la sirve sola) |
 | `/privacidad/`, `/terminos/`, `/oauth/tiktok/` | `public/…` | HTML estático preservado byte a byte. **No reemplazar por páginas Astro sin revisar [seguridad.md](seguridad.md).** |
 
@@ -68,3 +78,5 @@ GitHub Pages redirige `/privacidad` → `/privacidad/` (301) y **conserva el que
 - **Estilos con alcance**: una clase pasada a un componente hijo (p. ej. `<Icono class="x">`) **no** recibe el estilo con alcance del padre. Usar `.padre :global(.x)`. Ver [aprendizajes.md](aprendizajes.md).
 - **CSP estricta**: nada de atributos `style="…"` en el HTML ni scripts externos. Para valores dinámicos, clases o `element.style` desde JS (CSSOM, permitido).
 - **Aparición al hacer scroll**: agregar `data-revelar` a un bloque. Sin JS o con movimiento reducido, todo se ve de inmediato.
+- **Animaciones ligadas al scroll** (portada y gráfico): CSS `animation-timeline` con `@supports` y `prefers-reduced-motion`. La línea de tiempo y el rango van en una regla aparte del atajo `animation` (ver [aprendizajes.md](aprendizajes.md)).
+- **Orden de los productos**: el gráfico del inicio usa el orden del logo (alturas 60/80/100/60); menú, pie y vitrinas usan `NAVEGACION` (Portal BI primero).

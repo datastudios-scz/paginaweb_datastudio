@@ -1,0 +1,531 @@
+---
+/**
+ * Diagrama del recorrido de los datos en la consultoría:
+ *   Tus fuentes → Ingeniería de datos → Infraestructura → Power BI a medida → Tableros y reportes.
+ * Reemplaza la grilla de tarjetas de capacidades: cada servicio aparece en el tramo donde actúa
+ * (Integraciones con APIs en las fuentes, Analítica en los tableros, Automatización en el ciclo).
+ *
+ * - Semántica: lista ordenada, porque la secuencia sí importa. Nodos y conectores son decorativos.
+ * - Orientación por consulta de contenedor (no por pantalla): horizontal cuando el diagrama
+ *   tiene 52rem de ancho o más; vertical en columnas angostas (móvil, héroe, inicio ~480px).
+ * - `completa`: nombre (h3), texto, piezas, servicio y el ciclo de automatización. Va directo
+ *   sobre el fondo de una sección (el rótulo del ciclo tapa la línea con `--fondo`).
+ * - `compacta`: nombre y una línea corta en un panel, sin encabezados (sirve dentro de un héroe).
+ * - Movimiento: un pulso recorre los conectores en relevo (transform/opacity) y el nodo que lo
+ *   recibe se enciende. Corre solo mientras el diagrama está en pantalla (IntersectionObserver
+ *   alterna `.flujo--activo`) y nunca con movimiento reducido. Sin JS: todo visible y quieto.
+ * - Colores solo desde el tema de la sección: funciona en oscuro, petroleo, claro, blanco y salvia.
+ */
+import Icono from '../Icono.astro';
+
+interface Props {
+  variante?: 'completa' | 'compacta';
+  class?: string;
+}
+
+interface Etapa {
+  nombre: string;
+  icono: 'apis' | 'ingenieria' | 'infraestructura' | 'tableros' | 'analitica';
+  /** Línea de la variante compacta. */
+  corto: string;
+  /** Qué hacemos en este tramo (variante completa). */
+  texto: string;
+  piezas: string[];
+  /** Servicio que actúa aquí, cuando el nombre del tramo no lo dice. */
+  servicio?: string;
+}
+
+const ETAPAS: Etapa[] = [
+  {
+    nombre: 'Tus fuentes',
+    icono: 'apis',
+    corto: 'Excel, sistemas, bases de datos, APIs y redes',
+    texto: 'Partimos de lo que ya usas. Si tus datos viven en redes sociales o plataformas externas, los traemos mediante sus APIs.',
+    piezas: ['Excel', 'Sistemas', 'Bases de datos', 'APIs', 'Redes sociales'],
+    servicio: 'Integraciones con APIs',
+  },
+  {
+    nombre: 'Ingeniería de datos',
+    icono: 'ingenieria',
+    corto: 'Procesos ETL que se actualizan solos',
+    texto: 'Procesos ETL que integran tus fuentes, ordenan los datos y se actualizan solos.',
+    piezas: ['Extracción', 'Transformación', 'Carga'],
+  },
+  {
+    nombre: 'Infraestructura de datos',
+    icono: 'infraestructura',
+    corto: 'Base de datos, data warehouse o nube',
+    texto: 'Bases de datos, data warehouse y nube, a la medida de tu operación: un solo lugar para tus datos.',
+    piezas: ['Base de datos', 'Data warehouse', 'Nube'],
+  },
+  {
+    nombre: 'Power BI a medida',
+    icono: 'tableros',
+    corto: 'Modelo, DAX y diseño con tu identidad',
+    texto: 'Modelado, DAX y diseño de tableros con la identidad de tu empresa. Cada indicador se define una sola vez.',
+    piezas: ['Modelo', 'DAX', 'Diseño'],
+  },
+  {
+    nombre: 'Tableros y reportes',
+    icono: 'analitica',
+    corto: 'KPIs y reportes siempre al día',
+    texto: 'KPIs, tableros y reportes que responden preguntas concretas del negocio.',
+    piezas: ['KPIs', 'Tableros', 'Reportes'],
+    servicio: 'Analítica de datos',
+  },
+];
+
+const { variante = 'completa', class: clase } = Astro.props;
+const completa = variante === 'completa';
+const ultima = ETAPAS.length - 1;
+---
+
+<div class:list={['flujo', `flujo--${variante}`, clase]} data-flujo>
+  <ol class="flujo__etapas" role="list" aria-label="Recorrido de tus datos, de las fuentes a los reportes">
+    {ETAPAS.map((e, i) => (
+      <li class="flujo__etapa">
+        <div class="flujo__via" aria-hidden="true">
+          <span class="flujo__nodo"><Icono nombre={e.icono} /></span>
+          {i < ultima && (
+            <span class="flujo__conector">
+              <span class="flujo__pulso"></span>
+              <svg class="flujo__punta" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3.5 5 6.5 8 3.5" /></svg>
+            </span>
+          )}
+        </div>
+
+        <div class="flujo__texto">
+          {completa ? <h3 class="flujo__nombre">{e.nombre}</h3> : <p class="flujo__nombre">{e.nombre}</p>}
+          <p class="flujo__linea">{completa ? e.texto : e.corto}</p>
+          {completa && (
+            <ul class="flujo__piezas" role="list">
+              {e.piezas.map((p) => <li>{p}</li>)}
+            </ul>
+          )}
+          {completa && e.servicio && (
+            <p class="flujo__servicio"><span class="solo-lectores">Servicio que actúa aquí: </span>{e.servicio}</p>
+          )}
+        </div>
+      </li>
+    ))}
+  </ol>
+
+  {completa && (
+    <div class="flujo__ciclo">
+      <span class="flujo__tramo" aria-hidden="true">
+        <svg class="flujo__tramo-punta" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6.5 5 3.5 8 6.5" /></svg>
+      </span>
+      <p class="flujo__ciclo-texto">
+        <Icono nombre="automatizacion" />
+        <span><strong>Automatización de reportes:</strong> el recorrido se repite solo y tus reportes quedan al día.</span>
+      </p>
+    </div>
+  )}
+</div>
+
+<script>
+  // El pulso corre solo con el diagrama a la vista: fuera de pantalla no gasta nada.
+  const flujos = document.querySelectorAll<HTMLElement>('[data-flujo]');
+  const quieto = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (flujos.length && !quieto && 'IntersectionObserver' in window) {
+    const observador = new IntersectionObserver(
+      (entradas) => {
+        for (const entrada of entradas) {
+          entrada.target.classList.toggle('flujo--activo', entrada.isIntersecting);
+        }
+      },
+      { threshold: 0.15 },
+    );
+    flujos.forEach((f) => observador.observe(f));
+  }
+</script>
+
+<style>
+  .flujo {
+    container: flujo / inline-size;
+    --nodo: 2.75rem;
+    --paso: 1.8s;
+    min-width: 0;
+  }
+
+  .flujo--compacta {
+    --nodo: 2.5rem;
+    padding: var(--space-6) var(--space-5);
+    border: 1px solid var(--linea);
+    border-radius: var(--radio-lg);
+    background: var(--superficie);
+  }
+
+  /* ── Etapas: vertical por defecto (nodo a la izquierda, texto a la derecha) ── */
+  .flujo__etapas {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .flujo__etapa {
+    --i: 0;
+    display: grid;
+    grid-template-columns: var(--nodo) minmax(0, 1fr);
+    column-gap: var(--space-4);
+  }
+
+  .flujo__etapa:nth-child(2) { --i: 1; }
+  .flujo__etapa:nth-child(3) { --i: 2; }
+  .flujo__etapa:nth-child(4) { --i: 3; }
+  .flujo__etapa:nth-child(5) { --i: 4; }
+
+  .flujo__via {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .flujo__nodo {
+    position: relative;
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: var(--nodo);
+    height: var(--nodo);
+    border: 1px solid var(--linea-fuerte);
+    border-radius: var(--radio-md);
+    background: var(--superficie);
+    color: var(--acento);
+  }
+
+  .flujo--compacta .flujo__nodo {
+    background: var(--fondo);
+  }
+
+  /* El destino del recorrido va lleno: ahí llegan los datos */
+  .flujo__etapa:last-child .flujo__nodo {
+    border-color: var(--acento);
+    background: var(--acento);
+    color: var(--fondo);
+  }
+
+  .flujo__nodo :global(svg) {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  /* Anillo que se enciende cuando llega el pulso */
+  .flujo__nodo::after {
+    content: '';
+    position: absolute;
+    inset: -5px;
+    border: 1px solid var(--acento);
+    border-radius: calc(var(--radio-md) + 4px);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .flujo__conector {
+    position: relative;
+    flex: 1;
+    width: 1px;
+    min-height: var(--space-5);
+    margin-block: 6px;
+    background: var(--linea-fuerte);
+  }
+
+  .flujo__punta {
+    position: absolute;
+    left: 50%;
+    bottom: -4px;
+    width: 10px;
+    height: 10px;
+    color: var(--texto-3);
+    transform: translateX(-50%);
+  }
+
+  /* El pulso: una capa del tamaño del conector que se desplaza su propio largo */
+  .flujo__pulso {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .flujo__pulso::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 7px;
+    height: 7px;
+    margin: -3.5px 0 0 -3.5px;
+    border-radius: 50%;
+    background: var(--acento);
+  }
+
+  .flujo__texto {
+    min-width: 0;
+    padding: 0.6rem 0 var(--space-6);
+  }
+
+  .flujo__etapa:last-child .flujo__texto {
+    padding-bottom: 0;
+  }
+
+  .flujo--compacta .flujo__texto {
+    padding-top: 0;
+    padding-bottom: var(--space-6);
+  }
+
+  .flujo--compacta .flujo__etapa:last-child .flujo__texto {
+    padding-bottom: 0;
+  }
+
+  .flujo__nombre {
+    font-size: var(--text-lg);
+    font-weight: var(--peso-semi);
+    line-height: 1.25;
+    letter-spacing: -0.015em;
+    color: var(--texto);
+    text-wrap: balance;
+    overflow-wrap: anywhere;
+  }
+
+  .flujo--compacta .flujo__nombre {
+    font-size: var(--text-md);
+    line-height: 1.35;
+  }
+
+  .flujo__linea {
+    margin-top: var(--space-2);
+    max-width: 34rem;
+    font-size: var(--text-sm);
+    line-height: 1.6;
+    color: var(--texto-2);
+    text-wrap: pretty;
+  }
+
+  .flujo--compacta .flujo__linea {
+    margin-top: 2px;
+  }
+
+  .flujo__piezas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: var(--space-4) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .flujo__piezas li {
+    padding: 2px 8px;
+    border: 1px solid var(--linea);
+    border-radius: var(--radio-sm);
+    font-size: var(--text-xs);
+    line-height: 1.6;
+    color: var(--texto-2);
+  }
+
+  .flujo__servicio {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+    font-size: var(--text-sm);
+    font-weight: var(--peso-medio);
+    line-height: 1.4;
+    color: var(--acento);
+  }
+
+  .flujo__servicio::before {
+    content: '';
+    width: 0.875rem;
+    height: 2px;
+    flex: none;
+    background: currentColor;
+  }
+
+  /* ── Ciclo de automatización ──────────────────────────────────────── */
+  .flujo__ciclo {
+    margin-top: var(--space-6);
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--linea);
+  }
+
+  .flujo__tramo {
+    display: none;
+  }
+
+  .flujo__ciclo-texto {
+    display: grid;
+    grid-template-columns: 1.25rem minmax(0, 1fr);
+    gap: var(--space-3);
+    max-width: 40rem;
+    font-size: var(--text-sm);
+    line-height: 1.6;
+    color: var(--texto-2);
+  }
+
+  .flujo__ciclo-texto strong {
+    font-weight: var(--peso-semi);
+    color: var(--texto);
+  }
+
+  .flujo__ciclo-texto :global(svg) {
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-top: 0.1em;
+    color: var(--acento);
+  }
+
+  /* ── Horizontal: cuando el diagrama tiene espacio para las cinco etapas ── */
+  @container flujo (min-width: 52rem) {
+    /* Subgrid: nombres, textos, piezas y servicios quedan alineados entre columnas */
+    .flujo__etapas {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      grid-template-rows: repeat(5, auto);
+    }
+
+    .flujo__etapa {
+      grid-row: span 5;
+      grid-template-rows: subgrid;
+      grid-template-columns: minmax(0, 1fr);
+      row-gap: 0;
+    }
+
+    .flujo__via {
+      flex-direction: row;
+      margin-bottom: var(--space-5);
+    }
+
+    .flujo__texto {
+      display: grid;
+      grid-row: span 4;
+      grid-template-rows: subgrid;
+      row-gap: 0;
+    }
+
+    .flujo__texto > * {
+      align-self: start;
+    }
+
+    .flujo__conector {
+      width: auto;
+      height: 1px;
+      min-height: 0;
+      margin-block: 0;
+      margin-inline: 6px;
+    }
+
+    .flujo__punta {
+      top: 50%;
+      right: -4px;
+      bottom: auto;
+      left: auto;
+      transform: translateY(-50%) rotate(-90deg);
+    }
+
+    .flujo__pulso::before {
+      top: 50%;
+      left: 0;
+    }
+
+    .flujo__texto,
+    .flujo--compacta .flujo__texto {
+      padding: 0 var(--space-5) 0 0;
+    }
+
+    /* El ciclo se dibuja como una cota bajo el recorrido: del último tramo vuelve al primero */
+    .flujo__ciclo {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      margin-top: var(--space-6);
+      padding: 0 0 var(--space-5);
+      border-top: 0;
+    }
+
+    .flujo__tramo,
+    .flujo__ciclo-texto {
+      grid-area: 1 / 1 / 2 / 5;
+      margin-inline: calc(var(--nodo) / 2) calc(var(--nodo) / -2);
+    }
+
+    .flujo__tramo {
+      display: block;
+      position: relative;
+      min-height: 1.5rem;
+      border: 1px solid var(--linea-fuerte);
+      border-top: 0;
+      border-radius: 0 0 var(--radio-sm) var(--radio-sm);
+    }
+
+    .flujo__tramo-punta {
+      position: absolute;
+      top: -4px;
+      left: -5.5px;
+      width: 10px;
+      height: 10px;
+      color: var(--texto-3);
+    }
+
+    .flujo__ciclo-texto {
+      align-self: end;
+      justify-self: center;
+      align-items: center;
+      max-width: calc(100% - 4rem);
+      padding-inline: var(--space-4);
+      background: var(--fondo);
+      transform: translateY(50%);
+    }
+  }
+
+  /* ── Movimiento: relevo de un solo pulso, lento, solo si se permite ── */
+  @keyframes flujo-y {
+    0% { transform: translateY(0); opacity: 0; }
+    3% { opacity: 1; }
+    17% { opacity: 1; }
+    20%, 100% { transform: translateY(100%); opacity: 0; }
+  }
+
+  @keyframes flujo-x {
+    0% { transform: translateX(0); opacity: 0; }
+    3% { opacity: 1; }
+    17% { opacity: 1; }
+    20%, 100% { transform: translateX(100%); opacity: 0; }
+  }
+
+  @keyframes flujo-nodo {
+    0% { opacity: 0; transform: scale(0.9); }
+    4% { opacity: 1; transform: scale(1); }
+    16%, 100% { opacity: 0; transform: scale(1); }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .flujo__pulso {
+      animation: flujo-y calc(var(--paso) * 5) var(--ease-in-out) calc(var(--i) * var(--paso) + 0.6s) infinite both paused;
+    }
+
+    .flujo__nodo::after {
+      animation: flujo-nodo calc(var(--paso) * 5) var(--ease-out) calc(var(--i) * var(--paso) + 0.3s) infinite both paused;
+    }
+
+    .flujo--activo .flujo__pulso,
+    .flujo--activo .flujo__nodo::after {
+      animation-play-state: running;
+    }
+
+    @container flujo (min-width: 52rem) {
+      .flujo__pulso {
+        animation-name: flujo-x;
+      }
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .flujo__pulso,
+    .flujo__nodo::after {
+      animation: none;
+      opacity: 0;
+    }
+  }
+</style>

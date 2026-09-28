@@ -70,7 +70,6 @@ const r = calcularAhorro(inicial, PRECIO_LICENCIA_USD);
     padding: clamp(1.25rem, 3vw, 2rem);
     border-radius: var(--radio-lg);
     background: var(--color-blanco);
-    border: 1px solid var(--color-linea-clara);
     box-shadow: var(--sombra-tarjeta);
     color: var(--color-abismo);
   }
@@ -147,16 +146,18 @@ const r = calcularAhorro(inicial, PRECIO_LICENCIA_USD);
     background: var(--color-papel-2);
   }
 
+  /* La barra escala con transform (compuesto por la GPU), no con width (recalcula el layout) */
   .comp__valor {
     display: block;
     height: 100%;
     width: 100%;
     background: var(--color-tinta-suave);
-    transition: width var(--dur-3) var(--ease-out);
+    transform-origin: 0 50%;
+    transition: transform var(--dur-3) var(--ease-out);
   }
 
   .comp__fila--portal .comp__valor {
-    width: 1.2%;
+    transform: scaleX(0.012);
     background: var(--color-verde);
   }
 
@@ -249,7 +250,7 @@ const r = calcularAhorro(inicial, PRECIO_LICENCIA_USD);
       poner('ahorro', dolares(r.ahorroAnual));
       poner('mes', dolares(r.ahorroMensual));
       // CSSOM (permitido por la CSP), no atributos style en el HTML.
-      barra.style.width = `${r.anchoPortal.toFixed(2)}%`;
+      barra.style.transform = `scaleX(${(r.anchoPortal / 100).toFixed(4)})`;
     };
 
     entrada.addEventListener('input', pintar);

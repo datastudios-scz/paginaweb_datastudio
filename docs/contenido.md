@@ -2,21 +2,21 @@
 
 ## Qué es Data Studio
 
-Empresa de soluciones de datos de **Santa Cruz de la Sierra, Bolivia**. Lema: *Innovación, analítica & marketing*.
+Empresa de soluciones de datos con base en Santa Cruz de la Sierra, Bolivia, que trabaja **100 % en remoto con empresas de cualquier país**. Lema: *Innovación, analítica & marketing*. El sitio no menciona ciudad ni país (decisión del dueño, 27/09/2026; ver ADR-011).
 
 | Línea | Qué vende | Llamado a la acción |
 | --- | --- | --- |
-| **Portal BI** (producto estrella; antes "BI Platform Engineer") | Portal web con marca propia para abrir tableros de Power BI con usuario y contraseña, sin una licencia por persona. Chat con IA sobre el modelo | Demo de 30 min por WhatsApp; página `/portal-bi/` |
-| **Social Metrics BI** | Métricas de Facebook, Instagram, YouTube y TikTok vía APIs oficiales, con histórico, en Power BI | "Implementar Social Metrics BI" (WhatsApp) |
-| **Tienda e-commerce** | Código fuente de una tienda online + guía de implementación. Pago único, pedidos por WhatsApp | "Comprar código + guía" (WhatsApp) |
-| **Consultoría de datos** | Analítica, ingeniería de datos (ETL), infraestructura, Power BI a medida, integraciones con APIs, automatización de reportes | "Agenda un diagnóstico" (WhatsApp) |
+| **Portal BI** (producto principal; antes "BI Platform Engineer") | Portal web con marca propia para abrir tableros de Power BI con usuario y contraseña, sin una licencia por persona. Chat con IA sobre el modelo. Se vende como **código + guía de implementación + curso grabado** | "Comprar código + guía" y demo de 30 min (WhatsApp); `/portal-bi/` |
+| **Social Metrics BI** | Métricas de Facebook, Instagram, YouTube y TikTok vía APIs oficiales, con histórico, en Power BI (texto del dueño, 27/09/2026) | "Contratar servicio" (WhatsApp); `/social-metrics-bi/` |
+| **Tienda e-commerce** | Código fuente de una tienda online + guía de implementación. Pago único, pedidos por WhatsApp | "Comprar código + guía" (WhatsApp); `/tienda-ecommerce/` |
+| **Consultoría de datos** | Analítica, ingeniería de datos (ETL), infraestructura, Power BI a medida, integraciones con APIs, automatización de reportes | "Agenda un diagnóstico" (WhatsApp); `/consultoria/` |
 
 ## Contacto (fuente: `src/data/sitio.ts`)
 
 - WhatsApp y teléfono: +591 760 18778 (`wa.me/59176018778`)
 - Correo: datastudio.scz@gmail.com
 - Facebook: facebook.com/DataStudioscz
-- Ubicación: Santa Cruz de la Sierra, Bolivia
+- Modalidad: implementación remota en cualquier país (no se publica ubicación)
 
 ## Fuentes del contenido
 
@@ -32,12 +32,15 @@ Empresa de soluciones de datos de **Santa Cruz de la Sierra, Bolivia**. Lema: *I
 | Con el portal basta una licencia (la de la cuenta que publica) | Página de producto del Portal BI |
 | +1.000 personas, instalación en 2 horas, no se cobra implementación | Página de producto del Portal BI |
 | Solo lectura, cuentas autorizadas, sin redistribución, revocable | Política de Privacidad y Condiciones del Servicio |
+| Datos de las maquetas (tienda de cafetería, ranking de publicaciones, ventas de marzo, chat del portal) | **Ficticios**, rotulados "Datos de ejemplo" en cada maqueta (ADR-013) |
 
 ## Pendientes de confirmar con el dueño
 
 - [ ] **Logos de clientes y testimonios** (el sitio anterior decía "Grandes empresas ya confían en nuestra solución" con logos que no se pudieron recuperar). Se necesita el archivo de cada logo y **permiso** del cliente. No se inventan.
 - [ ] **Portal de prueba** en Google Apps Script (usuario `data_studio`): ¿sigue representando al producto actual? Hoy no se enlaza; la página ofrece demo guiada de 30 min.
-- [ ] Cifras del Portal BI tomadas de la página de producto: "+1.000 personas", "2 horas", "no cobramos implementación". El sitio anterior decía "+100 usuarios" y ofrecía contratar la implementación.
+- [ ] Cifras del Portal BI tomadas de la página de producto: "+1.000 personas", "2 horas", "no cobramos implementación". El sitio anterior decía "+100 usuarios" y ofrecía contratar la implementación. Hoy se dicen una vez (sección de instalación y pregunta frecuente).
+- [ ] ¿Existe además un **servicio de implementación del Portal BI** (lo instalamos nosotros)? Hoy la página dice que lo instala el cliente.
+- [ ] Tienda de ejemplo (cafetería, productos y precios en US$): es ilustrativa. Si hay una tienda real hecha con la plantilla y permiso, conviene mostrarla.
 - [ ] Pasos del proceso de consultoría (Diagnóstico → Propuesta → Implementación → Acompañamiento): redactados como proceso estándar; validar.
 - [ ] Precios (tienda, portal, servicios): no se publican hasta tenerlos confirmados.
 - [ ] ¿Tuteo o voseo? Se eligió tuteo (como el sitio anterior). Las páginas legales usan voseo en partes; unificar cuando se rediseñen.

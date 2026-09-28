@@ -1,0 +1,514 @@
+/*
+ * Estilos compartidos de las subpáginas de producto (Portal BI, Social Metrics BI,
+ * Tienda e-commerce, Consultoría). Se importa solo en esas páginas:
+ *   import '../styles/producto.css';
+ * Lenguaje: se lee como un informe de BI (reglas finas, cifras tabulares), sin rótulos
+ * decorativos sobre los títulos: cada título habla solo.
+ * Todas las clases usan el prefijo `prod-` y heredan colores del `data-tema` de su sección.
+ */
+
+/* ── Héroe de producto: argumento a la izquierda, producto a la derecha ── */
+.prod-heroe {
+  padding-block: var(--space-6) var(--space-7);
+  background:
+    linear-gradient(180deg, var(--fondo) 0%, #022b3a 100%);
+  color: var(--texto);
+}
+
+.prod-heroe__rejilla {
+  display: grid;
+  gap: var(--space-8);
+  align-items: center;
+  margin-top: var(--space-6);
+}
+
+.prod-heroe__texto {
+  display: grid;
+  gap: var(--space-5);
+  min-width: 0;
+}
+
+.prod-heroe__titulo {
+  font-size: clamp(2.375rem, 1.4rem + 3.6vw, 4rem);
+  font-weight: var(--peso-semi);
+  line-height: 1.03;
+  letter-spacing: var(--tracking-display);
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+
+.prod-acento {
+  color: var(--acento);
+}
+
+.prod-heroe__bajada {
+  max-width: 34rem;
+  font-size: var(--text-lg);
+  line-height: 1.6;
+  color: var(--texto-2);
+  text-wrap: pretty;
+}
+
+/* Dato de anclaje: una cifra en contexto, sobre superficie tintada (sin borde de color) */
+.prod-ancla {
+  max-width: 32rem;
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radio-md);
+  background: var(--superficie);
+  color: var(--texto-2);
+}
+
+.prod-ancla b {
+  color: var(--texto);
+  font-weight: var(--peso-semi);
+}
+
+.prod-sellos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3) var(--space-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--text-sm);
+  color: var(--texto-2);
+}
+
+.prod-sellos li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.prod-sellos svg {
+  width: 1rem;
+  height: 1rem;
+  flex: none;
+  color: var(--acento);
+}
+
+/* Índice "en esta página" bajo el héroe */
+.prod-indice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-5);
+  margin-top: var(--space-8);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--linea);
+  font-size: var(--text-sm);
+}
+
+.prod-indice__rotulo {
+  font-size: var(--text-sm);
+  color: var(--texto-3);
+}
+
+.prod-indice a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  color: var(--texto-2);
+  font-weight: var(--peso-medio);
+  text-decoration: none;
+  transition: color var(--dur-1) var(--ease-out);
+}
+
+.prod-indice a:hover {
+  color: var(--acento);
+}
+
+/* ── Franja de hechos ─────────────────────────────────────────────── */
+.prod-franja {
+  background: var(--fondo);
+  color: var(--texto);
+}
+
+.prod-franja__rejilla {
+  display: grid;
+}
+
+.prod-hecho {
+  padding-block: var(--space-6);
+}
+
+.prod-hecho + .prod-hecho {
+  border-top: 1px solid var(--linea);
+}
+
+.prod-hecho__cifra {
+  font-size: clamp(1.625rem, 1.2rem + 1.8vw, 2.25rem);
+  font-weight: var(--peso-semi);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+.prod-hecho__texto {
+  max-width: 32ch;
+  margin-top: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--texto-2);
+}
+
+/* ── Secciones: separadas por reglas finas, como un informe ──────── */
+.prod-seccion + .prod-seccion {
+  border-top: 1px solid var(--linea);
+}
+
+.prod-cabecera {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.prod-cabecera > * {
+  max-width: 48rem;
+}
+
+.prod-bloque {
+  margin-top: var(--space-8);
+}
+
+.prod-subtitulo {
+  margin-bottom: var(--space-3);
+  font-size: var(--text-xl);
+  font-weight: var(--peso-semi);
+  letter-spacing: -0.02em;
+  color: var(--texto);
+}
+
+.prod-subtexto {
+  max-width: 38rem;
+  color: var(--texto-2);
+}
+
+.prod-par {
+  display: grid;
+  gap: var(--space-7);
+  align-items: center;
+}
+
+.prod-par--inicio {
+  align-items: start;
+}
+
+/* ── Antes / después ──────────────────────────────────────────────── */
+.prod-antes-despues {
+  display: grid;
+  gap: 1px;
+  margin-top: var(--space-7);
+  overflow: hidden;
+  border: 1px solid var(--linea);
+  border-radius: var(--radio-md);
+  background: var(--linea);
+}
+
+.prod-ad {
+  padding: var(--space-6);
+  background: var(--fondo);
+}
+
+.prod-ad--despues {
+  background: var(--superficie);
+}
+
+.prod-ad h3 {
+  margin-bottom: var(--space-5);
+  font-size: var(--text-md);
+  font-weight: var(--peso-semi);
+  color: var(--texto-3);
+}
+
+.prod-ad--despues h3 {
+  color: var(--acento);
+}
+
+.prod-ad ul {
+  display: grid;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.prod-ad li {
+  display: grid;
+  grid-template-columns: 1.125rem minmax(0, 1fr);
+  gap: var(--space-3);
+  line-height: 1.55;
+  color: var(--texto-2);
+}
+
+.prod-ad svg {
+  width: 1.125rem;
+  height: 1.125rem;
+  margin-top: 0.2em;
+  color: var(--texto-3);
+}
+
+.prod-ad--despues svg {
+  color: var(--acento);
+}
+
+/* ── Rasgos: título + texto, sin contenedores (no son tarjetas) ─────── */
+.prod-rasgos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+  gap: var(--space-7);
+  margin: var(--space-8) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.prod-rasgo h3 {
+  margin-bottom: var(--space-2);
+  font-size: var(--text-lg);
+  font-weight: var(--peso-semi);
+  letter-spacing: -0.015em;
+  color: var(--texto);
+}
+
+.prod-rasgo p {
+  font-size: var(--text-sm);
+  line-height: 1.65;
+  color: var(--texto-2);
+}
+
+.prod-rasgo__marca {
+  display: block;
+  width: 1.5rem;
+  height: 2px;
+  margin-bottom: var(--space-4);
+  background: var(--acento);
+  transition: transform 300ms var(--ease-out);
+  transform-origin: left;
+}
+
+.prod-rasgo:hover .prod-rasgo__marca {
+  transform: scaleX(1.8);
+}
+
+/* ── Listas de informe (con marca o numeradas si la secuencia importa) ── */
+.prod-lista {
+  margin: var(--space-5) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.prod-lista li {
+  display: grid;
+  grid-template-columns: 1.75rem minmax(0, 1fr);
+  gap: var(--space-3);
+  padding-block: var(--space-3);
+  border-bottom: 1px solid var(--linea);
+  color: var(--texto-2);
+}
+
+.prod-lista li:last-child {
+  border-bottom: 0;
+}
+
+.prod-lista .dato,
+.prod-lista svg {
+  color: var(--acento);
+}
+
+.prod-lista .dato {
+  padding-top: 0.15em;
+  font-size: var(--text-sm);
+}
+
+.prod-lista svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: 0.15em;
+}
+
+.prod-lista strong {
+  color: var(--texto);
+}
+
+.prod-lista--grande li {
+  padding-block: var(--space-4);
+}
+
+/* ── Pasos en secuencia (hora, etapa, número) ─────────────────────── */
+.prod-pasos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  gap: 1px;
+  margin: var(--space-7) 0 0;
+  padding: 0;
+  list-style: none;
+  overflow: hidden;
+  border: 1px solid var(--linea);
+  border-radius: var(--radio-md);
+  background: var(--linea);
+}
+
+.prod-pasos li {
+  padding: var(--space-6) var(--space-5);
+  background: var(--superficie);
+}
+
+.prod-pasos__marca {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+  font-size: var(--text-xs);
+  letter-spacing: 0.08em;
+  color: var(--acento);
+}
+
+.prod-pasos__marca::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--acento);
+}
+
+.prod-pasos h3 {
+  margin-bottom: var(--space-2);
+  font-size: var(--text-md);
+  font-weight: var(--peso-semi);
+  color: var(--texto);
+}
+
+.prod-pasos p:not(.prod-pasos__marca) {
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  color: var(--texto-2);
+}
+
+/* ── Límites ("lo que no hace") ───────────────────────────────────── */
+.prod-limites {
+  display: grid;
+  gap: 1px;
+  margin: var(--space-7) 0 0;
+  padding: 0;
+  list-style: none;
+  overflow: hidden;
+  border: 1px solid var(--linea);
+  border-radius: var(--radio-md);
+  background: var(--linea);
+}
+
+.prod-limites li {
+  padding: var(--space-6);
+  background: var(--fondo);
+}
+
+.prod-limites h3 {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+  font-size: var(--text-md);
+  font-weight: var(--peso-semi);
+  color: var(--texto);
+}
+
+.prod-no {
+  position: relative;
+  top: -2px;
+  flex: none;
+  padding: 1px 6px;
+  border: 1px solid var(--linea-fuerte);
+  border-radius: 3px;
+  font-family: var(--font-datos);
+  font-size: 0.625rem;
+  letter-spacing: 0.1em;
+  color: var(--texto-3);
+}
+
+.prod-limites p {
+  font-size: var(--text-sm);
+  line-height: 1.65;
+  color: var(--texto-2);
+}
+
+/* ── Cierre de página ─────────────────────────────────────────────── */
+.prod-cierre__titulo {
+  max-width: 20ch;
+  font-size: var(--text-3xl);
+  font-weight: var(--peso-semi);
+  line-height: 1.06;
+  letter-spacing: var(--tracking-titulo);
+  color: var(--texto);
+  text-wrap: balance;
+}
+
+.prod-cierre__texto {
+  max-width: 38rem;
+  margin-block: var(--space-5) var(--space-6);
+  font-size: var(--text-lg);
+  color: var(--texto-2);
+  text-wrap: pretty;
+}
+
+.prod-recuerdo {
+  display: grid;
+  gap: var(--space-5);
+  margin-top: var(--space-8);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--linea);
+}
+
+.prod-recuerdo__tit {
+  margin-bottom: var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: var(--peso-semi);
+  color: var(--texto);
+}
+
+.prod-recuerdo__txt {
+  font-size: var(--text-sm);
+  color: var(--texto-2);
+}
+
+.prod-recuerdo__txt b {
+  font-weight: var(--peso-semi);
+  color: var(--texto);
+}
+
+/* ── Adaptación ───────────────────────────────────────────────────── */
+@media (min-width: 48rem) {
+  .prod-franja__rejilla {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .prod-hecho + .prod-hecho {
+    border-top: 0;
+    border-left: 1px solid var(--linea);
+    padding-left: var(--space-6);
+  }
+
+  .prod-antes-despues,
+  .prod-limites {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .prod-recuerdo {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-6);
+  }
+}
+
+@media (min-width: 64rem) {
+  .prod-heroe__rejilla {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    gap: var(--space-8);
+  }
+
+  .prod-par {
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
+    gap: var(--space-8);
+  }
+
+  .prod-par--inicio {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  }
+}

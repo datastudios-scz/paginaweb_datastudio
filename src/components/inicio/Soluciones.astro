@@ -1,0 +1,416 @@
+---
+/**
+ * "Cuatro barras, cuatro soluciones": el gráfico del ícono a escala, como índice del sitio.
+ * Es el telón que sube sobre la portada. Define dos líneas de tiempo:
+ *   --telon   la hoja entera (la portada se aleja y la escena se hunde),
+ *   --grafico el gráfico: las barras del logo se vacían en la portada en el mismo tramo de
+ *             scroll en que estas se llenan; la "tinta" pasa del ícono al gráfico.
+ * - Escritorio: barras verticales con las proporciones exactas del ícono (0,60/0,80/1,00/0,60);
+ *   cada barra contiene su texto, que aparece cuando la barra termina de llenarse.
+ *   El gráfico se apoya en el bisel del monitor del logo (franja oscura con sus botones).
+ * - Móvil: el gráfico rota a barras horizontales.
+ * Cada barra enlaza a la subpágina del producto (el inicio solo distribuye).
+ */
+import Icono from '../Icono.astro';
+import { SOLUCIONES } from '../../data/sitio';
+---
+
+<section class="seccion soluciones" id="soluciones" data-tema="claro" aria-labelledby="soluciones-titulo">
+  <div class="contenedor">
+    <header class="soluciones__cabecera">
+      <h2 id="soluciones-titulo" class="titulo-seccion">Cuatro barras, cuatro soluciones.</h2>
+      <p class="entrada">
+        Cada barra de nuestro logo es una forma de ayudarte a decidir con datos. Elige la tuya.
+      </p>
+    </header>
+
+    <ul class="grafico" role="list" aria-label="Nuestras cuatro soluciones" data-revelar>
+      {SOLUCIONES.map((s, i) => (
+        <li class:list={['barra', `barra--${s.altura}`, `barra--i${i}`, { 'barra--destacada': 'destacado' in s && s.destacado }]}>
+          <a class="barra__enlace" href={s.href}>
+            <span class="barra__relleno" aria-hidden="true" />
+            <span class="barra__contenido">
+              <span class="barra__nombre">{s.nombre}</span>
+              <span class="barra__resumen">{s.resumen}</span>
+              <span class="barra__ir">
+                <span class="barra__ir-texto">Conocer</span>
+                <Icono nombre="flecha" />
+              </span>
+            </span>
+          </a>
+        </li>
+      ))}
+    </ul>
+    <div class="grafico__base" aria-hidden="true"><span></span><span></span><span></span></div>
+  </div>
+</section>
+
+<style>
+  .soluciones {
+    position: relative;
+    z-index: 1;
+    /* Línea de tiempo del telón: la portada la lee a través de timeline-scope */
+    view-timeline: --telon block;
+    border-radius: 28px 28px 0 0;
+    box-shadow: 0 -24px 48px -24px rgb(0 0 0 / 0.5);
+  }
+
+  /* Cabecera corta: el gráfico tiene que asomar mientras el ícono de la portada sigue a la vista */
+  .soluciones__cabecera {
+    display: grid;
+    gap: var(--space-3);
+    max-width: 44rem;
+    margin-bottom: var(--space-6);
+  }
+
+  @media (min-width: 64rem) {
+    .soluciones {
+      padding-top: var(--space-8);
+    }
+
+    .soluciones__cabecera {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr);
+      align-items: end;
+      gap: var(--space-8);
+      max-width: none;
+    }
+  }
+
+  /* ── Gráfico ─────────────────────────────────────────────────────── */
+  .grafico {
+    --alto-grafico: clamp(22rem, 30vw, 27rem);
+    view-timeline: --grafico block;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: clamp(0.75rem, 1.6vw, 1.5rem);
+    align-items: end;
+    height: var(--alto-grafico);
+    margin: 0;
+    padding: 0;
+    background-image: linear-gradient(to top, var(--linea) 1px, transparent 1px);
+    background-size: 100% 25%;
+    background-position: 0 100%;
+  }
+
+  .barra--b60 { --h: 60.2%; }
+  .barra--b80 { --h: 79.6%; }
+  .barra--b100 { --h: 100%; }
+
+  .barra {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    height: 100%;
+    min-width: 0;
+  }
+
+  .barra__enlace {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    height: var(--h);
+    min-height: min-content;
+    color: var(--color-blanco);
+    text-decoration: none;
+    background: var(--color-petroleo);
+    border-top: 3px solid var(--color-verde-claro);
+    transition: background-color var(--dur-2) var(--ease-out), border-color var(--dur-2) var(--ease-out);
+  }
+
+  .barra--destacada .barra__enlace {
+    background: var(--color-verde);
+    border-top-color: var(--color-blanco);
+  }
+
+  .barra__enlace:hover {
+    background: var(--color-verde);
+    border-top-color: var(--color-blanco);
+  }
+
+  .barra--destacada .barra__enlace:hover {
+    background: var(--color-verde-oscuro);
+  }
+
+  .barra__enlace:focus-visible {
+    outline: 2px solid var(--color-verde);
+    outline-offset: 4px;
+  }
+
+  /* En escritorio el propio enlace es la barra: el relleno solo existe en móvil */
+  .barra__relleno {
+    display: none;
+  }
+
+  .barra__contenido {
+    position: relative;
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-5) clamp(0.875rem, 1.4vw, 1.5rem);
+  }
+
+  .barra__nombre {
+    font-size: var(--text-lg);
+    font-weight: var(--peso-semi);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    overflow-wrap: anywhere;
+  }
+
+  .barra__resumen {
+    font-size: var(--text-sm);
+    line-height: 1.5;
+    color: var(--color-salvia);
+    transition: color var(--dur-2) var(--ease-out);
+  }
+
+  .barra--destacada .barra__resumen,
+  .barra__enlace:hover .barra__resumen {
+    color: var(--color-blanco);
+  }
+
+  .barra__ir {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-top: var(--space-2);
+    font-size: var(--text-sm);
+    font-weight: var(--peso-semi);
+    color: var(--color-verde-claro);
+  }
+
+  .barra--destacada .barra__ir,
+  .barra__enlace:hover .barra__ir {
+    color: var(--color-blanco);
+  }
+
+  .barra__ir :global(svg) {
+    width: 1.125rem;
+    height: 1.125rem;
+    transition: transform var(--dur-2) var(--ease-out);
+  }
+
+  .barra__enlace:hover .barra__ir :global(svg) {
+    transform: translateX(4px);
+  }
+
+  /* Bisel del monitor del logo: franja oscura con sus tres botones y el pie debajo */
+  .grafico__base {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.625rem;
+    height: 2rem;
+    margin-bottom: 1.25rem;
+    padding-inline: var(--space-5);
+    border-radius: 0 0 12px 12px;
+    background: var(--color-abismo);
+  }
+
+  .grafico__base::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    width: 7rem;
+    height: 0.875rem;
+    translate: -50% 0;
+    background: var(--color-petroleo);
+    clip-path: polygon(22% 0, 78% 0, 100% 100%, 0 100%);
+  }
+
+  /* Los tres botones del logo: píldoras centradas en el bisel, como en el ícono */
+  .grafico__base span {
+    width: 0.875rem;
+    height: 0.4375rem;
+    border-radius: var(--radio-pill);
+    background: var(--color-salvia);
+    opacity: 0.55;
+  }
+
+  /* ── Movimiento: las barras se llenan desde la base al bajar ─────── */
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .barra__enlace {
+        animation: llenar-y linear both;
+      }
+
+      .barra__contenido {
+        animation: texto-aparecer linear both;
+      }
+
+      /* Línea de tiempo en regla aparte: si comparte regla con el atajo, el minificador la
+         fusiona dentro de `animation` y Chrome descarta la declaración (docs/aprendizajes.md).
+         Los tramos son los mismos que usa la portada para vaciar las barras del logo. */
+      .grafico .barra__enlace,
+      .grafico .barra__contenido {
+        animation-timeline: --grafico;
+      }
+
+      .barra--i0 .barra__enlace { animation-range: entry 0% entry 70%; }
+      .barra--i1 .barra__enlace { animation-range: entry 6% entry 78%; }
+      .barra--i2 .barra__enlace { animation-range: entry 12% entry 86%; }
+      .barra--i3 .barra__enlace { animation-range: entry 18% entry 94%; }
+
+      .barra--i0 .barra__contenido { animation-range: entry 58% entry 80%; }
+      .barra--i1 .barra__contenido { animation-range: entry 66% entry 88%; }
+      .barra--i2 .barra__contenido { animation-range: entry 74% entry 96%; }
+      .barra--i3 .barra__contenido { animation-range: entry 80% entry 100%; }
+    }
+  }
+
+  /* Sin scroll-driven (p. ej. Firefox): se llenan una vez al entrar en pantalla */
+  @supports not (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      :global(.js) .grafico:not(.es-visible) .barra__enlace {
+        clip-path: inset(100% 0 0 0);
+      }
+
+      .barra__enlace {
+        transition:
+          clip-path 900ms cubic-bezier(0.16, 1, 0.3, 1),
+          background-color var(--dur-2) var(--ease-out);
+      }
+
+      .barra--i1 .barra__enlace { transition-delay: 80ms, 0ms; }
+      .barra--i2 .barra__enlace { transition-delay: 160ms, 0ms; }
+      .barra--i3 .barra__enlace { transition-delay: 240ms, 0ms; }
+    }
+  }
+
+  @keyframes llenar-y {
+    from { clip-path: inset(100% 0 0 0); }
+    to { clip-path: inset(0 0 0 0); }
+  }
+
+  @keyframes llenar-x {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+  }
+
+  @keyframes texto-aparecer {
+    from { opacity: 0; transform: translateY(0.75rem); }
+  }
+
+  /* ── Móvil y tablet: barras horizontales ─────────────────────────── */
+  @media (max-width: 63.99rem) {
+    .soluciones {
+      border-radius: 20px 20px 0 0;
+    }
+
+    .grafico {
+      grid-template-columns: minmax(0, 1fr);
+      height: auto;
+      gap: var(--space-3);
+      background: none;
+    }
+
+    .barra {
+      height: auto;
+    }
+
+    .barra__enlace {
+      height: auto;
+      min-height: 5.75rem;
+      justify-content: center;
+      overflow: hidden;
+      background: var(--color-abismo);
+      border-top: 0;
+      animation: none;
+      clip-path: none;
+    }
+
+    .barra--destacada .barra__enlace,
+    .barra__enlace:hover {
+      background: var(--color-abismo);
+    }
+
+    .barra__relleno {
+      display: block;
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: var(--h);
+      background: var(--color-petroleo);
+      box-shadow: inset -1px 0 0 rgb(77 207 193 / 0.75);
+      transform-origin: 0 50%;
+      transition: background-color var(--dur-2) var(--ease-out);
+    }
+
+    .barra--destacada .barra__relleno {
+      background: var(--color-verde);
+      box-shadow: inset -1px 0 0 var(--color-blanco);
+    }
+
+    .barra__enlace:hover .barra__relleno {
+      background: var(--color-verde);
+    }
+
+    .barra__contenido {
+      grid-template-columns: minmax(0, 1fr) auto;
+      column-gap: var(--space-4);
+      row-gap: var(--space-1);
+      align-items: center;
+      padding: var(--space-4) var(--space-5);
+    }
+
+    .barra__nombre,
+    .barra__resumen {
+      grid-column: 1;
+    }
+
+    .barra__ir {
+      grid-column: 2;
+      grid-row: 1 / span 2;
+      margin: 0;
+    }
+
+    .barra__ir-texto {
+      display: none;
+    }
+
+    .barra__ir :global(svg) {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+
+    /* Con el gráfico rotado a filas, el bisel inferior del monitor ya no tiene sentido */
+    .grafico__base {
+      display: none;
+    }
+
+    @supports (animation-timeline: view()) {
+      @media (prefers-reduced-motion: no-preference) {
+        /* En filas el texto siempre se lee: solo se llena la barra de fondo */
+        .barra__contenido {
+          animation: none;
+        }
+
+        .barra__relleno {
+          animation: llenar-x linear both;
+        }
+
+        .grafico .barra__relleno {
+          animation-timeline: --grafico;
+        }
+
+        .barra--i0 .barra__relleno { animation-range: entry 0% entry 45%; }
+        .barra--i1 .barra__relleno { animation-range: entry 15% entry 62%; }
+        .barra--i2 .barra__relleno { animation-range: entry 30% entry 79%; }
+        .barra--i3 .barra__relleno { animation-range: entry 45% entry 96%; }
+      }
+    }
+
+    @supports not (animation-timeline: view()) {
+      @media (prefers-reduced-motion: no-preference) {
+        :global(.js) .grafico:not(.es-visible) .barra__relleno {
+          transform: scaleX(0);
+        }
+
+        .barra__relleno {
+          transition: transform 900ms cubic-bezier(0.16, 1, 0.3, 1), background-color var(--dur-2) var(--ease-out);
+        }
+      }
+    }
+  }
+</style>

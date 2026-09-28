@@ -1,7 +1,7 @@
 ---
 import Logo from './Logo.astro';
 import Icono from './Icono.astro';
-import { SITIO, CONTACTO, LEGALES, SOLUCIONES, MENSAJES, enlaceWhatsApp } from '../data/sitio';
+import { SITIO, CONTACTO, LEGALES, NAVEGACION, MENSAJES, enlaceWhatsApp } from '../data/sitio';
 
 const anio = new Date().getFullYear();
 ---
@@ -15,7 +15,7 @@ const anio = new Date().getFullYear();
         </a>
         <p class="pie__lema">{SITIO.lema}</p>
         <p class="pie__texto">
-          Soluciones de datos para empresas de Bolivia: Power BI, analítica de redes sociales, comercio
+          Soluciones de datos para empresas de cualquier país: Power BI, analítica de redes sociales, comercio
           electrónico y consultoría.
         </p>
       </div>
@@ -23,7 +23,7 @@ const anio = new Date().getFullYear();
       <nav class="pie__columna" aria-label="Soluciones">
         <h2 class="pie__titulo">Soluciones</h2>
         <ul role="list">
-          {SOLUCIONES.map((s) => (
+          {NAVEGACION.map((s) => (
             <li><a href={s.href}>{s.nombre}</a></li>
           ))}
         </ul>
@@ -51,8 +51,8 @@ const anio = new Date().getFullYear();
             </a>
           </li>
           <li class="pie__ubicacion">
-            <Icono nombre="ubicacion" />
-            <span>{CONTACTO.ciudad}, {CONTACTO.pais}</span>
+            <Icono nombre="globo" />
+            <span>{CONTACTO.modalidad}</span>
           </li>
         </ul>
       </div>
@@ -68,7 +68,7 @@ const anio = new Date().getFullYear();
     </div>
 
     <div class="pie__base">
-      <p>© {anio} {SITIO.nombre}. {CONTACTO.ciudad}, {CONTACTO.pais}.</p>
+      <p>© {anio} {SITIO.nombre}. {SITIO.lema}.</p>
       <p>Power BI es una marca de Microsoft. Data Studio no está afiliada a Microsoft.</p>
     </div>
   </div>

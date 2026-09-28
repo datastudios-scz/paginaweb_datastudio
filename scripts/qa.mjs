@@ -12,7 +12,7 @@ import { mkdirSync, existsSync } from 'node:fs';
 import { chromium } from 'playwright-core';
 
 const BASE = process.argv[2] ?? 'http://localhost:4321';
-const PAGINAS = ['/', '/portal-bi/', '/no-existe-esta-pagina/'];
+const PAGINAS = ['/', '/portal-bi/', '/social-metrics-bi/', '/tienda-ecommerce/', '/consultoria/', '/no-existe-esta-pagina/'];
 const ANCHOS = [1440, 1024, 768, 414, 375, 320];
 
 const ejecutable = [
@@ -69,7 +69,22 @@ for (const ruta of PAGINAS) {
           const estilo = getComputedStyle(el);
           if (estilo.position === 'fixed' || el.closest('[aria-hidden="true"] .solo-lectores')) continue;
           // Contenido con scroll propio (tablas, código) es aceptable.
-          if (el.closest('.mka__tabla, .dax, .pb-terminal__cuerpo')) continue;
+          if (el.closest('.mka__tabla, .dax, .pb-terminal__cuerpo, .prod-terminal__cuerpo, .mqt-pestanas')) continue;
+          // Decoración recortada a propósito por un ancestro visible (overflow hidden/clip)
+          // que sí cabe en la pantalla: no se ve ni produce scroll.
+          let recortado = false;
+          for (let a = el.parentElement; a && a !== document.body; a = a.parentElement) {
+            const o = getComputedStyle(a);
+            if (/(hidden|clip)/.test(o.overflowX + o.overflow)) {
+              const ra = a.getBoundingClientRect();
+              if (ra.left >= -1 && ra.right <= vw + 1) {
+                // Dentro de una maqueta: si se recorta un control, es un defecto visible; se reporta.
+                recortado = !a.closest('.ventana');
+                break;
+              }
+            }
+          }
+          if (recortado) continue;
           fuera.push(`${el.tagName.toLowerCase()}.${[...el.classList].join('.')} (${Math.round(r.left)}→${Math.round(r.right)})`);
         }
       }

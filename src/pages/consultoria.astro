@@ -1,0 +1,339 @@
+---
+/**
+ * Página de Consultoría de datos. Mismo lenguaje que el resto de las subpáginas (producto.css):
+ * se lee como un informe, sin rótulos sobre los títulos.
+ * El núcleo es el diagrama del recorrido de los datos (Flujo): cada servicio se ubica en el
+ * tramo donde actúa, en lugar de una grilla de tarjetas.
+ * Solo afirmaciones respaldadas: sin herramientas, plazos, precios ni casos inventados.
+ */
+import Base from '../layouts/Base.astro';
+import Icono from '../components/Icono.astro';
+import Migas from '../components/Migas.astro';
+import Flujo from '../components/consultoria/Flujo.astro';
+import Consolidado from '../components/consultoria/Consolidado.astro';
+import Preguntas, { type Pregunta } from '../components/Preguntas.astro';
+import { CONTACTO, MENSAJES, SITIO, enlaceWhatsApp } from '../data/sitio';
+import { faqPage, migas } from '../scripts/esquemas';
+import '../styles/producto.css';
+
+const URL_PAGINA = `${SITIO.url}/consultoria/`;
+const diagnostico = enlaceWhatsApp(MENSAJES.consultoria);
+const correo = `mailto:${CONTACTO.email}?subject=${encodeURIComponent('Diagnóstico de datos')}`;
+
+const DESCRIPCION =
+  'Analítica, ingeniería e infraestructura de datos, Power BI a medida e integraciones con APIs. Integramos tus fuentes y automatizamos reportes. 100 % remoto.';
+
+const SERVICIOS = [
+  { nombre: 'Analítica de datos', texto: 'KPIs, tableros y reportes que responden preguntas concretas del negocio.' },
+  { nombre: 'Ingeniería de datos', texto: 'Procesos ETL que integran tus fuentes y se actualizan solos.' },
+  { nombre: 'Infraestructura de datos', texto: 'Bases de datos, data warehouse y nube, a la medida de tu operación.' },
+  { nombre: 'Power BI a medida', texto: 'Modelado, DAX y diseño de tableros con la identidad de tu empresa.' },
+  { nombre: 'Integraciones con APIs', texto: 'Redes sociales, sistemas internos y plataformas externas.' },
+  { nombre: 'Automatización de reportes', texto: 'Menos consolidación manual en Excel y reportes siempre al día.' },
+];
+
+// Secuencia real de trabajo: aquí la numeración sí transmite información.
+const PASOS = [
+  { titulo: 'Diagnóstico', texto: 'Conversamos sobre tus fuentes de datos, tus preguntas y tus prioridades.' },
+  { titulo: 'Propuesta', texto: 'Te presentamos el alcance, los entregables y los tiempos.' },
+  { titulo: 'Implementación', texto: 'Construimos la solución con entregas parciales que puedes revisar.' },
+  { titulo: 'Acompañamiento', texto: 'Capacitamos a tu equipo para que la solución se use de verdad.' },
+];
+
+const PREGUNTAS: Pregunta[] = [
+  {
+    pregunta: '¿Trabajan de forma remota?',
+    respuesta:
+      '<p>Sí. Todo el trabajo es remoto, del diagnóstico al acompañamiento, y trabajamos con equipos de cualquier país.</p>',
+  },
+  {
+    pregunta: '¿Con qué herramientas trabajan?',
+    respuesta:
+      '<p>Los tableros y reportes se construyen en <strong>Power BI</strong>, y partimos de las fuentes que ya usas: Excel, bases de datos, sistemas y APIs.</p><p>Si hace falta un lugar donde reunir los datos, definimos la base de datos, el data warehouse o la nube a la medida de tu operación.</p>',
+  },
+  {
+    pregunta: '¿Cómo empezamos?',
+    respuesta: `<p>Con un diagnóstico: conversamos sobre tus fuentes de datos, las preguntas que quieres responder y tus prioridades. Con eso te presentamos una propuesta con el alcance, los entregables y los tiempos.</p><p>Para agendarlo, <a href="${diagnostico}" target="_blank" rel="noopener noreferrer">escríbenos por WhatsApp</a> o a <a href="${correo}">${CONTACTO.email}</a>.</p>`,
+  },
+  {
+    pregunta: '¿Pueden integrar redes sociales o sistemas internos?',
+    respuesta:
+      '<p>Sí, mediante sus APIs. Conectamos redes sociales, sistemas internos y plataformas externas, y unimos esos datos con el resto de tus fuentes en un mismo modelo.</p><p>Si lo que buscas son las métricas de tus redes en un tablero listo, mira <a href="/social-metrics-bi/">Social Metrics BI</a>.</p>',
+  },
+  {
+    pregunta: '¿Capacitan a mi equipo?',
+    respuesta:
+      '<p>Sí. El último paso es el acompañamiento: capacitamos a tu equipo para que la solución se use de verdad. Y como durante la implementación revisas entregas parciales, tu equipo la conoce antes de recibirla.</p>',
+  },
+];
+---
+
+<Base
+  titulo="Consultoría de datos: analítica, ingeniería e infraestructura | Data Studio"
+  descripcion={DESCRIPCION}
+  imagen="/og/consultoria.png"
+  imagenAlt="Consultoría de datos de Data Studio: de tus fuentes a reportes confiables"
+  datosEstructurados={[
+    migas([
+      { nombre: 'Inicio', url: `${SITIO.url}/` },
+      { nombre: 'Consultoría de datos', url: URL_PAGINA },
+    ]),
+    faqPage(PREGUNTAS, URL_PAGINA),
+    {
+      '@type': 'Service',
+      '@id': `${URL_PAGINA}#servicio`,
+      name: 'Consultoría de datos',
+      serviceType: 'Consultoría de datos',
+      description: DESCRIPCION,
+      provider: { '@id': `${SITIO.url}/#organizacion` },
+      areaServed: 'Worldwide',
+      url: URL_PAGINA,
+      hasOfferCatalog: {
+        '@type': 'OfferCatalog',
+        name: 'Servicios de consultoría de datos',
+        itemListElement: SERVICIOS.map((s) => ({
+          '@type': 'Offer',
+          itemOffered: { '@type': 'Service', name: s.nombre, description: s.texto },
+        })),
+      },
+    },
+  ]}
+>
+  <!-- ═════════ HÉROE: el argumento a la izquierda; el problema y el resultado a la derecha ═════════ -->
+  <section class="prod-heroe" data-tema="oscuro" aria-labelledby="co-titulo">
+    <div class="contenedor">
+      <Migas actual="Consultoría de datos" solucion="consultoria" />
+
+      <div class="prod-heroe__rejilla">
+        <div class="prod-heroe__texto">
+          <h1 id="co-titulo" class="prod-heroe__titulo">
+            Ordenamos tus datos para que <span class="prod-acento">puedas usarlos.</span>
+          </h1>
+          <p class="prod-heroe__bajada">
+            Cuando la información está repartida entre planillas, sistemas y plataformas, te ayudamos a integrarla,
+            modelarla y convertirla en reportes confiables.
+          </p>
+          <div class="acciones">
+            <a class="boton boton--primario" href={diagnostico} target="_blank" rel="noopener noreferrer">
+              <Icono nombre="whatsapp" />
+              <span>Agenda un diagnóstico</span>
+            </a>
+            <a class="boton boton--secundario" href="#proceso">Cómo trabajamos</a>
+          </div>
+          <ul class="prod-sellos" role="list">
+            <li><Icono nombre="check" />100&nbsp;% remoto</li>
+            <li><Icono nombre="check" />Power BI a medida</li>
+            <li><Icono nombre="check" />Datos que se actualizan solos</li>
+          </ul>
+        </div>
+
+        <div class="co-heroe__visual">
+          <Consolidado />
+        </div>
+      </div>
+
+      <nav class="prod-indice" aria-label="En esta página">
+        <span class="prod-indice__rotulo">En esta página</span>
+        <a href="#recorrido">El recorrido</a>
+        <a href="#resolvemos">Qué resolvemos</a>
+        <a href="#proceso">Cómo trabajamos</a>
+        <a href="#preguntas">Preguntas</a>
+      </nav>
+    </div>
+  </section>
+
+  <!-- ═════════ EL RECORRIDO: cada servicio en el tramo donde actúa ═════════ -->
+  <section class="seccion prod-seccion" id="recorrido" data-tema="claro" aria-labelledby="recorrido-titulo">
+    <div class="contenedor">
+      <header class="prod-cabecera">
+        <h2 id="recorrido-titulo" class="titulo-seccion">El recorrido de tus datos, de la fuente al reporte.</h2>
+        <p class="entrada">
+          Tus datos pasan por cinco tramos desde donde se generan hasta el tablero con el que decides. Cada servicio
+          de consultoría actúa en uno de ellos.
+        </p>
+      </header>
+
+      <div class="prod-bloque">
+        <Flujo variante="completa" />
+      </div>
+
+      <div class="prod-bloque co-notas">
+        <div>
+          <h3 class="prod-subtitulo">No siempre hace falta recorrerlo entero.</h3>
+          <p class="prod-subtexto">
+            En el diagnóstico vemos en qué tramo se traba tu información: a veces es la integración, a veces el
+            modelo, a veces el diseño de los tableros. Empezamos por ahí.
+          </p>
+        </div>
+        <div>
+          <h3 class="prod-subtitulo">¿Y para que toda la empresa vea los tableros?</h3>
+          <p class="prod-subtexto">
+            Si necesitas compartirlos con mucha gente sin pagar una licencia de Power BI por persona, eso lo resuelve
+            el <a class="enlace" href="/portal-bi/">Portal BI</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════ QUÉ RESOLVEMOS ═════════ -->
+  <section class="seccion prod-seccion" id="resolvemos" data-tema="blanco" aria-labelledby="resolvemos-titulo">
+    <div class="contenedor">
+      <header class="prod-cabecera">
+        <h2 id="resolvemos-titulo" class="titulo-seccion">Menos tiempo armando reportes, más tiempo usándolos.</h2>
+        <p class="entrada">
+          El problema casi nunca es la falta de datos. Es que están repartidos, y cada reporte obliga a juntarlos a
+          mano.
+        </p>
+      </header>
+
+      <div class="prod-antes-despues">
+        <div class="prod-ad prod-ad--antes">
+          <h3>Con los datos repartidos</h3>
+          <ul role="list">
+            <li><Icono nombre="cerrar" />La información vive en planillas sueltas, sistemas y plataformas que no se hablan.</li>
+            <li><Icono nombre="cerrar" />Cada reporte se arma copiando y pegando en Excel.</li>
+            <li><Icono nombre="cerrar" />Dos áreas llegan a la reunión con cifras distintas para la misma pregunta.</li>
+            <li><Icono nombre="cerrar" />Cuando el reporte está listo, los datos ya cambiaron.</li>
+          </ul>
+        </div>
+        <div class="prod-ad prod-ad--despues">
+          <h3>Con los datos ordenados</h3>
+          <ul role="list">
+            <li><Icono nombre="check" />Tus fuentes se integran en un solo lugar, con procesos que se actualizan solos.</li>
+            <li><Icono nombre="check" />Un modelo único define cada indicador una sola vez.</li>
+            <li><Icono nombre="check" />Todos miran el mismo tablero de Power BI, con la identidad de tu empresa.</li>
+            <li><Icono nombre="check" />Los reportes están al día y tu equipo usa su tiempo en analizar.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════ CÓMO TRABAJAMOS: secuencia real, remota ═════════ -->
+  <section class="seccion prod-seccion" id="proceso" data-tema="claro" aria-labelledby="proceso-titulo">
+    <div class="contenedor">
+      <header class="prod-cabecera">
+        <h2 id="proceso-titulo" class="titulo-seccion">Empezamos por entender qué quieres responder.</h2>
+        <p class="entrada">
+          Cuatro pasos, en este orden. Antes de construir nada, entendemos tus fuentes, tus preguntas y tus
+          prioridades.
+        </p>
+      </header>
+
+      <ol class="prod-pasos" role="list">
+        {PASOS.map((p, i) => (
+          <li>
+            <p class="prod-pasos__marca dato">{String(i + 1).padStart(2, '0')}</p>
+            <h3>{p.titulo}</h3>
+            <p>{p.texto}</p>
+          </li>
+        ))}
+      </ol>
+
+      <div class="prod-bloque prod-par co-remoto">
+        <div>
+          <h3 class="prod-subtitulo">Remoto, de principio a fin</h3>
+          <p class="prod-subtexto">
+            Trabajamos con equipos de cualquier país. El diagnóstico, las entregas parciales y la capacitación de tu
+            equipo se hacen a distancia: no hace falta coincidir en la misma ciudad.
+          </p>
+        </div>
+        <div class="acciones co-remoto__acciones">
+          <a class="boton boton--primario" href={diagnostico} target="_blank" rel="noopener noreferrer">
+            <Icono nombre="whatsapp" />
+            <span>Agenda un diagnóstico</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <Preguntas id="preguntas" titulo="Lo que suelen preguntarnos" preguntas={PREGUNTAS} tema="salvia" />
+
+  <!-- ═════════ CIERRE ═════════ -->
+  <section class="seccion co-cierre" id="contacto" data-tema="oscuro" aria-labelledby="cierre-titulo">
+    <div class="contenedor">
+      <h2 id="cierre-titulo" class="prod-cierre__titulo">Cuéntanos qué quieres saber de tus datos.</h2>
+      <p class="prod-cierre__texto">
+        El primer paso es un diagnóstico. Nos cuentas cómo están hoy tus datos y qué necesitas responder con ellos,
+        y te proponemos por dónde empezar.
+      </p>
+      <div class="acciones">
+        <a class="boton boton--primario" href={diagnostico} target="_blank" rel="noopener noreferrer">
+          <Icono nombre="whatsapp" />
+          <span>Agenda un diagnóstico</span>
+        </a>
+        <a class="boton boton--secundario" href={correo}>
+          <Icono nombre="correo" />
+          <span>Escríbenos un correo</span>
+        </a>
+      </div>
+      <div class="prod-recuerdo">
+        <div>
+          <p class="prod-recuerdo__tit">Con qué trabajamos</p>
+          <p class="prod-recuerdo__txt"><b>Power BI</b> y las fuentes que ya usas: Excel, bases de datos, sistemas y APIs.</p>
+        </div>
+        <div>
+          <p class="prod-recuerdo__tit">Desde dónde</p>
+          <p class="prod-recuerdo__txt"><b>De forma remota</b>, con equipos de cualquier país.</p>
+        </div>
+        <div>
+          <p class="prod-recuerdo__tit">Después de la entrega</p>
+          <p class="prod-recuerdo__txt"><b>Acompañamos a tu equipo</b> para que la solución se use de verdad.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* ── Héroe: el visual no se estira más de lo que necesita ── */
+  .co-heroe__visual {
+    min-width: 0;
+  }
+
+  /* ── Notas bajo el diagrama: dos columnas de texto, sin contenedores ── */
+  .co-notas {
+    display: grid;
+    gap: var(--space-6) var(--space-8);
+    padding-top: var(--space-7);
+    border-top: 1px solid var(--linea);
+  }
+
+  .co-notas .prod-subtitulo {
+    line-height: 1.3;
+    text-wrap: balance;
+    overflow-wrap: anywhere;
+  }
+
+  /* ── Remoto + llamado ──────────────────────────────────────────────── */
+  .co-remoto {
+    padding-top: var(--space-7);
+    border-top: 1px solid var(--linea);
+  }
+
+  /* ── Cierre ────────────────────────────────────────────────────────── */
+  .co-cierre {
+    background:
+      var(--fondo);
+  }
+
+  @media (min-width: 48rem) {
+    .co-notas {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .co-heroe__visual {
+      justify-self: end;
+      width: 100%;
+      max-width: 34rem;
+    }
+
+    .co-remoto__acciones {
+      justify-content: flex-end;
+    }
+  }
+</style>

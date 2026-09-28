@@ -1,0 +1,983 @@
+---
+/**
+ * Maqueta del tablero de Social Metrics BI: un informe de Power BI dibujado en HTML/CSS/SVG
+ * para ir dentro de <Ventana>. Datos de ejemplo (rotulados), coherentes entre sí:
+ * la tasa de interacción es interacciones / alcance y las barras suman el total.
+ *
+ * - `completa`: cabecera, filtros, indicadores, líneas + barras, publicaciones destacadas y
+ *   pestañas del informe.
+ * - `compacta`: cabecera, filtros, indicadores, líneas + barras (apta para ~560 px).
+ * - `publicaciones`: la pestaña "Publicaciones" filtrada por Instagram: indicadores por
+ *   publicación y ranking por alcance (vista distinta de la del resumen, para el héroe).
+ * Se reorganiza con consultas de contenedor, no de pantalla: funciona igual en el héroe y a
+ * ancho completo, hasta 320 px, sin scroll horizontal.
+ *
+ * Movimiento con significado: al entrar en pantalla la serie de tiempo se traza de izquierda
+ * a derecha (clip-path) y las barras crecen desde cero (scaleX), una sola vez. El disparador
+ * es la clase .es-visible que agrega src/scripts/revelar.ts al elemento raíz [data-revelar].
+ * Sin JS o con movimiento reducido, todo se ve en su estado final.
+ */
+import Icono from '../Icono.astro';
+
+interface Props {
+  variante?: 'completa' | 'compacta' | 'publicaciones';
+}
+
+const { variante = 'completa' } = Astro.props;
+const completa = variante === 'completa';
+const publicaciones = variante === 'publicaciones';
+
+const PLATAFORMAS = [
+  { nombre: 'Facebook', icono: 'facebook' },
+  { nombre: 'Instagram', icono: 'instagram' },
+  { nombre: 'YouTube', icono: 'youtube' },
+  { nombre: 'TikTok', icono: 'tiktok' },
+] as const;
+
+// Datos de ejemplo. Alcance 1.280 mil (suma de la serie semanal); período anterior 1.083 mil.
+const KPIS = [
+  { nombre: 'Alcance', valor: '1,28 M', variacion: '+18,2 %', sube: true },
+  { nombre: 'Interacciones', valor: '86,4 mil', variacion: '+11,7 %', sube: true },
+  { nombre: 'Seguidores nuevos', valor: '5.920', variacion: '+9,3 %', sube: true },
+  { nombre: 'Tasa de interacción', valor: '6,8 %', variacion: '–0,4 pp', sube: false },
+];
+
+// Alcance por semana, en miles (13 semanas). Coordenadas: x = semana × 10; y = 120 − valor.
+const ACTUAL = [84, 86, 91, 88, 95, 99, 97, 103, 101, 108, 112, 106, 110];
+const ANTERIOR = [78, 80, 84, 79, 83, 86, 82, 85, 88, 84, 87, 83, 84];
+const trazo = (serie: number[]) => serie.map((v, i) => `${i ? 'L' : 'M'}${i * 10} ${120 - v}`).join('');
+const lineaActual = trazo(ACTUAL);
+const lineaAnterior = trazo(ANTERIOR);
+const relleno = `${lineaActual}L120 60L0 60Z`;
+
+// Interacciones por plataforma (miles): suman 86,4. `ancho` = proporción sobre la mayor.
+const BARRAS = [
+  { nombre: 'Instagram', valor: '38,9 mil', ancho: 'a100' },
+  { nombre: 'Facebook', valor: '27,6 mil', ancho: 'a71' },
+  { nombre: 'TikTok', valor: '13,1 mil', ancho: 'a34' },
+  { nombre: 'YouTube', valor: '6,8 mil', ancho: 'a17' },
+];
+
+const PUBLICACIONES = [
+  { tipo: 'Reel', red: 'Instagram', icono: 'instagram', fecha: '1 sep', alcance: '41.800', interacciones: '3.920' },
+  { tipo: 'Video', red: 'Facebook', icono: 'facebook', fecha: '12 ago', alcance: '33.150', interacciones: '2.410' },
+  { tipo: 'Video corto', red: 'TikTok', icono: 'tiktok', fecha: '26 ago', alcance: '28.600', interacciones: '2.180' },
+] as const;
+
+const PESTANAS = ['Resumen', 'Publicaciones', 'Audiencia', 'Campañas'];
+
+// Vista "Publicaciones" (Instagram). Datos de ejemplo coherentes con el resumen: la tasa es
+// interacciones / alcance y el ranking está ordenado por alcance.
+const KPIS_PUBLICACIONES = [
+  { nombre: 'Publicaciones', valor: '48', variacion: '+6', sube: true },
+  { nombre: 'Alcance medio', valor: '18,6 mil', variacion: '+12,4 %', sube: true },
+  { nombre: 'Tasa de interacción', valor: '7,4 %', variacion: '+0,6 pp', sube: true },
+];
+
+const RANKING = [
+  { tipo: 'Reel', fecha: '1 sep', alcance: '41.800', interacciones: '3.920', ancho: 'a100' },
+  { tipo: 'Carrusel', fecha: '22 ago', alcance: '29.400', interacciones: '2.260', ancho: 'a71' },
+  { tipo: 'Reel', fecha: '15 ago', alcance: '27.900', interacciones: '2.050', ancho: 'a71' },
+  { tipo: 'Imagen', fecha: '9 sep', alcance: '14.300', interacciones: '1.130', ancho: 'a34' },
+  { tipo: 'Carrusel', fecha: '28 ago', alcance: '7.200', interacciones: '640', ancho: 'a17' },
+] as const;
+
+const kpis = publicaciones ? KPIS_PUBLICACIONES : KPIS;
+---
+
+<div class:list={['mqt', `mqt--${variante}`]} data-revelar>
+  <div class="mqt-cab">
+    <p class="mqt-titulo">
+      <svg class="mqt-logo" viewBox="0 0 20 16" aria-hidden="true">
+        <rect x="0" y="6.4" width="4" height="9.6" />
+        <rect x="5.33" y="3.2" width="4" height="12.8" />
+        <rect x="10.67" y="0" width="4" height="16" />
+        <rect x="16" y="6.4" width="4" height="9.6" />
+      </svg>
+      <span>Social Metrics BI · {publicaciones ? 'Publicaciones' : 'Resumen'}</span>
+    </p>
+    <div class="mqt-cab__meta">
+      <span class="mqt-rango">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2" /><path d="M3.5 10h17M8 3v4M16 3v4" /></svg>
+        Últimos 90 días
+      </span>
+      <span class="mqt-ejemplo">Datos de ejemplo</span>
+    </div>
+  </div>
+
+  <div class="mqt-cuerpo">
+    <div class="mqt-filtros">
+      <span class="mqt-filtros__rotulo">Plataforma</span>
+      <span class:list={['mqt-ficha', { 'mqt-ficha--activa': !publicaciones }]}>Todas</span>
+      {PLATAFORMAS.map((p) => (
+        <span class:list={['mqt-ficha', { 'mqt-ficha--activa': publicaciones && p.nombre === 'Instagram' }]}><Icono nombre={p.icono} />{p.nombre}</span>
+      ))}
+    </div>
+
+    <div class="mqt-kpis">
+      {kpis.map((k) => (
+        <div class="mqt-kpi">
+          <p class="mqt-kpi__nombre">{k.nombre}</p>
+          <p class="mqt-kpi__valor">{k.valor}</p>
+          <p class:list={['mqt-kpi__var', { 'mqt-kpi__var--baja': !k.sube }]}>
+            <svg viewBox="0 0 10 8" aria-hidden="true">
+              {k.sube ? <path d="M5 0.5 9.5 7.5H0.5Z" /> : <path d="M5 7.5 0.5 0.5h9Z" />}
+            </svg>
+            <span class="mqt-kpi__cifra">{k.variacion}</span>
+            <span class="mqt-kpi__contra">{completa ? 'vs. período anterior' : 'vs. anterior'}</span>
+          </p>
+        </div>
+      ))}
+    </div>
+
+    {!publicaciones && (
+    <div class="mqt-graficos">
+      <div class="mqt-panel">
+        <div class="mqt-panel__cab">
+          <p class="mqt-panel__titulo">Alcance por semana</p>
+          <p class="mqt-leyenda">
+            <span><i class="mqt-muestra mqt-muestra--actual"></i>Este período</span>
+            <span><i class="mqt-muestra mqt-muestra--anterior"></i>Período anterior</span>
+          </p>
+        </div>
+        <div class="mqt-lineas">
+          <div class="mqt-plano">
+            <span class="mqt-reja mqt-reja--0"></span>
+            <span class="mqt-reja mqt-reja--50"></span>
+            <span class="mqt-reja mqt-reja--100"></span>
+            <span class="mqt-y mqt-y--0">120 mil</span>
+            <span class="mqt-y mqt-y--50">90 mil</span>
+            <span class="mqt-y mqt-y--100">60 mil</span>
+
+            {completa && (
+              <>
+                <span class="mqt-cruz"></span>
+                <span class="mqt-marca mqt-marca--anterior"></span>
+              </>
+            )}
+
+            <svg class="mqt-series" viewBox="0 0 120 60" preserveAspectRatio="none" aria-hidden="true">
+              <path class="mqt-relleno" d={relleno} />
+              <path class="mqt-serie mqt-serie--anterior" d={lineaAnterior} vector-effect="non-scaling-stroke" />
+              <path class="mqt-serie mqt-serie--actual" d={lineaActual} vector-effect="non-scaling-stroke" />
+            </svg>
+
+            {completa ? (
+              <>
+                <span class="mqt-marca mqt-marca--actual"></span>
+                <div class="mqt-tooltip">
+                  <p class="mqt-tooltip__fecha">Semana del 1 sep</p>
+                  <p><i class="mqt-muestra mqt-muestra--actual"></i>Este período <b>112 mil</b></p>
+                  <p><i class="mqt-muestra mqt-muestra--anterior"></i>Período anterior <b>87 mil</b></p>
+                </div>
+              </>
+            ) : (
+              <>
+                <span class="mqt-marca mqt-marca--fin"></span>
+                <span class="mqt-valor-fin">110 mil</span>
+              </>
+            )}
+          </div>
+          <div class="mqt-x">
+            <span class="mqt-x--0">23 jun</span>
+            <span class="mqt-x--33">21 jul</span>
+            <span class="mqt-x--67">18 ago</span>
+            <span class="mqt-x--100">15 sep</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mqt-panel">
+        <div class="mqt-panel__cab">
+          <p class="mqt-panel__titulo">Interacciones por plataforma</p>
+        </div>
+        <ul class="mqt-barras" role="list">
+          {BARRAS.map((b) => (
+            <li>
+              <span class="mqt-barras__nombre">{b.nombre}</span>
+              <span class="mqt-barras__pista"><span class:list={['mqt-barra', `mqt-barra--${b.ancho}`]}></span></span>
+              <span class="mqt-barras__valor">{b.valor}</span>
+            </li>
+          ))}
+        </ul>
+        <p class="mqt-barras__total">Total <b>86,4 mil</b></p>
+      </div>
+    </div>
+    )}
+
+    {publicaciones && (
+      <div class="mqt-panel mqt-panel--tabla">
+        <div class="mqt-panel__cab">
+          <p class="mqt-panel__titulo">Publicaciones con más alcance</p>
+        </div>
+        <div class="mqt-tabla">
+          <div class="mqt-fila mqt-fila--cab">
+            <span>Publicación</span>
+            <span>Fecha</span>
+            <span class="mqt-num">Alcance</span>
+            <span class="mqt-num">Interacciones</span>
+          </div>
+          {RANKING.map((r) => (
+            <div class="mqt-fila mqt-fila--ranking">
+              <span class="mqt-pub">
+                <Icono nombre="instagram" /><b>{r.tipo}</b>
+                <span class="mqt-barras__pista mqt-ranking__pista"><span class:list={['mqt-barra', `mqt-barra--${r.ancho}`]}></span></span>
+              </span>
+              <span class="mqt-celda" data-rotulo="Fecha">{r.fecha}</span>
+              <span class="mqt-celda mqt-num" data-rotulo="Alcance">{r.alcance}</span>
+              <span class="mqt-celda mqt-num" data-rotulo="Interacciones">{r.interacciones}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+
+    {completa && (
+      <div class="mqt-panel mqt-panel--tabla">
+        <div class="mqt-panel__cab">
+          <p class="mqt-panel__titulo">Publicaciones destacadas</p>
+        </div>
+        <div class="mqt-tabla">
+          <div class="mqt-fila mqt-fila--cab">
+            <span>Publicación</span>
+            <span>Fecha</span>
+            <span class="mqt-num">Alcance</span>
+            <span class="mqt-num">Interacciones</span>
+          </div>
+          {PUBLICACIONES.map((p) => (
+            <div class="mqt-fila">
+              <span class="mqt-pub"><Icono nombre={p.icono} /><b>{p.tipo}</b><span>· {p.red}</span></span>
+              <span class="mqt-celda" data-rotulo="Fecha">{p.fecha}</span>
+              <span class="mqt-celda mqt-num" data-rotulo="Alcance">{p.alcance}</span>
+              <span class="mqt-celda mqt-num" data-rotulo="Interacciones">{p.interacciones}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+  </div>
+
+  {(completa || publicaciones) && (
+    <div class="mqt-pestanas">
+      {PESTANAS.map((p, i) => (
+        <span class:list={['mqt-pestana', { 'mqt-pestana--activa': i === (publicaciones ? 1 : 0) }]}>{p}</span>
+      ))}
+    </div>
+  )}
+</div>
+
+<style>
+  /*
+   * Tokens locales de la maqueta (Ventana ya define --mq-fondo, --mq-tarjeta, --mq-borde,
+   * --mq-tinta…). Paleta de la marca: #001720 textos y cabecera, #037a70 serie principal,
+   * #ced9bd acentos. La serie "período anterior" usa #3bb3a6, un paso más oscuro que
+   * #4dcfc1: sobre blanco #4dcfc1 queda en 1,9:1 y la línea no se lee (validado con
+   * dataviz/validate_palette: ΔE 17,7 entre series, también con daltonismo).
+   */
+  .mqt {
+    --mq-texto: #001720;
+    --mq-s1: #037a70;
+    --mq-s1-tenue: rgb(3 122 112 / 0.1);
+    --mq-s2: #3bb3a6;
+    --mq-salvia: #ced9bd;
+    --mq-sube: #00635b;
+    --mq-cab: #001720;
+    --mq-cab-tinta: #a6ae9a;
+
+    container-type: inline-size;
+    background: var(--mq-fondo);
+    color: var(--mq-tinta);
+    font-size: 0.75rem;
+    line-height: 1.35;
+  }
+
+  /* El marco no "aparece": lo que se mueve son los datos (ver el bloque de movimiento). */
+  :global(.js) .mqt[data-revelar] {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* ── Cabecera del informe ─────────────────────────────────────────── */
+  .mqt-cab {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 16px;
+    padding: 11px 16px;
+    background: var(--mq-cab);
+    color: #ffffff;
+  }
+
+  .mqt-titulo {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-width: 0;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+  }
+
+  .mqt-logo {
+    width: 18px;
+    height: 15px;
+    flex: none;
+    fill: var(--color-verde-claro);
+  }
+
+  .mqt-cab__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 12px;
+  }
+
+  .mqt-rango {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: rgb(255 255 255 / 0.09);
+    font-size: 0.6875rem;
+    color: #ffffff;
+  }
+
+  .mqt-rango svg {
+    width: 12px;
+    height: 12px;
+    flex: none;
+  }
+
+  .mqt-ejemplo {
+    font-family: var(--font-datos);
+    font-size: 0.625rem;
+    letter-spacing: 0.04em;
+    color: var(--mq-cab-tinta);
+  }
+
+  /* ── Cuerpo ───────────────────────────────────────────────────────── */
+  .mqt-cuerpo {
+    display: grid;
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .mqt-filtros {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .mqt-filtros__rotulo {
+    margin-right: 4px;
+    font-size: 0.6875rem;
+    color: var(--mq-tinta-3);
+  }
+
+  .mqt-ficha {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: var(--radio-pill);
+    background: var(--mq-tarjeta);
+    box-shadow: inset 0 0 0 1px var(--mq-borde);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    color: var(--mq-tinta-2);
+  }
+
+  .mqt-ficha--activa {
+    background: var(--mq-salvia);
+    box-shadow: none;
+    color: var(--mq-texto);
+    font-weight: 600;
+  }
+
+  .mqt-filtros :global(svg) {
+    width: 11px;
+    height: 11px;
+    flex: none;
+  }
+
+  /* ── Indicadores ──────────────────────────────────────────────────── */
+  .mqt-kpis {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  /* Vista publicaciones: 3 indicadores; en angosto el tercero ocupa la fila entera */
+  .mqt--publicaciones .mqt-kpi:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .mqt-kpi {
+    display: grid;
+    gap: 3px;
+    min-width: 0;
+    padding: 10px 12px 11px;
+    border: 1px solid var(--mq-borde);
+    border-radius: var(--radio-md);
+    background: var(--mq-tarjeta);
+  }
+
+  .mqt-kpi__nombre {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    color: var(--mq-tinta-2);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .mqt-kpi__valor {
+    font-family: var(--font-datos);
+    font-size: 1.125rem;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    color: var(--mq-texto);
+    white-space: nowrap;
+  }
+
+  .mqt-kpi__var {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2px 5px;
+    font-size: 0.625rem;
+    color: var(--mq-tinta-3);
+  }
+
+  .mqt-kpi__var svg {
+    width: 8px;
+    height: 7px;
+    flex: none;
+    fill: var(--mq-sube);
+  }
+
+  .mqt-kpi__var--baja svg {
+    fill: var(--mq-tinta-2);
+  }
+
+  .mqt-kpi__cifra {
+    font-family: var(--font-datos);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    color: var(--mq-sube);
+  }
+
+  .mqt-kpi__var--baja .mqt-kpi__cifra {
+    color: var(--mq-tinta-2);
+  }
+
+  /* ── Paneles de gráficos ──────────────────────────────────────────── */
+  .mqt-graficos {
+    display: grid;
+    gap: 10px;
+  }
+
+  .mqt-panel {
+    min-width: 0;
+    padding: 12px 14px 12px;
+    border: 1px solid var(--mq-borde);
+    border-radius: var(--radio-md);
+    background: var(--mq-tarjeta);
+  }
+
+  .mqt-panel__cab {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 4px 12px;
+    margin-bottom: 12px;
+  }
+
+  .mqt-panel__titulo {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--mq-texto);
+  }
+
+  .mqt-leyenda {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 12px;
+    font-size: 0.625rem;
+    color: var(--mq-tinta-2);
+  }
+
+  .mqt-leyenda span {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .mqt-muestra {
+    display: inline-block;
+    width: 14px;
+    height: 0;
+    flex: none;
+    border-top: 2px solid var(--mq-s1);
+  }
+
+  .mqt-muestra--anterior {
+    border-top: 2px dashed var(--mq-s2);
+  }
+
+  /* ── Líneas: plano HTML (reja y ejes nítidos) + series en SVG estirado ── */
+  .mqt-lineas {
+    padding-left: 3rem;
+  }
+
+  .mqt-plano {
+    position: relative;
+    height: 8.5rem;
+  }
+
+  .mqt-reja {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 0;
+    border-top: 1px solid var(--mq-borde-2);
+  }
+
+  .mqt-reja--100 {
+    border-top-color: var(--mq-borde);
+  }
+
+  .mqt-reja--0,
+  .mqt-y--0 { top: 0; }
+  .mqt-reja--50,
+  .mqt-y--50 { top: 50%; }
+  .mqt-reja--100,
+  .mqt-y--100 { top: 100%; }
+
+  .mqt-y {
+    position: absolute;
+    right: calc(100% + 8px);
+    transform: translateY(-50%);
+    font-family: var(--font-datos);
+    font-size: 0.625rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--mq-tinta-3);
+    white-space: nowrap;
+  }
+
+  .mqt-series {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  .mqt-relleno {
+    fill: var(--mq-s1-tenue);
+  }
+
+  .mqt-serie {
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .mqt-serie--actual {
+    stroke: var(--mq-s1);
+    stroke-width: 2px;
+  }
+
+  .mqt-serie--anterior {
+    stroke: var(--mq-s2);
+    stroke-width: 1.5px;
+    stroke-dasharray: 4 3;
+  }
+
+  /* Marcadores: HTML con posición en %, así no se deforman con el SVG estirado.
+     Coordenadas: x = semana / 12; y = (120 − valor) / 60. */
+  .mqt-marca {
+    position: absolute;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--mq-s1);
+    box-shadow: 0 0 0 2px var(--mq-tarjeta);
+    transform: translate(-50%, -50%);
+  }
+
+  .mqt-marca--fin {
+    left: 100%;
+    top: 16.667%;
+  }
+
+  .mqt-valor-fin {
+    position: absolute;
+    right: 0;
+    top: calc(16.667% - 1.35rem);
+    font-family: var(--font-datos);
+    font-size: 0.625rem;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    color: var(--mq-texto);
+  }
+
+  .mqt-marca--actual {
+    left: 83.333%;
+    top: 13.333%;
+  }
+
+  .mqt-marca--anterior {
+    left: 83.333%;
+    top: 55%;
+    width: 8px;
+    height: 8px;
+    background: var(--mq-s2);
+  }
+
+  .mqt-cruz {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 83.333%;
+    width: 0;
+    border-left: 1px dashed var(--mq-tinta-3);
+    opacity: 0.55;
+  }
+
+  .mqt-tooltip {
+    position: absolute;
+    right: calc(16.667% + 10px);
+    bottom: 6px;
+    display: none;
+    gap: 3px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: var(--mq-texto);
+    color: #ffffff;
+    font-size: 0.625rem;
+    white-space: nowrap;
+    box-shadow: 0 8px 18px -8px rgb(0 23 32 / 0.5);
+  }
+
+  .mqt-tooltip p {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .mqt-tooltip b {
+    margin-left: auto;
+    padding-left: 10px;
+    font-family: var(--font-datos);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .mqt-tooltip__fecha {
+    color: var(--mq-cab-tinta);
+  }
+
+  .mqt-tooltip .mqt-muestra--actual {
+    border-top-color: var(--color-verde-claro);
+  }
+
+  .mqt-x {
+    position: relative;
+    height: 1rem;
+    margin-top: 7px;
+    font-family: var(--font-datos);
+    font-size: 0.625rem;
+    color: var(--mq-tinta-3);
+  }
+
+  .mqt-x span {
+    position: absolute;
+    top: 0;
+    white-space: nowrap;
+  }
+
+  .mqt-x--0 { left: 0; }
+  .mqt-x--33 { left: 33.333%; transform: translateX(-50%); }
+  .mqt-x--67 { left: 66.667%; transform: translateX(-50%); }
+  .mqt-x--100 { right: 0; }
+
+  /* ── Barras horizontales: datos = barras rectas, como el logo ─────── */
+  .mqt-barras {
+    display: grid;
+    gap: 11px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .mqt-barras li {
+    display: grid;
+    grid-template-columns: 4.25rem minmax(0, 1fr) 3.5rem;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .mqt-barras__nombre {
+    font-size: 0.6875rem;
+    color: var(--mq-tinta-2);
+  }
+
+  .mqt-barras__pista {
+    display: block;
+    height: 12px;
+  }
+
+  .mqt-barra {
+    display: block;
+    height: 100%;
+    background: var(--mq-s1);
+    transform-origin: left center;
+  }
+
+  .mqt-barra--a100 { width: 100%; }
+  .mqt-barra--a71 { width: 71%; }
+  .mqt-barra--a34 { width: 34%; }
+  .mqt-barra--a17 { width: 17%; }
+
+  .mqt-barras__valor {
+    font-family: var(--font-datos);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    color: var(--mq-texto);
+    white-space: nowrap;
+  }
+
+  .mqt-barras__total {
+    margin-top: 12px;
+    padding-top: 9px;
+    border-top: 1px solid var(--mq-borde-2);
+    font-size: 0.625rem;
+    color: var(--mq-tinta-3);
+  }
+
+  .mqt-barras__total b {
+    font-family: var(--font-datos);
+    font-weight: 500;
+    color: var(--mq-texto);
+  }
+
+  /* ── Publicaciones destacadas ─────────────────────────────────────── */
+  .mqt-tabla {
+    display: grid;
+  }
+
+  .mqt-fila {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 4px 12px;
+    align-items: center;
+    padding: 9px 0;
+    border-top: 1px solid var(--mq-borde-2);
+    font-size: 0.6875rem;
+    color: var(--mq-tinta-2);
+  }
+
+  .mqt-fila--cab {
+    display: none;
+    padding-top: 0;
+    border-top: 0;
+    font-size: 0.625rem;
+    font-weight: 500;
+    color: var(--mq-tinta-3);
+  }
+
+  .mqt-pub {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    grid-column: 1 / -1;
+    color: var(--mq-tinta-3);
+  }
+
+  .mqt-pub b {
+    font-weight: 600;
+    color: var(--mq-texto);
+  }
+
+  .mqt-pub :global(svg) {
+    width: 12px;
+    height: 12px;
+    flex: none;
+    color: var(--mq-tinta-2);
+  }
+
+  .mqt-celda {
+    font-family: var(--font-datos);
+    font-variant-numeric: tabular-nums;
+    color: var(--mq-texto);
+  }
+
+  /* En angosto cada cifra lleva su rótulo encima; en ancho, la fila de títulos manda. */
+  .mqt-celda::before {
+    content: attr(data-rotulo);
+    display: block;
+    font-family: var(--font-texto);
+    font-size: 0.625rem;
+    color: var(--mq-tinta-3);
+  }
+
+  /* ── Vista "Publicaciones": ranking con barra de alcance en línea ────── */
+  .mqt-ranking__pista {
+    flex: 1;
+    min-width: 2.5rem;
+    max-width: 7rem;
+    margin-left: 6px;
+  }
+
+  .mqt-fila--ranking .mqt-pub {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+  }
+
+  /* ── Pestañas del informe ─────────────────────────────────────────── */
+  .mqt-pestanas {
+    display: flex;
+    gap: 2px;
+    padding: 0 12px;
+    overflow: hidden;
+    border-top: 1px solid var(--mq-borde);
+    background: var(--mq-tarjeta);
+    /* Como en Power BI: si no entran todas, la fila se desvanece en lugar de cortarse en seco */
+    mask-image: linear-gradient(to right, #000 82%, transparent);
+  }
+
+  .mqt-pestana {
+    flex: none;
+    padding: 8px 10px 7px;
+    border-bottom: 2px solid transparent;
+    font-size: 0.6875rem;
+    color: var(--mq-tinta-3);
+    white-space: nowrap;
+  }
+
+  .mqt-pestana--activa {
+    border-bottom-color: var(--mq-s1);
+    font-weight: 600;
+    color: var(--mq-texto);
+  }
+
+  /* ── Reorganización según el ancho de la maqueta ──────────────────── */
+  @container (min-width: 34rem) {
+    .mqt-cuerpo {
+      gap: 12px;
+      padding: 14px 16px 16px;
+    }
+
+    .mqt-kpis {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .mqt--publicaciones .mqt-kpis {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .mqt--publicaciones .mqt-kpi:last-child {
+      grid-column: auto;
+    }
+
+    .mqt-graficos {
+      grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+    }
+
+  }
+
+  @container (min-width: 36rem) {
+    .mqt-fila,
+    .mqt-fila--cab {
+      display: grid;
+      grid-template-columns: minmax(0, 2.2fr) minmax(0, 0.8fr) minmax(0, 1fr) minmax(0, 1fr);
+    }
+
+    .mqt-pub {
+      grid-column: auto;
+    }
+
+    .mqt-celda::before {
+      content: none;
+    }
+
+    .mqt-num {
+      text-align: right;
+    }
+  }
+
+  @container (min-width: 44rem) {
+    .mqt--completa .mqt-kpi__valor {
+      font-size: 1.375rem;
+    }
+
+    .mqt--completa .mqt-plano {
+      height: 11rem;
+    }
+
+    .mqt--completa .mqt-graficos {
+      grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+    }
+
+    .mqt-tooltip {
+      display: grid;
+    }
+  }
+
+  /* ── Movimiento: la serie se traza, las barras crecen desde cero ──── */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.js) .mqt[data-revelar] .mqt-series {
+      clip-path: inset(-6px 100% -6px -6px);
+    }
+
+    :global(.js) .mqt[data-revelar] .mqt-barra {
+      transform: scaleX(0);
+    }
+
+    :global(.js) .mqt[data-revelar] .mqt-marca,
+    :global(.js) .mqt[data-revelar] .mqt-valor-fin,
+    :global(.js) .mqt[data-revelar] .mqt-cruz,
+    :global(.js) .mqt[data-revelar] .mqt-tooltip {
+      opacity: 0;
+    }
+
+    :global(.js) .mqt.es-visible .mqt-series {
+      clip-path: inset(-6px -6px -6px -6px);
+      transition: clip-path 1.4s var(--ease-out) 0.15s;
+    }
+
+    :global(.js) .mqt.es-visible .mqt-barra {
+      transform: none;
+      transition: transform 0.9s var(--ease-out) var(--retraso, 0.3s);
+    }
+
+    .mqt-barras li:nth-child(2) .mqt-barra { --retraso: 0.38s; }
+    .mqt-barras li:nth-child(3) .mqt-barra { --retraso: 0.46s; }
+    .mqt-barras li:nth-child(4) .mqt-barra { --retraso: 0.54s; }
+
+    :global(.js) .mqt.es-visible .mqt-marca,
+    :global(.js) .mqt.es-visible .mqt-valor-fin,
+    :global(.js) .mqt.es-visible .mqt-tooltip {
+      opacity: 1;
+      transition: opacity 0.4s var(--ease-out) 1.3s;
+    }
+
+    :global(.js) .mqt.es-visible .mqt-cruz {
+      opacity: 0.55;
+      transition: opacity 0.4s var(--ease-out) 1.2s;
+    }
+  }
+</style>

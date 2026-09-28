@@ -234,28 +234,9 @@ const BARRAS_PBI = 'M0.5,12.6h8.7V41H0.5V12.6z M16.7,0.5h8.1V41h-8.1V0.5z M32.9,
     border: 1px solid var(--mq-borde);
     box-shadow: 0 2px 8px rgb(0 0 0 / 0.05);
     text-align: center;
-    transition: transform var(--dur-2) var(--ease-out), box-shadow var(--dur-2) var(--ease-out);
   }
 
-  .mk-tarjeta::after {
-    content: '';
-    position: absolute;
-    inset: auto 0 0 0;
-    height: 3px;
-    background: linear-gradient(90deg, var(--pbi), var(--pbi-hondo));
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 300ms var(--ease-out);
-  }
-
-  .mk-tarjeta:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 22px rgb(0 0 0 / 0.1);
-  }
-
-  .mk-tarjeta:hover::after {
-    transform: scaleX(1);
-  }
+  /* Sin efecto hover: la maqueta es una imagen, no se puede cliquear y no debe parecerlo */
 
   .mk-tarjeta svg {
     display: block;
@@ -282,7 +263,7 @@ const BARRAS_PBI = 'M0.5,12.6h8.7V41H0.5V12.6z M16.7,0.5h8.1V41h-8.1V0.5z M32.9,
     padding: 2px 6px;
     border-radius: var(--radio-pill);
     background: var(--mq-ia-tenue);
-    color: var(--mq-ia-2);
+    color: var(--mq-ia);
     font-size: 0.5rem;
     font-weight: 700;
     letter-spacing: 0.04em;

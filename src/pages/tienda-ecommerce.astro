@@ -1,0 +1,379 @@
+---
+/**
+ * Página de la Tienda e-commerce: código fuente + guía de implementación, pago único,
+ * pedidos por WhatsApp. Solo afirma lo confirmado en docs/contenido.md (sin precios,
+ * plazos, hosting ni pasarela de pagos). Lenguaje compartido de subpáginas: producto.css.
+ */
+import Base from '../layouts/Base.astro';
+import Icono from '../components/Icono.astro';
+import Migas from '../components/Migas.astro';
+import Catalogo from '../components/tienda/Catalogo.astro';
+import Preguntas, { type Pregunta } from '../components/Preguntas.astro';
+import { MENSAJES, CONTACTO, SITIO, enlaceWhatsApp } from '../data/sitio';
+import { faqPage, migas } from '../scripts/esquemas';
+import '../styles/producto.css';
+
+const URL_PAGINA = `${SITIO.url}/tienda-ecommerce/`;
+const comprar = enlaceWhatsApp(MENSAJES.ecommerce);
+const correo = `mailto:${CONTACTO.email}?subject=${encodeURIComponent('Tienda e-commerce')}`;
+
+const DESCRIPCION =
+  'Tienda online personalizable con código fuente completo, guía de implementación paso a paso y pedidos por WhatsApp. Pago único, sin mensualidades.';
+
+const PREGUNTAS: Pregunta[] = [
+  {
+    pregunta: '¿Tiene mensualidades o suscripción?',
+    respuesta:
+      '<p>No. Es un pago único: compras el código y la guía una sola vez, sin mensualidades ni suscripciones. La tienda es 100 % tuya.</p>',
+  },
+  {
+    pregunta: '¿Qué incluye la compra?',
+    respuesta:
+      '<p>El <strong>código fuente completo</strong> de la tienda y una <strong>guía de implementación paso a paso</strong> para ponerla en marcha. La tienda viene integrada con WhatsApp para recibir los pedidos.</p><p>La compra y la implementación son remotas, así que funciona igual desde cualquier país.</p>',
+  },
+  {
+    pregunta: '¿Sirve para mi rubro?',
+    respuesta:
+      '<p>Sí. Es adaptable a cualquier rubro: organizas el catálogo con tus productos y la personalizas con tu marca. Si quieres contarnos tu caso antes de comprar, escríbenos por WhatsApp.</p>',
+  },
+  {
+    pregunta: '¿Cómo me llegan los pedidos?',
+    respuesta:
+      '<p>Por WhatsApp. Tus clientes recorren tu catálogo y te envían el pedido con el botón de WhatsApp de la tienda.</p>',
+  },
+  {
+    pregunta: '¿Puedo personalizarla?',
+    respuesta:
+      '<p>Sí, completamente. Como recibes el código fuente completo, puedes adaptarla a tu marca, a tu rubro y a tu forma de vender.</p>',
+  },
+];
+
+const INCLUYE = [
+  {
+    icono: 'codigo',
+    titulo: 'Código fuente completo',
+    texto: 'Toda la tienda, no un acceso a una plataforma. La modificas, la adaptas a tu rubro y la personalizas con tu marca.',
+  },
+  {
+    icono: 'guia',
+    titulo: 'Guía de implementación paso a paso',
+    texto: 'Te lleva de principio a fin en la puesta en marcha, para que dejes tu tienda funcionando con tu catálogo.',
+  },
+  {
+    icono: 'whatsapp',
+    titulo: 'Integración con WhatsApp',
+    texto: 'Tus clientes eligen en tu catálogo y te envían el pedido directo a tu WhatsApp.',
+  },
+] as const;
+
+const PASOS = [
+  { titulo: 'Escríbenos por WhatsApp', texto: 'Con el botón de esta página. Te contamos cómo es la compra y resolvemos tus dudas.' },
+  { titulo: 'Recibes el código y la guía', texto: 'El código fuente completo y la guía de implementación paso a paso. Pagas una sola vez.' },
+  { titulo: 'Implementas tu tienda con la guía', texto: 'La pones en marcha y la personalizas con tu marca y tu catálogo, siguiendo la guía.' },
+  { titulo: 'Recibes pedidos por WhatsApp', texto: 'Tus clientes eligen en tu catálogo y el pedido te llega por WhatsApp.' },
+];
+---
+
+<Base
+  titulo="Tienda e-commerce con código fuente y pago único | Data Studio"
+  descripcion={DESCRIPCION}
+  imagen="/og/tienda-ecommerce.png"
+  imagenAlt="Tienda e-commerce de Data Studio: código fuente propio, guía de implementación y pago único"
+  datosEstructurados={[
+    migas([
+      { nombre: 'Inicio', url: `${SITIO.url}/` },
+      { nombre: 'Tienda e-commerce', url: URL_PAGINA },
+    ]),
+    faqPage(PREGUNTAS, URL_PAGINA),
+    {
+      '@type': 'Service',
+      '@id': `${URL_PAGINA}#servicio`,
+      name: 'Tienda e-commerce con código fuente',
+      serviceType: 'Tienda online con código fuente y guía de implementación',
+      description:
+        'Código fuente completo de una tienda online personalizable, con guía de implementación paso a paso, integración con WhatsApp para recibir pedidos y pago único, sin mensualidades.',
+      provider: { '@id': `${SITIO.url}/#organizacion` },
+      areaServed: 'Worldwide',
+      url: URL_PAGINA,
+    },
+  ]}
+>
+  <!-- ═════════ HÉROE: el argumento a la izquierda, la tienda a la derecha ═════════ -->
+  <section class="prod-heroe" data-tema="oscuro" aria-labelledby="te-titulo">
+    <div class="contenedor">
+      <Migas actual="Tienda e‑commerce" solucion="ecommerce" />
+
+      <div class="prod-heroe__rejilla">
+        <div class="prod-heroe__texto">
+          <h1 id="te-titulo" class="prod-heroe__titulo">
+            Tu tienda online, con código propio. <span class="prod-acento">Pago único.</span>
+          </h1>
+          <p class="prod-heroe__bajada">
+            Vende con una imagen moderna, organiza tu catálogo y ofrece una mejor experiencia a tus clientes.
+            Recibes el código fuente y una guía paso a paso: sin mensualidades y 100&nbsp;% tuya.
+          </p>
+          <div class="acciones">
+            <a class="boton boton--primario" href={comprar} target="_blank" rel="noopener noreferrer">
+              <Icono nombre="whatsapp" />
+              <span>Comprar código + guía</span>
+            </a>
+            <a class="boton boton--secundario" href="#incluye">Qué incluye</a>
+          </div>
+          <ul class="prod-sellos" role="list">
+            <li><Icono nombre="check" />Código fuente completo</li>
+            <li><Icono nombre="check" />Sin mensualidades</li>
+            <li><Icono nombre="check" />Pedidos por WhatsApp</li>
+          </ul>
+        </div>
+
+        <div class="te-heroe__visual">
+          <Catalogo variante="completa" />
+        </div>
+      </div>
+
+      <nav class="prod-indice" aria-label="En esta página">
+        <span class="prod-indice__rotulo">En esta página</span>
+        <a href="#incluye">Qué incluye</a>
+        <a href="#conviene">Por qué conviene</a>
+        <a href="#como-funciona">Cómo funciona</a>
+        <a href="#preguntas">Preguntas</a>
+      </nav>
+    </div>
+  </section>
+
+  <!-- ═════════ QUÉ INCLUYE: se lee como el resumen de una compra ═════════ -->
+  <section class="seccion prod-seccion" id="incluye" data-tema="claro" aria-labelledby="incluye-titulo">
+    <div class="contenedor prod-par prod-par--inicio">
+      <header class="prod-cabecera">
+        <h2 id="incluye-titulo" class="titulo-seccion">Compras la tienda. No la alquilas.</h2>
+        <p class="entrada">
+          Con un solo pago te llevas el código fuente completo y la guía para ponerla en marcha. Sin mensualidades:
+          la tienda es 100&nbsp;% tuya y la adaptas a lo que vendes.
+        </p>
+      </header>
+
+      <div class="te-compra">
+        <h3 class="te-compra__titulo">Tu compra</h3>
+        <ul class="prod-lista prod-lista--grande te-compra__lista" role="list">
+          {INCLUYE.map((item) => (
+            <li>
+              <Icono nombre={item.icono} />
+              <span class="te-compra__item">
+                <strong>{item.titulo}</strong>
+                <span>{item.texto}</span>
+              </span>
+            </li>
+          ))}
+        </ul>
+        <dl class="te-compra__total">
+          <div>
+            <dt>Forma de pago</dt>
+            <dd>Pago único</dd>
+          </div>
+          <div>
+            <dt>Mensualidades</dt>
+            <dd class="dato">0</dd>
+          </div>
+        </dl>
+        <a class="boton boton--primario te-compra__boton" href={comprar} target="_blank" rel="noopener noreferrer">
+          <Icono nombre="whatsapp" />
+          <span>Comprar código + guía</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════ POR QUÉ CONVIENE: comparación honesta ═════════ -->
+  <section class="seccion prod-seccion" id="conviene" data-tema="blanco" aria-labelledby="conviene-titulo">
+    <div class="contenedor">
+      <header class="prod-cabecera">
+        <h2 id="conviene-titulo" class="titulo-seccion">Una tienda que no te cobra todos los meses.</h2>
+        <p class="entrada">
+          Las plataformas por suscripción cobran mientras tu tienda siga abierta. Con tu propio código pagas una
+          vez, y la tienda, su diseño y sus pedidos quedan en tus manos.
+        </p>
+      </header>
+
+      <div class="prod-antes-despues">
+        <div class="prod-ad prod-ad--antes">
+          <h3>Plataforma con mensualidad</h3>
+          <ul role="list">
+            <li><Icono nombre="cerrar" /><span>Pagas cada mes, mientras sigas vendiendo.</span></li>
+            <li><Icono nombre="cerrar" /><span>La tienda vive en la plataforma: el código no es tuyo.</span></li>
+            <li><Icono nombre="cerrar" /><span>Te adaptas a lo que la plataforma permite.</span></li>
+            <li><Icono nombre="cerrar" /><span>Es una suscripción más en tus gastos fijos.</span></li>
+          </ul>
+        </div>
+        <div class="prod-ad prod-ad--despues">
+          <h3>Tu propio código, pago único</h3>
+          <ul role="list">
+            <li><Icono nombre="check" /><span>Pagas una sola vez. Sin mensualidades ni suscripciones.</span></li>
+            <li><Icono nombre="check" /><span>El código fuente completo es tuyo: la tienda es 100&nbsp;% tuya.</span></li>
+            <li><Icono nombre="check" /><span>La personalizas con tu marca y la adaptas a cualquier rubro.</span></li>
+            <li><Icono nombre="check" /><span>Los pedidos te llegan directo a tu WhatsApp.</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═════════ CÓMO FUNCIONA: la secuencia importa, por eso va numerada ═════════ -->
+  <section class="seccion prod-seccion" id="como-funciona" data-tema="claro" aria-labelledby="como-titulo">
+    <div class="contenedor">
+      <header class="prod-cabecera">
+        <h2 id="como-titulo" class="titulo-seccion">De la primera conversación a tu primer pedido.</h2>
+        <p class="entrada">Cuatro pasos, y los cuatro se hacen a distancia.</p>
+      </header>
+
+      <ol class="prod-pasos" role="list">
+        {PASOS.map((p, i) => (
+          <li>
+            <p class="prod-pasos__marca dato">{String(i + 1).padStart(2, '0')}</p>
+            <h3>{p.titulo}</h3>
+            <p>{p.texto}</p>
+          </li>
+        ))}
+      </ol>
+
+      <p class="te-nota">
+        <Icono nombre="globo" />
+        <span>La compra y la implementación son remotas: funciona igual desde cualquier país.</span>
+      </p>
+    </div>
+  </section>
+
+  <Preguntas id="preguntas" titulo="Lo que suelen preguntarnos" preguntas={PREGUNTAS} tema="salvia" />
+
+  <!-- ═════════ CIERRE ═════════ -->
+  <section class="seccion te-cierre" id="contacto" data-tema="oscuro" aria-labelledby="cierre-titulo">
+    <div class="contenedor">
+      <h2 id="cierre-titulo" class="prod-cierre__titulo">Tu tienda, con tu marca y tu código.</h2>
+      <p class="prod-cierre__texto">
+        Escríbenos por WhatsApp y te contamos cómo es la compra. Pagas una sola vez y recibes el código fuente
+        completo con la guía de implementación, estés donde estés.
+      </p>
+      <div class="acciones">
+        <a class="boton boton--primario" href={comprar} target="_blank" rel="noopener noreferrer">
+          <Icono nombre="whatsapp" />
+          <span>Comprar código + guía</span>
+        </a>
+        <a class="boton boton--secundario" href={correo}>
+          <Icono nombre="correo" />
+          <span>Escríbenos un correo</span>
+        </a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* ── Héroe ─────────────────────────────────────────────────────────── */
+  .te-heroe__visual {
+    min-width: 0;
+  }
+
+  /* Objetivo táctil de 44 px (producto.css deja 40 px) */
+  .prod-indice a {
+    min-height: 2.75rem;
+  }
+
+  /* ── Resumen de compra: una sola elevación (sombra), radio 16 px ──── */
+  .te-compra {
+    display: grid;
+    min-width: 0;
+    padding: var(--space-6);
+    border-radius: var(--radio-lg);
+    background: var(--superficie);
+    box-shadow: var(--sombra-tarjeta);
+  }
+
+  .te-compra__titulo {
+    font-size: var(--text-lg);
+    font-weight: var(--peso-semi);
+    letter-spacing: -0.015em;
+    color: var(--texto);
+  }
+
+  .te-compra__lista {
+    margin-top: var(--space-3);
+  }
+
+  .te-compra__item {
+    display: grid;
+    gap: var(--space-1);
+    min-width: 0;
+  }
+
+  .te-compra__item span {
+    font-size: var(--text-sm);
+    line-height: 1.6;
+  }
+
+  /* Totales como en un ticket: regla punteada y valores alineados a la derecha */
+  .te-compra__total {
+    display: grid;
+    gap: var(--space-2);
+    margin: var(--space-2) 0 0;
+    padding-top: var(--space-4);
+    border-top: 1px dashed var(--linea-fuerte);
+  }
+
+  .te-compra__total div {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-1) var(--space-4);
+  }
+
+  .te-compra__total dt {
+    font-size: var(--text-sm);
+    color: var(--texto-2);
+  }
+
+  .te-compra__total dd {
+    margin: 0;
+    font-weight: var(--peso-semi);
+    color: var(--texto);
+  }
+
+  .te-compra__total dd.dato {
+    font-size: var(--text-md);
+    font-weight: var(--peso-medio);
+  }
+
+  .te-compra__boton {
+    width: 100%;
+    margin-top: var(--space-5);
+  }
+
+  /* ── Nota de trabajo remoto ────────────────────────────────────────── */
+  .te-nota {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    max-width: 40rem;
+    margin-top: var(--space-6);
+    font-size: var(--text-sm);
+    color: var(--texto-2);
+  }
+
+  .te-nota :global(svg) {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex: none;
+    color: var(--acento);
+  }
+
+  /* ── Cierre: la misma luz del héroe, desde abajo ───────────────────── */
+  .te-cierre {
+    background:
+      var(--fondo);
+  }
+
+  @media (max-width: 30rem) {
+    .te-compra {
+      padding: var(--space-5);
+    }
+  }
+</style>

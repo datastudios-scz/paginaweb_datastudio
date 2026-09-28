@@ -86,7 +86,7 @@ h1 span{color:${C.verdeClaro}}
 .h60{height:60.2%}.h80{height:79.6%}.h100{height:100%}
 </style></head><body>
 <div class="izq"><div>${lockup}<p class="rotulo">${rotulo}</p><h1>${titulo}${acento ? ` <span>${acento}</span>` : ''}</h1></div>
-<p class="pie">datastudio.es · Santa Cruz, Bolivia</p></div>
+<p class="pie">datastudio.es · Implementación remota en cualquier país</p></div>
 <div class="graf">
 <div class="b h60"><span>${barrasEtiquetas[0]}</span></div><div class="b h80"><span>${barrasEtiquetas[1]}</span></div>
 <div class="b b3 h100"><span>${barrasEtiquetas[2]}</span></div><div class="b h60"><span>${barrasEtiquetas[3]}</span></div>
@@ -131,6 +131,9 @@ async function main() {
   const imagenes = [
     { archivo: 'inicio.png', rotulo: 'Innovación, analítica &amp; marketing', titulo: 'Datos que toda tu empresa puede usar.' },
     { archivo: 'portal-bi.png', rotulo: 'Portal BI', titulo: 'Power BI para toda la empresa.', acento: 'Una sola licencia.' },
+    { archivo: 'social-metrics-bi.png', rotulo: 'Social Metrics BI', titulo: 'Tus redes sociales,', acento: 'en un solo tablero.' },
+    { archivo: 'tienda-ecommerce.png', rotulo: 'Tienda e-commerce', titulo: 'Tu tienda online, con código propio.', acento: 'Pago único.' },
+    { archivo: 'consultoria.png', rotulo: 'Consultoría de datos', titulo: 'Ordenamos tus datos', acento: 'para que puedas usarlos.' },
   ];
   for (const img of imagenes) {
     await pagina.setContent(plantillaOG({ ...img, barrasEtiquetas: barras }), { waitUntil: 'load' });

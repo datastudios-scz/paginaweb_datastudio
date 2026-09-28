@@ -1,0 +1,318 @@
+---
+/**
+ * Visual del héroe de Consultoría: el problema y el resultado en una sola imagen.
+ * Arriba, tres archivos sueltos que dan tres cifras distintas para lo mismo; abajo, el reporte
+ * único que queda después: una cifra, definida una vez, que se actualiza sola.
+ * Es distinto a propósito del diagrama «El recorrido» (Flujo), que explica el cómo más abajo.
+ *
+ * - Datos de ejemplo, rotulados como tales. No son cifras de clientes.
+ * - La lista de archivos es decorativa: la frase visible debajo dice lo mismo en texto.
+ * - Colores del tema de la sección para los archivos; el reporte usa el marco fijo de Ventana.
+ * - Sin movimiento: es un héroe y se entiende quieto.
+ */
+import Ventana from '../portal/Ventana.astro';
+
+const ARCHIVOS = [
+  { nombre: 'ventas_marzo_v3_FINAL.xlsx', tipo: 'XLS', cifra: 'US$ 412.380' },
+  { nombre: 'reporte_gerencia (copia).xlsx', tipo: 'XLS', cifra: 'US$ 398.910' },
+  { nombre: 'export_sistema_0331.csv', tipo: 'CSV', cifra: 'US$ 405.126' },
+];
+
+// Ventas por semana (miles de US$), solo para dibujar las barras del reporte.
+const SEMANAS = [
+  { etiqueta: 'S1', valor: 88 },
+  { etiqueta: 'S2', valor: 97 },
+  { etiqueta: 'S3', valor: 104 },
+  { etiqueta: 'S4', valor: 116 },
+];
+const maximo = Math.max(...SEMANAS.map((s) => s.valor));
+---
+
+<div class="consolidado">
+  <div class="consolidado__antes">
+    <ul class="consolidado__archivos" role="list" aria-hidden="true">
+      {ARCHIVOS.map((a) => (
+        <li class="archivo">
+          <span class:list={['archivo__tipo', { 'archivo__tipo--csv': a.tipo === 'CSV' }]}>{a.tipo}</span>
+          <span class="archivo__nombre">{a.nombre}</span>
+          <span class="archivo__cifra">{a.cifra}</span>
+        </li>
+      ))}
+    </ul>
+    <p class="consolidado__frase">Tres archivos, tres cifras distintas para las ventas de marzo.</p>
+  </div>
+
+  <p class="consolidado__paso">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2v11M3.5 8.5 8 13l4.5-4.5" /></svg>
+    Integrado, modelado y automatizado
+  </p>
+
+  <Ventana
+    url="reportes.tuempresa.com/ventas"
+    descripcion="Ejemplo con datos ficticios: después de la consultoría queda un solo reporte de ventas de marzo, con una cifra, su variación frente a febrero, las ventas por semana y las fuentes que integra, actualizado automáticamente cada mañana."
+  >
+    <div class="reporte">
+      <div class="reporte__cabecera">
+        <span class="reporte__titulo">Ventas de marzo</span>
+        <span class="reporte__estado"><span class="reporte__punto"></span>Actualizado hoy, 07:00</span>
+      </div>
+
+      <div class="reporte__cuerpo">
+        <div class="reporte__kpi">
+          <span class="reporte__cifra">US$ 405.126</span>
+          <span class="reporte__delta">+6,2 % frente a febrero</span>
+        </div>
+        <div class="reporte__barras">
+          {SEMANAS.map((s) => (
+            <span class="reporte__semana">
+              <span class="reporte__pista">
+                <svg class="reporte__barra" viewBox="0 0 10 100" preserveAspectRatio="none">
+                  <rect x="0" y={100 - (s.valor / maximo) * 100} width="10" height={(s.valor / maximo) * 100} rx="1.5" />
+                </svg>
+              </span>
+              <span class="reporte__etiqueta">{s.etiqueta}</span>
+            </span>
+          ))}
+        </div>
+      </div>
+
+      <div class="reporte__pie">
+        <span class="reporte__fuentes-rotulo">Fuentes</span>
+        <span class="reporte__fuente">Sistema de ventas</span>
+        <span class="reporte__fuente">CRM</span>
+        <span class="reporte__fuente">Metas (Excel)</span>
+      </div>
+    </div>
+  </Ventana>
+
+  <p class="consolidado__ejemplo">Datos de ejemplo</p>
+</div>
+
+<style>
+  .consolidado {
+    display: grid;
+    min-width: 0;
+  }
+
+  /* ── Antes: archivos sueltos, desalineados a propósito ─────────────── */
+  .consolidado__archivos {
+    display: grid;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .archivo {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px 8px 8px;
+    border: 1px solid var(--linea);
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--texto) 5%, transparent);
+    font-family: var(--font-datos);
+    font-size: 0.75rem;
+  }
+
+  .archivo:nth-child(2) {
+    margin-inline-start: 1.25rem;
+  }
+
+  .archivo:nth-child(3) {
+    margin-inline-start: 0.5rem;
+    margin-inline-end: 0.75rem;
+  }
+
+  .archivo__tipo {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 22px;
+    border-radius: 5px;
+    background: #1f7a4d;
+    color: #ffffff;
+    font-size: 0.5625rem;
+    letter-spacing: 0.04em;
+  }
+
+  .archivo__tipo--csv {
+    background: #5b6964;
+  }
+
+  .archivo__nombre {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--texto-3);
+  }
+
+  .archivo__cifra {
+    color: var(--texto);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .consolidado__frase {
+    margin-top: var(--space-3);
+    font-size: var(--text-sm);
+    color: var(--texto-2);
+  }
+
+  /* ── El paso intermedio ────────────────────────────────────────────── */
+  .consolidado__paso {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-block: var(--space-4);
+    font-size: var(--text-xs);
+    font-weight: var(--peso-medio);
+    color: var(--acento);
+  }
+
+  .consolidado__paso svg {
+    width: 1rem;
+    height: 1rem;
+    flex: none;
+  }
+
+  /* ── Después: un solo reporte ──────────────────────────────────────── */
+  .reporte {
+    display: grid;
+    gap: 14px;
+    padding: 16px 18px 18px;
+  }
+
+  .reporte__cabecera {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px 12px;
+  }
+
+  .reporte__titulo {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--mq-tinta);
+  }
+
+  .reporte__estado {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.6875rem;
+    color: var(--mq-tinta-2);
+  }
+
+  .reporte__punto {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--mq-acento);
+  }
+
+  .reporte__cuerpo {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 16px;
+  }
+
+  .reporte__kpi {
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  .reporte__cifra {
+    font-size: clamp(1.375rem, 1.1rem + 1.2vw, 1.75rem);
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    color: var(--mq-tinta);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .reporte__delta {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--mq-acento);
+  }
+
+  .reporte__barras {
+    display: flex;
+    align-items: end;
+    gap: 8px;
+  }
+
+  .reporte__semana {
+    display: grid;
+    justify-items: center;
+    gap: 4px;
+  }
+
+  .reporte__pista {
+    display: block;
+    width: 14px;
+    height: 56px;
+  }
+
+  .reporte__barra {
+    display: block;
+    width: 100%;
+    height: 100%;
+    fill: color-mix(in srgb, var(--mq-acento) 45%, #ffffff);
+  }
+
+  .reporte__semana:last-child .reporte__barra {
+    fill: var(--mq-acento);
+  }
+
+  .reporte__etiqueta {
+    font-family: var(--font-datos);
+    font-size: 0.5625rem;
+    color: var(--mq-tinta-3);
+  }
+
+  .reporte__pie {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    padding-top: 12px;
+    border-top: 1px solid var(--mq-borde-2);
+  }
+
+  .reporte__fuentes-rotulo {
+    margin-inline-end: 2px;
+    font-size: 0.6875rem;
+    color: var(--mq-tinta-3);
+  }
+
+  .reporte__fuente {
+    padding: 3px 9px;
+    border-radius: var(--radio-pill);
+    background: var(--mq-fondo);
+    font-size: 0.6875rem;
+    color: var(--mq-tinta-2);
+  }
+
+  .consolidado__ejemplo {
+    margin-top: var(--space-3);
+    font-size: var(--text-xs);
+    color: var(--texto-3);
+    text-align: end;
+  }
+
+  @media (max-width: 22rem) {
+    .archivo:nth-child(2) {
+      margin-inline-start: 0.75rem;
+    }
+
+    .archivo:nth-child(3) {
+      margin-inline: 0.25rem 0.5rem;
+    }
+  }
+</style>

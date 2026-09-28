@@ -1,0 +1,508 @@
+---
+/**
+ * Maqueta de una tienda online hecha con la plantilla: barra con el nombre de la tienda y el
+ * carrito, categorías, productos con nombre y precio, y el pedido por WhatsApp.
+ * Es una tienda de ejemplo (una cafetería), con datos de ejemplo rotulados como tales: no es un
+ * cliente ni una tienda real. Los productos se dibujan en SVG con la paleta de la marca.
+ *
+ * - `completa`: 6 productos en 3 columnas y resumen del carrito (subpágina de la tienda).
+ * - `compacta`: 4 productos en 2 columnas y botón a lo ancho (bloque del inicio, ~480 px).
+ *
+ * Se adapta al ancho de su contenedor (container queries), no al de la ventana.
+ * Colores fijos dentro de la tarjeta: una pantalla no cambia según el tema de quien mira.
+ * Una sola elevación (sombra), radio 16 px.
+ */
+import Icono from '../Icono.astro';
+
+interface Props {
+  variante?: 'completa' | 'compacta';
+  class?: string;
+}
+
+type Dibujo = 'bolsa' | 'taza' | 'prensa' | 'filtros' | 'molinillo' | 'regalo';
+
+interface Producto {
+  nombre: string;
+  precio: string;
+  dibujo: Dibujo;
+  enCarrito?: boolean;
+  /** Se oculta en contenedores angostos de la variante completa. */
+  extra?: boolean;
+}
+
+const TODOS: Producto[] = [
+  { nombre: 'Café en grano 500 g', precio: 'US$ 14,90', dibujo: 'bolsa', enCarrito: true },
+  { nombre: 'Taza de cerámica', precio: 'US$ 9,50', dibujo: 'taza', enCarrito: true },
+  { nombre: 'Prensa francesa', precio: 'US$ 32,00', dibujo: 'prensa' },
+  { nombre: 'Molinillo manual', precio: 'US$ 45,00', dibujo: 'molinillo' },
+  { nombre: 'Filtros de papel ×100', precio: 'US$ 4,20', dibujo: 'filtros', extra: true },
+  { nombre: 'Kit de regalo', precio: 'US$ 58,00', dibujo: 'regalo', extra: true },
+];
+
+const CATEGORIAS = ['Todo', 'Café', 'Accesorios', 'Regalos'];
+
+const { variante = 'completa', class: clase } = Astro.props;
+const completa = variante === 'completa';
+const productos = completa ? TODOS : TODOS.filter((p) => !p.extra);
+---
+
+<figure class:list={['catalogo', `catalogo--${variante}`, clase]}>
+  <figcaption class="solo-lectores">
+    Maqueta de una tienda online de ejemplo, una cafetería: categorías Todo, Café, Accesorios y Regalos; productos
+    con nombre y precio, dos de ellos en el carrito por US$ 24,40 en total, y el botón Pedir por WhatsApp. Datos de
+    ejemplo.
+  </figcaption>
+  <div class="catalogo__cuerpo" aria-hidden="true">
+    <div class="catalogo__barra">
+      <span class="catalogo__marca"><span class="catalogo__logo"></span>Tu tienda</span>
+      {completa && (
+        <span class="catalogo__menu"><span>Catálogo</span><span>Envíos</span><span>Contacto</span></span>
+      )}
+      <span class="catalogo__carrito">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h2l2.4 11.2a2 2 0 0 0 2 1.6h7.4a2 2 0 0 0 2-1.5L21 8H6.2" /><circle cx="10" cy="20" r="1.2" /><circle cx="17" cy="20" r="1.2" /></svg>
+        <span class="catalogo__cuenta">2</span>
+      </span>
+    </div>
+
+    <div class="catalogo__filtros">
+      {CATEGORIAS.map((c, i) => <span class:list={{ 'es-activo': i === 0 }}>{c}</span>)}
+    </div>
+
+    <div class="catalogo__grilla">
+      {productos.map((p) => (
+        <div class:list={['producto', `producto--${p.dibujo}`, { 'producto--extra': p.extra }]}>
+          <span class="producto__foto">
+            <svg class="producto__dibujo" viewBox="0 0 64 64">
+              {p.dibujo === 'bolsa' && (
+                <>
+                  <path class="d-1" d="M20 12h24l4 9v31a4 4 0 0 1-4 4H20a4 4 0 0 1-4-4V21Z" />
+                  <path class="d-2" d="M16 21h32" />
+                  <rect class="d-3" x="22" y="29" width="20" height="16" rx="2" />
+                  <path class="d-4" d="M32 32.5c-3 1.8-3 7.2 0 9M32 32.5c3 1.8 3 7.2 0 9" />
+                </>
+              )}
+              {p.dibujo === 'taza' && (
+                <>
+                  <path class="d-2" d="M25 12c-2 3 2 5 0 8M32 10c-2 3 2 5 0 8M39 12c-2 3 2 5 0 8" />
+                  <path class="d-1" d="M14 24h32v12a14 14 0 0 1-14 14h-4a14 14 0 0 1-14-14Z" />
+                  <path class="d-2" d="M46 28h3a6 6 0 0 1 0 12h-4" />
+                  <path class="d-3" d="M12 54h36" />
+                </>
+              )}
+              {p.dibujo === 'prensa' && (
+                <>
+                  <path class="d-2" d="M32 6v10" />
+                  <circle class="d-3" cx="32" cy="6" r="3" />
+                  <rect class="d-3" x="19" y="15" width="26" height="5" rx="1.5" />
+                  <path class="d-1" d="M21 20h22v30a4 4 0 0 1-4 4H25a4 4 0 0 1-4-4Z" />
+                  <path class="d-4" d="M21 38h22" />
+                  <path class="d-2" d="M43 24h4v22h-4" />
+                </>
+              )}
+              {p.dibujo === 'molinillo' && (
+                <>
+                  <path class="d-2" d="M32 26V14h11" />
+                  <circle class="d-3" cx="45" cy="14" r="3" />
+                  <path class="d-3" d="M22 30a10 7 0 0 1 20 0Z" />
+                  <rect class="d-1" x="20" y="30" width="24" height="24" rx="3" />
+                  <path class="d-4" d="M20 42h24" />
+                </>
+              )}
+              {p.dibujo === 'filtros' && (
+                <>
+                  <path class="d-3" d="M22 16h28l-9 30H31Z" />
+                  <path class="d-1" d="M14 22h28l-9 30H23Z" />
+                  <path class="d-4" d="M18 30h20" />
+                </>
+              )}
+              {p.dibujo === 'regalo' && (
+                <>
+                  <rect class="d-1" x="16" y="28" width="32" height="24" rx="2" />
+                  <rect class="d-3" x="13" y="21" width="38" height="8" rx="2" />
+                  <path class="d-4" d="M32 21v31" />
+                  <path class="d-2" d="M32 21c-4-8-13-8-12-2 1 3 8 2 12 2Zm0 0c4-8 13-8 12-2-1 3-8 2-12 2Z" />
+                </>
+              )}
+            </svg>
+            {p.enCarrito && (
+              <span class="producto__agregado"><Icono nombre="check" /></span>
+            )}
+          </span>
+          <span class="producto__nombre">{p.nombre}</span>
+          <span class="producto__precio">{p.precio}</span>
+        </div>
+      ))}
+    </div>
+
+    <div class="catalogo__pie">
+      {completa && (
+        <span class="catalogo__resumen">
+          <span class="catalogo__resumen-rotulo">2 productos</span>
+          <span class="catalogo__total">US$ 24,40</span>
+        </span>
+      )}
+      <span class="catalogo__pedido">
+        <Icono nombre="whatsapp" />
+        Pedir por WhatsApp
+      </span>
+    </div>
+  </div>
+  <p class="catalogo__ejemplo">Tienda y datos de ejemplo</p>
+</figure>
+
+<style>
+  .catalogo {
+    width: 100%;
+    max-width: 34rem;
+    min-width: 0;
+    margin: 0 auto;
+    container-type: inline-size;
+  }
+
+  .catalogo--compacta {
+    max-width: 30rem;
+  }
+
+  .catalogo__cuerpo {
+    display: grid;
+    gap: var(--space-4);
+    padding: var(--space-5);
+    border-radius: var(--radio-lg);
+    background: var(--color-blanco);
+    box-shadow: var(--sombra-tarjeta);
+    color: var(--color-abismo);
+    font-family: var(--font-texto);
+    line-height: 1.4;
+  }
+
+  /* Sobre fondos oscuros la sombra se hace más profunda; sigue siendo la única elevación */
+  :global([data-tema='oscuro']) .catalogo__cuerpo,
+  :global([data-tema='petroleo']) .catalogo__cuerpo {
+    box-shadow: 0 32px 64px -30px rgb(0 0 0 / 0.75);
+  }
+
+  /* ── Barra de la tienda ─────────────────────────────────────────── */
+  .catalogo__barra {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--color-linea-clara);
+  }
+
+  .catalogo__marca {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+    font-weight: var(--peso-semi);
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+  }
+
+  .catalogo__logo {
+    width: 0.875rem;
+    height: 0.875rem;
+    flex: none;
+    border-radius: 50%;
+    background: var(--color-verde);
+  }
+
+  .catalogo__menu {
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    gap: var(--space-4);
+    min-width: 0;
+    font-size: 0.6875rem;
+    color: var(--color-tinta-suave);
+    white-space: nowrap;
+  }
+
+  .catalogo__carrito {
+    position: relative;
+    display: inline-flex;
+    margin-left: auto;
+    padding: var(--space-1);
+    color: var(--color-tinta-suave);
+  }
+
+  .catalogo__carrito svg {
+    width: 1.375rem;
+    height: 1.375rem;
+  }
+
+  .catalogo__cuenta {
+    position: absolute;
+    top: -0.25rem;
+    right: -0.375rem;
+    display: grid;
+    place-items: center;
+    min-width: 1.125rem;
+    height: 1.125rem;
+    padding-inline: 0.25rem;
+    border-radius: var(--radio-pill);
+    background: var(--color-verde);
+    color: var(--color-blanco);
+    font-size: 0.625rem;
+    font-weight: var(--peso-semi);
+    line-height: 1;
+  }
+
+  /* ── Categorías ─────────────────────────────────────────────────── */
+  .catalogo__filtros {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    min-width: 0;
+  }
+
+  .catalogo__filtros span {
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radio-pill);
+    background: var(--color-papel);
+    font-size: 0.6875rem;
+    font-weight: var(--peso-medio);
+    color: var(--color-tinta-suave);
+  }
+
+  .catalogo__filtros .es-activo {
+    background: var(--color-abismo);
+    color: var(--color-blanco);
+  }
+
+  /* ── Productos ──────────────────────────────────────────────────── */
+  .catalogo__grilla {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4) var(--space-3);
+  }
+
+  .catalogo--completa .catalogo__grilla {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .producto {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .producto__foto {
+    position: relative;
+    display: grid;
+    place-items: center;
+    aspect-ratio: 4 / 3;
+    margin-bottom: var(--space-2);
+    overflow: hidden;
+    border-radius: var(--radio-md);
+    background: var(--color-papel);
+  }
+
+  .catalogo--completa .producto__foto {
+    aspect-ratio: 1;
+  }
+
+  .producto--taza .producto__foto,
+  .producto--filtros .producto__foto { background: var(--color-papel-2); }
+  .producto--molinillo .producto__foto { background: #e9efe9; }
+
+  .producto__dibujo {
+    width: 56%;
+    height: auto;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* Cuerpo, trazos, detalles y acento: cuatro papeles, siempre con la paleta de la marca */
+  .d-1 { fill: var(--color-petroleo); }
+  .d-2 { stroke: var(--color-petroleo); stroke-width: 3; }
+  .d-3 { fill: var(--color-verde); }
+  .d-4 { stroke: var(--color-salvia); stroke-width: 2.5; }
+
+  .producto--taza .d-1,
+  .producto--filtros .d-1 { fill: var(--color-verde); }
+  .producto--filtros .d-3 { fill: var(--color-salvia); }
+  .producto--regalo .d-1 { fill: var(--color-verde); }
+  .producto--regalo .d-3 { fill: var(--color-petroleo); }
+
+  .producto__nombre {
+    overflow: hidden;
+    font-size: 0.75rem;
+    font-weight: var(--peso-medio);
+    line-height: 1.35;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .producto__precio {
+    font-size: 0.75rem;
+    font-weight: var(--peso-semi);
+    color: var(--color-verde-oscuro);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Producto en el carrito */
+  .producto__agregado {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    display: grid;
+    place-items: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    background: var(--color-abismo);
+    color: var(--color-blanco);
+  }
+
+  .producto__agregado :global(svg) {
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+
+  /* ── Pie: resumen del carrito y pedido por WhatsApp ────────────── */
+  .catalogo__pie {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+  }
+
+  .catalogo--completa .catalogo__pie {
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--color-linea-clara);
+  }
+
+  .catalogo__resumen {
+    display: grid;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .catalogo__resumen-rotulo {
+    font-size: 0.6875rem;
+    color: var(--color-tinta-suave);
+  }
+
+  .catalogo__total {
+    font-size: var(--text-md);
+    font-weight: var(--peso-semi);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .catalogo__pedido {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    min-height: 2.75rem;
+    padding-inline: var(--space-5);
+    border-radius: var(--radio-pill);
+    background: var(--color-verde);
+    color: var(--color-blanco);
+    font-size: var(--text-sm);
+    font-weight: var(--peso-semi);
+    white-space: nowrap;
+  }
+
+  .catalogo--compacta .catalogo__pedido {
+    flex: 1;
+  }
+
+  .catalogo__pedido :global(svg) {
+    width: 1.125rem;
+    height: 1.125rem;
+    flex: none;
+  }
+
+  .catalogo__ejemplo {
+    margin-top: var(--space-3);
+    font-size: var(--text-xs);
+    color: var(--texto-3);
+    text-align: end;
+  }
+
+  /* ── Contenedor angosto (celular o columna estrecha) ───────────── */
+  @container (max-width: 26rem) {
+    .catalogo__menu {
+      display: none;
+    }
+
+    .catalogo--completa .catalogo__grilla {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .catalogo--completa .producto--extra {
+      display: none;
+    }
+
+    .catalogo--completa .producto__foto {
+      aspect-ratio: 4 / 3;
+    }
+
+    .catalogo__resumen {
+      display: none;
+    }
+
+    .catalogo__pedido {
+      flex: 1;
+    }
+  }
+
+  @container (max-width: 20rem) {
+    .catalogo__cuerpo {
+      gap: var(--space-3);
+      padding: var(--space-4);
+    }
+
+    .catalogo__filtros span:last-child {
+      display: none;
+    }
+
+    .catalogo__pedido {
+      padding-inline: var(--space-3);
+    }
+  }
+
+  /*
+   * Secuencia con significado (solo la variante completa, que abre la subpágina):
+   * la taza se agrega al carrito y el contador lo registra. Solo transform/opacity.
+   * Con movimiento reducido se ve directamente el estado final.
+   */
+  @media (prefers-reduced-motion: no-preference) {
+    .catalogo--completa .producto--taza .producto__agregado {
+      animation: catalogo-agregar 420ms var(--ease-out) 900ms both;
+    }
+
+    .catalogo--completa .catalogo__cuenta {
+      animation: catalogo-contar 480ms var(--ease-out) 1250ms both;
+    }
+  }
+
+  @keyframes catalogo-agregar {
+    from {
+      opacity: 0;
+      transform: scale(0.4);
+    }
+
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes catalogo-contar {
+    0% {
+      transform: none;
+    }
+
+    45% {
+      transform: scale(1.35);
+    }
+
+    100% {
+      transform: none;
+    }
+  }
+</style>

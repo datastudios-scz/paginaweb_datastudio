@@ -1,22 +1,67 @@
 ---
+/**
+ * Encabezado del sitio.
+ * - Escritorio (>= 64rem): logo, los cuatro productos y "Escríbenos". El producto de la
+ *   página actual lleva aria-current="page" y la barra verde bajo el texto (la "tapa de
+ *   valor" de las barras del logo).
+ * - Móvil (< 64rem): botón que abre un cajón lateral (<dialog> modal) con los productos,
+ *   su descripción, WhatsApp, contacto y enlaces legales.
+ * - `sobrePortada` (solo el inicio): mientras la portada [data-portada] ocupa la pantalla,
+ *   el encabezado es transparente y oculta su logo, porque la portada ya muestra el grande.
+ *   Sin JS o sin [data-portada] queda sólido, como en el resto del sitio.
+ */
 import Logo from './Logo.astro';
 import Icono from './Icono.astro';
-import { NAVEGACION, MENSAJES, enlaceWhatsApp } from '../data/sitio';
+import { NAVEGACION, SOLUCIONES, MENSAJES, CONTACTO, LEGALES, enlaceWhatsApp } from '../data/sitio';
 
+interface Props {
+  /** Solo el inicio: el encabezado se vuelve transparente mientras la portada está a la vista. */
+  sobrePortada?: boolean;
+}
+
+const { sobrePortada = false } = Astro.props;
 const whatsapp = enlaceWhatsApp(MENSAJES.general);
+
+/** "/portal-bi" y "/portal-bi/" son la misma página; "/portal-bi/algo/" también es Portal BI. */
+const normalizar = (ruta: string) => ruta.replace(/\/+$/, '') || '/';
+const rutaActual = normalizar(Astro.url.pathname);
+const esActual = (href: string) => {
+  const destino = normalizar(href);
+  if (destino === '/') return rutaActual === '/';
+  return rutaActual === destino || rutaActual.startsWith(`${destino}/`);
+};
+const enInicio = esActual('/');
+
+const productos = NAVEGACION.map((item) => ({
+  ...item,
+  nombre: SOLUCIONES.find((s) => s.id === item.id)?.nombre ?? item.etiqueta,
+  actual: esActual(item.href),
+}));
 ---
 
-<header class="encabezado" data-tema="oscuro" data-encabezado>
+<header
+  class="encabezado"
+  data-tema="oscuro"
+  data-encabezado
+  data-sobre-portada={sobrePortada ? '' : undefined}
+>
   <div class="contenedor encabezado__fila">
-    <a class="encabezado__marca" href="/" aria-label="Data Studio, ir al inicio">
-      <Logo class="encabezado__logo" decorativo />
+    <a
+      class="encabezado__marca"
+      href="/"
+      aria-label="Data Studio, ir al inicio"
+      aria-current={enInicio ? 'page' : undefined}
+    >
+      <Logo decorativo />
     </a>
 
     <nav class="encabezado__nav" aria-label="Principal">
       <ul role="list">
-        {NAVEGACION.map((item) => (
+        {productos.map((item) => (
           <li>
-            <a href={item.href}>{item.etiqueta}</a>
+            <a class="encabezado__enlace" href={item.href} aria-current={item.actual ? 'page' : undefined}>
+              {item.etiqueta}
+            </a>
           </li>
         ))}
       </ul>
@@ -25,78 +70,159 @@ const whatsapp = enlaceWhatsApp(MENSAJES.general);
     <div class="encabezado__acciones">
       <a class="boton boton--primario encabezado__cta" href={whatsapp} target="_blank" rel="noopener noreferrer">
         <Icono nombre="whatsapp" />
-        <span>Escríbenos</span>
+        <span>Escríbenos<span class="solo-lectores"> por WhatsApp (se abre en otra pestaña)</span></span>
       </a>
       <button
-        class="encabezado__alternar"
+        class="encabezado__menu"
         type="button"
+        aria-haspopup="dialog"
+        aria-controls="cajon-menu"
         aria-expanded="false"
-        aria-controls="menu-movil"
-        data-alternar-menu
+        data-abrir-cajon
       >
-        <Icono nombre="menu" class="icono-abrir" />
-        <Icono nombre="cerrar" class="icono-cerrar" />
+        <Icono nombre="menu" />
         <span class="solo-lectores">Menú</span>
       </button>
     </div>
   </div>
-
-  <div class="menu-movil" id="menu-movil" hidden data-menu-movil>
-    <nav class="contenedor" aria-label="Principal (móvil)">
-      <ul role="list">
-        {NAVEGACION.map((item) => (
-          <li>
-            <a href={item.href}>
-              <span>{item.etiqueta}</span>
-              <Icono nombre="flecha" />
-            </a>
-          </li>
-        ))}
-      </ul>
-      <a class="boton boton--primario menu-movil__cta" href={whatsapp} target="_blank" rel="noopener noreferrer">
-        <Icono nombre="whatsapp" />
-        <span>Escríbenos por WhatsApp</span>
-      </a>
-    </nav>
-  </div>
 </header>
 
+<dialog class="cajon" id="cajon-menu" aria-label="Menú" data-tema="oscuro" data-cajon>
+  <div class="cajon__panel">
+    <div class="cajon__cabecera">
+      <span class="cajon__marca"><Logo decorativo /></span>
+      <button class="cajon__cerrar" type="button" aria-label="Cerrar menú" data-cerrar-cajon>
+        <Icono nombre="cerrar" />
+      </button>
+    </div>
+
+    <div class="cajon__cuerpo">
+      <nav class="cajon__nav" aria-label="Menú principal">
+        <a class="cajon__inicio" href="/" aria-current={enInicio ? 'page' : undefined}>
+          <Icono nombre="inicio" />
+          <span>Inicio</span>
+        </a>
+
+        <ul class="cajon__productos" role="list">
+          {productos.map((item) => (
+            <li>
+              <a class="cajon__producto" href={item.href} aria-current={item.actual ? 'page' : undefined}>
+                <span class="cajon__icono"><Icono nombre={item.icono} /></span>
+                <span class="cajon__textos">
+                  <span class="cajon__linea-nombre">
+                    <span class="cajon__nombre">{item.nombre}</span>
+                    {item.actual && <span class="cajon__aqui" aria-hidden="true">Estás aquí</span>}
+                  </span>
+                  <span class="cajon__descripcion">{item.descripcion}</span>
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      <div class="cajon__pie">
+        <a class="boton boton--primario cajon__cta" href={whatsapp} target="_blank" rel="noopener noreferrer">
+          <Icono nombre="whatsapp" />
+          <span>Escríbenos por WhatsApp<span class="solo-lectores"> (se abre en otra pestaña)</span></span>
+        </a>
+
+        <ul class="cajon__contacto" role="list">
+          <li>
+            <a href={`mailto:${CONTACTO.email}`}>
+              <Icono nombre="correo" />
+              <span>{CONTACTO.email}</span>
+            </a>
+          </li>
+          <li>
+            <Icono nombre="globo" />
+            <span>{CONTACTO.modalidad}</span>
+          </li>
+        </ul>
+
+        <ul class="cajon__legales" role="list">
+          {LEGALES.map((legal) => (
+            <li><a href={legal.href}>{legal.etiqueta}</a></li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </div>
+</dialog>
+
 <style>
+  /* ── Barra superior ──────────────────────────────────────────────── */
   .encabezado {
+    --encabezado-fundido: 300ms;
+
     position: sticky;
     top: 0;
     z-index: 50;
     color: var(--texto);
-    background: var(--color-abismo);
+    background-color: var(--color-abismo);
     border-bottom: 1px solid transparent;
-    transition: border-color var(--dur-2) var(--ease-out);
+    transition:
+      background-color var(--encabezado-fundido) var(--ease-out),
+      border-color var(--dur-2) var(--ease-out);
   }
 
   .encabezado.con-scroll {
     border-bottom-color: var(--linea);
   }
 
+  /* Con portada, el encabezado se superpone a ella (no ocupa alto propio): así lo que se ve
+     detrás cuando es transparente es la portada y no el fondo de la página. */
+  :global(body:has([data-portada])) .encabezado[data-sobre-portada] {
+    margin-bottom: calc(-1 * (var(--alto-encabezado) + 1px));
+  }
+
+  /* Transparente sobre la portada. El segundo selector cubre el primer pintado (con JS,
+     antes de medir): evita que el logo aparezca y se desvanezca al cargar el inicio. */
+  .encabezado.es-sobre-portada,
+  :global(.js body:has([data-portada])) .encabezado[data-sobre-portada]:not([data-portada-lista]) {
+    background-color: transparent;
+    border-bottom-color: transparent;
+  }
+
+  .encabezado.sin-transicion,
+  .encabezado.sin-transicion .encabezado__marca {
+    transition: none;
+  }
+
   .encabezado__fila {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: var(--space-5);
+    gap: var(--space-3);
     min-height: var(--alto-encabezado);
   }
 
   .encabezado__marca {
     display: inline-flex;
+    flex: none;
     padding-block: var(--space-2);
     color: var(--color-blanco);
     border-radius: var(--radio-sm);
+    transition:
+      opacity var(--encabezado-fundido) var(--ease-out),
+      visibility var(--encabezado-fundido) var(--ease-out);
+  }
+
+  .encabezado.es-sobre-portada .encabezado__marca,
+  :global(.js body:has([data-portada]))
+    .encabezado[data-sobre-portada]:not([data-portada-lista])
+    .encabezado__marca {
+    opacity: 0;
+    visibility: hidden;
   }
 
   /* El SVG lo dibuja <Logo>: los estilos con alcance no lo alcanzan sin :global */
   .encabezado__marca :global(svg) {
-    height: 1.375rem;
+    height: 1.25rem;
     width: auto;
   }
 
+  /* ── Navegación de escritorio ────────────────────────────────────── */
   .encabezado__nav {
     display: none;
   }
@@ -108,38 +234,69 @@ const whatsapp = enlaceWhatsApp(MENSAJES.general);
     padding: 0;
   }
 
-  .encabezado__nav a {
+  .encabezado__enlace {
+    position: relative;
     display: inline-flex;
     align-items: center;
     min-height: 2.75rem;
     padding-inline: var(--space-3);
-    border-radius: var(--radio-pill);
+    border-radius: var(--radio-sm);
     font-size: var(--text-sm);
     font-weight: var(--peso-medio);
     color: var(--texto-2);
     text-decoration: none;
     white-space: nowrap;
-    transition: color var(--dur-1) var(--ease-out), background-color var(--dur-1) var(--ease-out);
+    transition:
+      color var(--dur-1) var(--ease-out),
+      background-color var(--dur-1) var(--ease-out);
   }
 
-  .encabezado__nav a:hover {
+  /* Barra de la página actual: recta, como la tapa de valor de las barras del logo. */
+  .encabezado__enlace::after {
+    content: '';
+    position: absolute;
+    left: var(--space-3);
+    right: var(--space-3);
+    bottom: 0.4375rem;
+    height: 2px;
+    background: var(--color-verde-claro);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform var(--dur-2) var(--ease-out);
+  }
+
+  .encabezado__enlace:hover {
     color: var(--texto);
-    background: rgb(206 217 189 / 0.08);
+    background-color: rgb(206 217 189 / 0.06);
   }
 
+  .encabezado__enlace:active {
+    background-color: rgb(206 217 189 / 0.11);
+  }
+
+  .encabezado__enlace[aria-current='page'] {
+    color: var(--texto);
+  }
+
+  .encabezado__enlace[aria-current='page']::after {
+    transform: none;
+  }
+
+  /* ── Acciones ────────────────────────────────────────────────────── */
   .encabezado__acciones {
     display: flex;
     align-items: center;
+    flex: none;
     gap: var(--space-2);
   }
 
   .encabezado__cta {
-    min-height: 2.5rem;
+    min-height: 2.75rem;
     padding-inline: var(--space-4);
     font-size: var(--text-sm);
   }
 
-  .encabezado__alternar {
+  .encabezado__menu {
     display: inline-grid;
     place-items: center;
     width: 2.75rem;
@@ -151,75 +308,56 @@ const whatsapp = enlaceWhatsApp(MENSAJES.general);
     color: var(--texto);
     cursor: pointer;
     box-shadow: inset 0 0 0 1px var(--linea-fuerte);
+    transition:
+      background-color var(--dur-1) var(--ease-out),
+      box-shadow var(--dur-1) var(--ease-out),
+      transform var(--dur-1) var(--ease-out);
   }
 
-  .encabezado__alternar :global(svg) {
+  .encabezado__menu:hover {
+    background-color: rgb(206 217 189 / 0.08);
+    box-shadow: inset 0 0 0 1px var(--texto-2);
+  }
+
+  .encabezado__menu:active {
+    transform: scale(0.94);
+  }
+
+  .encabezado__menu :global(svg) {
     width: 1.375rem;
     height: 1.375rem;
-    grid-area: 1 / 1;
   }
 
-  .encabezado__alternar :global(.icono-cerrar),
-  .encabezado__alternar[aria-expanded='true'] :global(.icono-abrir) {
+  /* Sin JS el cajón no puede abrirse: no se muestra un botón que no hace nada
+     (la navegación completa sigue en el pie de página). */
+  :global(html:not(.js)) .encabezado__menu {
     display: none;
   }
 
-  .encabezado__alternar[aria-expanded='true'] :global(.icono-cerrar) {
-    display: block;
+  @media (max-width: 28rem) {
+    .encabezado__cta :global(svg) {
+      display: none;
+    }
   }
 
-  .menu-movil {
-    border-top: 1px solid var(--linea);
-    background: var(--color-abismo);
-    max-height: calc(100dvh - var(--alto-encabezado));
-    overflow-y: auto;
-    overscroll-behavior: contain;
-  }
-
-  .menu-movil nav {
-    display: grid;
-    gap: var(--space-5);
-    padding-block: var(--space-4) var(--space-6);
-  }
-
-  .menu-movil ul {
-    margin: 0;
-    padding: 0;
-  }
-
-  .menu-movil li + li {
-    border-top: 1px solid var(--linea);
-  }
-
-  .menu-movil li a {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    min-height: 3.5rem;
-    font-size: var(--text-lg);
-    font-weight: var(--peso-medio);
-    color: var(--texto);
-    text-decoration: none;
-  }
-
-  .menu-movil li a :global(svg) {
-    width: 1.25rem;
-    height: 1.25rem;
-    color: var(--acento);
-  }
-
-  .menu-movil__cta {
-    width: 100%;
-  }
-
-  /* El CTA del encabezado se oculta en pantallas muy angostas: vive en el menú */
+  /* El CTA del encabezado se oculta en pantallas muy angostas: vive en el cajón */
   @media (max-width: 26rem) {
     .encabezado__cta {
       display: none;
     }
   }
 
+  @media (min-width: 30rem) {
+    .encabezado__marca :global(svg) {
+      height: 1.375rem;
+    }
+  }
+
   @media (min-width: 64rem) {
+    .encabezado__fila {
+      gap: var(--space-5);
+    }
+
     .encabezado__marca :global(svg) {
       height: 1.5rem;
     }
@@ -228,43 +366,527 @@ const whatsapp = enlaceWhatsApp(MENSAJES.general);
       display: block;
     }
 
-    .encabezado__alternar,
-    .menu-movil {
+    .encabezado__menu {
       display: none;
+    }
+  }
+
+  /* ── Cajón lateral (móvil) ───────────────────────────────────────── */
+  /* Bloqueo del scroll de la página mientras el cajón está abierto. */
+  :global(html:has(dialog.cajon[open])) {
+    overflow: hidden;
+    scrollbar-gutter: stable;
+  }
+
+  .cajon {
+    --cajon-entrada: 320ms;
+    --cajon-salida: 200ms;
+    --cajon-curva: cubic-bezier(0.16, 1, 0.3, 1);
+
+    position: fixed;
+    inset: 0 0 0 auto;
+    width: min(88vw, 24rem);
+    max-width: none;
+    height: 100vh;
+    height: 100dvh;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    color: var(--texto);
+    background-color: var(--color-abismo);
+    background-image: linear-gradient(180deg, color-mix(in srgb, var(--color-petroleo) 55%, var(--color-abismo)) 0%, transparent 40%);
+    box-shadow: -2rem 0 4rem -1.5rem rgb(0 0 0 / 0.5);
+    transform: translateX(100%);
+    transition:
+      transform var(--cajon-salida) var(--ease-in),
+      display var(--cajon-salida) allow-discrete,
+      overlay var(--cajon-salida) allow-discrete;
+  }
+
+  .cajon:not([open]) {
+    display: none;
+  }
+
+  .cajon[open] {
+    transform: none;
+    transition:
+      transform var(--cajon-entrada) var(--cajon-curva),
+      display var(--cajon-entrada) allow-discrete,
+      overlay var(--cajon-entrada) allow-discrete;
+  }
+
+  @starting-style {
+    .cajon[open] {
+      transform: translateX(100%);
+    }
+  }
+
+  /* ::backdrop no hereda variables en todos los navegadores: duraciones escritas aquí. */
+  .cajon::backdrop {
+    background-color: rgb(0 23 32 / 0);
+    transition:
+      background-color 200ms ease,
+      display 200ms allow-discrete,
+      overlay 200ms allow-discrete;
+  }
+
+  .cajon[open]::backdrop {
+    background-color: rgb(0 23 32 / 0.6);
+    transition-duration: 320ms;
+  }
+
+  @starting-style {
+    .cajon[open]::backdrop {
+      background-color: rgb(0 23 32 / 0);
+    }
+  }
+
+  .cajon__panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .cajon__cabecera {
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    min-height: var(--alto-encabezado);
+    padding-inline: var(--gutter) max(var(--gutter), env(safe-area-inset-right, 0px));
+    border-bottom: 1px solid var(--linea);
+  }
+
+  .cajon__marca {
+    display: inline-flex;
+    min-width: 0;
+    color: var(--color-blanco);
+  }
+
+  .cajon__marca :global(svg) {
+    height: 1.125rem;
+    width: auto;
+    max-width: 100%;
+  }
+
+  .cajon__cerrar {
+    display: inline-grid;
+    flex: none;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radio-pill);
+    background: transparent;
+    color: var(--texto);
+    cursor: pointer;
+    box-shadow: inset 0 0 0 1px var(--linea-fuerte);
+    transition:
+      background-color var(--dur-1) var(--ease-out),
+      box-shadow var(--dur-1) var(--ease-out),
+      transform var(--dur-1) var(--ease-out);
+  }
+
+  .cajon__cerrar:hover {
+    background-color: rgb(206 217 189 / 0.08);
+    box-shadow: inset 0 0 0 1px var(--texto-2);
+  }
+
+  .cajon__cerrar:active {
+    transform: scale(0.94);
+  }
+
+  .cajon__cerrar :global(svg) {
+    width: 1.375rem;
+    height: 1.375rem;
+  }
+
+  /* El contenido hace scroll propio; la cabecera (y el botón cerrar) quedan fijos arriba. */
+  .cajon__cuerpo {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: var(--space-7);
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding:
+      var(--space-5)
+      max(var(--gutter), env(safe-area-inset-right, 0px))
+      calc(var(--space-6) + env(safe-area-inset-bottom, 0px))
+      var(--gutter);
+  }
+
+  .cajon__nav {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .cajon__inicio {
+    display: inline-flex;
+    align-items: center;
+    justify-self: start;
+    gap: var(--space-2);
+    min-height: 2.75rem;
+    padding-inline: var(--space-3);
+    border-radius: var(--radio-pill);
+    font-size: var(--text-sm);
+    font-weight: var(--peso-medio);
+    color: var(--texto-2);
+    text-decoration: none;
+    transition:
+      color var(--dur-1) var(--ease-out),
+      background-color var(--dur-1) var(--ease-out);
+  }
+
+  .cajon__inicio :global(svg) {
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+
+  .cajon__inicio:hover {
+    color: var(--texto);
+    background-color: rgb(206 217 189 / 0.06);
+  }
+
+  .cajon__inicio:active {
+    background-color: rgb(206 217 189 / 0.11);
+  }
+
+  .cajon__inicio[aria-current='page'] {
+    color: var(--color-verde-claro);
+  }
+
+  .cajon__productos {
+    display: grid;
+    gap: var(--space-1);
+    margin: 0;
+    padding: 0;
+  }
+
+  .cajon__producto {
+    display: grid;
+    grid-template-columns: 2.75rem minmax(0, 1fr);
+    align-items: start;
+    column-gap: var(--space-4);
+    padding: var(--space-3);
+    border-radius: var(--radio-md);
+    color: var(--texto);
+    text-decoration: none;
+    transition: background-color var(--dur-1) var(--ease-out);
+  }
+
+  .cajon__icono {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: var(--radio-md);
+    color: var(--acento);
+    box-shadow: inset 0 0 0 1px var(--linea);
+    transition:
+      background-color var(--dur-1) var(--ease-out),
+      color var(--dur-1) var(--ease-out);
+  }
+
+  .cajon__icono :global(svg) {
+    width: 1.375rem;
+    height: 1.375rem;
+  }
+
+  .cajon__textos {
+    display: grid;
+    gap: var(--space-1);
+    min-width: 0;
+    padding-top: 0.125rem;
+  }
+
+  .cajon__linea-nombre {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: var(--space-3);
+    row-gap: var(--space-1);
+  }
+
+  .cajon__nombre {
+    font-size: var(--text-lg);
+    font-weight: var(--peso-semi);
+    line-height: 1.3;
+    letter-spacing: -0.015em;
+    overflow-wrap: anywhere;
+    transition: color var(--dur-1) var(--ease-out);
+  }
+
+  .cajon__descripcion {
+    font-size: var(--text-sm);
+    line-height: 1.5;
+    color: var(--texto-2);
+    text-wrap: pretty;
+  }
+
+  .cajon__aqui {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-xs);
+    font-weight: var(--peso-medio);
+    line-height: 1.4;
+    color: var(--acento);
+    white-space: nowrap;
+  }
+
+  /* Marca recta, como las barras del logo. */
+  .cajon__aqui::before {
+    content: '';
+    width: 0.375rem;
+    height: 0.375rem;
+    background: currentColor;
+  }
+
+  .cajon__producto:hover {
+    background-color: rgb(206 217 189 / 0.05);
+  }
+
+  .cajon__producto:hover .cajon__icono {
+    background-color: rgb(206 217 189 / 0.06);
+  }
+
+  .cajon__producto:active {
+    background-color: rgb(206 217 189 / 0.11);
+  }
+
+  .cajon__producto[aria-current='page'] {
+    background-color: rgb(206 217 189 / 0.08);
+  }
+
+  .cajon__producto[aria-current='page'] .cajon__nombre {
+    color: var(--color-verde-claro);
+  }
+
+  .cajon__producto[aria-current='page'] .cajon__icono {
+    background-color: var(--color-verde);
+    color: var(--color-blanco);
+    box-shadow: none;
+  }
+
+  /* WhatsApp, contacto y legales van al fondo cuando el cajón tiene espacio de sobra. */
+  .cajon__pie {
+    display: grid;
+    gap: var(--space-5);
+    margin-top: auto;
+  }
+
+  .cajon__cta {
+    width: 100%;
+    min-height: 3.25rem;
+  }
+
+  .cajon__contacto {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    font-size: var(--text-sm);
+    color: var(--texto-2);
+  }
+
+  .cajon__contacto li,
+  .cajon__contacto a {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-height: 2.75rem;
+    min-width: 0;
+  }
+
+  .cajon__contacto a {
+    color: inherit;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+    transition: color var(--dur-1) var(--ease-out);
+  }
+
+  .cajon__contacto a:hover {
+    color: var(--acento);
+  }
+
+  .cajon__contacto :global(svg) {
+    width: 1.125rem;
+    height: 1.125rem;
+    flex: none;
+    color: var(--acento);
+  }
+
+  .cajon__legales {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: var(--space-5);
+    margin: 0;
+    padding: var(--space-3) 0 0;
+    border-top: 1px solid var(--linea);
+    font-size: var(--text-xs);
+  }
+
+  .cajon__legales a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    color: var(--texto-3);
+    text-decoration: none;
+    transition: color var(--dur-1) var(--ease-out);
+  }
+
+  .cajon__legales a:hover {
+    color: var(--texto);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  /* Entrada escalonada del contenido: acompaña al panel, solo con movimiento permitido. */
+  @media (prefers-reduced-motion: no-preference) {
+    .cajon__inicio,
+    .cajon__productos > li,
+    .cajon__pie {
+      transition:
+        opacity 420ms var(--ease-out),
+        transform 520ms var(--cajon-curva),
+        color var(--dur-1) var(--ease-out),
+        background-color var(--dur-1) var(--ease-out);
+    }
+
+    .cajon__inicio {
+      transition-delay: 60ms, 60ms, 0ms, 0ms;
+    }
+
+    .cajon__productos > li:nth-child(1) {
+      transition-delay: 100ms;
+    }
+
+    .cajon__productos > li:nth-child(2) {
+      transition-delay: 140ms;
+    }
+
+    .cajon__productos > li:nth-child(3) {
+      transition-delay: 180ms;
+    }
+
+    .cajon__productos > li:nth-child(4) {
+      transition-delay: 220ms;
+    }
+
+    .cajon__pie {
+      transition-delay: 260ms;
+    }
+
+    @starting-style {
+      .cajon[open] .cajon__inicio,
+      .cajon[open] .cajon__productos > li,
+      .cajon[open] .cajon__pie {
+        opacity: 0;
+        transform: translateX(1.25rem);
+      }
+    }
+  }
+
+  /* Movimiento reducido: sin desplazamiento, solo un fundido corto. El !important supera
+     la regla global que anula todas las transiciones (global.css), solo para la opacidad. */
+  @media (prefers-reduced-motion: reduce) {
+    .cajon {
+      transform: none;
+      opacity: 0;
+      transition:
+        opacity 150ms linear,
+        display 150ms allow-discrete,
+        overlay 150ms allow-discrete !important;
+    }
+
+    .cajon[open] {
+      transform: none;
+      opacity: 1;
+    }
+
+    @starting-style {
+      .cajon[open] {
+        transform: none;
+        opacity: 0;
+      }
+    }
+
+    .cajon::backdrop,
+    .cajon[open]::backdrop {
+      transition-duration: 150ms;
     }
   }
 </style>
 
 <script>
   const encabezado = document.querySelector<HTMLElement>('[data-encabezado]');
-  const boton = document.querySelector<HTMLButtonElement>('[data-alternar-menu]');
-  const menu = document.querySelector<HTMLElement>('[data-menu-movil]');
+  const cajon = document.querySelector<HTMLDialogElement>('[data-cajon]');
+  const abrir = document.querySelector<HTMLButtonElement>('[data-abrir-cajon]');
 
-  if (encabezado && boton && menu) {
-    const abrir = (estado: boolean) => {
-      boton.setAttribute('aria-expanded', String(estado));
-      menu.hidden = !estado;
+  /* ── Cajón lateral ─────────────────────────────────────────────── */
+  if (cajon && abrir && typeof cajon.showModal === 'function') {
+    const cerrar = () => {
+      if (cajon.open) cajon.close();
     };
 
-    boton.addEventListener('click', () => abrir(menu.hidden));
-
-    menu.addEventListener('click', (evento) => {
-      if ((evento.target as HTMLElement).closest('a')) abrir(false);
+    abrir.addEventListener('click', () => {
+      if (cajon.open) return;
+      cajon.showModal();
+      abrir.setAttribute('aria-expanded', 'true');
     });
 
-    document.addEventListener('keydown', (evento) => {
-      if (evento.key === 'Escape' && !menu.hidden) {
-        abrir(false);
-        boton.focus();
+    // Se dispara al cerrar por cualquier vía (Escape, botón, fondo, enlace, cambio de tamaño).
+    cajon.addEventListener('close', () => {
+      abrir.setAttribute('aria-expanded', 'false');
+      // El navegador devuelve el foco al botón que abrió el diálogo; esto cubre a los que no.
+      const activo = document.activeElement;
+      if (!activo || activo === document.body || cajon.contains(activo)) {
+        abrir.focus({ preventScroll: true });
       }
     });
 
-    // Al pasar a escritorio el menú móvil no debe quedar abierto.
-    matchMedia('(min-width: 64rem)').addEventListener('change', (e) => {
-      if (e.matches) abrir(false);
+    cajon.querySelector('[data-cerrar-cajon]')?.addEventListener('click', cerrar);
+
+    // Clic en el fondo: el ::backdrop entrega sus clics al propio <dialog>. Se exige que el
+    // gesto empiece y termine fuera del panel (arrastrar una selección hacia afuera no cierra).
+    const fueraDelPanel = (evento: MouseEvent) => {
+      const caja = cajon.getBoundingClientRect();
+      return (
+        evento.clientX < caja.left ||
+        evento.clientX > caja.right ||
+        evento.clientY < caja.top ||
+        evento.clientY > caja.bottom
+      );
+    };
+    let empezoEnFondo = false;
+
+    cajon.addEventListener('pointerdown', (evento) => {
+      empezoEnFondo = evento.target === cajon && fueraDelPanel(evento);
     });
 
-    // Línea inferior del encabezado cuando la página ya no está arriba (sin escuchar scroll).
+    cajon.addEventListener('click', (evento) => {
+      const objetivo = evento.target as Element;
+      if (objetivo === cajon) {
+        if (empezoEnFondo && fueraDelPanel(evento)) cerrar();
+      } else if (objetivo.closest('a[href]')) {
+        cerrar();
+      }
+      empezoEnFondo = false;
+    });
+
+    // Al pasar a escritorio el cajón no debe quedar abierto.
+    matchMedia('(min-width: 64rem)').addEventListener('change', (evento) => {
+      if (evento.matches) cerrar();
+    });
+  }
+
+  if (encabezado) {
+    /* ── Línea inferior cuando la página ya no está arriba (sin escuchar scroll) ── */
     const centinela = document.createElement('div');
     centinela.setAttribute('aria-hidden', 'true');
     centinela.className = 'centinela-scroll';
@@ -272,5 +894,50 @@ const whatsapp = enlaceWhatsApp(MENSAJES.general);
     new IntersectionObserver(([entrada]) => {
       encabezado.classList.toggle('con-scroll', !entrada.isIntersecting);
     }).observe(centinela);
+
+    /* ── Transparente sobre la portada (solo el inicio) ─────────────── */
+    const portada = encabezado.hasAttribute('data-sobre-portada')
+      ? document.querySelector<HTMLElement>('[data-portada]')
+      : null;
+
+    if (portada) {
+      const UMBRAL = 0.2;
+
+      // Visible = más del 20 % de la portada en pantalla, o la portada cubre más del 20 % de
+      // la pantalla (así también funciona si la portada es más alta que la ventana).
+      const estaVisible = (caja: DOMRectReadOnly, altoVentana: number) => {
+        if (caja.height <= 0 || altoVentana <= 0) return false;
+        const visible = Math.min(caja.bottom, altoVentana) - Math.max(caja.top, 0);
+        return visible > 0 && (visible / caja.height > UMBRAL || visible / altoVentana > UMBRAL);
+      };
+
+      const aplicar = (sobre: boolean) => encabezado.classList.toggle('es-sobre-portada', sobre);
+
+      // Sin lecturas de layout al iniciar (getBoundingClientRect o scrollY forzaban un reflow
+      // de 140–190 ms al cargar en móvil). El CSS pinta el primer cuadro transparente
+      // (:not([data-portada-lista])) y la primera llamada del IntersectionObserver, que llega
+      // después del layout natural, fija el estado real sin transición.
+      if ('IntersectionObserver' in window) {
+        const pasos = Array.from({ length: 21 }, (_, i) => i / 20);
+        let primera = true;
+        new IntersectionObserver(
+          (entradas) => {
+            const entrada = entradas[entradas.length - 1];
+            if (primera) encabezado.classList.add('sin-transicion');
+            aplicar(estaVisible(entrada.boundingClientRect, entrada.rootBounds?.height ?? innerHeight));
+            if (primera) {
+              primera = false;
+              encabezado.setAttribute('data-portada-lista', '');
+              requestAnimationFrame(() =>
+                requestAnimationFrame(() => encabezado.classList.remove('sin-transicion')),
+              );
+            }
+          },
+          { threshold: pasos },
+        ).observe(portada);
+      } else {
+        encabezado.setAttribute('data-portada-lista', '');
+      }
+    }
   }
 </script>

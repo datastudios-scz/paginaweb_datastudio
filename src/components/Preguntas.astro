@@ -13,26 +13,24 @@ export interface Pregunta {
 
 interface Props {
   id?: string;
-  etiqueta?: string;
   titulo: string;
   bajada?: string;
   preguntas: Pregunta[];
   tema?: 'claro' | 'salvia' | 'oscuro';
 }
 
-const { id = 'preguntas', etiqueta = 'Preguntas', titulo, bajada, preguntas, tema = 'claro' } = Astro.props;
+const { id = 'preguntas', titulo, bajada, preguntas, tema = 'claro' } = Astro.props;
 ---
 
 <section class="seccion preguntas" id={id} data-tema={tema} aria-labelledby={`${id}-titulo`}>
   <div class="contenedor preguntas__rejilla">
-    <header class="preguntas__cabecera" data-revelar>
-      <p class="etiqueta">{etiqueta}</p>
+    <header class="preguntas__cabecera">
       <h2 id={`${id}-titulo`} class="titulo-seccion">{titulo}</h2>
       {bajada && <p class="entrada" set:html={bajada} />}
       <slot />
     </header>
 
-    <div class="preguntas__lista" data-revelar>
+    <div class="preguntas__lista">
       {preguntas.map((p, i) => (
         <details open={i === 0}>
           <summary>

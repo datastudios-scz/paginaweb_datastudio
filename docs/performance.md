@@ -15,20 +15,25 @@
 
 ## Resultados de Lighthouse 12 (móvil simulado, build local)
 
-| Página | Rendimiento | Accesibilidad | Buenas prácticas | SEO |
-| --- | --- | --- | --- | --- |
-| `/` | 100 | 100 | 100 | 100 |
-| `/portal-bi/` | 100 | 100 | 100 | 100 |
+Medición del 27/09/2026 (Edge del sistema, `lighthouse@12`):
 
-Métricas `/`: FCP 1,2 s · LCP 1,5 s · TBT 0 ms · CLS 0 · Speed Index 1,2 s.
-Métricas `/portal-bi/`: FCP 1,1 s · LCP 1,4 s · TBT 10 ms · CLS 0 · Speed Index 1,1 s.
+| Página | Rendimiento | Accesibilidad | Buenas prácticas | SEO | LCP | TBT | CLS | Speed Index |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `/` | 100 | 100 | 100 | 100 | 1,5 s | 0 ms | 0,001 | 1,2 s |
+| `/portal-bi/` | 100 | 100 | 100 | 100 | 1,5 s | 40 ms | 0 | 1,2 s |
+| `/social-metrics-bi/` | 100 | 100 | 100 | 100 | 1,5 s | 10 ms | 0 | 1,2 s |
+| `/tienda-ecommerce/` | 100 | 100 | 100 | 100 | 1,5 s | 0 ms | 0 | 1,2 s |
+| `/consultoria/` | 100 | 100 | 100 | 100 | 1,4 s | 0 ms | 0 | 1,2 s |
+
+La portada llegó a 98 (Speed Index 3,8 s por un fundido de toda la escena y "forced reflow" del encabezado); ver [aprendizajes.md](aprendizajes.md).
 
 ## Decisiones que sostienen el resultado
 
 1. **Cero JS de framework**: Astro estático; los scripts son módulos pequeños por componente.
 2. **CSS en línea** (`build.inlineStylesheets: 'always'`): sin petición que bloquee el primer pintado.
 3. **Fuentes locales** con `font-display: swap`, subconjunto latino, solo 4+1 pesos; precarga de 400 y 600 (texto y titulares). Astro genera fuentes de respaldo con métricas ajustadas (CLS 0).
-4. **Sin imágenes en el hero**: el titular es el LCP y pinta de inmediato (sin animación de entrada en el `h1`).
+4. **Sin imágenes en la portada**: logo, wordmark y escena de fondo son SVG/HTML en línea. Sin fundidos a pantalla completa al cargar.
+4b. **Scroll sin JS**: el telón y el traspaso de las barras usan CSS scroll-driven animations (hilo del compositor), no listeners de `scroll`.
 5. **SVG en línea** para logo e íconos (sin peticiones). Las maquetas del portal son HTML/CSS, no capturas.
 6. **Animaciones solo de `transform` y `opacity`**; se desactivan con `prefers-reduced-motion`.
 7. La aparición al hacer scroll usa `IntersectionObserver`, no escucha el evento `scroll`.
