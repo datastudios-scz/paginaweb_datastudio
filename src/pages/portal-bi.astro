@@ -7,7 +7,8 @@
  * Se vende por dos caminos: Impleméntalo tú (códigos para despliegue, guía, curso en video,
  * dos formas de desplegar, certificado de implementador; MENSAJES.portalCompra) o Contrata la
  * implementación (MENSAJES.portalImplementacion). Montos de licencias: siempre en
- * <s class="monto-no"> y con palabras ("sin el portal pagarías…"); el ahorro no se tacha.
+ * <s class="monto-no"> y con palabras ("sin el portal pagarías…").
+ * Una sola cifra de dinero en toda la página, en la calculadora; el resto habla de beneficios.
  * Cifras sin confirmar, una mención cada una: "+1.000 personas" (franja) y "dos horas como
  * máximo" (#instalar). Estilos genéricos en src/styles/producto.css (prod-*); aquí solo lo propio.
  */
@@ -19,8 +20,7 @@ import MaquetaPortal from '../components/portal/MaquetaPortal.astro';
 import MaquetaChat from '../components/portal/MaquetaChat.astro';
 import Calculadora from '../components/portal/Calculadora.astro';
 import Preguntas, { type Pregunta } from '../components/Preguntas.astro';
-import { MENSAJES, PRECIO_LICENCIA_USD, CONTACTO, SITIO, enlaceWhatsApp } from '../data/sitio';
-import { dolares, calcularAhorro } from '../scripts/formato';
+import { MENSAJES, CONTACTO, SITIO, enlaceWhatsApp } from '../data/sitio';
 import { faqPage, migas } from '../scripts/esquemas';
 import '../styles/producto.css';
 
@@ -28,7 +28,6 @@ const URL_PAGINA = `${SITIO.url}/portal-bi/`;
 const compra = enlaceWhatsApp(MENSAJES.portalCompra);
 const implementacion = enlaceWhatsApp(MENSAJES.portalImplementacion);
 const demo = enlaceWhatsApp(MENSAJES.portal);
-const conMil = calcularAhorro(1000, PRECIO_LICENCIA_USD);
 
 const PREGUNTAS: Pregunta[] = [
   {
@@ -196,15 +195,11 @@ const SERVICIO = {
             Cada persona entra a tu portal con su usuario y encuentra sus tableros, con tu marca y sin cuenta de
             Power BI. Lo implementas tú o lo implementamos por ti.
           </p>
-          <!-- El monto de licencias es lo que NO se paga: va tachado y dicho con palabras. El ahorro, en acento. -->
+          <!-- Sin cifras aquí: el único monto de la página vive en la calculadora (pedido del dueño). -->
           <div class="prod-ancla pb-ancla">
-            <p>
-              Ejemplo con 1.000 personas: sin el portal pagarías <s class="monto-no dato">{dolares(conMil.conLicencias)}</s>
-              al año en licencias de Power BI Pro. Con el portal, basta la de la cuenta que publica:
-              <b>dejas de pagar <span class="prod-acento dato">{dolares(conMil.ahorroAnual)}</span> al año</b>.
-            </p>
+            <p>¿Cuánto dejas de pagar en licencias con el tamaño de tu equipo?</p>
             <a class="enlace pb-ancla__enlace" href="#ahorro">
-              <span>Calcula lo que dejas de pagar</span>
+              <span>Haz la cuenta</span>
               <Icono nombre="flecha" />
             </a>
           </div>
@@ -301,6 +296,17 @@ const SERVICIO = {
             <li><Icono nombre="check" />La licencia de la cuenta que publica alcanza para todos los que miran.</li>
           </ul>
         </div>
+      </div>
+
+      <div class="prod-bloque pb-equipos">
+        <h3 class="prod-subtitulo">Y cada equipo gana algo distinto.</h3>
+        <ul class="prod-lista prod-lista--grande" role="list">
+          <li><Icono nombre="tableros" /><span><strong>Quien construye los tableros</strong> publica una sola vez en Power BI y toda la empresa lo ve actualizado. Se acaban las exportaciones a Excel, los PDF por correo y las versiones repetidas para cada área.</span></li>
+          <li><Icono nombre="usuarios" /><span><strong>Quien administra TI</strong> suma o quita a una persona con una fila, sin comprar ni reasignar licencias, y decide qué tableros ve cada uno.</span></li>
+          <li><Icono nombre="candado" /><span><strong>Quien cuida la seguridad</strong> sabe que los datos no salen de Power BI: el portal usa la inserción oficial con accesos temporales y el modelo sigue donde está.</span></li>
+          <li><Icono nombre="codigo" /><span><strong>Quien integra y despliega</strong> recibe el código completo: lo instala en su servidor o en su nube, lo adapta a la marca y lo escala sin depender de nadie.</span></li>
+          <li><Icono nombre="chat" /><span><strong>Quien decide</strong> entra desde la computadora o el celular, ve solo lo suyo, descarga la información que necesita y le pregunta al chat lo que no encuentra.</span></li>
+        </ul>
       </div>
     </div>
   </section>
@@ -701,11 +707,10 @@ const SERVICIO = {
       </p>
       <div class="prod-recuerdo">
         <div>
-          <p class="prod-recuerdo__tit">Lo que dejas de pagar</p>
+          <p class="prod-recuerdo__tit">Lo que cambia</p>
           <p class="prod-recuerdo__txt">
-            Con 1.000 personas, sin el portal pagarías <s class="monto-no dato">{dolares(conMil.conLicencias)}</s> al
-            año en licencias. Con el portal pagas una sola:
-            <b>dejas de pagar <span class="prod-acento">{dolares(conMil.ahorroAnual)}</span></b>.
+            Toda tu empresa ve sus tableros con <b>una sola licencia</b> de Power BI, y tu equipo deja de armar y
+            enviar reportes a mano.
           </p>
         </div>
         <div>

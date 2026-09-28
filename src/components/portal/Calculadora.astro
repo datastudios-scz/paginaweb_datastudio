@@ -1,8 +1,8 @@
 ---
 /**
  * Calculadora de ahorro del Portal BI.
- * El número grande es el AHORRO, no el gasto (si el gasto va en grande se lee como el
- * precio del producto). La cifra de referencia es de Microsoft, no de Data Studio.
+ * Un solo monto: lo que costarían las licencias sin el portal, tachado en rojo (no es el precio
+ * del producto). El lado del portal se dice con palabras: una licencia. La cifra de referencia es de Microsoft, no de Data Studio.
  * Lo que costarían las licencias sin el portal es un monto que NO se paga: va en
  * <s class="monto-no"> (tachado y en rojo) con la etiqueta "Sin el portal pagarías".
  * El script cambia el texto de cada [data-salida]; el <s> conserva el tachado.
@@ -26,7 +26,7 @@ const r = calcularAhorro(inicial, PRECIO_LICENCIA_USD);
 ---
 
 <div class="cuenta" data-calculadora data-precio={PRECIO_LICENCIA_USD}>
-  <p class="cuenta__titulo">La cuenta, a precio de lista</p>
+  <p class="cuenta__titulo">Haz la cuenta con tu equipo</p>
 
   <div class="cuenta__control">
     <label for={`${id}-personas`}>
@@ -36,32 +36,24 @@ const r = calcularAhorro(inicial, PRECIO_LICENCIA_USD);
     <input type="range" id={`${id}-personas`} min={min} max={max} step={paso} value={inicial} data-entrada />
   </div>
 
-  <p class="cuenta__mult dato">
-    Una licencia por persona: <span data-salida="cuenta">US$ {PRECIO_LICENCIA_USD} × {miles(inicial)} personas × 12 meses</span>
-  </p>
 
   <div class="comp">
     <div class="comp__fila comp__fila--caro">
-      <span class="comp__etq">Sin el portal pagarías</span>
-      <s class="monto-no comp__cifra dato" data-salida="caro">{dolares(r.conLicencias)}</s>
+      <span class="comp__etq">Sin el portal: una licencia por persona, al año</span>
+      <s class="monto-no comp__cifra dato" data-salida="caro" aria-live="polite">{dolares(r.conLicencias)}</s>
       <span class="comp__pista"><span class="comp__valor"></span></span>
     </div>
     <div class="comp__fila comp__fila--portal">
-      <span class="comp__etq">Con el portal: 1 licencia de Power BI Pro</span>
-      <span class="comp__cifra dato" data-salida="portal">{dolares(r.conPortal)}</span>
+      <span class="comp__etq">Con el portal: la cuenta que publica</span>
+      <span class="comp__cifra">1 licencia</span>
       <span class="comp__pista"><span class="comp__valor" data-barra-portal></span></span>
     </div>
   </div>
 
   <div class="ahorro">
-    <p class="ahorro__etq">Dejas de pagar en licencias, por año</p>
-    <p class="ahorro__cifra" data-salida="ahorro" aria-live="polite">{dolares(r.ahorroAnual)}</p>
-    <p class="ahorro__mes">
-      Son <b class="dato" data-salida="mes">{dolares(r.ahorroMensual)}</b> por cada mes que sigue así.
-    </p>
     <p class="ahorro__nota">
-      Precio de lista de Power BI Pro: US$ {PRECIO_LICENCIA_USD} por usuario y por mes, por doce meses. Sin
-      descuentos por volumen ni impuestos. La cuenta compara solo licencias; no incluye el precio del portal.
+      Calculado a precio de lista de Power BI Pro, sin descuentos ni impuestos. Compara solo licencias: no es el
+      precio del portal.
     </p>
     <a class="boton boton--primario ahorro__cta" href={ctaHref} target="_blank" rel="noopener noreferrer">
       {ctaTexto}
@@ -258,11 +250,7 @@ const r = calcularAhorro(inicial, PRECIO_LICENCIA_USD);
         if (el) el.textContent = texto;
       };
       poner('personas', miles(personas));
-      poner('cuenta', `US$ ${precio} × ${miles(personas)} personas × 12 meses`);
       poner('caro', dolares(r.conLicencias));
-      poner('portal', dolares(r.conPortal));
-      poner('ahorro', dolares(r.ahorroAnual));
-      poner('mes', dolares(r.ahorroMensual));
       // CSSOM (permitido por la CSP), no atributos style en el HTML.
       barra.style.transform = `scaleX(${(r.anchoPortal / 100).toFixed(4)})`;
     };
