@@ -21,7 +21,8 @@ Empresa de soluciones de datos con base en Santa Cruz de la Sierra, Bolivia, que
 ## Fuentes del contenido
 
 1. **Sitio anterior en Google Sites** (`sites.google.com/view/datastudioscz`): Portal Web BI, Social Metrics BI, tienda e-commerce, políticas ("PDP"). Reemplazado por este sitio.
-2. **Página de producto del Portal BI** preparada en el repositorio de desarrollo del Portal BI (`producto.ejs`, entregada por el dueño el 25/09/2026). Es la fuente más actual del producto: maquetas fieles del portal y del chat con IA, requisitos (Power BI Pro, app de Azure, planilla de Google, servidor), instalación en 2 horas con curso y guía, límites y preguntas. Se adaptó a la marca y a tuteo en `/portal-bi/`. El archivo original se eliminó del repo tras usarlo.
+2. **Texto del dueño sobre el Portal BI** (su Google Sites, entregado el 27/09/2026): cualidades (login, administrador con +3 módulos, menú de botones, apertura híbrida web y con licencia, "nunca más comprarás licencias para cada usuario", descarga de información sin restricción, marca personalizable, dueño del código), requisitos (cuenta de Google y 1 licencia de Power BI), entregables (códigos para despliegue, curso/video detallado, dos formas de desplegar, certificado de implementador) y el cierre "¿Qué esperas para tener tu propio portal? Es hora de innovar".
+2b. **Página de producto del Portal BI** preparada en el repositorio de desarrollo del Portal BI (`producto.ejs`, entregada por el dueño el 25/09/2026). Es la fuente más actual del producto: maquetas fieles del portal y del chat con IA, requisitos (Power BI Pro, app de Azure, planilla de Google, servidor), instalación en 2 horas con curso y guía, límites y preguntas. Se adaptó a la marca y a tuteo en `/portal-bi/`. El archivo original se eliminó del repo tras usarlo.
 3. **Páginas legales** del repo (`public/privacidad`, `public/terminos`, `public/oauth/tiktok`): describen las integraciones con YouTube, TikTok y Meta y su tratamiento de datos. La sección Social Metrics del home las resume.
 
 ## Datos que se muestran y su respaldo
@@ -39,7 +40,9 @@ Empresa de soluciones de datos con base en Santa Cruz de la Sierra, Bolivia, que
 - [ ] **Logos de clientes y testimonios** (el sitio anterior decía "Grandes empresas ya confían en nuestra solución" con logos que no se pudieron recuperar). Se necesita el archivo de cada logo y **permiso** del cliente. No se inventan.
 - [ ] **Portal de prueba** en Google Apps Script (usuario `data_studio`): ¿sigue representando al producto actual? Hoy no se enlaza; la página ofrece demo guiada de 30 min.
 - [ ] Cifras del Portal BI tomadas de la página de producto: "+1.000 personas", "2 horas", "no cobramos implementación". El sitio anterior decía "+100 usuarios" y ofrecía contratar la implementación. Hoy se dicen una vez (sección de instalación y pregunta frecuente).
-- [ ] ¿Existe además un **servicio de implementación del Portal BI** (lo instalamos nosotros)? Hoy la página dice que lo instala el cliente.
+- [x] ¿Existe un **servicio de implementación del Portal BI**? **Sí** (dueño, 27/09/2026): "Puedes contratar nuestra solución o implementa tú mismo esta solución en tu empresa o proyecto". El Portal BI se vende por dos caminos. Precio y alcance del servicio: sin publicar.
+- [ ] Nombre exacto del certificado que se entrega con la compra (el sitio anterior decía "Certificado Implementador BI Platform Engineer"; el producto hoy se llama Portal BI).
+- [ ] "Dos formas de desplegar": ¿cuáles son (p. ej. servidor propio o nube)? Hoy se dice sin detallar.
 - [ ] Tienda de ejemplo (cafetería, productos y precios en US$): es ilustrativa. Si hay una tienda real hecha con la plantilla y permiso, conviene mostrarla.
 - [ ] Pasos del proceso de consultoría (Diagnóstico → Propuesta → Implementación → Acompañamiento): redactados como proceso estándar; validar.
 - [ ] Precios (tienda, portal, servicios): no se publican hasta tenerlos confirmados.

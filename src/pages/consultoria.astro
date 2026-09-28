@@ -5,6 +5,9 @@
  * El núcleo es el diagrama del recorrido de los datos (Flujo): cada servicio se ubica en el
  * tramo donde actúa, en lugar de una grilla de tarjetas.
  * Solo afirmaciones respaldadas: sin herramientas, plazos, precios ni casos inventados.
+ * Mensaje: el dolor de las planillas que no cuadran y el diagnóstico como primer paso. El
+ * diagnóstico no se presenta como gratis ni "sin compromiso" (condiciones sin confirmar).
+ * Los cuatro pasos del proceso están pendientes de validar con el dueño: no ampliarlos.
  */
 import Base from '../layouts/Base.astro';
 import Icono from '../components/Icono.astro';
@@ -42,18 +45,18 @@ const PASOS = [
 
 const PREGUNTAS: Pregunta[] = [
   {
-    pregunta: '¿Trabajan de forma remota?',
+    pregunta: '¿Cómo empezamos?',
+    respuesta: `<p>Con un diagnóstico: conversamos sobre tus fuentes de datos, las preguntas que quieres responder y tus prioridades. No hace falta que sepas dónde está el problema: ahí vemos en qué tramo se traba tu información y te proponemos por dónde empezar.</p><p>Para agendarlo, <a href="${diagnostico}" target="_blank" rel="noopener noreferrer">escríbenos por WhatsApp</a> o a <a href="${correo}">${CONTACTO.email}</a>.</p>`,
+  },
+  {
+    pregunta: '¿Cuánto cuesta y cuánto demora?',
     respuesta:
-      '<p>Sí. Todo el trabajo es remoto, del diagnóstico al acompañamiento, y trabajamos con equipos de cualquier país.</p>',
+      '<p>Depende de tus fuentes y de lo que quieras responder. Después del diagnóstico te presentamos una propuesta con el alcance, los entregables y los tiempos, antes de construir nada.</p>',
   },
   {
     pregunta: '¿Con qué herramientas trabajan?',
     respuesta:
       '<p>Los tableros y reportes se construyen en <strong>Power BI</strong>, y partimos de las fuentes que ya usas: Excel, bases de datos, sistemas y APIs.</p><p>Si hace falta un lugar donde reunir los datos, definimos la base de datos, el data warehouse o la nube a la medida de tu operación.</p>',
-  },
-  {
-    pregunta: '¿Cómo empezamos?',
-    respuesta: `<p>Con un diagnóstico: conversamos sobre tus fuentes de datos, las preguntas que quieres responder y tus prioridades. Con eso te presentamos una propuesta con el alcance, los entregables y los tiempos.</p><p>Para agendarlo, <a href="${diagnostico}" target="_blank" rel="noopener noreferrer">escríbenos por WhatsApp</a> o a <a href="${correo}">${CONTACTO.email}</a>.</p>`,
   },
   {
     pregunta: '¿Pueden integrar redes sociales o sistemas internos?',
@@ -64,6 +67,11 @@ const PREGUNTAS: Pregunta[] = [
     pregunta: '¿Capacitan a mi equipo?',
     respuesta:
       '<p>Sí. El último paso es el acompañamiento: capacitamos a tu equipo para que la solución se use de verdad. Y como durante la implementación revisas entregas parciales, tu equipo la conoce antes de recibirla.</p>',
+  },
+  {
+    pregunta: '¿Trabajan de forma remota?',
+    respuesta:
+      '<p>Sí. Todo el trabajo es remoto, del diagnóstico al acompañamiento, y trabajamos con equipos de cualquier país.</p>',
   },
 ];
 ---
@@ -107,11 +115,12 @@ const PREGUNTAS: Pregunta[] = [
       <div class="prod-heroe__rejilla">
         <div class="prod-heroe__texto">
           <h1 id="co-titulo" class="prod-heroe__titulo">
-            Ordenamos tus datos para que <span class="prod-acento">puedas usarlos.</span>
+            Deja de cuadrar planillas. <span class="prod-acento">Ordenamos tus datos para que puedas usarlos.</span>
           </h1>
           <p class="prod-heroe__bajada">
-            Cuando la información está repartida entre planillas, sistemas y plataformas, te ayudamos a integrarla,
-            modelarla y convertirla en reportes confiables.
+            Cuando la información está repartida entre planillas, sistemas y plataformas, cada reporte se arma a mano
+            y cada área llega con su cifra. La integramos, la modelamos y la convertimos en reportes que se
+            actualizan solos.
           </p>
           <div class="acciones">
             <a class="boton boton--primario" href={diagnostico} target="_blank" rel="noopener noreferrer">
@@ -120,6 +129,10 @@ const PREGUNTAS: Pregunta[] = [
             </a>
             <a class="boton boton--secundario" href="#proceso">Cómo trabajamos</a>
           </div>
+          <p class="co-heroe__nota">
+            Primero, un diagnóstico. Luego, una propuesta con alcance, entregables y tiempos. Solo después empezamos a
+            construir.
+          </p>
           <ul class="prod-sellos" role="list">
             <li><Icono nombre="check" />100&nbsp;% remoto</li>
             <li><Icono nombre="check" />Power BI a medida</li>
@@ -148,8 +161,8 @@ const PREGUNTAS: Pregunta[] = [
       <header class="prod-cabecera">
         <h2 id="recorrido-titulo" class="titulo-seccion">El recorrido de tus datos, de la fuente al reporte.</h2>
         <p class="entrada">
-          Tus datos pasan por cinco tramos desde donde se generan hasta el tablero con el que decides. Cada servicio
-          de consultoría actúa en uno de ellos.
+          Tus datos recorren cinco tramos, desde donde se generan hasta el tablero con el que decides. Cada servicio
+          de consultoría actúa en uno de ellos: así sabes qué resuelve cada uno.
         </p>
       </header>
 
@@ -182,8 +195,8 @@ const PREGUNTAS: Pregunta[] = [
       <header class="prod-cabecera">
         <h2 id="resolvemos-titulo" class="titulo-seccion">Menos tiempo armando reportes, más tiempo usándolos.</h2>
         <p class="entrada">
-          El problema casi nunca es la falta de datos. Es que están repartidos, y cada reporte obliga a juntarlos a
-          mano.
+          ¿Cuántas versiones de la misma cifra llegan a tu reunión del lunes? El problema casi nunca es la falta de
+          datos. Es que están repartidos, y cada reporte obliga a juntarlos a mano.
         </p>
       </header>
 
@@ -216,8 +229,8 @@ const PREGUNTAS: Pregunta[] = [
       <header class="prod-cabecera">
         <h2 id="proceso-titulo" class="titulo-seccion">Empezamos por entender qué quieres responder.</h2>
         <p class="entrada">
-          Cuatro pasos, en este orden. Antes de construir nada, entendemos tus fuentes, tus preguntas y tus
-          prioridades.
+          Antes de construir nada, entendemos tus fuentes, tus preguntas y tus prioridades, y te presentamos el
+          alcance, los entregables y los tiempos.
         </p>
       </header>
 
@@ -256,8 +269,8 @@ const PREGUNTAS: Pregunta[] = [
     <div class="contenedor">
       <h2 id="cierre-titulo" class="prod-cierre__titulo">Cuéntanos qué quieres saber de tus datos.</h2>
       <p class="prod-cierre__texto">
-        El primer paso es un diagnóstico. Nos cuentas cómo están hoy tus datos y qué necesitas responder con ellos,
-        y te proponemos por dónde empezar.
+        El primer paso es una conversación: nos cuentas cómo están hoy tus datos y qué quieres responder, y te
+        proponemos por dónde empezar.
       </p>
       <div class="acciones">
         <a class="boton boton--primario" href={diagnostico} target="_blank" rel="noopener noreferrer">
@@ -291,6 +304,14 @@ const PREGUNTAS: Pregunta[] = [
   /* ── Héroe: el visual no se estira más de lo que necesita ── */
   .co-heroe__visual {
     min-width: 0;
+  }
+
+  /* Riesgo reducido junto al llamado: el orden del proceso, en una línea */
+  .co-heroe__nota {
+    max-width: 34rem;
+    font-size: var(--text-sm);
+    line-height: 1.6;
+    color: var(--texto-2);
   }
 
   /* ── Notas bajo el diagrama: dos columnas de texto, sin contenedores ── */

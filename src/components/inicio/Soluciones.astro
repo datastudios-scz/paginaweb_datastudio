@@ -9,7 +9,9 @@
  *   cada barra contiene su texto, que aparece cuando la barra termina de llenarse.
  *   El gráfico se apoya en el bisel del monitor del logo (franja oscura con sus botones).
  * - Móvil: el gráfico rota a barras horizontales.
- * Cada barra enlaza a la subpágina del producto (el inicio solo distribuye).
+ * Cada barra enlaza a la subpágina del producto (el inicio solo distribuye). Su texto
+ * (SOLUCIONES.resumen) dice en una línea qué problema quita: en las barras bajas (b60), no más
+ * de unos 50 caracteres para que no desborde.
  */
 import Icono from '../Icono.astro';
 import { SOLUCIONES } from '../../data/sitio';
@@ -20,7 +22,7 @@ import { SOLUCIONES } from '../../data/sitio';
     <header class="soluciones__cabecera">
       <h2 id="soluciones-titulo" class="titulo-seccion">Cuatro barras, cuatro soluciones.</h2>
       <p class="entrada">
-        Cada barra de nuestro logo es una forma de ayudarte a decidir con datos. Elige la tuya.
+        Cada barra de nuestro logo resuelve un problema distinto con tus datos. Elige el tuyo.
       </p>
     </header>
 

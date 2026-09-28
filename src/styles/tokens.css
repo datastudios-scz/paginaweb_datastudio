@@ -19,6 +19,8 @@
   --color-papel-2: #e6eddb;         /* tarjetas sobre papel */
   --color-tinta-suave: #314c59;     /* texto secundario sobre claro */
   --color-salvia-suave: #a6ae9a;    /* texto terciario sobre oscuro */
+  --color-alerta: #b42318;          /* montos que NO se pagan (tachados), sobre fondos claros */
+  --color-alerta-claro: #ff9a8f;    /* lo mismo sobre fondos oscuros */
   --color-linea-clara: rgb(0 23 32 / 0.12);
   --color-linea-oscura: rgb(206 217 189 / 0.14);
 
@@ -96,6 +98,7 @@
   --btn-bg-h: var(--color-verde-claro);
   --btn-fg-h: var(--color-abismo);
   --foco: var(--color-verde-claro);
+  --tachado: var(--color-alerta-claro);
 }
 
 [data-tema='petroleo'] {
@@ -112,6 +115,7 @@
   --btn-bg-h: var(--color-verde-claro);
   --btn-fg-h: var(--color-abismo);
   --foco: var(--color-verde-claro);
+  --tachado: var(--color-alerta-claro);
 }
 
 [data-tema='claro'] {

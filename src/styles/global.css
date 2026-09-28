@@ -279,6 +279,16 @@ a {
 }
 
 /* ── Enlaces de texto ─────────────────────────────────────────────── */
+/* Monto que NO se paga (p. ej. licencias sin el portal): tachado y en rojo, para que nadie lo lea
+   como el precio. Usar <s class="monto-no"> y decirlo también con palabras ("sin el portal pagarías…").
+   En temas oscuros el rojo se aclara (--tachado, en tokens.css). */
+.monto-no {
+  color: var(--tachado, var(--color-alerta));
+  text-decoration: line-through;
+  text-decoration-thickness: 0.08em;
+  text-decoration-color: currentColor;
+}
+
 .enlace {
   color: var(--acento);
   font-weight: var(--peso-medio);

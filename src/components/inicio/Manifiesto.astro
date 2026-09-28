@@ -1,8 +1,11 @@
 ---
 /**
- * Cómo trabaja Data Studio, dicho en una afirmación tipográfica (no en tarjetas).
- * Todo lo que dice está confirmado: trabajo remoto con cualquier país, compra de código
- * (Portal BI y tienda), APIs oficiales (Social Metrics) y marca propia del cliente.
+ * Cierre del inicio: por qué confiar, dicho en una afirmación tipográfica (no en tarjetas).
+ * Todo lo que dice está confirmado: trabajo 100 % remoto con cualquier país; compra de código
+ * y guía (Portal BI y tienda) que el cliente personaliza y escala; APIs oficiales y solo
+ * lectura en las redes (Social Metrics, ver /privacidad/); marca propia del cliente.
+ * Termina respondiendo a la pregunta de la portada ("¿estás preparado para innovar?") con un
+ * enlace de vuelta a las cuatro soluciones. Sin WhatsApp ni montos (el inicio distribuye).
  */
 ---
 
@@ -12,10 +15,16 @@
       Trabajamos 100&nbsp;% en remoto, con empresas de cualquier país.
     </h2>
     <ul class="manifiesto__lista" role="list">
-      <li><strong>El código es tuyo.</strong> Cuando compras el Portal BI o la tienda, te entregamos el código y la guía.</li>
-      <li><strong>Solo APIs oficiales.</strong> Tus datos se leen con el acceso que cada plataforma ofrece, nada más.</li>
+      <li><strong>El código es tuyo.</strong> Cuando compras el Portal BI o la tienda, te llevas el código y la guía: lo personalizas y lo escalas como quieras.</li>
+      <li><strong>Solo APIs oficiales.</strong> Usamos el acceso oficial de cada plataforma. En tus redes, solo lectura: no publicamos, no editamos, no eliminamos.</li>
       <li><strong>Con tu marca.</strong> Portales y tableros con tu logo y tus colores, no con los nuestros.</li>
     </ul>
+    <div class="manifiesto__cierre">
+      <p>Es hora de innovar.</p>
+      <a class="boton boton--primario" href="#soluciones">
+        <span>Elige tu solución</span>
+      </a>
+    </div>
   </div>
 </section>
 
@@ -50,6 +59,23 @@
     margin-bottom: var(--space-1);
     font-size: var(--text-lg);
     font-weight: var(--peso-semi);
+    color: var(--texto);
+  }
+
+  /* Eco de la portada: la pregunta del inicio se responde al final */
+  .manifiesto__cierre {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-4) var(--space-6);
+    margin-top: var(--space-8);
+  }
+
+  .manifiesto__cierre p {
+    font-size: var(--text-2xl);
+    font-weight: var(--peso-semi);
+    line-height: 1.2;
+    letter-spacing: -0.02em;
     color: var(--texto);
   }
 

@@ -4,8 +4,12 @@
  * preparada en el repositorio del Portal BI (ver docs/contenido.md).
  * Se lee como un informe de BI: reglas finas, cifras tabulares, sin rótulos sobre los títulos.
  * El producto está dibujado en la página: las maquetas reproducen el portal real.
- * Se vende como compra de código + guía de implementación (con curso grabado y chequeo).
- * Estilos genéricos en src/styles/producto.css (prod-*); aquí solo lo propio de esta página.
+ * Se vende por dos caminos: Impleméntalo tú (códigos para despliegue, guía, curso en video,
+ * dos formas de desplegar, certificado de implementador; MENSAJES.portalCompra) o Contrata la
+ * implementación (MENSAJES.portalImplementacion). Montos de licencias: siempre en
+ * <s class="monto-no"> y con palabras ("sin el portal pagarías…"); el ahorro no se tacha.
+ * Cifras sin confirmar, una mención cada una: "+1.000 personas" (franja) y "dos horas como
+ * máximo" (#instalar). Estilos genéricos en src/styles/producto.css (prod-*); aquí solo lo propio.
  */
 import Base from '../layouts/Base.astro';
 import Icono from '../components/Icono.astro';
@@ -22,14 +26,25 @@ import '../styles/producto.css';
 
 const URL_PAGINA = `${SITIO.url}/portal-bi/`;
 const compra = enlaceWhatsApp(MENSAJES.portalCompra);
+const implementacion = enlaceWhatsApp(MENSAJES.portalImplementacion);
 const demo = enlaceWhatsApp(MENSAJES.portal);
 const conMil = calcularAhorro(1000, PRECIO_LICENCIA_USD);
 
 const PREGUNTAS: Pregunta[] = [
   {
-    pregunta: '¿Qué compro exactamente?',
+    pregunta: '¿Qué incluye cada camino?',
     respuesta:
-      '<p>El <strong>código del portal</strong> y la <strong>guía de implementación completa</strong>. El código es tuyo: lo instalas en tu servidor o en tu nube, lo personalizas y lo escalas como quieras.</p><p>Con la compra recibes también el <strong>curso grabado</strong>, capítulo por capítulo, y el <strong>chequeo automático</strong> que revisa la instalación punto por punto.</p>',
+      '<p><strong>Si lo implementas tú</strong>, recibes los códigos para despliegue (el código es tuyo: lo personalizas y lo escalas como quieras), la guía de implementación paso a paso, el curso en video con explicación detallada, dos formas de desplegar para que elijas la tuya y el certificado de implementador. El portal trae además un chequeo automático que revisa la instalación punto por punto.</p><p><strong>Si contratas la implementación</strong>, lo implementamos en tu empresa, de forma remota. El alcance y el precio los vemos contigo por WhatsApp.</p>',
+  },
+  {
+    pregunta: '¿Cuánto cuesta?',
+    respuesta:
+      '<p>Depende del camino: comprar el código y la guía, o contratar la implementación. Escríbenos por WhatsApp y te respondemos con el precio para tu caso.</p><p>Lo que ya puedes calcular es lo que dejas de pagar en licencias de Power BI: está en la <a class="enlace" href="#ahorro">calculadora</a>.</p>',
+  },
+  {
+    pregunta: '¿Quién lo instala? ¿Puedo contratar la implementación?',
+    respuesta:
+      '<p>Tú eliges. Puedes implementarlo tú, con la guía, el curso en video y el chequeo automático, o contratar la implementación y lo implementamos nosotros en tu empresa, a distancia.</p><p>En los dos casos, lo que suele demorar no es el portal: es que el área de sistemas habilite la aplicación de Azure y agregue la cuenta a los workspaces. Por eso te damos esa lista escrita, para pedir todo junto y una sola vez.</p>',
   },
   {
     pregunta: '¿Mis datos salen de Power BI?',
@@ -37,14 +52,13 @@ const PREGUNTAS: Pregunta[] = [
       '<p>No. El portal no copia, no replica y no guarda tus datos. Cada vez que alguien abre un tablero, el portal pide un acceso temporal y el reporte se dibuja desde tu propio Power BI. Si mañana apagas el portal, tus datos siguen exactamente donde estaban.</p>',
   },
   {
-    pregunta: '¿Quién lo instala? ¿Hay que contratar el servicio?',
+    pregunta: '¿Cómo hace para que tu equipo no necesite licencia?',
     respuesta:
-      '<p>Lo instalas tú, con la guía de implementación completa y el curso grabado, paso a paso.</p><p>Lo que suele demorar no es el portal: es que el área de sistemas habilite la aplicación de Azure y agregue la cuenta a los workspaces. Por eso la guía trae esa lista escrita y el portal trae un chequeo que la verifica, para pedir todo junto y una sola vez.</p>',
+      '<p>Usa el mecanismo de inserción que Power BI provee: el portal se autentica con la cuenta que publica, la que tiene la licencia de Power BI Pro, y muestra el reporte dentro de tu página. Tus usuarios no entran a Power BI; entran a tu portal.</p><p>Para el encuadre de licenciamiento de tu caso, tu representante de Microsoft es la fuente. Nosotros te explicamos exactamente qué hace el portal, para que esa conversación sea corta.</p>',
   },
   {
-    pregunta: '¿Cómo hace para que no necesiten licencia?',
-    respuesta:
-      '<p>Usa el mecanismo de inserción que Power BI provee: el portal se autentica con la cuenta que publica y muestra el reporte dentro de tu página. Tus usuarios no entran a Power BI; entran a tu portal.</p><p>Para el encuadre de licenciamiento de tu caso, tu representante de Microsoft es la fuente. Nosotros te explicamos exactamente qué hace el portal, para que esa conversación sea corta.</p>',
+    pregunta: '¿Mis usuarios pueden descargar la información de los tableros?',
+    respuesta: '<p>Sí. Desde el portal pueden descargar la información de los tableros, sin restricción.</p>',
   },
   {
     pregunta: 'Atiendo a varias empresas. ¿Se puede?',
@@ -66,6 +80,10 @@ const PREGUNTAS: Pregunta[] = [
     respuesta:
       '<p>No pasa nada. Tus reportes, tus modelos y tus datos están en tu Power BI y siguen ahí. El portal es una puerta de entrada, no un depósito: apagarlo no te deja sin nada.</p>',
   },
+  {
+    pregunta: '¿Es lo mismo que BI Platform Engineer?',
+    respuesta: '<p>Sí. Portal BI es el nombre actual de la solución que antes llamábamos BI Platform Engineer.</p>',
+  },
 ];
 
 const RASGOS_PORTAL = [
@@ -86,12 +104,33 @@ const RASGOS_IA = [
   { titulo: 'Se puede apagar', texto: 'El chat se habilita tablero por tablero. El portal funciona completo sin IA: tableros, asignaciones, marca y auditoría.' },
 ];
 
-/** Lo que se compra. El primero es el centro de la oferta: el código es del cliente. */
+/** Cualidades del portal, del texto del dueño (su Google Sites, 27/09/2026). */
+const CUALIDADES = [
+  { icono: 'usuarios', titulo: 'Inicio de sesión para cada persona.', texto: 'Con su usuario y su contraseña, sin cuenta de Power BI.' },
+  { icono: 'llave', titulo: 'Panel de administrador con más de 3 módulos.', texto: 'Das de alta a una persona y le asignas sus tableros sin tocar código.' },
+  { icono: 'portal', titulo: 'Menú de botones.', texto: 'Un botón por tablero y por herramienta: cada persona llega directo a lo suyo.' },
+  { icono: 'tableros', titulo: 'Apertura híbrida de tableros.', texto: 'En la web y con licencia, desde el mismo portal.' },
+  { icono: 'grafico', titulo: 'Descarga sin restricción.', texto: 'Tus usuarios descargan la información de los tableros cuando la necesitan.' },
+  { icono: 'ojo', titulo: 'Tu marca, tus colores y tu logo.', texto: 'Tu equipo entra a un portal que se ve como tu empresa, no como la nuestra.' },
+  { icono: 'codigo', titulo: 'El código es tuyo.', texto: 'Lo adaptas y lo escalas como quieras.' },
+] as const;
+
+/** Camino 1, Impleméntalo tú: lo que se compra, en el orden del dueño. */
 const COMPRA = [
-  { icono: 'codigo', titulo: 'El código del portal', texto: 'Es tuyo: lo instalas, lo personalizas y lo escalas como quieras.' },
-  { icono: 'guia', titulo: 'La guía de implementación completa', texto: 'Escrita paso a paso, con la lista literal de permisos de Azure y de Power BI que hay que pedirle a sistemas.' },
-  { icono: 'ojo', titulo: 'El curso grabado', texto: 'Capítulo por capítulo, con la pantalla a la vista. Se mira al ritmo de cada uno y queda para quien entre después.' },
-  { icono: 'check', titulo: 'El chequeo automático de la instalación', texto: 'Revisa la planilla, la conexión, los permisos y las claves, y te dice qué falta. Se corre las veces que quieras.' },
+  { icono: 'codigo', titulo: 'Códigos para despliegue', texto: 'El código del portal es tuyo: lo instalas, lo personalizas y lo escalas como quieras.' },
+  { icono: 'guia', titulo: 'Guía de implementación paso a paso', texto: 'Con la lista literal de permisos de Azure y de Power BI que hay que pedirle a sistemas.' },
+  { icono: 'ojo', titulo: 'Curso en video con explicación detallada', texto: 'Capítulo por capítulo, con la pantalla a la vista. Queda para quien entre después.' },
+  { icono: 'infraestructura', titulo: 'Dos formas de desplegar', texto: 'Tú escoges cuál usar.' },
+  { icono: 'check', titulo: 'Chequeo automático de la instalación', texto: 'Te dice qué falta, con nombre propio. Lo corres las veces que quieras.' },
+  { icono: 'llave', titulo: 'Certificado de implementador', texto: 'Incluido en la compra.' },
+] as const;
+
+/** Camino 2, Contrata la implementación. No se le atribuye más que esto (ver docs/contenido.md). */
+const IMPLEMENTACION = [
+  { icono: 'globo', titulo: 'A distancia', texto: 'Implementación remota, estés en el país que estés.' },
+  { icono: 'portal', titulo: 'El mismo portal', texto: 'Inicio de sesión, panel de administrador, tu marca y chat con IA.' },
+  { icono: 'llave', titulo: 'Tú pones lo esencial', texto: 'La cuenta de Google y la licencia de Power BI. Tu equipo habilita los accesos de Azure que te indicamos.' },
+  { icono: 'chat', titulo: 'Según tu caso', texto: 'Alcance y precio a tu medida: te respondemos por WhatsApp.' },
 ] as const;
 
 const PASOS_INSTALACION = [
@@ -101,10 +140,11 @@ const PASOS_INSTALACION = [
   { hora: '1:45', titulo: 'Verificas y publicas', texto: 'Un comando revisa la instalación entera y enumera lo que falte. Cuando todo está en verde, abres el portal a tu equipo.' },
 ];
 
+/** Lo esencial primero (lo que pide el dueño); después, lo que la guía te ayuda a preparar. */
 const REQUISITOS = [
-  { icono: 'llave', titulo: 'Una cuenta de Power BI Pro.', texto: 'La que ya publica tus reportes. Una sola, no una por usuario.' },
+  { icono: 'tableros', titulo: 'Una cuenta de Google.', texto: 'Ahí vive la planilla de usuarios y asignaciones. Se administra desde el panel, pero puedes abrirla y verla.' },
+  { icono: 'llave', titulo: 'Una licencia de Power BI Pro.', texto: 'La de la cuenta que ya publica tus reportes. Una sola, no una por usuario.' },
   { icono: 'candado', titulo: 'Una aplicación registrada en Azure.', texto: 'Diez minutos en Entra ID. El portal la usa para pedir el acceso temporal.' },
-  { icono: 'tableros', titulo: 'Una planilla de Google.', texto: 'Ahí viven los usuarios y las asignaciones. Se administra desde el panel, pero puedes abrirla y verla.' },
   { icono: 'infraestructura', titulo: 'Un lugar donde correrlo.', texto: 'Un servidor pequeño alcanza. También corre en la nube, con HTTPS.' },
 ] as const;
 
@@ -121,7 +161,7 @@ const SERVICIO = {
   name: 'Portal BI',
   serviceType: 'Portal de Power BI con marca propia',
   description:
-    'Código del portal y guía de implementación para compartir tableros de Power BI con toda la empresa usando una sola licencia, con marca propia y chat con IA sobre el modelo. Incluye curso grabado y chequeo automático de la instalación.',
+    'Portal web con marca propia para compartir tableros de Power BI con toda la empresa usando una sola licencia, con chat con IA sobre el modelo. Dos caminos: códigos para despliegue, guía de implementación, curso en video y certificado de implementador para implementarlo tú, o implementación remota contratada.',
   provider: { '@id': `${SITIO.url}/#organizacion` },
   areaServed: 'Worldwide',
   url: URL_PAGINA,
@@ -130,7 +170,7 @@ const SERVICIO = {
 
 <Base
   titulo="Portal BI | Power BI para toda la empresa con una sola licencia · Data Studio"
-  descripcion="Portal con tu marca para abrir Power BI a toda la empresa con una sola licencia y chat con IA. Compras el código y la guía, y lo instalas tú."
+  descripcion="Portal con tu marca para abrir Power BI a toda tu empresa con una sola licencia y chat con IA. Impleméntalo tú o contrata la implementación."
   imagen="/og/portal-bi.png"
   imagenAlt="Portal BI de Data Studio: Power BI para toda la empresa con una sola licencia"
   datosEstructurados={[
@@ -150,34 +190,42 @@ const SERVICIO = {
       <div class="prod-heroe__rejilla">
         <div class="prod-heroe__texto">
           <h1 id="pb-titulo" class="prod-heroe__titulo">
-            Power BI para toda la empresa. <span class="prod-acento">Una sola licencia.</span>
+            Power BI para toda tu empresa. <span class="prod-acento">Nunca más una licencia por persona.</span>
           </h1>
           <p class="prod-heroe__bajada">
-            Cada persona entra con su usuario y encuentra sus tableros, sin cuenta de Power BI ni una licencia por
-            cabeza. Y puede preguntarle a los datos en español.
+            Cada persona entra a tu portal con su usuario y encuentra sus tableros, con tu marca y sin cuenta de
+            Power BI. Lo implementas tú o lo implementamos por ti.
           </p>
+          <!-- El monto de licencias es lo que NO se paga: va tachado y dicho con palabras. El ahorro, en acento. -->
           <div class="prod-ancla pb-ancla">
             <p>
-              Darle Power BI Pro a 1.000 personas cuesta <b><span class="dato">{dolares(conMil.conLicencias)}</span> por año</b>.
-              Con el portal, la licencia la necesita una sola cuenta: la que publica.
+              Ejemplo con 1.000 personas: sin el portal pagarías <s class="monto-no dato">{dolares(conMil.conLicencias)}</s>
+              al año en licencias de Power BI Pro. Con el portal, basta la de la cuenta que publica:
+              <b>dejas de pagar <span class="prod-acento dato">{dolares(conMil.ahorroAnual)}</span> al año</b>.
             </p>
             <a class="enlace pb-ancla__enlace" href="#ahorro">
-              <span>Calcula lo que ahorras</span>
+              <span>Calcula lo que dejas de pagar</span>
               <Icono nombre="flecha" />
             </a>
           </div>
-          <div class="acciones">
-            <a class="boton boton--primario" href={compra} target="_blank" rel="noopener noreferrer">
-              <Icono nombre="whatsapp" />
-              <span>Comprar código + guía</span>
-            </a>
-            <a class="boton boton--secundario" href={demo} target="_blank" rel="noopener noreferrer">
-              <span>Pide una demo · 30 min</span>
-            </a>
+          <div class="pb-heroe__cta">
+            <div class="acciones">
+              <a class="boton boton--primario" href={compra} target="_blank" rel="noopener noreferrer">
+                <Icono nombre="whatsapp" />
+                <span>Comprar código + guía</span>
+              </a>
+              <a class="boton boton--secundario" href={demo} target="_blank" rel="noopener noreferrer">
+                <span>Pide una demo · 30 min</span>
+              </a>
+            </div>
+            <p class="pb-alterna">
+              ¿Prefieres que lo hagamos nosotros?
+              <a class="enlace" href={implementacion} target="_blank" rel="noopener noreferrer">Contrata la implementación</a>
+            </p>
           </div>
           <ul class="prod-sellos" role="list">
-            <li><Icono nombre="check" />Compras el código</li>
-            <li><Icono nombre="check" />Tus datos no se mueven</li>
+            <li><Icono nombre="check" />El código es tuyo</li>
+            <li><Icono nombre="check" />Tus datos no salen de Power BI</li>
             <li><Icono nombre="check" />Con tu marca</li>
             <li><Icono nombre="check" />Funciona en el celular</li>
           </ul>
@@ -197,9 +245,9 @@ const SERVICIO = {
         <span class="prod-indice__rotulo" aria-hidden="true">En esta página</span>
         <a href="#portal">El portal</a>
         <a href="#chat">Chat con IA</a>
-        <a href="#compra">Qué compras</a>
+        <a href="#compra">Dos caminos</a>
         <a href="#instalar">Instalación</a>
-        <a href="#ahorro">Lo que ahorras</a>
+        <a href="#ahorro">Lo que dejas de pagar</a>
         <a href="#preguntas">Preguntas</a>
       </nav>
     </div>
@@ -210,15 +258,15 @@ const SERVICIO = {
     <div class="contenedor prod-franja__rejilla">
       <div class="prod-hecho">
         <p class="prod-hecho__cifra">1 licencia</p>
-        <p class="prod-hecho__texto">La cuenta de Power BI Pro que ya publica tus reportes. No hace falta otra.</p>
+        <p class="prod-hecho__texto">La de la cuenta que ya publica tus reportes. No hace falta otra.</p>
       </div>
       <div class="prod-hecho">
         <p class="prod-hecho__cifra">+1.000 personas</p>
         <p class="prod-hecho__texto">Entran con su usuario del portal. Ninguna necesita cuenta de Power BI.</p>
       </div>
       <div class="prod-hecho">
-        <p class="prod-hecho__cifra">Código + guía</p>
-        <p class="prod-hecho__texto">Compras el código y la guía, y lo instalas tú siguiendo el curso grabado.</p>
+        <p class="prod-hecho__cifra">2 caminos</p>
+        <p class="prod-hecho__texto">Lo implementas tú con el código, la guía y el curso, o lo implementamos por ti.</p>
       </div>
     </div>
   </div>
@@ -229,8 +277,9 @@ const SERVICIO = {
       <header class="prod-cabecera">
         <h2 id="ayuda-titulo" class="titulo-seccion">El reporte deja de pasar por ti.</h2>
         <p class="entrada">
-          La mayoría de las personas que necesitan mirar un número no necesitan construir nada. Pero hoy, para
-          mirarlo, tienen que pedírselo a alguien.
+          La mayoría de las personas que necesitan mirar un número no necesitan construir nada. Hoy te quedan dos
+          opciones: pagas una licencia por cada persona que solo mira, o alguien exporta a Excel cada lunes. Con el
+          portal, ninguna de las dos.
         </p>
       </header>
       <div class="prod-antes-despues">
@@ -240,7 +289,7 @@ const SERVICIO = {
             <li><Icono nombre="cerrar" />El supervisor pide el reporte por WhatsApp, un lunes a las 8.</li>
             <li><Icono nombre="cerrar" />Alguien exporta a Excel, lo recorta y lo envía por correo.</li>
             <li><Icono nombre="cerrar" />A media mañana circulan tres versiones del mismo archivo.</li>
-            <li><Icono nombre="cerrar" />Comprar licencias para todos sale más caro que el proyecto entero.</li>
+            <li><Icono nombre="cerrar" />Darle licencia a cada persona que solo mira se paga todos los meses.</li>
           </ul>
         </div>
         <div class="prod-ad prod-ad--despues">
@@ -248,8 +297,8 @@ const SERVICIO = {
           <ul role="list">
             <li><Icono nombre="check" />Cada persona entra con su usuario y el tablero ya está, actualizado.</li>
             <li><Icono nombre="check" />Ve solo lo suyo: su empresa, su sucursal, su cartera.</li>
-            <li><Icono nombre="check" />Si le falta un dato, se lo pregunta al chat y lo tiene.</li>
-            <li><Icono nombre="check" />Una sola licencia publica para todos los que miran.</li>
+            <li><Icono nombre="check" />Si le falta un dato, se lo pregunta al chat, que responde con tus datos.</li>
+            <li><Icono nombre="check" />La licencia de la cuenta que publica alcanza para todos los que miran.</li>
           </ul>
         </div>
       </div>
@@ -276,6 +325,22 @@ const SERVICIO = {
           </li>
         ))}
       </ul>
+
+      <!-- Cualidades del dueño (texto de su Google Sites) -->
+      <div class="prod-bloque prod-par prod-par--inicio">
+        <div>
+          <h3 class="prod-subtitulo">Todo lo que trae tu portal</h3>
+          <p class="prod-subtexto">
+            Nunca más comprarás licencias para cada usuario. Tu equipo entra a un portal con tu marca, y la licencia
+            de Power BI la necesita solo la cuenta que publica.
+          </p>
+        </div>
+        <ul class="prod-lista pb-cualidades" role="list">
+          {CUALIDADES.map((c) => (
+            <li><Icono nombre={c.icono} /><span><strong>{c.titulo}</strong> {c.texto}</span></li>
+          ))}
+        </ul>
+      </div>
 
       <div class="prod-bloque">
         <h3 class="prod-subtitulo">El mismo portal, tu identidad</h3>
@@ -386,8 +451,8 @@ const SERVICIO = {
       <header class="prod-cabecera">
         <h2 id="admin-titulo" class="titulo-seccion">Sumar a alguien es una fila.</h2>
         <p class="entrada">
-          Todo se administra desde el panel: usuarios, asignaciones, conexiones a Power BI, colores y logos. Sin
-          tocar código y sin reiniciar nada.
+          Un panel de administrador con más de 3 módulos: usuarios, asignaciones, conexiones a Power BI y tu marca,
+          con sus colores y logos. Sin tocar código y sin reiniciar nada.
         </p>
       </header>
 
@@ -420,35 +485,70 @@ const SERVICIO = {
     </div>
   </section>
 
-  <!-- ═════════ QUÉ COMPRAS: el modelo de venta, dicho sin vueltas ═════════ -->
+  <!-- ═════════ DOS CAMINOS: el modelo de venta, dicho sin vueltas. Misma jerarquía para los dos ═════════ -->
   <section class="seccion pb-compra" id="compra" data-tema="petroleo" aria-labelledby="compra-titulo">
-    <div class="contenedor prod-par prod-par--inicio">
-      <header class="prod-cabecera pb-compra__cabecera">
+    <div class="contenedor">
+      <header class="prod-cabecera">
         <h2 id="compra-titulo" class="titulo-seccion">
-          Compras el código. <span class="prod-acento">Y la guía para instalarlo.</span>
+          Dos caminos para tener tu portal. <span class="prod-acento">Tú eliges.</span>
         </h2>
         <p class="entrada">
-          Te llevas el portal completo y todo lo necesario para ponerlo en marcha tú mismo, sin esperar a nadie.
+          Impleméntalo tú mismo en tu empresa o proyecto, o contrata la implementación y lo dejamos funcionando. El
+          portal es el mismo.
         </p>
-        <div class="acciones">
-          <a class="boton boton--primario" href={compra} target="_blank" rel="noopener noreferrer">
-            <Icono nombre="whatsapp" />
-            <span>Comprar código + guía</span>
-          </a>
-        </div>
       </header>
 
-      <ul class="pb-compra__lista" role="list">
-        {COMPRA.map((c, i) => (
-          <li class:list={['pb-compra__item', { 'pb-compra__item--principal': i === 0 }]}>
-            <Icono nombre={c.icono} />
-            <div>
-              <h3>{c.titulo}</h3>
-              <p>{c.texto}</p>
-            </div>
-          </li>
-        ))}
-      </ul>
+      <div class="pb-caminos">
+        <article class="pb-camino" aria-labelledby="camino-tu">
+          <h3 id="camino-tu" class="pb-camino__titulo">Impleméntalo tú</h3>
+          <p class="pb-camino__bajada">Para quien quiere hacerlo a su ritmo y quedarse con el conocimiento.</p>
+          <ul class="pb-compra__lista" role="list">
+            {COMPRA.map((c) => (
+              <li class="pb-compra__item">
+                <Icono nombre={c.icono} />
+                <div>
+                  <h4>{c.titulo}</h4>
+                  <p>{c.texto}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+          <div class="acciones pb-camino__accion">
+            <a class="boton boton--primario" href={compra} target="_blank" rel="noopener noreferrer">
+              <Icono nombre="whatsapp" />
+              <span>Comprar código + guía</span>
+            </a>
+          </div>
+        </article>
+
+        <article class="pb-camino" aria-labelledby="camino-nosotros">
+          <h3 id="camino-nosotros" class="pb-camino__titulo">Contrata la implementación</h3>
+          <p class="pb-camino__bajada">Para quien prefiere no tocar código: lo implementamos en tu empresa.</p>
+          <ul class="pb-compra__lista" role="list">
+            {IMPLEMENTACION.map((c) => (
+              <li class="pb-compra__item">
+                <Icono nombre={c.icono} />
+                <div>
+                  <h4>{c.titulo}</h4>
+                  <p>{c.texto}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+          <div class="acciones pb-camino__accion">
+            <a class="boton boton--primario" href={implementacion} target="_blank" rel="noopener noreferrer">
+              <Icono nombre="whatsapp" />
+              <span>Contratar la implementación</span>
+            </a>
+          </div>
+        </article>
+      </div>
+
+      <p class="pb-caminos__demo">
+        ¿Todavía no decides?
+        <a class="enlace" href={demo} target="_blank" rel="noopener noreferrer">Pide una demo de 30 minutos</a>,
+        sin instalar nada.
+      </p>
     </div>
   </section>
 
@@ -456,10 +556,14 @@ const SERVICIO = {
   <section class="seccion prod-seccion" id="instalar" data-tema="blanco" aria-labelledby="instalar-titulo">
     <div class="contenedor">
       <header class="prod-cabecera">
-        <h2 id="instalar-titulo" class="titulo-seccion">Lo instalas tú. En una tarde.</h2>
+        <h2 id="instalar-titulo" class="titulo-seccion">Impleméntalo tú, paso a paso.</h2>
         <p class="entrada">
-          Sin esperar una agenda: con la guía de implementación completa y el curso grabado, paso a paso, y los
-          accesos a mano, el portal queda funcionando en <strong>dos horas como máximo</strong>.
+          Con la guía, el curso en video y los accesos a mano, el portal queda funcionando en <strong>dos horas como
+          máximo</strong>.
+        </p>
+        <p class="pb-alterna">
+          ¿Prefieres no hacerlo tú?
+          <a class="enlace" href={implementacion} target="_blank" rel="noopener noreferrer">Contrata la implementación</a>
         </p>
       </header>
 
@@ -505,18 +609,18 @@ const SERVICIO = {
     </div>
   </section>
 
-  <!-- ═════════ LO QUE AHORRAS: el número grande es el ahorro, no el gasto ═════════ -->
+  <!-- ═════════ LO QUE DEJAS DE PAGAR: el número grande es el ahorro; el monto de licencias va tachado ═════════ -->
   <section class="seccion prod-seccion" id="ahorro" data-tema="salvia" aria-labelledby="ahorro-titulo">
     <div class="contenedor pb-ahorro">
       <div class="pb-ahorro__texto">
         <h2 id="ahorro-titulo" class="titulo-seccion">Esto no es lo que cuesta. Es lo que dejas de pagar.</h2>
         <p class="entrada">
-          Power BI Pro se cobra por persona y por mes. En una empresa donde la mayoría solo mira, esa se vuelve la
-          partida más cara del proyecto, y la única que nunca deja de pagarse.
+          Power BI Pro se cobra por persona y por mes. En una empresa donde la mayoría solo mira, es un gasto que
+          crece con cada persona que sumas y que nunca deja de pagarse.
         </p>
         <p class="entrada">
-          Con el portal, la licencia la necesita <strong>la cuenta que publica</strong>. Una. El resto de tu equipo
-          entra por el portal. Mueve el control hasta tu número y mira la diferencia.
+          Con el portal, la licencia la necesita <strong>la cuenta que publica</strong>. Una. Mueve el control hasta
+          tu número de personas y mira lo que dejas de pagar.
         </p>
       </div>
       <div>
@@ -529,10 +633,13 @@ const SERVICIO = {
   <section class="seccion prod-seccion" id="necesitas" data-tema="claro" aria-labelledby="necesitas-titulo">
     <div class="contenedor prod-par prod-par--inicio">
       <header class="prod-cabecera">
-        <h2 id="necesitas-titulo" class="titulo-seccion">Cuatro cosas, y ninguna es nueva.</h2>
+        <h2 id="necesitas-titulo" class="titulo-seccion">
+          Lo esencial: una cuenta de Google y una licencia de Power BI.
+        </h2>
         <p class="entrada">
-          Si ya tienes Power BI funcionando, probablemente tengas tres de las cuatro. Y la lista de permisos que hay
-          que pedirle a sistemas viene escrita en la guía, para pedirla completa de una sola vez.
+          Si ya publicas reportes en Power BI, tienes casi todo. Además hacen falta dos cosas que la guía te explica
+          paso a paso: una aplicación registrada en Azure y un lugar donde correr el portal. Si contratas la
+          implementación, las preparamos contigo.
         </p>
       </header>
       <ul class="prod-lista prod-lista--grande" role="list">
@@ -566,36 +673,44 @@ const SERVICIO = {
 
   <Preguntas id="preguntas" titulo="Lo que suelen preguntarnos" preguntas={PREGUNTAS} />
 
-  <!-- ═════════ CIERRE ═════════ -->
+  <!-- ═════════ CIERRE: la pregunta del dueño, que responde a la portada ═════════ -->
   <section class="seccion" id="contacto" data-tema="oscuro" aria-labelledby="cierre-titulo">
     <div class="contenedor">
-      <h2 id="cierre-titulo" class="prod-cierre__titulo">Compra el código y abre Power BI a toda tu empresa.</h2>
+      <h2 id="cierre-titulo" class="prod-cierre__titulo">
+        ¿Qué esperas para tener tu propio portal? <span class="prod-acento">Es hora de innovar.</span>
+      </h2>
       <p class="prod-cierre__texto">
-        Te llevas el código del portal, la guía de implementación y el curso grabado para instalarlo tú.
-        ¿Prefieres verlo antes? Pide una demo de treinta minutos sobre tu Power BI, sin instalar nada: sales sabiendo
-        cuánto ahorras y qué hace falta para empezar.
+        Impleméntalo tú mismo en tu empresa o proyecto, con el código, la guía y el curso en video, o contrata la
+        implementación y lo dejamos funcionando. ¿Prefieres verlo antes? Pide una demo de 30 minutos sobre tu Power
+        BI, sin instalar nada: sales sabiendo cuánto dejas de pagar y qué hace falta para empezar.
       </p>
       <div class="acciones">
         <a class="boton boton--primario" href={compra} target="_blank" rel="noopener noreferrer">
           <Icono nombre="whatsapp" />
           <span>Comprar código + guía</span>
         </a>
-        <a class="boton boton--secundario" href={demo} target="_blank" rel="noopener noreferrer">
-          <span>Pide una demo · 30 min</span>
+        <a class="boton boton--secundario" href={implementacion} target="_blank" rel="noopener noreferrer">
+          <span>Contratar la implementación</span>
         </a>
       </div>
       <p class="pb-correo">
+        <a class="enlace" href={demo} target="_blank" rel="noopener noreferrer">Pide una demo de 30 minutos</a>
+        <span aria-hidden="true">·</span>
         ¿Prefieres correo?
-        <a class="enlace" href={`mailto:${CONTACTO.email}?subject=${encodeURIComponent('Portal BI: código y guía de implementación')}`}>{CONTACTO.email}</a>
+        <a class="enlace" href={`mailto:${CONTACTO.email}?subject=${encodeURIComponent('Portal BI: código, guía o implementación')}`}>{CONTACTO.email}</a>
       </p>
       <div class="prod-recuerdo">
         <div>
-          <p class="prod-recuerdo__tit">Lo que está en juego</p>
-          <p class="prod-recuerdo__txt">Con 1.000 personas mirando tableros, son <b>{dolares(conMil.ahorroAnual)}</b> por año en licencias que hoy se pagan.</p>
+          <p class="prod-recuerdo__tit">Lo que dejas de pagar</p>
+          <p class="prod-recuerdo__txt">
+            Con 1.000 personas, sin el portal pagarías <s class="monto-no dato">{dolares(conMil.conLicencias)}</s> al
+            año en licencias. Con el portal pagas una sola:
+            <b>dejas de pagar <span class="prod-acento">{dolares(conMil.ahorroAnual)}</span></b>.
+          </p>
         </div>
         <div>
           <p class="prod-recuerdo__tit">Lo que te llevas</p>
-          <p class="prod-recuerdo__txt">El código del portal, la guía y el curso grabado. <b>El código es tuyo</b>: lo personalizas y lo escalas como quieras.</p>
+          <p class="prod-recuerdo__txt">Si lo implementas tú: el código, la guía, el curso en video y el certificado. <b>El código es tuyo</b>: lo personalizas y lo escalas como quieras.</p>
         </div>
         <div>
           <p class="prod-recuerdo__tit">Lo que arriesgas</p>
@@ -639,9 +754,32 @@ const SERVICIO = {
     min-width: 0;
   }
 
+  /* Acción principal + la otra vía (contratar la implementación) como enlace de texto */
+  .pb-heroe__cta {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .pb-alterna {
+    font-size: var(--text-sm);
+    color: var(--texto-2);
+  }
+
+  .pb-alterna a,
+  .pb-caminos__demo a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+  }
+
   /* Objetivo táctil de 44 px en el índice de la página */
   .prod-indice a {
     min-height: 2.75rem;
+  }
+
+  /* ── Cualidades: la lista arranca alineada con el subtítulo ─────────── */
+  .pb-cualidades {
+    margin-top: 0;
   }
 
   /* ── Marca blanca ──────────────────────────────────────────────────── */
@@ -817,28 +955,59 @@ const SERVICIO = {
     color: var(--mq-ia);
   }
 
-  /* ── Qué compras: una sola superficie, el código como fila principal ── */
-  .pb-compra__cabecera .acciones {
-    margin-top: var(--space-2);
+  /* ── Dos caminos: dos tarjetas con la misma jerarquía; se apilan en móvil ── */
+  .pb-caminos {
+    display: grid;
+    gap: var(--space-5);
+    margin-top: var(--space-7);
   }
 
-  .pb-compra__cabecera strong {
+  .pb-camino {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    padding: var(--space-6) var(--space-5);
+    border: 1px solid var(--linea);
+    border-radius: var(--radio-lg);
+    background: var(--superficie);
+  }
+
+  .pb-camino__titulo {
+    font-size: var(--text-2xl);
+    font-weight: var(--peso-semi);
+    letter-spacing: var(--tracking-titulo);
+    line-height: 1.15;
     color: var(--texto);
+    overflow-wrap: anywhere;
+  }
+
+  .pb-camino__bajada {
+    margin-top: var(--space-2);
+    color: var(--texto-2);
+  }
+
+  /* El botón queda al pie de cada tarjeta, a la misma altura en las dos */
+  .pb-camino__accion {
+    margin-top: auto;
+    padding-top: var(--space-5);
+  }
+
+  .pb-caminos__demo {
+    margin-top: var(--space-6);
+    color: var(--texto-2);
   }
 
   .pb-compra__lista {
     min-width: 0;
-    margin: 0;
-    padding: var(--space-1) var(--space-5);
-    border-radius: var(--radio-lg);
-    background: var(--superficie);
+    margin: var(--space-4) 0 0;
+    padding: 0;
   }
 
   .pb-compra__item {
     display: grid;
     grid-template-columns: 1.5rem minmax(0, 1fr);
     gap: var(--space-4);
-    padding-block: var(--space-5);
+    padding-block: var(--space-4);
   }
 
   .pb-compra__item + .pb-compra__item {
@@ -852,7 +1021,7 @@ const SERVICIO = {
     color: var(--acento);
   }
 
-  .pb-compra__item h3 {
+  .pb-compra__item h4 {
     margin-bottom: var(--space-1);
     font-size: var(--text-md);
     font-weight: var(--peso-semi);
@@ -865,29 +1034,6 @@ const SERVICIO = {
     font-size: var(--text-sm);
     line-height: 1.6;
     color: var(--texto-2);
-  }
-
-  .pb-compra__item--principal {
-    grid-template-columns: 2rem minmax(0, 1fr);
-    padding-block: var(--space-6);
-  }
-
-  .pb-compra__item--principal :global(svg) {
-    width: 2rem;
-    height: 2rem;
-    margin-top: 0.15em;
-  }
-
-  .pb-compra__item--principal h3 {
-    font-size: var(--text-2xl);
-    letter-spacing: var(--tracking-titulo);
-    line-height: 1.15;
-  }
-
-  .pb-compra__item--principal p {
-    margin-top: var(--space-2);
-    font-size: var(--text-md);
-    color: var(--texto);
   }
 
   /* ── Verificación: el texto se centra junto a la terminal ──────────── */
@@ -974,8 +1120,12 @@ const SERVICIO = {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .pb-compra__lista {
-      padding-inline: var(--space-6);
+    .pb-caminos {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .pb-camino {
+      padding: var(--space-7) var(--space-6);
     }
   }
 

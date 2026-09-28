@@ -1,19 +1,26 @@
 ---
+/**
+ * Página no encontrada: en vez de un callejón sin salida, ofrece las cuatro soluciones con su
+ * promesa en una línea (NAVEGACION: el producto principal primero, como en el menú).
+ */
 import Base from '../layouts/Base.astro';
 import Icono from '../components/Icono.astro';
-import { SOLUCIONES } from '../data/sitio';
+import { NAVEGACION } from '../data/sitio';
 ---
 
 <Base titulo="Página no encontrada | Data Studio" descripcion="La página que buscas no existe o cambió de dirección.">
   <section class="seccion no-encontrada" data-tema="oscuro" aria-labelledby="nf-titulo">
     <div class="contenedor">
       <h1 id="nf-titulo" class="titulo-seccion no-encontrada__titulo">Esta página no existe o cambió de dirección.</h1>
-      <p class="entrada">Revisa la dirección o sigue por alguna de nuestras soluciones.</p>
+      <p class="entrada">Lo que buscabas puede estar en una de estas cuatro soluciones. Elige la tuya.</p>
       <ul class="no-encontrada__enlaces" role="list">
-        {SOLUCIONES.map((s) => (
+        {NAVEGACION.map((s) => (
           <li>
             <a href={s.href}>
-              <span>{s.nombre}</span>
+              <span class="no-encontrada__texto">
+                <span class="no-encontrada__nombre">{s.nombre}</span>
+                <span class="no-encontrada__descripcion">{s.descripcion}</span>
+              </span>
               <Icono nombre="flecha" />
             </a>
           </li>
@@ -55,19 +62,35 @@ import { SOLUCIONES } from '../data/sitio';
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: var(--space-4);
     min-height: 3.25rem;
+    padding-block: var(--space-3);
     color: var(--texto);
     font-weight: var(--peso-medio);
     text-decoration: none;
   }
 
-  .no-encontrada__enlaces a:hover {
+  .no-encontrada__texto {
+    display: grid;
+    gap: var(--space-1);
+    min-width: 0;
+  }
+
+  .no-encontrada__descripcion {
+    font-size: var(--text-sm);
+    font-weight: var(--peso-normal);
+    line-height: 1.5;
+    color: var(--texto-2);
+  }
+
+  .no-encontrada__enlaces a:hover .no-encontrada__nombre {
     color: var(--acento);
   }
 
   .no-encontrada__enlaces :global(svg) {
     width: 1.25rem;
     height: 1.25rem;
+    flex: none;
     color: var(--acento);
   }
 </style>

@@ -3,8 +3,11 @@
  * Página de Social Metrics BI (SMB). Contenido entregado por el dueño (ortografía corregida)
  * y verdad del producto en public/privacidad/: Meta es el núcleo; también YouTube y TikTok,
  * siempre de solo lectura. Se contrata como servicio (MENSAJES.social).
+ * Recorrido: héroe → antes/después (el dolor de juntar métricas a mano) → qué es → el tablero →
+ * qué incluye → acceso → implementación → tus datos → preguntas → cierre con la pregunta del dueño.
+ * Acción principal: «Contrata tu tablero de redes». Esta página no lleva montos.
  * La sección "Tus datos" es además la descripción pública que revisan las plataformas:
- * no quitarla sin revisar docs/seguridad.md.
+ * no quitarla ni cambiar su significado sin revisar docs/seguridad.md.
  */
 import Base from '../layouts/Base.astro';
 import Icono from '../components/Icono.astro';
@@ -27,6 +30,11 @@ const PREGUNTAS: Pregunta[] = [
       '<p>El núcleo es Meta: <strong>Facebook e Instagram</strong>, a través de sus APIs oficiales. También conectamos <strong>YouTube y TikTok</strong>.</p><p>En todos los casos el acceso es de solo lectura y se limita a las cuentas que tú autorizas.</p>',
   },
   {
+    pregunta: 'Ya veo las estadísticas dentro de cada red. ¿Qué gano con esto?',
+    respuesta:
+      '<p>Dentro de cada red las ves por separado y, para compararlas, alguien tiene que copiar los números a una hoja de cálculo. Con Social Metrics BI llegan todas juntas a un solo tablero de Power BI, con todo tu histórico y la comparación contra el período anterior.</p><p>Y tu equipo ya no tiene que entrar a cada red: abre un solo tablero, con su usuario en el Portal BI o dentro de tu sitio web.</p>',
+  },
+  {
     pregunta: '¿Qué métricas voy a ver en el tablero?',
     respuesta:
       '<p>Las métricas clave de tus redes: alcance, interacciones, campañas, reacciones, comentarios, veces compartido, seguidores y publicaciones. En video, también visualizaciones, tiempo de reproducción y retención de audiencia.</p><p>La audiencia se muestra siempre en forma agregada (por país, edad, género y fuentes de tráfico), y con todo el histórico de tus cuentas. Cada red entrega sus propias métricas, así que no todas existen en todas las plataformas.</p>',
@@ -47,9 +55,14 @@ const PREGUNTAS: Pregunta[] = [
       '<p>Solo los leemos: no publicamos, no editamos y no eliminamos nada en tus cuentas. Los usamos únicamente para los tableros de tu empresa y no los vendemos ni los compartimos con terceros.</p><p>Puedes revocar el acceso cuando quieras, sin pedírnoslo: en Meta, desde Configuración, en «Aplicaciones y sitios web»; en YouTube, desde los permisos de tu cuenta de Google; en TikTok, desde Configuración, en «Seguridad y permisos» y luego «Administrar aplicaciones». El detalle está en la <a href="/privacidad/">Política de Privacidad</a>.</p>',
   },
   {
+    pregunta: '¿Cuánto cuesta?',
+    respuesta:
+      '<p>Escríbenos por WhatsApp y te respondemos con el precio. Cuéntanos qué redes quieres conectar y cómo va a abrir el tablero tu equipo: con login en el Portal BI o dentro de tu sitio web.</p>',
+  },
+  {
     pregunta: '¿Cómo empezamos?',
     respuesta:
-      '<p>Escríbenos por WhatsApp. Coordinamos una primera reunión para definir la infraestructura del servicio y los usuarios, y seguimos a distancia: todo el proceso es 100 % remoto, desde cualquier país.</p>',
+      '<p>Escríbenos por WhatsApp. Coordinamos una primera reunión para definir la infraestructura del servicio y los usuarios, y seguimos a distancia: todo el proceso es 100 % remoto, desde cualquier país.</p><p>Tu parte es autorizar tus cuentas con el acceso oficial de cada red. El resto lo coordinamos contigo.</p>',
   },
 ];
 
@@ -89,7 +102,7 @@ const REGLAS = [
 
 <Base
   titulo="Social Metrics BI | Métricas de Facebook, Instagram, YouTube y TikTok en Power BI · Data Studio"
-  descripcion="Métricas de Facebook e Instagram, y también de YouTube y TikTok, desde las APIs oficiales a un tablero de Power BI con todo tu histórico. Solo lectura."
+  descripcion="Deja de copiar métricas a mano: Facebook, Instagram, YouTube y TikTok en un solo tablero de Power BI, con todo tu histórico. Solo lectura, APIs oficiales."
   imagen="/og/social-metrics-bi.png"
   imagenAlt="Social Metrics BI de Data Studio: tus redes sociales en un solo tablero de Power BI"
   datosEstructurados={[
@@ -123,20 +136,25 @@ const REGLAS = [
             Empodera tu marketing con <span class="prod-acento">Social Metrics BI.</span>
           </h1>
           <p class="prod-heroe__bajada">
-            Impulsa tu equipo de marketing con análisis detallados, resultados medibles y los datos clave al alcance
-            de tu mano.
+            Tus métricas de Facebook, Instagram, YouTube y TikTok en un solo tablero de Power BI. Impulsa tu equipo
+            de marketing con análisis detallados, resultados medibles y los datos clave al alcance de tu mano.
           </p>
           <div class="acciones">
             <a class="boton boton--primario" href={contratar} target="_blank" rel="noopener noreferrer">
               <Icono nombre="whatsapp" />
-              <span>Contratar servicio</span>
+              <span>Contrata tu tablero de redes</span>
             </a>
-            <a class="boton boton--secundario" href="#tablero">Ver el tablero</a>
+            <a class="boton boton--secundario" href="#tablero">Mira cómo se ve el tablero</a>
           </div>
+          <p class="smb-heroe__nota">
+            No publicamos nada en tus cuentas y retiras el acceso cuando quieras.
+            <a class="enlace" href="#datos">Así tratamos tus datos</a>.
+          </p>
           <ul class="prod-sellos" role="list">
             <li><Icono nombre="check" />APIs oficiales</li>
             <li><Icono nombre="check" />Solo lectura</li>
             <li><Icono nombre="check" />Con todo tu histórico</li>
+            <li><Icono nombre="check" />Se actualiza solo</li>
           </ul>
         </div>
 
@@ -160,6 +178,39 @@ const REGLAS = [
         <a href="#datos">Tus datos</a>
         <a href="#preguntas">Preguntas</a>
       </nav>
+    </div>
+  </section>
+
+  <!-- ═════════ ANTES / DESPUÉS: el dolor de juntar métricas a mano, fila por fila ═════════ -->
+  <section class="seccion prod-seccion" data-tema="blanco" aria-labelledby="dolor-titulo">
+    <div class="contenedor">
+      <header class="prod-cabecera">
+        <h2 id="dolor-titulo" class="titulo-seccion">¿Cuántas pestañas abres cada lunes para armar el reporte de redes?</h2>
+        <p class="entrada">
+          El tiempo se va en juntar números, no en decidir qué hacer con ellos. Con Social Metrics BI, las métricas
+          de todas tus cuentas llegan solas a un mismo tablero.
+        </p>
+      </header>
+      <div class="prod-antes-despues">
+        <div class="prod-ad prod-ad--antes">
+          <h3>Red por red, a mano</h3>
+          <ul role="list">
+            <li><Icono nombre="cerrar" /><span>Entras a cada red por separado.</span></li>
+            <li><Icono nombre="cerrar" /><span>Copias los números a una hoja de cálculo, a mano.</span></li>
+            <li><Icono nombre="cerrar" /><span>Para comparar con meses anteriores, buscas archivos viejos.</span></li>
+            <li><Icono nombre="cerrar" /><span>Cuando el reporte está listo, los datos ya cambiaron.</span></li>
+          </ul>
+        </div>
+        <div class="prod-ad prod-ad--despues">
+          <h3>Con Social Metrics BI</h3>
+          <ul role="list">
+            <li><Icono nombre="check" /><span>Todas tus redes en un solo tablero de Power BI.</span></li>
+            <li><Icono nombre="check" /><span>Los datos llegan solos, con actualizaciones programadas.</span></li>
+            <li><Icono nombre="check" /><span>Todo tu histórico en el mismo lugar, no solo los últimos días.</span></li>
+            <li><Icono nombre="check" /><span>Tu equipo decide con datos frescos, cuando los necesita.</span></li>
+          </ul>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -238,8 +289,8 @@ const REGLAS = [
       <header class="prod-cabecera">
         <h2 id="tablero-titulo" class="titulo-seccion">Así se ve tu tablero.</h2>
         <p class="entrada">
-          Un informe de Power BI con todas tus redes juntas: filtras por plataforma, comparas contra el período
-          anterior y encuentras la publicación que mejor funcionó.
+          El lunes abres un solo tablero: filtras por plataforma, comparas contra el período anterior y encuentras
+          la publicación que mejor funcionó.
         </p>
       </header>
 
@@ -253,6 +304,10 @@ const REGLAS = [
         <p class="smb-nota smb-nota--pie">
           Maqueta con datos de ejemplo. Tu tablero muestra los datos de tus propias cuentas.
         </p>
+        <p class="smb-siguiente">
+          ¿Lo quieres con tus propios números?
+          <a class="enlace" href={contratar} target="_blank" rel="noopener noreferrer">Contrata tu tablero de redes</a>
+        </p>
       </div>
     </div>
   </section>
@@ -263,8 +318,7 @@ const REGLAS = [
       <header class="prod-cabecera">
         <h2 id="incluye-titulo" class="titulo-seccion">Lo que incluye tu Social Metrics BI.</h2>
         <p class="entrada">
-          Sin entrar a cada red por separado ni copiar números a una planilla: todo lo que necesitas para medir tus
-          redes y compartir los resultados con tu equipo.
+          Todo lo que necesitas para medir tus redes y compartir los resultados con tu equipo, en un solo lugar.
         </p>
       </header>
       <ul class="prod-lista prod-lista--grande" role="list">
@@ -283,7 +337,10 @@ const REGLAS = [
     <div class="contenedor">
       <header class="prod-cabecera">
         <h2 id="acceso-titulo" class="titulo-seccion">Tu equipo lo abre con su usuario, o dentro de tu sitio.</h2>
-        <p class="entrada">Dos formas de abrir el mismo tablero. En las dos, los datos se actualizan solos.</p>
+        <p class="entrada">
+          Dos formas de abrir el mismo tablero, sin que nadie tenga que entrar a las redes. En las dos, los datos se
+          actualizan solos.
+        </p>
       </header>
 
       <div class="smb-accesos">
@@ -358,8 +415,8 @@ const REGLAS = [
       <header class="prod-cabecera">
         <h2 id="implementacion-titulo" class="titulo-seccion">Lo ponemos en marcha contigo, a distancia.</h2>
         <p class="entrada">
-          Coordinación mediante reuniones para definir la infraestructura del servicio y el aprovisionamiento de
-          usuarios. Todo el proceso es 100&nbsp;% remoto, desde cualquier país.
+          Tú autorizas tus cuentas con el acceso oficial de cada red. La infraestructura del servicio y el alta de
+          tu equipo las coordinamos contigo en reuniones. Todo 100&nbsp;% remoto, desde cualquier país.
         </p>
       </header>
       <ol class="prod-pasos" role="list">
@@ -371,6 +428,10 @@ const REGLAS = [
           </li>
         ))}
       </ol>
+      <p class="smb-siguiente">
+        El primer paso es un mensaje.
+        <a class="enlace" href={contratar} target="_blank" rel="noopener noreferrer">Coordinemos la primera reunión</a>
+      </p>
     </div>
   </section>
 
@@ -406,13 +467,13 @@ const REGLAS = [
     <div class="contenedor">
       <h2 id="cierre-titulo" class="prod-cierre__titulo">¿Qué esperas para tener tu propio Social Metrics BI?</h2>
       <p class="prod-cierre__texto">
-        Es hora de innovar, crecer y tomar decisiones basadas en datos. Implementa esta solución en tu empresa o
-        proyecto.
+        Es hora de innovar, crecer y tomar decisiones basadas en datos. Contrata esta solución para tu empresa o
+        proyecto y deja de armar el reporte de redes a mano.
       </p>
       <div class="acciones">
         <a class="boton boton--primario" href={contratar} target="_blank" rel="noopener noreferrer">
           <Icono nombre="whatsapp" />
-          <span>Contratar servicio</span>
+          <span>Contrata tu tablero de redes</span>
         </a>
         <a class="boton boton--secundario" href={correo}>
           <Icono nombre="correo" />
@@ -441,6 +502,22 @@ const REGLAS = [
   /* ── Héroe ─────────────────────────────────────────────────────────── */
   .smb-heroe__visual {
     min-width: 0;
+  }
+
+  /* Riesgo reducido junto al botón principal: un hecho, no una promesa */
+  .smb-heroe__nota {
+    max-width: 34rem;
+    font-size: var(--text-sm);
+    line-height: 1.6;
+    color: var(--texto-2);
+    text-wrap: pretty;
+  }
+
+  /* Siguiente paso en texto, después de ver el producto o el proceso */
+  .smb-siguiente {
+    margin-top: var(--space-6);
+    color: var(--texto-2);
+    text-wrap: pretty;
   }
 
   /* ── Qué es ────────────────────────────────────────────────────────── */

@@ -3,6 +3,8 @@
  * Página de la Tienda e-commerce: código fuente + guía de implementación, pago único,
  * pedidos por WhatsApp. Solo afirma lo confirmado en docs/contenido.md (sin precios,
  * plazos, hosting ni pasarela de pagos). Lenguaje compartido de subpáginas: producto.css.
+ * Mensaje: propiedad ("compras la tienda, no la alquilas") frente a las plataformas por
+ * suscripción, sin nombrarlas ni citar sus montos. Esta página no lleva montos.
  */
 import Base from '../layouts/Base.astro';
 import Icono from '../components/Icono.astro';
@@ -27,9 +29,19 @@ const PREGUNTAS: Pregunta[] = [
       '<p>No. Es un pago único: compras el código y la guía una sola vez, sin mensualidades ni suscripciones. La tienda es 100 % tuya.</p>',
   },
   {
+    pregunta: '¿Cuánto cuesta?',
+    respuesta:
+      '<p>El precio no se publica: escríbenos por WhatsApp y te lo contamos. Es un pago único, sin mensualidades.</p>',
+  },
+  {
     pregunta: '¿Qué incluye la compra?',
     respuesta:
       '<p>El <strong>código fuente completo</strong> de la tienda y una <strong>guía de implementación paso a paso</strong> para ponerla en marcha. La tienda viene integrada con WhatsApp para recibir los pedidos.</p><p>La compra y la implementación son remotas, así que funciona igual desde cualquier país.</p>',
+  },
+  {
+    pregunta: '¿Y si no sé cómo ponerla en marcha?',
+    respuesta:
+      '<p>Para eso está la guía de implementación: te lleva paso a paso, de principio a fin, hasta dejar tu tienda funcionando con tu catálogo.</p>',
   },
   {
     pregunta: '¿Sirve para mi rubro?',
@@ -106,11 +118,12 @@ const PASOS = [
       <div class="prod-heroe__rejilla">
         <div class="prod-heroe__texto">
           <h1 id="te-titulo" class="prod-heroe__titulo">
-            Tu tienda online, con código propio. <span class="prod-acento">Pago único.</span>
+            Tu tienda online con código propio. <span class="prod-acento">Pagas una vez y es tuya.</span>
           </h1>
           <p class="prod-heroe__bajada">
             Vende con una imagen moderna, organiza tu catálogo y ofrece una mejor experiencia a tus clientes.
-            Recibes el código fuente y una guía paso a paso: sin mensualidades y 100&nbsp;% tuya.
+            Recibes el código fuente completo y una guía paso a paso. Los pedidos te llegan directo a WhatsApp y no
+            pagas mensualidades.
           </p>
           <div class="acciones">
             <a class="boton boton--primario" href={comprar} target="_blank" rel="noopener noreferrer">
@@ -147,7 +160,7 @@ const PASOS = [
       <header class="prod-cabecera">
         <h2 id="incluye-titulo" class="titulo-seccion">Compras la tienda. No la alquilas.</h2>
         <p class="entrada">
-          Con un solo pago te llevas el código fuente completo y la guía para ponerla en marcha. Sin mensualidades:
+          Pagas una vez y te llevas el código fuente completo y la guía para ponerla en marcha. Sin mensualidades:
           la tienda es 100&nbsp;% tuya y la adaptas a lo que vendes.
         </p>
       </header>
@@ -173,6 +186,10 @@ const PASOS = [
           <div>
             <dt>Mensualidades</dt>
             <dd class="dato">0</dd>
+          </div>
+          <div>
+            <dt>Dueño del código</dt>
+            <dd>Tú</dd>
           </div>
         </dl>
         <a class="boton boton--primario te-compra__boton" href={comprar} target="_blank" rel="noopener noreferrer">
@@ -214,6 +231,14 @@ const PASOS = [
           </ul>
         </div>
       </div>
+
+      <p class="te-nota te-nota--escena">
+        <Icono nombre="whatsapp" />
+        <span>
+          Así vendes: un cliente elige en tu catálogo, toca el botón y el pedido te llega a WhatsApp. Sin mensualidad
+          de por medio.
+        </span>
+      </p>
     </div>
   </section>
 
@@ -247,7 +272,9 @@ const PASOS = [
   <!-- ═════════ CIERRE ═════════ -->
   <section class="seccion te-cierre" id="contacto" data-tema="oscuro" aria-labelledby="cierre-titulo">
     <div class="contenedor">
-      <h2 id="cierre-titulo" class="prod-cierre__titulo">Tu tienda, con tu marca y tu código.</h2>
+      <h2 id="cierre-titulo" class="prod-cierre__titulo">
+        ¿Qué esperas para tener tu propia tienda? <span class="prod-acento">Tu marca, tu código.</span>
+      </h2>
       <p class="prod-cierre__texto">
         Escríbenos por WhatsApp y te contamos cómo es la compra. Pagas una sola vez y recibes el código fuente
         completo con la guía de implementación, estés donde estés.
@@ -261,6 +288,20 @@ const PASOS = [
           <Icono nombre="correo" />
           <span>Escríbenos un correo</span>
         </a>
+      </div>
+      <div class="prod-recuerdo">
+        <div>
+          <p class="prod-recuerdo__tit">Lo que pagas</p>
+          <p class="prod-recuerdo__txt"><b>Una sola vez.</b> Sin mensualidades ni suscripciones.</p>
+        </div>
+        <div>
+          <p class="prod-recuerdo__tit">Lo que te llevas</p>
+          <p class="prod-recuerdo__txt">El código fuente completo y la guía paso a paso. <b>La tienda es tuya.</b></p>
+        </div>
+        <div>
+          <p class="prod-recuerdo__tit">Cómo te llegan los pedidos</p>
+          <p class="prod-recuerdo__txt">Tus clientes eligen en tu catálogo y <b>el pedido llega a tu WhatsApp</b>.</p>
+        </div>
       </div>
     </div>
   </section>
@@ -363,6 +404,17 @@ const PASOS = [
     height: 1.25rem;
     flex: none;
     color: var(--acento);
+  }
+
+  /* La escena del pedido cierra la comparación: un paso más visible que la nota de remoto */
+  .te-nota--escena {
+    margin-top: var(--space-7);
+    font-size: var(--text-md);
+    color: var(--texto);
+  }
+
+  .te-nota--escena :global(svg) {
+    margin-top: 0.15em;
   }
 
   /* ── Cierre: la misma luz del héroe, desde abajo ───────────────────── */
