@@ -1,0 +1,622 @@
+---
+/**
+ * Maqueta del chat con IA del Portal BI en un celular, tal como responde hoy
+ * (views/modules/chat.ejs + chat.css del repositorio del portal): el análisis y el gráfico que
+ * se pide aparte, con el campo, el micrófono y la memoria de la conversación. El hilo está
+ * abajo del todo, como lo deja el portal cuando llega el gráfico. Va dentro de
+ * <MaquetaTelefono>. Datos de ejemplo: 5.216.100 en 2026 contra 4.832.200 en 2025 (+7,9 %).
+ *
+ * Estilos globales (is:global) a propósito: con alcance, Astro marca cada elemento con un
+ * atributo data-astro-cid, y en /portal-bi/ eso sumaba lo justo para que el documento cruzara
+ * un viaje más de TCP en la simulación de Lighthouse. Todas las clases llevan el prefijo de
+ * su maqueta, así que no chocan. Ver docs/aprendizajes.md.
+ */
+const VARITA =
+  'M3 19.6 14.2 8.4l1.4 1.4L4.4 21zM15.6 7l1.4-1.4 1.4 1.4-1.4 1.4zM8 2l.7 1.8 1.8.7-1.8.7L8 7l-.7-1.8-1.8-.7 1.8-.7zM19 11l.6 1.4 1.4.6-1.4.6L19 15l-.6-1.4L17 13l1.4-.6zM20 1.5l.5 1.2 1.2.5-1.2.5-.5 1.2-.5-1.2-1.2-.5 1.2-.5z';
+
+/* Gráfico de mancuernas, en el orden en que lo dibuja el portal (por tamaño del cambio).
+   La escala va de 400.000 a 1.300.000: posición = (valor − 400.000) / 900.000. */
+const MANCUERNAS = [
+  { nombre: 'Online', clase: 'mc-md-1', cambio: '+241.500', sube: true },
+  { nombre: 'Centro', clase: 'mc-md-2', cambio: '+85.800', sube: true },
+  { nombre: 'Oeste', clase: 'mc-md-3', cambio: '+42.300', sube: true },
+  { nombre: 'Sur', clase: 'mc-md-4', cambio: '+37.300', sube: true },
+  { nombre: 'Norte', clase: 'mc-md-5', cambio: '−36.500', sube: false },
+  { nombre: 'Este', clase: 'mc-md-6', cambio: '+13.500', sube: true },
+];
+---
+
+<div class="mc mc--grafico">
+  <div class="mc-cab">
+    <span class="mc-marca"><svg viewBox="0 0 24 24"><path d={VARITA} /></svg></span>
+    <div class="mc-id">
+      <p class="mc-titulo">Ventas por sucursal</p>
+      <p class="mc-sub">Pregunta sobre los datos de este tablero</p>
+    </div>
+    <span class="mc-resumen">4 tablas · 13 columnas · 4 medidas</span>
+    <span class="mc-boton"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M12 5v14" /></svg></span>
+    <span class="mc-boton"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" /></svg></span>
+  </div>
+
+  <div class="mc-hilo" data-hilo>
+    <div class="mc-mov">
+      <div class="mc-analisis">
+        <p class="mc-analisis__t">
+          <svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-4 12.7V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.3A7 7 0 0 0 12 2zM9 20h6v1.2a.8.8 0 0 1-.8.8H9.8a.8.8 0 0 1-.8-.8z" /></svg>
+          Análisis
+        </p>
+        <p><strong>Este año las sucursales venden 5.216.100, un 7,9 % más que en 2025</strong> (4.832.200).</p>
+        <ul>
+          <li><strong>Online</strong> es la que más crece: +34,4 %, de 701.300 a 942.800.</li>
+          <li><strong>Norte</strong> es la única que cae: −3,2 %.</li>
+          <li><strong>Centro</strong> sigue primera en volumen, con 1.284.500.</li>
+        </ul>
+      </div>
+
+          <div class="mc-grafico">
+            <p class="mc-grafico__porque">Dos años por sucursal: la distancia entre los puntos es lo que cambió.</p>
+            <p class="mc-leyenda"><span><i class="mc-s0"></i>Ventas 2025</span><span><i class="mc-s1"></i>Ventas 2026</span></p>
+            <div class="mc-db">
+              <div class="mc-db__escala"><span>400.000</span><span class="mc-db__aviso">el eje no arranca en cero</span><span>1.300.000</span><span>Cambio</span></div>
+              {MANCUERNAS.map((m) => (
+                <div class:list={['mc-db__fila', m.clase]}>
+                  <span class="mc-db__nombre">{m.nombre}</span>
+                  <span class="mc-db__pista">
+                    <span class:list={['mc-db__tramo', { 'mc-db__tramo--baja': !m.sube }]}></span>
+                    <span class="mc-db__pt mc-db__pt--a"></span>
+                    <span class="mc-db__pt mc-db__pt--b"></span>
+                  </span>
+                  <span class:list={['mc-db__cambio', { 'mc-db__cambio--baja': !m.sube }]}>{m.cambio}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div class="mc-acciones">
+            <span class="mc-accion"><svg class="mc-trazo" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M3 16l5-5 4 4 3-3 6 6" /></svg>Copiar imagen</span>
+          </div>
+    </div>
+  </div>
+
+  <div class="mc-pie">
+    <div class="mc-campo">
+      <span class="mc-placeholder">Pregunta algo sobre estos datos…</span>
+      <span class="mc-mic"><svg viewBox="0 0 24 24"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z" /><path class="mc-trazo-mic" d="M18.5 11.5a6.5 6.5 0 0 1-13 0M12 18v3" /></svg></span>
+      <span class="mc-enviar"><svg viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6" /></svg></span>
+    </div>
+    <div class="mc-memoria">
+      <svg viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" /></svg>
+      <span>Recuerda la pregunta anterior</span>
+      <span class="mc-cero">Empezar de cero</span>
+    </div>
+    <p class="mc-nota">Las respuestas salen de una consulta al modelo. La consulta siempre queda a la vista.</p>
+  </div>
+</div>
+
+<style is:global>
+  /* ═══ Marco: claro y quieto, para acompañar a un reporte blanco y denso (chat.css) ═══ */
+  .mc {
+    container: maqueta-chat / inline-size;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    background: #f7f8fa;
+    font-family: var(--mq-ui);
+    color: var(--mq-g900);
+    line-height: 1.45;
+  }
+
+  /* ── Encabezado ── */
+  .mc-cab {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 10px 14px;
+    background: #fff;
+    border-bottom: 1px solid var(--mq-g200);
+  }
+
+  .mc-marca {
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    flex: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--mq-ia-2), var(--mq-ia-3));
+  }
+
+  .mc-marca svg {
+    width: 13px;
+    height: 13px;
+    fill: #fff;
+  }
+
+  .mc-id {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .mc-titulo {
+    margin: 0;
+    overflow: hidden;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .mc-sub {
+    margin: 0;
+    overflow: hidden;
+    font-size: 0.5625rem;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: var(--mq-g500);
+  }
+
+  .mc-resumen {
+    flex: none;
+    font-size: 0.53125rem;
+    white-space: nowrap;
+    color: var(--mq-g500);
+  }
+
+  .mc-boton {
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    flex: none;
+    border: 1px solid var(--mq-g200);
+    border-radius: 7px;
+    background: #fff;
+  }
+
+  .mc-boton svg {
+    width: 11px;
+    height: 11px;
+    fill: none;
+    stroke: var(--mq-g700);
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+
+  /* ── El hilo: recorta, y lo de adentro se mueve como un scroll ── */
+  .mc-hilo {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  /* Donde el hilo se corta, se funde: se lee como algo que sigue, no como un recorte */
+  .mc-hilo::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 24px;
+    background: linear-gradient(rgb(247 248 250 / 0), #f7f8fa);
+  }
+
+  .mc-mov {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 14px 16px 26px;
+  }
+
+  /* En el celular el chat acaba de recibir el gráfico: el hilo está abajo del todo, como lo
+     deja el portal (alFinal), y lo que se corta es el principio del análisis. */
+  .mc--grafico .mc-hilo {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
+
+  .mc--grafico .mc-mov {
+    flex: none;
+    padding-bottom: 12px;
+  }
+
+  .mc--grafico .mc-hilo::after {
+    top: 0;
+    bottom: auto;
+    background: linear-gradient(#f7f8fa, rgb(247 248 250 / 0));
+  }
+
+  .mc-acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: -4px;
+  }
+
+  .mc-accion {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 9px;
+    border: 1px solid var(--mq-g200);
+    border-radius: 7px;
+    background: #fff;
+    font-size: 0.5625rem;
+    color: var(--mq-g700);
+  }
+
+  .mc-accion svg {
+    width: 10px;
+    height: 10px;
+    fill: currentColor;
+  }
+
+  .mc-accion .mc-trazo {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linejoin: round;
+  }
+
+  /* El análisis: la conclusión en palabras, después de mostrar de dónde sale */
+  .mc-analisis {
+    padding: 11px 13px;
+    border: 1px solid var(--mq-ia-borde);
+    border-radius: 10px;
+    background: var(--mq-ia-tenue);
+  }
+
+  .mc-analisis__t {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0 0 6px;
+    font-size: 0.5625rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--mq-g900);
+  }
+
+  .mc-analisis__t svg {
+    width: 10px;
+    height: 10px;
+    fill: var(--mq-g900);
+  }
+
+  .mc-analisis p {
+    margin: 0 0 5px;
+    font-size: 0.65625rem;
+    line-height: 1.55;
+  }
+
+  .mc-analisis ul {
+    margin: 0;
+    padding-left: 16px;
+  }
+
+  .mc-analisis li {
+    margin-bottom: 2px;
+    font-size: 0.65625rem;
+    line-height: 1.5;
+  }
+
+  .mc-analisis strong {
+    font-weight: 650;
+  }
+
+  /* ── El gráfico de mancuernas: antes y después, con el cambio fuera de la pista ── */
+  .mc-grafico {
+    padding: 11px 12px 12px;
+    border: 1px solid var(--mq-g200);
+    border-radius: 10px;
+    background: #fff;
+  }
+
+  .mc-grafico__porque {
+    margin: 0 0 7px;
+    font-size: 0.5625rem;
+    line-height: 1.45;
+    color: var(--mq-g500);
+  }
+
+  .mc-leyenda {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    margin: 0 0 8px;
+    font-size: 0.5625rem;
+    color: var(--mq-g700);
+  }
+
+  .mc-leyenda span {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .mc-leyenda i {
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+  }
+
+  .mc-s0 { background: var(--mq-ia-2); }
+  .mc-s1 { background: #14b8a6; }
+
+  .mc-db {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 6px 8px;
+    align-items: center;
+  }
+
+  /* La escala y el aviso del eje recortado van en la cabecera: callarlo es la forma más
+     común de mentir con un gráfico. */
+  .mc-db__escala {
+    display: grid;
+    grid-column: 2 / 4;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    gap: 6px;
+    align-items: baseline;
+    font-size: 0.5rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--mq-g500);
+  }
+
+  .mc-db__escala > :last-child {
+    padding-left: 4px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .mc-db__aviso {
+    overflow: hidden;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #b45309;
+  }
+
+  .mc-db__fila {
+    display: contents;
+  }
+
+  .mc-db__nombre {
+    font-size: 0.59375rem;
+    color: var(--mq-g700);
+  }
+
+  .mc-db__pista {
+    position: relative;
+    height: 12px;
+    border-radius: 3px;
+    background: rgb(229 231 235 / 0.45);
+  }
+
+  .mc-db__tramo {
+    position: absolute;
+    top: 50%;
+    left: var(--ini);
+    width: calc(var(--fin) - var(--ini));
+    height: 2px;
+    transform: translateY(-50%);
+    background: rgb(37 99 235 / 0.45);
+  }
+
+  .mc-db__tramo--baja {
+    background: rgb(217 119 6 / 0.45);
+  }
+
+  .mc-db__pt {
+    position: absolute;
+    top: 50%;
+    width: 8px;
+    height: 8px;
+    margin-left: -4px;
+    border-radius: 50%;
+    transform: translateY(-50%);
+    box-shadow: 0 0 0 1.5px #fff;
+  }
+
+  .mc-db__pt--a {
+    left: var(--a);
+    background: var(--mq-ia-2);
+  }
+
+  .mc-db__pt--b {
+    left: var(--b);
+    background: #14b8a6;
+  }
+
+  .mc-db__cambio {
+    font-size: 0.59375rem;
+    font-weight: 600;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    color: #1d4ed8;
+  }
+
+  .mc-db__cambio--baja {
+    color: #b45309;
+  }
+
+  /* Posiciones en la escala 400.000 → 1.300.000 (a = 2025, b = 2026) */
+  .mc-md-1 { --a: 33.5%; --b: 60.3%; --ini: 33.5%; --fin: 60.3%; }
+  .mc-md-2 { --a: 88.7%; --b: 98.3%; --ini: 88.7%; --fin: 98.3%; }
+  .mc-md-3 { --a: 6.2%; --b: 10.9%; --ini: 6.2%; --fin: 10.9%; }
+  .mc-md-4 { --a: 36.8%; --b: 40.9%; --ini: 36.8%; --fin: 40.9%; }
+  .mc-md-5 { --a: 82.5%; --b: 78.5%; --ini: 78.5%; --fin: 82.5%; }
+  .mc-md-6 { --a: 22.5%; --b: 24%; --ini: 22.5%; --fin: 24%; }
+
+  /* ── Pie: el campo, el micrófono, enviar, y la memoria de la conversación ── */
+  .mc-pie {
+    padding: 9px 14px 8px;
+    background: #fff;
+    border-top: 1px solid var(--mq-g200);
+  }
+
+  .mc-campo {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 5px 5px 12px;
+    border: 1px solid var(--mq-g200);
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 4px 14px rgb(17 24 39 / 0.06);
+  }
+
+  .mc-placeholder {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    font-size: 0.6875rem;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: var(--mq-g500);
+  }
+
+  .mc-mic,
+  .mc-enviar {
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    flex: none;
+    border-radius: 50%;
+  }
+
+  .mc-mic {
+    border: 1px solid var(--mq-g200);
+    background: #fff;
+  }
+
+  .mc-mic svg {
+    width: 11px;
+    height: 11px;
+    fill: var(--mq-g700);
+  }
+
+  .mc-trazo-mic {
+    fill: none;
+    stroke: var(--mq-g700);
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+
+  .mc-enviar {
+    background: var(--mq-ia-2);
+    box-shadow: 0 4px 10px -4px rgb(99 102 241 / 0.7);
+  }
+
+  .mc-enviar svg {
+    width: 11px;
+    height: 11px;
+    fill: none;
+    stroke: #fff;
+    stroke-width: 2.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .mc-memoria {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 6px;
+    padding: 4px 6px 4px 10px;
+    border: 1px solid var(--mq-ia-borde);
+    border-radius: 10px;
+    background: var(--mq-ia-tenue);
+    font-size: 0.5625rem;
+    color: var(--mq-ia);
+  }
+
+  .mc-memoria svg {
+    width: 10px;
+    height: 10px;
+    flex: none;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+  }
+
+  .mc-memoria span:first-of-type {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .mc-cero {
+    flex: none;
+    padding: 1px 8px;
+    border: 1px solid var(--mq-ia-borde);
+    border-radius: 999px;
+    background: #fff;
+  }
+
+  .mc-nota {
+    margin: 5px 0 0;
+    font-size: 0.5rem;
+    text-align: center;
+    color: var(--mq-g500);
+  }
+
+  /* ═══ Contenedor angosto (celular): lo que el portal esconde o achica en un teléfono ═══ */
+  @container maqueta-chat (max-width: 26rem) {
+    .mc-resumen {
+      display: none;
+    }
+  }
+
+  @container maqueta-chat (max-width: 17rem) {
+    .mc-cab {
+      gap: 7px;
+      padding: 8px 9px;
+    }
+
+    .mc-marca {
+      width: 22px;
+      height: 22px;
+      border-radius: 7px;
+    }
+
+    .mc-boton {
+      width: 21px;
+      height: 21px;
+    }
+
+    .mc-mov {
+      gap: 8px;
+      padding: 9px 9px 12px;
+    }
+
+    .mc-analisis {
+      padding: 9px 10px;
+    }
+
+    .mc-analisis p,
+    .mc-analisis li {
+      font-size: 0.59375rem;
+    }
+
+    .mc-pie {
+      padding: 7px 9px;
+    }
+
+    .mc-placeholder {
+      font-size: 0.59375rem;
+    }
+
+    .mc-memoria {
+      font-size: 0.5rem;
+    }
+  }
+
+</style>

@@ -1,5 +1,12 @@
 # Bitácora de cambios
 
+## 04/10/2026 · Ajustes del dueño a las maquetas del Portal BI
+
+- **Chat**: vuelve la maqueta anterior (pregunta, pasos, DAX, mapa de calor, líneas y el cursor que escribe varias preguntas), idéntica a la de `6054a11`. El visor con el reporte al costado se retiró: el dueño prefiere que la sección muestre solo el chat.
+- **Marca blanca**: las dos pantallas de ingreso usan Poppins; dos tipografías juntas se veían mal.
+- El chat del celular pasó a su propio componente (`MaquetaChatMovil`), sin la vista de consulta que ya no se usa.
+- QA 36/36 sin problemas; Lighthouse `/portal-bi/` 100 / 100 / 100 / 100.
+
 ## 04/10/2026 · Maquetas del Portal BI fieles al producto real
 
 - Cada maqueta de `/portal-bi/` reproduce **una pantalla real de hoy**, calcada del CSS del portal y comparada contra capturas del portal funcionando con datos de ejemplo: el portal (menú con el color de marca, migas, tarjetas de vidrio, insignia IA), dos **pantallas de ingreso** para la marca blanca (ACME y NORDEX, con otra tipografía), **dos celulares** (tableros y chat con gráfico y micrófono), el **visor con el chat al costado** (reporte de Power BI + pregunta, pasos, DAX, tabla y análisis) y el **panel de administración** (14 módulos, asignaciones agrupadas y el cuadro "Asignar tablero").

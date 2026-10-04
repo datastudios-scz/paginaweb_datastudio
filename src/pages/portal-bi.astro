@@ -19,7 +19,7 @@ import Ventana from '../components/portal/Ventana.astro';
 import MaquetaPortal from '../components/portal/MaquetaPortal.astro';
 import MaquetaChat from '../components/portal/MaquetaChat.astro';
 import MaquetaLogin from '../components/portal/MaquetaLogin.astro';
-import MaquetaVisor from '../components/portal/MaquetaVisor.astro';
+import MaquetaChatMovil from '../components/portal/MaquetaChatMovil.astro';
 import MaquetaTelefono from '../components/portal/MaquetaTelefono.astro';
 import MaquetaAdmin from '../components/portal/MaquetaAdmin.astro';
 import Calculadora from '../components/portal/Calculadora.astro';
@@ -352,7 +352,7 @@ const SERVICIO = {
             <p class="pb-pie-marca">Instalación A</p>
           </div>
           <div>
-            <Ventana url="datos.nordex.com" marca="nordex" variante="mini" descripcion="La misma pantalla de ingreso con la marca de ejemplo NORDEX: fondo azul marino, botón ámbar, otra tipografía, su nombre y su logo.">
+            <Ventana url="datos.nordex.com" marca="nordex" variante="mini" descripcion="La misma pantalla de ingreso con la marca de ejemplo NORDEX: fondo azul marino, botón ámbar, su nombre y su logo.">
               <MaquetaLogin marca="nordex" />
             </Ventana>
             <p class="pb-pie-marca">Instalación B</p>
@@ -379,7 +379,7 @@ const SERVICIO = {
             <MaquetaPortal variante="telefono" />
           </MaquetaTelefono>
           <MaquetaTelefono class="pb-telefonos__chat" descripcion="Maqueta del chat con IA en un celular, con datos de ejemplo: el análisis de las ventas por sucursal, un gráfico que compara 2025 con 2026 y el campo para preguntar, con el botón del micrófono.">
-            <MaquetaChat vista="grafico" />
+            <MaquetaChatMovil />
           </MaquetaTelefono>
         </div>
       </div>
@@ -399,15 +399,14 @@ const SERVICIO = {
         </p>
       </header>
 
-      {/* data-revelar con significado: dispara la respuesta del chat (pregunta, pasos, consulta, tabla, análisis) */}
+      {/* data-revelar con significado: dispara la secuencia de la maqueta (pasos, mapa de calor, línea) */}
       <div class="prod-bloque" data-revelar>
         <Ventana
-          url="portal.tuempresa.com/tableros/visor?nombre=Ventas+por+sucursal"
-          class="mq-diferida pb-reserva-visor"
+          url="portal.tuempresa.com/tableros/chat?nombre=Ventas"
           ejemplo
-          descripcion="Maqueta del visor del Portal BI con datos de ejemplo: a la izquierda, un reporte de Power BI de ventas por sucursal; a la derecha, el chat con IA abierto al costado, con la pregunta, los pasos de la consulta, el código DAX que se ejecutó, la tabla de resultados y el análisis."
+          descripcion="Maqueta del chat con IA del Portal BI: una pregunta sobre ventas por vendedor, los pasos de la consulta, el código DAX ejecutado, un mapa de calor y un gráfico de líneas con datos de ejemplo."
         >
-          <MaquetaVisor />
+          <MaquetaChat />
         </Ventana>
       </div>
 
@@ -732,17 +731,6 @@ const SERVICIO = {
     position: relative;
     margin-top: 2.75rem;
     margin-left: min(1rem, calc(100cqw - 2 * var(--tel-ancho)));
-  }
-
-  /* Reserva del visor diferido: barra de dirección + el alto de la maqueta */
-  :global(.pb-reserva-visor) {
-    --mq-reserva: 36.5rem;
-  }
-
-  @media (min-width: 64rem) {
-    :global(.pb-reserva-visor) {
-      --mq-reserva: 42.5rem;
-    }
   }
 
   /* ── Chat ──────────────────────────────────────────────────────────── */

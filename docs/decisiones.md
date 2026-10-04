@@ -6,6 +6,7 @@ Formato: contexto → decisión → consecuencias. Las decisiones nuevas van arr
 
 - **Contexto**: las maquetas eran esquemas (menú plano, un chat con mapa de calor que el producto ya no tiene, una tabla de asignaciones que no existe). El dueño pidió diseños "más reales y más visuales".
 - **Decisión**: una pantalla real por sección, con sus mismas palabras y colores por defecto, y un único set de datos de ejemplo. La marca blanca se muestra con dos pantallas de ingreso (la pantalla más "de marca"). Un solo momento animado (la respuesta del chat). Desviaciones a propósito: grises terciarios subidos a AA, la fuente del chat (Inter) por la de sistema, y "análisis listo" sin el "· 0 ms" que el portal muestra siempre.
+- **Revisión del dueño (el mismo día)**: la sección del chat vuelve a la maqueta anterior y se retira el visor con el reporte al costado: la sección tiene que centrarse solo en el chat, con movimiento, varias preguntas y gráficos. Las dos pantallas de ingreso van en Poppins: una tipografía distinta por marca se veía mal.
 - **Consecuencias**: el documento comprimido pasó de 37 a ~45 KB (encima del presupuesto de 40 KB) y el DOM de ~1.170 a ~1.615 nodos. Se compensó con `content-visibility` en las maquetas de abajo y estilos globales en las maquetas (ver aprendizajes). Cuando el producto cambie, hay que volver a fotografiarlo y comparar.
 
 ## ADR-013 · Maquetas con datos de ejemplo rotulados (27/09/2026)

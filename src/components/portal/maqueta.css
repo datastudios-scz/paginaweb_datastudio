@@ -102,6 +102,4 @@
   --mq-login-boton: #b45309;
   --mq-onda-1: rgb(180 83 9 / 0.2);
   --mq-onda-2: rgb(255 255 255 / 0.12);
-  /* La tipografía también es configuración: una con serifas, de las que ya trae el sistema */
-  --mq-fuente: Georgia, 'Times New Roman', serif;
 }
