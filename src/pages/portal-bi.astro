@@ -43,7 +43,7 @@ const PREGUNTAS: Pregunta[] = [
   {
     pregunta: '¿Quién lo instala? ¿Puedo contratar la implementación?',
     respuesta:
-      '<p>Tú eliges. Puedes implementarlo tú, con la guía, el curso en video y el chequeo automático, o contratar la implementación y lo implementamos nosotros en tu empresa, a distancia.</p><p>En los dos casos, lo que suele demorar no es el portal: es que el área de sistemas habilite la aplicación de Azure y agregue la cuenta a los workspaces. Por eso te damos esa lista escrita, para pedir todo junto y una sola vez.</p>',
+      '<p>Tú eliges. Puedes implementarlo tú, con la guía, el curso en video y el chequeo automático, o contratar la implementación y lo implementamos nosotros en tu empresa, a distancia.</p><p>En los dos casos, lo único que necesitas de tu lado es la licencia de Power BI de la cuenta que publica.</p>',
   },
   {
     pregunta: '¿Mis datos salen de Power BI?',
@@ -117,7 +117,7 @@ const CUALIDADES = [
 /** Camino 1, Impleméntalo tú: lo que se compra, en el orden del dueño. */
 const COMPRA = [
   { icono: 'codigo', titulo: 'Códigos para despliegue', texto: 'El código del portal es tuyo: lo instalas, lo personalizas y lo escalas como quieras.' },
-  { icono: 'guia', titulo: 'Guía de implementación paso a paso', texto: 'Con la lista literal de permisos de Azure y de Power BI que hay que pedirle a sistemas.' },
+  { icono: 'guia', titulo: 'Guía de implementación paso a paso', texto: 'Cada paso explicado, de la instalación a la publicación.' },
   { icono: 'ojo', titulo: 'Curso en video con explicación detallada', texto: 'Capítulo por capítulo, con la pantalla a la vista. Queda para quien entre después.' },
   { icono: 'infraestructura', titulo: 'Dos formas de desplegar', texto: 'Tú escoges cuál usar.' },
   { icono: 'check', titulo: 'Chequeo automático de la instalación', texto: 'Te dice qué falta, con nombre propio. Lo corres las veces que quieras.' },
@@ -128,24 +128,17 @@ const COMPRA = [
 const IMPLEMENTACION = [
   { icono: 'globo', titulo: 'A distancia', texto: 'Implementación remota, estés en el país que estés.' },
   { icono: 'portal', titulo: 'El mismo portal', texto: 'Inicio de sesión, panel de administrador, tu marca y chat con IA.' },
-  { icono: 'llave', titulo: 'Tú pones lo esencial', texto: 'La cuenta de Google y la licencia de Power BI. Tu equipo habilita los accesos de Azure que te indicamos.' },
+  { icono: 'llave', titulo: 'Tú pones la licencia', texto: 'La de Power BI que ya publica tus reportes. Del resto nos encargamos nosotros.' },
   { icono: 'chat', titulo: 'Según tu caso', texto: 'Alcance y precio a tu medida: te respondemos por WhatsApp.' },
 ] as const;
 
 const PASOS_INSTALACION = [
-  { hora: '0:00', titulo: 'Levantas el portal', texto: 'Copias el archivo de configuración y pegas el ID de la planilla. El servidor arranca y te avisa a qué hora arrancó.' },
+  { hora: '0:00', titulo: 'Levantas el portal', texto: 'Copias el archivo de configuración y arrancas el servidor. Te avisa en cuanto está listo.' },
   { hora: '0:20', titulo: 'Conectas Power BI', texto: 'Cargas la conexión desde el panel. El portal la prueba al guardar: si algo falta, lo dice ahí mismo y con nombre propio.' },
   { hora: '1:00', titulo: 'Cargas personas y asignas', texto: 'Usuarios, empresas y tableros desde el panel. El constructor de vistas recorre tu modelo y arma el filtro solo.' },
   { hora: '1:45', titulo: 'Verificas y publicas', texto: 'Un comando revisa la instalación entera y enumera lo que falte. Cuando todo está en verde, abres el portal a tu equipo.' },
 ];
 
-/** Lo esencial primero (lo que pide el dueño); después, lo que la guía te ayuda a preparar. */
-const REQUISITOS = [
-  { icono: 'tableros', titulo: 'Una cuenta de Google.', texto: 'Ahí vive la planilla de usuarios y asignaciones. Se administra desde el panel, pero puedes abrirla y verla.' },
-  { icono: 'llave', titulo: 'Una licencia de Power BI Pro.', texto: 'La de la cuenta que ya publica tus reportes. Una sola, no una por usuario.' },
-  { icono: 'candado', titulo: 'Una aplicación registrada en Azure.', texto: 'Diez minutos en Entra ID. El portal la usa para pedir el acceso temporal.' },
-  { icono: 'infraestructura', titulo: 'Un lugar donde correrlo.', texto: 'Un servidor pequeño alcanza. También corre en la nube, con HTTPS.' },
-] as const;
 
 const LIMITES = [
   { titulo: 'Reemplaza a Power BI', texto: 'No diseña reportes: los publica. Sigues modelando en Power BI Desktop como hasta hoy, y el portal reparte lo que ya hiciste.' },
@@ -236,15 +229,6 @@ const SERVICIO = {
         </div>
       </div>
 
-      <nav class="prod-indice" aria-label="En esta página">
-        <span class="prod-indice__rotulo" aria-hidden="true">En esta página</span>
-        <a href="#portal">El portal</a>
-        <a href="#chat">Chat con IA</a>
-        <a href="#compra">Dos caminos</a>
-        <a href="#instalar">Instalación</a>
-        <a href="#ahorro">Lo que dejas de pagar</a>
-        <a href="#preguntas">Preguntas</a>
-      </nav>
     </div>
   </section>
 
@@ -332,7 +316,7 @@ const SERVICIO = {
         ))}
       </ul>
 
-      <!-- Cualidades del dueño (texto de su Google Sites) -->
+      <!-- Cualidades del portal, según el dueño -->
       <div class="prod-bloque prod-par prod-par--inicio">
         <div>
           <h3 class="prod-subtitulo">Todo lo que trae tu portal</h3>
@@ -582,36 +566,6 @@ const SERVICIO = {
           </li>
         ))}
       </ol>
-
-      <div class="prod-bloque prod-par prod-par--inicio pb-verifica">
-        <div>
-          <h3 class="prod-subtitulo">No te quedas adivinando si está bien</h3>
-          <p class="prod-subtexto">
-            El portal trae su propio chequeo. Revisa la planilla, la conexión a Power BI, los permisos, las
-            asignaciones y el cifrado de las claves, y te contesta punto por punto.
-          </p>
-          <p class="prod-subtexto">
-            Lo que falte sale con el nombre exacto de lo que hay que pedirle a sistemas, para pedirlo todo junto y
-            una sola vez. Se corre las veces que quieras, también después de cada cambio.
-          </p>
-        </div>
-        <figure class="pb-terminal">
-          <figcaption class="pb-terminal__barra">verificación de la instalación</figcaption>
-          <pre class="pb-terminal__cuerpo"><span class="t-pr">$</span> <span class="t-cmd">node scripts/revisar-instalacion.js</span>
-
-  <span class="t-ok">✓</span> La planilla responde y tiene sus hojas
-  <span class="t-ok">✓</span> La cuenta de Power BI autentica
-  <span class="t-ok">✓</span> Es miembro de los workspaces que el portal usa
-  <span class="t-ok">✓</span> Los tableros asignados existen y abren
-  <span class="t-ok">✓</span> Las contraseñas están hasheadas
-  <span class="t-ok">✓</span> Las claves guardadas se descifran
-  <span class="t-ok">✓</span> La marca y los colores están cargados
-  <span class="t-gris">…</span>
-
-  <span class="t-fin">29 bien · 0 a medias · 0 mal</span>
-  <span class="t-gris">El portal está listo para este tenant.</span></pre>
-        </figure>
-      </div>
     </div>
   </section>
 
@@ -637,22 +591,16 @@ const SERVICIO = {
 
   <!-- ═════════ QUÉ NECESITAS ═════════ -->
   <section class="seccion prod-seccion" id="necesitas" data-tema="claro" aria-labelledby="necesitas-titulo">
-    <div class="contenedor prod-par prod-par--inicio">
+    <div class="contenedor">
       <header class="prod-cabecera">
         <h2 id="necesitas-titulo" class="titulo-seccion">
-          Lo esencial: una cuenta de Google y una licencia de Power BI.
+          Lo único que necesitas: <span class="prod-acento">una licencia de Power BI.</span>
         </h2>
         <p class="entrada">
-          Si ya publicas reportes en Power BI, tienes casi todo. Además hacen falta dos cosas que la guía te explica
-          paso a paso: una aplicación registrada en Azure y un lugar donde correr el portal. Si contratas la
-          implementación, las preparamos contigo.
+          La de la cuenta que ya publica tus reportes. Una sola para toda la empresa, no una por persona. Todo lo
+          demás viene con el portal.
         </p>
       </header>
-      <ul class="prod-lista prod-lista--grande" role="list">
-        {REQUISITOS.map((r) => (
-          <li><Icono nombre={r.icono} /><span><strong>{r.titulo}</strong> {r.texto}</span></li>
-        ))}
-      </ul>
     </div>
   </section>
 
