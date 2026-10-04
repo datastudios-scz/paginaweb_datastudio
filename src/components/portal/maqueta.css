@@ -1,0 +1,107 @@
+/*
+ * Tokens de las maquetas del Portal BI.
+ *
+ * Son los colores del PRODUCTO, no los del sitio: una pantalla no cambia según el tema de
+ * quien la mira. Salen del CSS real del portal (home.css, tableros.css, chat.css, admin.css)
+ * con sus valores por defecto, que hoy son los de la marca Data Studio.
+ *
+ * Única desviación a propósito: los grises de texto terciario. El portal usa #9ca3af, que
+ * sobre blanco da 2,5:1; Lighthouse revisa el contraste también dentro de las maquetas
+ * (aunque sean aria-hidden), así que acá ese gris sube a #6b7280 (4,8:1). Ver
+ * docs/aprendizajes.md.
+ *
+ * Lo usan <Ventana> y <MaquetaTelefono>: los dos ponen la clase .mq en su <figure>.
+ */
+.mq {
+  /* ── Lienzo genérico (también lo usan las maquetas de Social Metrics y Consultoría) ── */
+  --mq-fondo: #f3f5f2;
+  --mq-tarjeta: #ffffff;
+  --mq-borde: #e1e7e0;
+  --mq-borde-2: #ecf0eb;
+  --mq-tinta: #0f1d1c;
+  --mq-tinta-2: #44544f;
+  --mq-tinta-3: #5b6964;
+  --mq-acento: var(--color-verde);
+  --mq-lateral: var(--color-abismo);
+
+  /* ── El portal: color_principal y color_principal_dark por defecto ── */
+  --mq-marca: #037a70;
+  --mq-marca-hondo: #00635b;
+  --mq-marca-tinte: rgb(3 122 112 / 0.09);
+  --mq-admin: #001720;            /* color_admin_sidebar */
+  --mq-lienzo: #f0f2f5;           /* .main-content */
+  --mq-fuente: var(--font-texto); /* `fuente` de la hoja configuracion: Poppins */
+
+  /* Grises del portal (Tailwind gray), con el terciario subido a AA */
+  --mq-g50: #f9fafb;
+  --mq-g100: #f3f4f6;
+  --mq-g200: #e5e7eb;
+  --mq-g300: #d1d5db;
+  --mq-g500: #6b7280;
+  --mq-g600: #4b5563;
+  --mq-g700: #374151;
+  --mq-g800: #1f2937;
+  --mq-g900: #111827;
+
+  /* ── Power BI: identidad de Microsoft, fija en todos los clientes ── */
+  --pbi: #f2c811;
+  --pbi-hondo: #e6a800;
+  /* Tema por defecto de un reporte de Power BI: es el reporte del cliente, no el portal */
+  --pbi-azul: #118dff;
+  --pbi-azul-hondo: #12239e;
+  --pbi-tinta: #252423;
+  --pbi-tinta-2: #605e5c;
+  --pbi-linea: #edebe9;
+  --pbi-sube: #107c10;
+  --pbi-baja: #a4262c;
+
+  /* ── La IA: el violeta que la identifica en todo el producto ── */
+  --mq-ia: #4338ca;               /* texto sobre claro */
+  --mq-ia-2: #6366f1;             /* rellenos (color_ia) */
+  --mq-ia-3: #8b5cf6;             /* el otro extremo del degradé */
+  --mq-ia-tenue: #eef2ff;
+  --mq-ia-borde: #c7d2fe;
+  --mq-codigo: #0f172a;           /* fondo de la consulta DAX */
+
+  /* El chat usa Inter y JetBrains Mono (de Google Fonts). Sin fuentes externas por la CSP,
+     las de sistema son las que más se le parecen, y no pesan nada. */
+  --mq-ui: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --mq-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', Consolas, monospace;
+}
+
+/* ── Maquetas que no están en el primer pantallazo: el navegador no calcula su estilo ni su
+   layout hasta que se acercan a la vista. Con ellas la página duplicaba el trabajo de estilo y
+   layout al cargar (592 → 1.175 ms en el teléfono simulado de Lighthouse) y el Speed Index
+   pasaba de 1,2 a 2,4 s. La reserva es un alto parecido al real, para que la página no salte;
+   con `auto`, después del primer dibujo recuerda el alto verdadero. ── */
+.mq-diferida {
+  content-visibility: auto;
+  /* Solo el alto: la forma corta (contain-intrinsic-size) reserva también el ANCHO, y en
+     una grilla de una columna eso ensanchaba el bloque del celular a 544 px. */
+  contain-intrinsic-block-size: auto var(--mq-reserva, 30rem);
+}
+
+/* ── Marcas de ejemplo para la marca blanca: la misma instalación, otra configuración ── */
+.mq--acme {
+  --mq-marca: #1d6b47;
+  --mq-marca-hondo: #134d33;
+  --mq-acento: #1d6b47;
+  --mq-lateral: #111111;
+  --mq-login-fondo: #1d6b47;
+  --mq-login-boton: #111111;
+  --mq-onda-1: rgb(29 107 71 / 0.16);
+  --mq-onda-2: rgb(29 107 71 / 0.26);
+}
+
+.mq--nordex {
+  --mq-marca: #14213d;
+  --mq-marca-hondo: #0b1529;
+  --mq-acento: #b45309;
+  --mq-lateral: #14213d;
+  --mq-login-fondo: #14213d;
+  --mq-login-boton: #b45309;
+  --mq-onda-1: rgb(180 83 9 / 0.2);
+  --mq-onda-2: rgb(255 255 255 / 0.12);
+  /* La tipografía también es configuración: una con serifas, de las que ya trae el sistema */
+  --mq-fuente: Georgia, 'Times New Roman', serif;
+}

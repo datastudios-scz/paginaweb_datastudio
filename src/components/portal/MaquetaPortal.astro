@@ -1,20 +1,30 @@
 ---
 /**
- * Maqueta del Portal BI: barra lateral con menú por empresa y grilla de tarjetas con el
- * ícono de barras de Power BI (amarillo: identidad de Microsoft, fija).
- * La tarjeta con IA lleva su distintivo índigo, igual que en el portal real.
+ * Maqueta del Portal BI tal como se ve hoy (views/layout.ejs + home.css + tableros.css del
+ * repositorio del portal): menú lateral con el degradé del color de marca, barra superior con
+ * migas y usuario, y tarjetas de vidrio con las barras de Power BI (amarillo de Microsoft, fijo).
+ * Las tarjetas con chat llevan la insignia violeta de la IA, igual que en el portal real.
+ *
+ * Va dentro de <Ventana> (escritorio) o de <MaquetaTelefono> (variante "telefono": sin menú,
+ * con el botón de hamburguesa y una tarjeta por fila, como en un celular de verdad).
+ * El tamaño lo decide el contenedor, no la pantalla: la misma maqueta vive en el héroe de
+ * /portal-bi/ y en la vitrina del inicio, con anchos distintos.
+ *
+ * Estilos globales (is:global) a propósito: con alcance, Astro marca cada elemento con un
+ * atributo data-astro-cid, y en /portal-bi/ eso sumaba lo justo para que el documento cruzara
+ * un viaje más de TCP en la simulación de Lighthouse. Todas las clases llevan el prefijo de
+ * su maqueta, así que no chocan. Ver docs/aprendizajes.md.
  */
 interface Tarjeta {
   titulo: string;
-  distintivo?: 'IA' | 'CHAT';
-  /** Modelo semántico: se dibuja el cubo en lugar de las barras. */
-  modelo?: boolean;
+  /** Tiene chat con IA: lleva la insignia. */
+  ia?: boolean;
 }
 
 interface Props {
-  variante?: 'completa' | 'mini';
-  marca?: string;
-  seccion?: string;
+  variante?: 'completa' | 'telefono';
+  /** Nombre del portal (clave `nombre_portal`). */
+  nombre?: string;
   usuario?: string;
   inicial?: string;
   tarjetas?: Tarjeta[];
@@ -22,341 +32,609 @@ interface Props {
 
 const {
   variante = 'completa',
-  marca = 'PORTAL BI',
-  seccion = 'Comercial',
+  nombre = 'Portal BI',
   usuario = 'mariana.s',
   inicial = 'M',
   tarjetas = [
-    { titulo: 'Ventas por sucursal' },
-    { titulo: 'Cumplimiento de metas', distintivo: 'IA' },
+    { titulo: 'Ventas por sucursal', ia: true },
+    { titulo: 'Cumplimiento de metas', ia: true },
     { titulo: 'Cartera y cobranzas' },
-    { titulo: 'Modelo de ventas', distintivo: 'CHAT', modelo: true },
+    { titulo: 'Margen por línea' },
+    { titulo: 'Indicadores públicos' },
+    { titulo: 'Pedidos en curso' },
   ],
 } = Astro.props;
 
-const esMini = variante === 'mini';
+const esTelefono = variante === 'telefono';
+/* En el celular entran tres tarjetas y media: más que eso es DOM que nadie ve. */
+const visibles = esTelefono ? tarjetas.slice(0, 4) : tarjetas;
+/* El ícono de las tarjetas, el mismo trazado que usa el portal. */
 const BARRAS_PBI = 'M0.5,12.6h8.7V41H0.5V12.6z M16.7,0.5h8.1V41h-8.1V0.5z M32.9,23.7H41V41h-8.1V23.7z';
+/* Varita con destellos (fa-wand-magic-sparkles), la marca de la IA en todo el producto. */
+const VARITA =
+  'M3 19.6 14.2 8.4l1.4 1.4L4.4 21zM15.6 7l1.4-1.4 1.4 1.4-1.4 1.4zM8 2l.7 1.8 1.8.7-1.8.7L8 7l-.7-1.8-1.8-.7 1.8-.7zM19 11l.6 1.4 1.4.6-1.4.6L19 15l-.6-1.4L17 13l1.4-.6zM20 1.5l.5 1.2 1.2.5-1.2.5-.5 1.2-.5-1.2-1.2-.5 1.2-.5z';
 ---
 
-<div class:list={['mk', { 'mk--mini': esMini }]}>
-  <div class="mk-lateral">
-    <div class="mk-logo"><span class="mk-cuadro"></span><span class="mk-txt">{marca}</span></div>
-
-    {!esMini && <p class="mk-rotulo">TABLEROS</p>}
-    <div class="mk-item mk-item--activo">
-      <svg class="mk-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" /></svg>
-      <span class="mk-txt">{esMini ? 'Tableros' : 'Tableros BI'}</span>
-    </div>
-    {!esMini && (
-      <div class="mk-sub">
-        <div class="mk-item"><span class="mk-punto"></span><span class="mk-txt">Comercial</span></div>
-        <div class="mk-item"><span class="mk-punto"></span><span class="mk-txt">Operaciones</span></div>
-        <div class="mk-item"><span class="mk-punto"></span><span class="mk-txt">Recursos Humanos</span></div>
+<div class:list={['mp', { 'mp--telefono': esTelefono }]}>
+ <div class="mp-rejilla">
+  {!esTelefono && (
+    <div class="mp-menu">
+      <div class="mp-marca">
+        <span class="mp-logo">
+          <svg viewBox="0 0 24 24"><path d="M5 17h3v-6H5zM10.5 17h3V7h-3zM16 17h3v-8h-3z" /></svg>
+        </span>
+        <span class="mp-txt mp-nombre">{nombre}</span>
+        <svg class="mp-txt mp-plegar" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6" /></svg>
       </div>
-    )}
 
-    {!esMini && <p class="mk-rotulo">MODELOS</p>}
-    <div class="mk-item">
-      <svg class="mk-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l9 5v10l-9 5-9-5V7z" /></svg>
-      <span class="mk-txt">{esMini ? 'Modelos' : 'Modelos semánticos'}</span>
-    </div>
-
-    {!esMini && (
-      <>
-        <p class="mk-rotulo">RECURSOS</p>
-        <div class="mk-item">
-          <svg class="mk-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h18v13H3zM8 7V4h8v3" /></svg>
-          <span class="mk-txt">Herramientas</span>
+      <div class="mp-nav">
+        <p class="mp-txt mp-seccion">Tableros</p>
+        <div class="mp-item">
+          <svg class="mp-ico" viewBox="0 0 24 24"><path d="M4 13h4v8H4zM10 4h4v17h-4zM16 9h4v12h-4z" /></svg>
+          <span class="mp-txt">Tableros BI</span>
+          <svg class="mp-txt mp-chev" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6" /></svg>
         </div>
-      </>
-    )}
-  </div>
-
-  <div class="mk-principal">
-    <div class="mk-cabecera">
-      <span class="mk-titulo">{seccion}</span>
-      <span class="mk-usuario"><span class="mk-avatar">{inicial}</span>{!esMini && usuario}</span>
-    </div>
-    <div class="mk-grilla">
-      {tarjetas.map((t) => (
-        <div class:list={['mk-tarjeta', { 'mk-tarjeta--modelo': t.modelo }]}>
-          {t.distintivo && <span class="mk-distintivo">{t.distintivo}</span>}
-          {t.modelo ? (
-            <svg viewBox="0 0 48 48">
-              <path class="cara-izq" d="M8 18 L22 26 L22 44 L8 36 Z" />
-              <path class="cara-der" d="M36 18 L22 26 L22 44 L36 36 Z" />
-              <path class="cara-sup" d="M22 10 L36 18 L22 26 L8 18 Z" />
-              <path class="rejilla" d="M15 14 L29 22 M29 14 L15 22" />
-              <path class="chispa" d="M39.5 3 L41.1 7.4 L45.5 9 L41.1 10.6 L39.5 15 L37.9 10.6 L33.5 9 L37.9 7.4 Z" />
-            </svg>
-          ) : (
-            <svg viewBox="0 0 41.5 41.5"><path d={BARRAS_PBI} /></svg>
-          )}
-          <span class="mk-nombre">{t.titulo}</span>
+        <div class="mp-txt mp-sub">
+          <div class="mp-subitem mp-subitem--activo"><i></i>Comercial</div>
+          <div class="mp-subitem"><i></i>Operaciones</div>
+          <div class="mp-subitem"><i></i>Recursos Humanos</div>
         </div>
-      ))}
+
+        <p class="mp-txt mp-seccion">Modelos</p>
+        <div class="mp-item">
+          <svg class="mp-ico" viewBox="0 0 24 24"><path d="M12 2 3 6.5v11L12 22l9-4.5v-11zm0 2.3 6.4 3.2L12 10.7 5.6 7.5zM5 9.1l6 3v7.4l-6-3zm8 10.4v-7.4l6-3v7.4z" /></svg>
+          <span class="mp-txt">Modelos Semánticos</span>
+          <svg class="mp-txt mp-chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" /></svg>
+        </div>
+
+        <p class="mp-txt mp-seccion">Recursos</p>
+        <div class="mp-item">
+          <svg class="mp-ico" viewBox="0 0 24 24"><path d="M9 3h6a2 2 0 0 1 2 2v2h3a2 2 0 0 1 2 2v4H2V9a2 2 0 0 1 2-2h3V5a2 2 0 0 1 2-2zm0 4h6V5H9zM2 14.5h8v1.5h4v-1.5h8V19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2z" /></svg>
+          <span class="mp-txt">Herramientas</span>
+        </div>
+      </div>
+
+      <div class="mp-pie">
+        <div class="mp-item mp-item--salir">
+          <svg class="mp-ico" viewBox="0 0 24 24"><path d="M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5v-2.5H5.5v-13H10zM16 7l-1.8 1.8 2 2H9v2.5h7.2l-2 2L16 17l5-5z" /></svg>
+          <span class="mp-txt">Cerrar Sesión</span>
+        </div>
+      </div>
+    </div>
+  )}
+
+  <div class="mp-cuerpo">
+    <div class="mp-barra">
+      {esTelefono ? (
+        <span class="mp-barra__izq">
+          <span class="mp-hamburguesa"></span>
+          <b class="mp-actual">Tableros BI</b>
+        </span>
+      ) : (
+        <span class="mp-barra__izq mp-migas">
+          <svg class="mp-casa" viewBox="0 0 24 24"><path d="M12 3 2.5 11H5v9h5.2v-6h3.6v6H19v-9h2.5z" /></svg>
+          <svg class="mp-sep" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" /></svg>
+          <b class="mp-actual">Tableros BI</b>
+        </span>
+      )}
+      <span class="mp-barra__der">
+        <span class="mp-chip">
+          <span class="mp-avatar">{inicial}</span>
+          {!esTelefono && <span class="mp-chip__nombre">{usuario}</span>}
+        </span>
+        <span class="mp-salir">
+          <svg viewBox="0 0 24 24"><path d="M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5v-2.5H5.5v-13H10zM16 7l-1.8 1.8 2 2H9v2.5h7.2l-2 2L16 17l5-5z" /></svg>
+        </span>
+      </span>
+    </div>
+
+    <div class="mp-lienzo">
+      <div class="mp-tarjetas">
+        {visibles.map((t) => (
+          <div class:list={['mp-tarjeta', { 'mp-tarjeta--ia': t.ia }]}>
+            {t.ia && (
+              <span class="mp-ia">
+                <svg viewBox="0 0 24 24"><path d={VARITA} /></svg>
+                <span class="mp-ia__txt">IA</span>
+              </span>
+            )}
+            <svg class="mp-pbi" viewBox="0 0 41.5 41.5"><path d={BARRAS_PBI} /></svg>
+            <span class="mp-titulo">{t.titulo}</span>
+          </div>
+        ))}
+      </div>
     </div>
   </div>
+ </div>
 </div>
 
-<style>
-  .mk {
-    display: grid;
-    grid-template-columns: 11.5rem minmax(0, 1fr);
-    min-height: 20rem;
+<style is:global>
+  /* ═══ Estructura: el contenedor decide, no la pantalla ═══════════════════ */
+  .mp {
+    container: maqueta-portal / inline-size;
+    font-family: var(--mq-fuente);
+    color: var(--mq-g800);
   }
 
-  .mk-lateral {
-    padding: 16px 12px;
-    background: var(--mq-lateral);
+  .mp-rejilla {
+    display: grid;
+    grid-template-columns: 11.5rem minmax(0, 1fr);
+    min-height: 22rem;
+  }
+
+  .mp--telefono,
+  .mp--telefono .mp-rejilla {
+    display: block;
+    min-height: 0;
+    height: 100%;
+  }
+
+  /* ═══ Menú lateral: el color de marca en degradé (home.css .sidebar) ═════ */
+  .mp-menu {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    background: linear-gradient(180deg, var(--mq-marca) 0%, var(--mq-marca-hondo) 100%);
+    box-shadow: inset -1px 0 0 rgb(255 255 255 / 0.2);
     color: #fff;
   }
 
-  .mk-logo {
+  .mp-marca {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 4px 8px 16px;
-    font-size: 0.8125rem;
-    font-weight: 600;
-    letter-spacing: 0.02em;
+    padding: 12px 10px 10px;
+    border-bottom: 1px solid rgb(0 0 0 / 0.12);
   }
 
-  .mk-cuadro {
-    width: 20px;
-    height: 20px;
-    flex: none;
-    border-radius: 5px;
-    background: var(--mq-acento);
-  }
-
-  .mk-rotulo {
-    margin: 0;
-    padding: 12px 8px 7px;
-    font-family: var(--font-datos);
-    font-size: 0.5625rem;
-    letter-spacing: 0.16em;
-    color: #8a96a0;
-  }
-
-  .mk-item {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    padding: 8px;
-    border-radius: 6px;
-    font-size: 0.75rem;
-    color: #d3dade;
-  }
-
-  .mk-item--activo {
-    background: rgb(255 255 255 / 0.1);
-    color: #fff;
-  }
-
-  .mk-ico {
-    width: 13px;
-    height: 13px;
-    flex: none;
-    opacity: 0.9;
-  }
-
-  .mk-sub {
-    padding-left: 14px;
-  }
-
-  .mk-sub .mk-item {
-    padding-block: 6px;
-    font-size: 0.71875rem;
-    color: #a7b1b8;
-  }
-
-  .mk-punto {
-    width: 5px;
-    height: 5px;
+  /* El logo del cliente va en un círculo blanco con aro (brand-logo) */
+  .mp-logo {
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
     flex: none;
     border-radius: 50%;
-    background: var(--mq-acento);
-    box-shadow: 0 0 0 1px rgb(255 255 255 / 0.25);
+    background: #fff;
+    box-shadow: 0 0 0 2px rgb(255 255 255 / 0.34), 0 2px 6px rgb(0 0 0 / 0.18);
   }
 
-  .mk-principal {
-    padding: 18px;
-    background: var(--mq-fondo);
+  .mp-logo svg {
+    width: 15px;
+    height: 15px;
+    fill: var(--mq-marca);
   }
 
-  .mk-cabecera {
+  .mp-nombre {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+
+  .mp-plegar,
+  .mp-chev {
+    width: 10px;
+    height: 10px;
+    flex: none;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .mp-nav {
+    flex: 1;
+    padding: 4px 7px 8px;
+  }
+
+  /* Rótulo de sección con su regla fina (nav-section-label) */
+  .mp-seccion {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 16px;
+    gap: 6px;
+    margin: 0;
+    padding: 11px 4px 4px;
+    font-size: 0.4375rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: rgb(255 255 255 / 0.92);
   }
 
-  .mk-titulo {
-    font-size: 0.9375rem;
-    font-weight: 600;
-    color: var(--mq-tinta);
+  .mp-seccion::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgb(255 255 255 / 0.2);
   }
 
-  .mk-usuario {
+  .mp-item {
     display: flex;
     align-items: center;
     gap: 7px;
-    font-size: 0.6875rem;
-    color: var(--mq-tinta-3);
+    padding: 6px 7px;
+    border-radius: 6px;
+    font-size: 0.625rem;
+    font-weight: 500;
+    white-space: nowrap;
   }
 
-  .mk-avatar {
+  .mp-item .mp-txt {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .mp-item .mp-chev {
+    margin-left: auto;
+  }
+
+  .mp-ico {
+    width: 12px;
+    height: 12px;
+    flex: none;
+    fill: currentColor;
+  }
+
+  .mp-sub {
+    padding-left: 10px;
+  }
+
+  .mp-subitem {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 1px;
+    padding: 5px 7px;
+    border-radius: 5px;
+    font-size: 0.59375rem;
+    white-space: nowrap;
+  }
+
+  .mp-subitem i {
+    width: 4px;
+    height: 4px;
+    flex: none;
+    border-radius: 50%;
+    background: rgb(255 255 255 / 0.6);
+  }
+
+  /* El elegido: pastilla blanca con el color de marca, con filo de vidrio (home.css) */
+  .mp-subitem--activo {
+    background: #fff;
+    color: var(--mq-marca-hondo);
+    font-weight: 600;
+    box-shadow:
+      0 2px 8px rgb(0 0 0 / 0.18),
+      0 0 0 1px rgb(255 255 255 / 0.55),
+      inset 0 -1px 0 rgb(0 0 0 / 0.08);
+  }
+
+  .mp-subitem--activo i {
+    background: var(--mq-marca);
+    transform: scale(1.3);
+  }
+
+  .mp-pie {
+    padding: 6px 7px;
+    border-top: 1px solid rgb(0 0 0 / 0.12);
+  }
+
+  /* ═══ Cuerpo: barra superior blanca y lienzo con puntos ════════════════ */
+  .mp-cuerpo {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    background: var(--mq-lienzo);
+  }
+
+  .mp-barra {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    min-height: 2.5rem;
+    padding: 0 14px;
+    background: #fff;
+    border-bottom: 1px solid rgb(17 24 39 / 0.08);
+    box-shadow: 0 4px 16px rgb(17 24 39 / 0.06);
+  }
+
+  /* El subrayado de marca, corto y a la izquierda (topbar::after) */
+  .mp-barra::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 3.25rem;
+    height: 2px;
+    background: var(--mq-marca);
+  }
+
+  .mp-barra__izq,
+  .mp-barra__der {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    min-width: 0;
+  }
+
+  .mp-casa {
+    width: 12px;
+    height: 12px;
+    flex: none;
+    fill: var(--mq-g500);
+  }
+
+  .mp-sep {
+    width: 8px;
+    height: 8px;
+    flex: none;
+    fill: none;
+    stroke: var(--mq-g500);
+    stroke-width: 2.6;
+    stroke-linecap: round;
+  }
+
+  .mp-actual {
+    overflow: hidden;
+    font-size: 0.65625rem;
+    font-weight: 600;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: var(--mq-g800);
+  }
+
+  .mp-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 9px 3px 3px;
+    border: 1px solid var(--mq-g200);
+    border-radius: 999px;
+    background: var(--mq-g100);
+  }
+
+  .mp-avatar {
     display: grid;
     place-items: center;
-    width: 22px;
-    height: 22px;
+    width: 18px;
+    height: 18px;
+    flex: none;
     border-radius: 50%;
-    background: var(--mq-acento);
+    background: linear-gradient(135deg, var(--mq-marca), var(--mq-marca-hondo));
     color: #fff;
-    font-size: 0.625rem;
-    font-weight: 600;
+    font-size: 0.5rem;
+    font-weight: 700;
   }
 
-  .mk-grilla {
+  .mp-chip__nombre {
+    font-size: 0.59375rem;
+    font-weight: 500;
+    color: var(--mq-g800);
+  }
+
+  .mp-salir {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(7.5rem, 1fr));
-    gap: 12px;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    flex: none;
+    border: 1px solid var(--mq-g200);
+    border-radius: 6px;
+    background: var(--mq-g100);
   }
 
-  .mk-tarjeta {
+  .mp-salir svg {
+    width: 11px;
+    height: 11px;
+    fill: var(--mq-g600);
+  }
+
+  /* Puntos del 9% de la marca y un lavado muy suave: lo que el vidrio refleja */
+  .mp-lienzo {
+    flex: 1;
+    padding: 16px;
+    background-color: var(--mq-lienzo);
+    background-image:
+      radial-gradient(circle, color-mix(in srgb, var(--mq-marca) 10%, transparent) 1px, transparent 1.2px),
+      radial-gradient(70% 55% at 12% 0%, color-mix(in srgb, var(--mq-marca) 6%, transparent) 0%, transparent 70%);
+    background-size: 18px 18px, 100% 100%;
+  }
+
+  .mp-tarjetas {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(6.75rem, 1fr));
+    gap: 11px;
+  }
+
+  /* ═══ La tarjeta, como vidrio (home.css .main-content .card-tablero) ════ */
+  .mp-tarjeta {
     position: relative;
-    overflow: hidden;
-    padding: 18px 12px 14px;
-    border-radius: 13px;
-    background: var(--mq-tarjeta);
-    border: 1px solid var(--mq-borde);
-    box-shadow: 0 2px 8px rgb(0 0 0 / 0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 9px;
+    min-width: 0;
+    padding: 21px 10px 15px;
+    border-radius: 11px;
+    background: linear-gradient(180deg, rgb(255 255 255 / 0.86), rgb(255 255 255 / 0.66));
+    box-shadow:
+      inset 0 0 0 1px rgb(255 255 255 / 0.95),
+      inset 0 -16px 22px -20px rgb(17 24 39 / 0.18),
+      0 1px 2px rgb(17 24 39 / 0.04),
+      0 8px 22px rgb(17 24 39 / 0.09);
     text-align: center;
   }
 
-  /* Sin efecto hover: la maqueta es una imagen, no se puede cliquear y no debe parecerlo */
-
-  .mk-tarjeta svg {
-    display: block;
+  .mp-pbi {
     width: 30px;
     height: 30px;
-    margin: 0 auto 10px;
+    flex: none;
     fill: var(--pbi);
     filter: drop-shadow(0 2px 5px rgb(242 200 17 / 0.35));
     transform-origin: 50% 100%;
   }
 
-  .mk-nombre {
-    display: block;
-    font-size: 0.71875rem;
+  .mp-titulo {
+    font-size: 0.65625rem;
     font-weight: 600;
     line-height: 1.35;
-    color: #1f2937;
+    letter-spacing: 0.01em;
+    color: var(--mq-g800);
   }
 
-  .mk-distintivo {
+  /* Insignia de la IA: quieta, violeta, arriba a la derecha (tableros.css .card-ia) */
+  .mp-ia {
     position: absolute;
-    top: 8px;
-    right: 8px;
+    top: 7px;
+    right: 7px;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
     padding: 2px 6px;
-    border-radius: var(--radio-pill);
+    border: 1px solid var(--mq-ia-borde);
+    border-radius: 999px;
     background: var(--mq-ia-tenue);
     color: var(--mq-ia);
     font-size: 0.5rem;
     font-weight: 700;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.05em;
+    line-height: 1;
   }
 
-  .mk-tarjeta--modelo svg {
-    filter: none;
+  .mp-ia svg {
+    width: 8px;
+    height: 8px;
+    fill: currentColor;
   }
 
-  .cara-sup { fill: #a5b4fc; }
-  .cara-izq { fill: #6366f1; }
-  .cara-der { fill: #4338ca; }
-
-  .rejilla {
-    fill: none;
-    stroke: #4338ca;
-    stroke-width: 1.1;
-    stroke-linecap: round;
-    opacity: 0.4;
-  }
-
-  .chispa {
-    fill: #818cf8;
-    transform-origin: 39.5px 9px;
-  }
-
-  /* El tablero está vivo: las barras "respiran", desfasadas para no parecer un error de render */
+  /* Las barras "respiran", como en el portal: el tablero está vivo. Desfasadas para que no
+     parezca un parpadeo de la página. */
   @media (prefers-reduced-motion: no-preference) {
-    .mk-tarjeta:not(.mk-tarjeta--modelo) svg {
-      animation: respirar 2.4s ease-in-out infinite;
+    .mp-pbi {
+      animation: mp-respirar 2.4s ease-in-out infinite;
     }
 
-    .mk-tarjeta:nth-child(2) svg { animation-delay: 0.3s; }
-    .mk-tarjeta:nth-child(3) svg { animation-delay: 0.6s; }
-
-    .mk-tarjeta--modelo svg {
-      animation: flotar 3.6s ease-in-out infinite;
-    }
-
-    .chispa {
-      animation: destello 3.6s ease-in-out infinite;
-    }
+    .mp-tarjeta:nth-child(3n + 2) .mp-pbi { animation-delay: 0.3s; }
+    .mp-tarjeta:nth-child(3n) .mp-pbi { animation-delay: 0.6s; }
   }
 
-  @keyframes respirar {
+  @keyframes mp-respirar {
     0%, 100% { transform: scaleY(1); }
-    50% { transform: scaleY(0.62); }
+    50% { transform: scaleY(0.6); }
   }
 
-  @keyframes flotar {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-3.5px); }
-  }
-
-  @keyframes destello {
-    0%, 62%, 100% { opacity: 0.75; transform: scale(1); }
-    74% { opacity: 1; transform: scale(1.35); }
-  }
-
-  /* Versión mini (marca blanca) */
-  .mk--mini {
-    grid-template-columns: 7.25rem minmax(0, 1fr);
-    min-height: 0;
-  }
-
-  .mk--mini .mk-lateral { padding: 14px 10px; }
-  .mk--mini .mk-logo { gap: 7px; padding: 3px 6px 13px; font-size: 0.6875rem; }
-  .mk--mini .mk-cuadro { width: 17px; height: 17px; }
-  .mk--mini .mk-item { gap: 8px; padding: 7px; font-size: 0.6875rem; }
-  .mk--mini .mk-principal { padding: 15px; }
-  .mk--mini .mk-grilla { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 11px; }
-  .mk--mini .mk-tarjeta { padding: 16px 8px 13px; border-radius: 11px; }
-  .mk--mini .mk-tarjeta svg { width: 25px; height: 25px; margin-bottom: 9px; }
-  .mk--mini .mk-nombre { font-size: 0.65rem; }
-  .mk--mini .mk-titulo { font-size: 0.8125rem; }
-  .mk--mini .mk-avatar { width: 19px; height: 19px; font-size: 0.55rem; }
-
-  /* En el teléfono el menú se colapsa al riel de íconos, como hace el portal real */
-  @media (max-width: 45rem) {
-    .mk,
-    .mk--mini {
-      grid-template-columns: 3.25rem minmax(0, 1fr);
-      min-height: 0;
+  /* ═══ Contenedor angosto: el menú se pliega al riel de íconos (sidebar.collapsed) ═══ */
+  @container maqueta-portal (max-width: 30rem) {
+    .mp-rejilla {
+      grid-template-columns: 2.75rem minmax(0, 1fr);
     }
 
-    .mk-lateral { padding: 12px 7px; }
-    .mk-logo { justify-content: center; padding: 4px 0 10px; }
-    .mk-item { justify-content: center; padding: 9px 0; }
-    .mk-sub { padding-left: 0; }
-    .mk-txt,
-    .mk-rotulo { display: none; }
-    .mk-principal { padding: 14px; }
-    .mk-grilla { grid-template-columns: repeat(auto-fill, minmax(6.25rem, 1fr)); gap: 9px; }
-    .mk--mini .mk-grilla { gap: 8px; }
+    .mp-txt {
+      display: none;
+    }
+
+    .mp-marca {
+      justify-content: center;
+      padding-inline: 0;
+    }
+
+    .mp-nav {
+      padding-top: 10px;
+    }
+
+    .mp-item {
+      justify-content: center;
+      padding-inline: 0;
+    }
+
+    .mp-chip__nombre {
+      display: none;
+    }
+
+    .mp-chip {
+      padding-right: 3px;
+    }
+
+    .mp-lienzo {
+      padding: 12px;
+    }
+
+    .mp-tarjetas {
+      grid-template-columns: repeat(auto-fill, minmax(6rem, 1fr));
+      gap: 9px;
+    }
+  }
+
+  /* ═══ Celular: sin menú, una tarjeta por fila e insignia solo con el ícono ═══ */
+  .mp--telefono .mp-cuerpo {
+    height: 100%;
+  }
+
+  .mp--telefono .mp-barra {
+    min-height: 2.875rem;
+    padding: 0 12px;
+  }
+
+  .mp-hamburguesa {
+    position: relative;
+    width: 13px;
+    height: 10px;
+    flex: none;
+    border-top: 1.6px solid var(--mq-g600);
+    border-bottom: 1.6px solid var(--mq-g600);
+  }
+
+  .mp-hamburguesa::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1.6px;
+    margin-top: -0.8px;
+    background: var(--mq-g600);
+  }
+
+  .mp--telefono .mp-barra__izq {
+    gap: 12px;
+  }
+
+  .mp--telefono .mp-actual {
+    font-size: 0.6875rem;
+  }
+
+  .mp--telefono .mp-chip {
+    padding: 3px;
+  }
+
+  .mp--telefono .mp-lienzo {
+    padding: 11px;
+  }
+
+  .mp--telefono .mp-tarjetas {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 11px;
+  }
+
+  .mp--telefono .mp-tarjeta {
+    padding: 22px 12px 16px;
+  }
+
+  .mp--telefono .mp-ia {
+    gap: 0;
+    padding: 3px 5px;
+  }
+
+  .mp--telefono .mp-ia__txt {
+    display: none;
   }
 </style>

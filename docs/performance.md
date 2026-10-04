@@ -9,7 +9,8 @@
 | JavaScript | ≤ 10 KB, nunca bloqueante | ~3 KB, módulos diferidos |
 | Fuentes precargadas | 2 archivos (Poppins 400 y 600) | 2 (~16 KB) |
 | Imágenes en el primer pantallazo | 0 rasters | 0 (hero en HTML/CSS/SVG) |
-| LCP (móvil, Lighthouse) | ≤ 2,0 s | 1,4–1,5 s |
+| LCP (móvil, Lighthouse) | ≤ 2,0 s | 1,4–1,5 s (`/portal-bi/`: 1,5–1,7 s) |
+| HTML + CSS de `/portal-bi/` (gzip) | ≤ 40 KB | **~45 KB, excedido a propósito** por las maquetas fieles (04/10/2026, ADR-014). Bajar de ~43,8 KB ahorra un viaje de TCP en la simulación |
 | CLS | ≤ 0,05 | 0 |
 | TBT | ≤ 100 ms | 0–10 ms |
 

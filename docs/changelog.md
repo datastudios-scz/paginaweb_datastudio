@@ -1,5 +1,14 @@
 # Bitácora de cambios
 
+## 04/10/2026 · Maquetas del Portal BI fieles al producto real
+
+- Cada maqueta de `/portal-bi/` reproduce **una pantalla real de hoy**, calcada del CSS del portal y comparada contra capturas del portal funcionando con datos de ejemplo: el portal (menú con el color de marca, migas, tarjetas de vidrio, insignia IA), dos **pantallas de ingreso** para la marca blanca (ACME y NORDEX, con otra tipografía), **dos celulares** (tableros y chat con gráfico y micrófono), el **visor con el chat al costado** (reporte de Power BI + pregunta, pasos, DAX, tabla y análisis) y el **panel de administración** (14 módulos, asignaciones agrupadas y el cuadro "Asignar tablero").
+- Un solo momento con movimiento: la respuesta del chat se arma sola al entrar en pantalla y el hilo baja hasta el análisis.
+- Un mismo set de datos de ejemplo en todas (5.216.100 en 2026, +7,9 %), rotulado en la barra de la ventana.
+- La vitrina del inicio hereda la maqueta nueva del portal.
+- Componentes nuevos en `src/components/portal/`: `MaquetaVisor`, `MaquetaLogin`, `MaquetaTelefono`, `MaquetaAdmin`, y los tokens compartidos en `maqueta.css`.
+- QA 36/36 sin problemas. Lighthouse móvil `/portal-bi/`: 99–100 / 100 / 100 / 100; inicio 100 en todo.
+
 ## 27/09/2026 · Portada de marca, subpáginas por producto y menú lateral
 
 - **Portada** a pantalla completa: el logo se arma (monitor, cuatro barras, wordmark "DATA STUDIO"), lema y "Bienvenido, ¿estás preparado para innovar?", sobre un tablero de datos en perspectiva hecho en código. Al bajar, las soluciones suben como un telón y las barras del logo pasan al gráfico de soluciones (CSS scroll-driven, sin JS).

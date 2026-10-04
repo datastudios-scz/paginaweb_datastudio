@@ -1,0 +1,965 @@
+---
+/**
+ * Maqueta del panel de administración del Portal BI (views/modules/admin/licencia.ejs +
+ * admin.css): el menú oscuro con los módulos reales, las asignaciones agrupadas por usuario
+ * con un grupo abierto, y encima el cuadro "Asignar tablero de Power BI" con la opción de
+ * dónde se abre el chat. Es una escena: la ventana y el cuadro se superponen en pantallas
+ * anchas y se apilan en las angostas.
+ * Usuarios y tableros de ejemplo, los mismos del resto de las maquetas.
+ *
+ * Estilos globales (is:global) a propósito: con alcance, Astro marca cada elemento con un
+ * atributo data-astro-cid, y en /portal-bi/ eso sumaba lo justo para que el documento cruzara
+ * un viaje más de TCP en la simulación de Lighthouse. Todas las clases llevan el prefijo de
+ * su maqueta, así que no chocan. Ver docs/aprendizajes.md.
+ */
+import Ventana from './Ventana.astro';
+
+interface Props {
+  descripcion: string;
+}
+
+const { descripcion } = Astro.props;
+
+/* Ícono por módulo, en el orden y con los nombres del menú real. */
+const MENU: Array<{ seccion?: string; nombre?: string; ico?: string; activo?: boolean }> = [
+  { nombre: 'Dashboard', ico: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zm0 3.2a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4zm3.9 3.1 1 .9-3.4 3.9a1.9 1.9 0 1 1-1-1z' },
+  { seccion: 'Usuarios' },
+  { nombre: 'Gestión de Usuarios', ico: 'M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zm7.5-1a2.8 2.8 0 1 0 0-5.6 2.8 2.8 0 0 0 0 5.6zM2 19c0-3.3 3.1-6 7-6s7 2.7 7 6v1H2zm15.5 1v-1c0-1.9-.7-3.6-1.9-4.9 3.7-.3 6.4 1.9 6.4 4.9v1z' },
+  { seccion: 'Asignaciones' },
+  { nombre: 'Tableros Solo Lectura', ico: 'M12 5C6 5 2 12 2 12s4 7 10 7 10-7 10-7-4-7-10-7zm0 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0-6a2 2 0 1 0 0 4 2 2 0 0 0 0-4z' },
+  { nombre: 'Tableros con Licencia AAD', ico: 'M6 3h12l4 6-10 12L2 9zm1.2 2L5 8.5h4L10 5zM14 5l1 3.5h4L16.8 5z', activo: true },
+  { nombre: 'Modelos Semánticos', ico: 'M12 2 3 6.5v11L12 22l9-4.5v-11zm0 2.3 6.4 3.2L12 10.7 5.6 7.5zM5 9.1l6 3v7.4l-6-3zm8 10.4v-7.4l6-3v7.4z' },
+  { nombre: 'Herramientas', ico: 'M9 3h6a2 2 0 0 1 2 2v2h3a2 2 0 0 1 2 2v4H2V9a2 2 0 0 1 2-2h3V5a2 2 0 0 1 2-2zm0 4h6V5H9zM2 14.5h8v1.5h4v-1.5h8V19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2z' },
+  { seccion: 'Power BI' },
+  { nombre: 'Workspaces / Tableros', ico: 'M3 3h2.5v15.5H21V21H3zm5 9h2.5v4.5H8zm4.5-5H15v9.5h-2.5zm4.5 3h2.5v6.5H17z' },
+  { nombre: 'Gobierno de Datos', ico: 'M9.5 2h5v5h-1.2v3H19v4h1.5v5h-5v-5H17v-2H7v2h1.5v5h-5v-5H5v-4h5.8V7H9.5z' },
+  { seccion: 'Auditoría' },
+  { nombre: 'Registros', ico: 'M9 2h6v2h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h3zm0 8v2h6v-2zm0 4v2h6v-2z' },
+  { seccion: 'Sistema' },
+  { nombre: 'Conexiones', ico: 'M8 2h2.5v5h3V2H16v5h2v4a6 6 0 0 1-4.8 5.9V22h-2.4v-5.1A6 6 0 0 1 6 11V7h2z' },
+  { nombre: 'Proveedores de IA', ico: 'M3 19.6 14.2 8.4l1.4 1.4L4.4 21zM15.6 7l1.4-1.4 1.4 1.4-1.4 1.4zM8 2l.7 1.8 1.8.7-1.8.7L8 7l-.7-1.8-1.8-.7 1.8-.7zM19 11l.6 1.4 1.4.6-1.4.6L19 15l-.6-1.4L17 13l1.4-.6z' },
+  { nombre: 'Personalización', ico: 'M12 2a10 10 0 0 0 0 20c1.4 0 2.2-1 2.2-2.1 0-.6-.2-1-.5-1.4a1.8 1.8 0 0 1 1.4-3H17a5 5 0 0 0 5-5C22 6 17.5 2 12 2zM6.5 13a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm3-4a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z' },
+  { nombre: 'Setup / Diagnóstico', ico: 'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm-1.5 14.2-4.2-4.2 1.7-1.7 2.5 2.5 5.5-5.5 1.7 1.7z' },
+];
+
+const GRUPOS = [
+  { usuario: 'gerencia', n: 2 },
+  { usuario: 'l.vargas', n: 1 },
+  { usuario: 'mariana.s', n: 6, abierto: true },
+  { usuario: 'opersup', n: 1 },
+  { usuario: 'r.quiroga', n: 2 },
+];
+
+const FILAS = [
+  { empresa: 'Comercial', tablero: 'Ventas por sucursal', ia: true, costado: true },
+  { empresa: 'Comercial', tablero: 'Cumplimiento de metas', ia: true },
+  { empresa: 'Comercial', tablero: 'Cartera y cobranzas' },
+  { empresa: 'Comercial', tablero: 'Margen por línea' },
+  { empresa: 'Operaciones', tablero: 'Productividad por turno', ia: true, costado: true },
+  { empresa: 'Recursos Humanos', tablero: 'Rotación de personal' },
+];
+
+const VARITA =
+  'M3 19.6 14.2 8.4l1.4 1.4L4.4 21zM15.6 7l1.4-1.4 1.4 1.4-1.4 1.4zM8 2l.7 1.8 1.8.7-1.8.7L8 7l-.7-1.8-1.8-.7 1.8-.7zM19 11l.6 1.4 1.4.6-1.4.6L19 15l-.6-1.4L17 13l1.4-.6zM20 1.5l.5 1.2 1.2.5-1.2.5-.5 1.2-.5-1.2-1.2-.5 1.2-.5z';
+---
+
+<div class="ma-escena mq-diferida">
+ <div class="ma-escena__rejilla">
+  <Ventana url="portal.tuempresa.com/admin/licencia" descripcion={descripcion} class="ma-ventana">
+    <div class="ma">
+      <div class="ma-rejilla">
+        <div class="ma-menu">
+          <p class="ma-marca">
+            <svg viewBox="0 0 24 24"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5z" /></svg>
+            Admin panel
+          </p>
+          <div class="ma-nav">
+            {MENU.map((m) =>
+              m.seccion ? (
+                <p class="ma-seccion">{m.seccion}</p>
+              ) : (
+                <div class:list={['ma-item', { 'ma-item--activo': m.activo }]}>
+                  <svg viewBox="0 0 24 24"><path d={m.ico} /></svg>
+                  <span>{m.nombre}</span>
+                </div>
+              ),
+            )}
+          </div>
+          <div class="ma-pie">
+            <svg viewBox="0 0 24 24"><path d="M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5v-2.5H5.5v-13H10zM16 7l-1.8 1.8 2 2H9v2.5h7.2l-2 2L16 17l5-5z" /></svg>
+            Cerrar Sesión
+          </div>
+        </div>
+
+        <div class="ma-cuerpo">
+          <div class="ma-barra">
+            <p class="ma-barra__t">
+              <svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" /></svg>
+              Tableros con Licencia AAD
+            </p>
+            <span class="ma-quien">
+              <svg viewBox="0 0 24 24"><path d="M10 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm-7 9c0-3.6 3.1-6.5 7-6.5 1.2 0 2.3.3 3.3.8A5 5 0 0 0 13.5 21H3zm15.5-5.5a3 3 0 1 1 0 6 3 3 0 0 1 0-6z" /></svg>
+              admin
+            </span>
+          </div>
+
+          <div class="ma-contenido">
+            <div class="ma-tarjeta">
+              <div class="ma-tit">
+                <p class="ma-tit__nombre">
+                  <svg viewBox="0 0 24 24"><path d="M3 4h18v16H3zm2 2v3.5h6V6zm8 0v3.5h6V6zm-8 5.5V18h6v-6.5zm8 0V18h6v-6.5z" /></svg>
+                  Asignaciones
+                  <span class="ma-n">13 resultados</span>
+                </p>
+                <span class="ma-buscar">
+                  <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" /><path d="M16 16l4.5 4.5" /></svg>
+                  Buscar usuario, tablero, empresa…
+                </span>
+                <span class="ma-boton"><b>+</b> Asignar tablero</span>
+              </div>
+
+              <div class="ma-agrupar">
+                <span class="ma-agrupar__t">Agrupar por:</span>
+                <span class="ma-ficha ma-ficha--on">Usuario</span>
+                <span class="ma-ficha">Empresa</span>
+                <span class="ma-ficha">Tablero</span>
+              </div>
+
+              <div class="ma-grupos">
+                {GRUPOS.map((g) => (
+                  <div class:list={['ma-grupo', { 'ma-grupo--abierto': g.abierto }]}>
+                    <p class="ma-grupo__cab">
+                      <svg viewBox="0 0 24 24"><path d={g.abierto ? 'M6 9l6 6 6-6' : 'M9 6l6 6-6 6'} /></svg>
+                      <b>{g.usuario}</b>
+                      <span class="ma-cuenta">{g.n}</span>
+                      <em>Usuario</em>
+                    </p>
+                    {g.abierto && (
+                      <table class="ma-tabla">
+                        <thead>
+                          <tr><th>Empresa</th><th>Nombre tablero</th><th class="ma-col-url">Embed URL</th><th></th></tr>
+                        </thead>
+                        <tbody>
+                          {FILAS.map((f) => (
+                            <tr>
+                              <td>{f.empresa}</td>
+                              <td>
+                                {f.tablero}
+                                {f.ia && (
+                                  <span class="ma-ia">
+                                    <svg viewBox="0 0 24 24"><path d={VARITA} /></svg>IA
+                                    {f.costado && <i></i>}
+                                  </span>
+                                )}
+                              </td>
+                              <td class="ma-col-url">https://app.powerbi.com/reportEmbed?reportId=…</td>
+                              <td><span class="ma-acciones"><span class="ma-editar"></span><span class="ma-borrar"></span></span></td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </Ventana>
+
+  {/* El cuadro de asignar: lo describe el figcaption de la ventana */}
+  <div class="ma-modal mq" aria-hidden="true">
+    <p class="ma-modal__cab">
+      <svg viewBox="0 0 24 24"><path d="M3 3h2.5v15.5H21V21H3zm5 9h2.5v4.5H8zm4.5-5H15v9.5h-2.5zm4.5 3h2.5v6.5H17z" /></svg>
+      Asignar tablero de Power BI
+      <svg class="ma-modal__x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" /></svg>
+    </p>
+
+    <div class="ma-modal__cuerpo">
+      <p class="ma-paso">Para quién</p>
+      <div class="ma-par">
+        <div class="ma-campo"><span class="ma-rotulo">Usuario</span><span class="ma-input ma-input--lista">mariana.s</span></div>
+        <div class="ma-campo"><span class="ma-rotulo">Empresa</span><span class="ma-input">Comercial</span></div>
+      </div>
+
+      <p class="ma-paso">Qué reporte</p>
+      <div class="ma-campo"><span class="ma-rotulo">Nombre que verá el usuario</span><span class="ma-input">Ventas por sucursal</span></div>
+      <div class="ma-campo"><span class="ma-rotulo">Enlace de inserción</span><span class="ma-input ma-input--url">https://app.powerbi.com/reportEmbed?reportId=1f3c8d2e-…</span></div>
+      <p class="ma-ok">
+        <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm-1.5 14.2-4.2-4.2 1.7-1.7 2.5 2.5 5.5-5.5 1.7 1.7z" /></svg>
+        Reporte <code>1f3c8d2e…9a2e</code> en el workspace <code>8b41f0a7…c07d</code>
+      </p>
+
+      <p class="ma-paso">Cómo se comporta</p>
+      <div class="ma-chat">
+        <span class="ma-check"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg></span>
+        <span>
+          <strong><svg viewBox="0 0 24 24"><path d={VARITA} /></svg>Chat con IA sobre los datos</strong>
+          <small>Se abre junto al tablero y responde preguntas en lenguaje natural</small>
+        </span>
+      </div>
+
+      <p class="ma-paso">Dónde se abre el chat</p>
+      <div class="ma-op">
+        <span class="ma-radio"></span>
+        <span><strong>En otra pestaña</strong><small>Como hasta ahora: el tablero y el chat se abren por separado.</small></span>
+      </div>
+      <div class="ma-op ma-op--on">
+        <span class="ma-radio"></span>
+        <span><strong>Al costado del tablero</strong><small>Un panel en la misma pantalla, que el usuario abre cuando quiere preguntar.</small></span>
+      </div>
+    </div>
+
+    <div class="ma-modal__pie">
+      <span class="ma-cancelar">Cancelar</span>
+      <span class="ma-boton"><b>+</b> Asignar tablero</span>
+    </div>
+  </div>
+ </div>
+</div>
+
+<style is:global>
+  /* ═══ La escena: ventana + cuadro superpuesto ═══════════════════════════ */
+  /* Diferida (maqueta.css): la reserva es la de un teléfono, donde ventana y cuadro se
+     apilan; en escritorio la corrige abajo. Lleva un margen al pie para la sombra del
+     cuadro, que lo diferido recortaría. */
+  .ma-escena {
+    --mq-reserva: 78rem;
+    container: maqueta-admin / inline-size;
+    padding-bottom: 1.5rem;
+  }
+
+  @media (min-width: 64rem) {
+    .ma-escena {
+      --mq-reserva: 40rem;
+    }
+  }
+
+  .ma-escena__rejilla {
+    display: grid;
+  }
+
+  .ma-escena .ma-ventana {
+    min-width: 0;
+  }
+
+  .ma {
+    font-family: var(--mq-fuente);
+    color: var(--mq-g800);
+  }
+
+  .ma-rejilla {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 31rem;
+  }
+
+  /* ═══ Menú del administrador: abismo, con el módulo activo en el color de marca ═══ */
+  .ma-menu {
+    display: none;
+    flex-direction: column;
+    background: var(--mq-admin);
+    color: #e5e7eb;
+  }
+
+  .ma-marca {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin: 0;
+    padding: 12px 12px 11px;
+    border-bottom: 1px solid rgb(255 255 255 / 0.08);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: #2dd4bf;
+  }
+
+  .ma-marca svg {
+    width: 12px;
+    height: 12px;
+    fill: currentColor;
+  }
+
+  .ma-nav {
+    flex: 1;
+    padding: 7px 8px;
+  }
+
+  .ma-seccion {
+    margin: 0;
+    padding: 9px 7px 3px;
+    font-size: 0.4375rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #8a9aa3;
+  }
+
+  .ma-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 7px;
+    border-radius: 6px;
+    font-size: 0.5625rem;
+    white-space: nowrap;
+  }
+
+  .ma-item svg,
+  .ma-pie svg {
+    width: 10px;
+    height: 10px;
+    flex: none;
+    fill: currentColor;
+  }
+
+  .ma-item span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .ma-item--activo {
+    background: var(--mq-marca);
+    font-weight: 600;
+    color: #fff;
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.25);
+  }
+
+  .ma-pie {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 15px;
+    border-top: 1px solid rgb(255 255 255 / 0.08);
+    font-size: 0.5625rem;
+    color: #f87171;
+  }
+
+  /* ═══ Cuerpo ═══════════════════════════════════════════════════════════ */
+  .ma-cuerpo {
+    min-width: 0;
+    background: var(--mq-g100);
+  }
+
+  .ma-barra {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 9px 14px;
+    background: #fff;
+    box-shadow: 0 1px 0 var(--mq-g200), 0 4px 12px rgb(17 24 39 / 0.05);
+  }
+
+  .ma-barra__t {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    margin: 0;
+    overflow: hidden;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: var(--mq-g900);
+  }
+
+  .ma-barra__t svg {
+    width: 9px;
+    height: 9px;
+    flex: none;
+    fill: none;
+    stroke: var(--mq-marca);
+    stroke-width: 3;
+    stroke-linecap: round;
+  }
+
+  .ma-quien {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex: none;
+    font-size: 0.625rem;
+    color: var(--mq-g700);
+  }
+
+  .ma-quien svg {
+    width: 12px;
+    height: 12px;
+    fill: var(--mq-marca);
+  }
+
+  .ma-contenido {
+    padding: 12px;
+  }
+
+  .ma-tarjeta {
+    padding: 12px 12px 10px;
+    border-radius: 9px;
+    background: #fff;
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.08), 0 1px 2px rgb(0 0 0 / 0.06);
+  }
+
+  .ma-tit {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .ma-tit__nombre {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+    margin: 0;
+    font-size: 0.71875rem;
+    font-weight: 600;
+    white-space: nowrap;
+    color: var(--mq-g900);
+  }
+
+  .ma-tit__nombre svg {
+    width: 11px;
+    height: 11px;
+    fill: var(--mq-marca);
+  }
+
+  .ma-n {
+    padding: 2px 7px;
+    border-radius: 999px;
+    background: var(--mq-g100);
+    font-size: 0.5rem;
+    font-weight: 500;
+    color: var(--mq-g600);
+  }
+
+  .ma-buscar {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    padding: 5px 9px;
+    border: 1px solid var(--mq-g200);
+    border-radius: 6px;
+    background: var(--mq-g50);
+    font-size: 0.5625rem;
+    white-space: nowrap;
+    color: var(--mq-g500);
+  }
+
+  .ma-buscar svg {
+    width: 10px;
+    height: 10px;
+    flex: none;
+    fill: none;
+    stroke: var(--mq-g500);
+    stroke-width: 2.4;
+    stroke-linecap: round;
+  }
+
+  .ma-boton {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 11px;
+    border-radius: 7px;
+    background: var(--mq-marca);
+    box-shadow: 0 4px 10px -5px rgb(3 122 112 / 0.8);
+    font-size: 0.59375rem;
+    font-weight: 600;
+    white-space: nowrap;
+    color: #fff;
+  }
+
+  .ma-boton b {
+    font-weight: 600;
+  }
+
+  .ma-agrupar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 5px;
+    margin: 10px 0 9px;
+    padding-bottom: 9px;
+    border-bottom: 1px solid var(--mq-g200);
+  }
+
+  .ma-agrupar__t {
+    margin-right: 3px;
+    font-size: 0.5rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--mq-g500);
+  }
+
+  .ma-ficha {
+    padding: 3px 9px;
+    border: 1px solid var(--mq-g200);
+    border-radius: 999px;
+    background: #fff;
+    font-size: 0.5625rem;
+    color: var(--mq-g700);
+  }
+
+  .ma-ficha--on {
+    border-color: var(--mq-marca);
+    background: var(--mq-marca);
+    font-weight: 600;
+    color: #fff;
+  }
+
+  .ma-grupos {
+    display: grid;
+    gap: 6px;
+  }
+
+  .ma-grupo {
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid var(--mq-g200);
+    border-radius: 7px;
+    background: var(--mq-g50);
+  }
+
+  .ma-grupo__cab {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin: 0;
+    padding: 7px 10px;
+    font-size: 0.65625rem;
+  }
+
+  .ma-grupo--abierto .ma-grupo__cab {
+    background: var(--mq-g100);
+  }
+
+  .ma-grupo__cab svg {
+    width: 9px;
+    height: 9px;
+    flex: none;
+    fill: none;
+    stroke: var(--mq-g500);
+    stroke-width: 2.6;
+    stroke-linecap: round;
+  }
+
+  .ma-grupo__cab b {
+    font-weight: 600;
+    color: var(--mq-g900);
+  }
+
+  .ma-cuenta {
+    display: grid;
+    place-items: center;
+    min-width: 15px;
+    height: 15px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: var(--mq-marca-hondo);
+    font-size: 0.5rem;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  /* Sobre el gris del grupo abierto el gris medio no llega a 4,5:1: va un tono más oscuro */
+  .ma-grupo__cab em {
+    margin-left: auto;
+    font-size: 0.5rem;
+    color: var(--mq-g600);
+  }
+
+  .ma-tabla {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    font-size: 0.5625rem;
+  }
+
+  .ma-tabla th {
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--mq-g200);
+    font-size: 0.4375rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-align: left;
+    text-transform: uppercase;
+    color: var(--mq-g500);
+  }
+
+  /* En angosto las celdas parten línea; con lugar, cada fila es una línea como en el portal */
+  .ma-tabla td {
+    padding: 5px 10px;
+    border-top: 1px solid var(--mq-g100);
+    color: var(--mq-g700);
+  }
+
+  .ma-col-url {
+    display: none;
+  }
+
+  td.ma-col-url {
+    max-width: 9rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* La insignia de la fila: IA, y el ícono de panel si el chat abre al costado */
+  .ma-ia {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    margin-left: 6px;
+    padding: 1px 5px;
+    border: 1px solid var(--mq-ia-borde);
+    border-radius: 999px;
+    background: var(--mq-ia-tenue);
+    font-size: 0.4375rem;
+    font-weight: 700;
+    vertical-align: 1px;
+    color: var(--mq-ia);
+  }
+
+  .ma-ia svg {
+    width: 7px;
+    height: 7px;
+    fill: currentColor;
+  }
+
+  .ma-ia i {
+    width: 8px;
+    height: 6px;
+    margin-left: 2px;
+    border: 1px solid currentColor;
+    border-radius: 1px;
+    background: linear-gradient(90deg, transparent 0 50%, currentColor 50% 60%, transparent 60%);
+  }
+
+  .ma-acciones {
+    display: none;
+    justify-content: flex-end;
+    gap: 4px;
+  }
+
+  .ma-editar,
+  .ma-borrar {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+  }
+
+  .ma-editar {
+    border: 1px solid #bfdbfe;
+    background: #eff6ff linear-gradient(135deg, transparent 0 46%, #2563eb 46% 58%, transparent 58%) center / 8px 8px no-repeat;
+  }
+
+  .ma-borrar {
+    border: 1px solid #fecaca;
+    background: #fef2f2 linear-gradient(#dc2626, #dc2626) center / 6px 7px no-repeat;
+  }
+
+  /* ═══ El cuadro "Asignar tablero" ══════════════════════════════════════ */
+  .ma-modal {
+    position: relative;
+    z-index: 1;
+    justify-self: center;
+    width: min(21.5rem, 94%);
+    margin-top: -2.5rem;
+    overflow: hidden;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow:
+      0 0 0 1px rgb(17 24 39 / 0.06),
+      0 30px 60px -24px rgb(0 0 0 / 0.5),
+      0 12px 24px -12px rgb(0 0 0 / 0.25);
+    font-family: var(--mq-fuente);
+    color: var(--mq-g900);
+    line-height: 1.4;
+  }
+
+  .ma-modal__cab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--mq-g200);
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .ma-modal__cab svg {
+    width: 12px;
+    height: 12px;
+    flex: none;
+    fill: var(--mq-g900);
+  }
+
+  .ma-modal__cab .ma-modal__x {
+    width: 11px;
+    height: 11px;
+    margin-left: auto;
+    fill: none;
+    stroke: var(--mq-g500);
+    stroke-width: 2.4;
+    stroke-linecap: round;
+  }
+
+  .ma-modal__cuerpo {
+    padding: 4px 14px 12px;
+  }
+
+  /* Los pasos del formulario, con su regla fina (asig-paso) */
+  .ma-paso {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 10px 0 6px;
+    font-size: 0.4375rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--mq-g500);
+  }
+
+  .ma-paso::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--mq-g200);
+  }
+
+  .ma-par {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .ma-campo {
+    min-width: 0;
+    margin-bottom: 6px;
+  }
+
+  .ma-rotulo {
+    display: block;
+    margin-bottom: 3px;
+    font-size: 0.53125rem;
+    font-weight: 500;
+    color: var(--mq-g800);
+  }
+
+  .ma-input {
+    display: block;
+    overflow: hidden;
+    padding: 5px 8px;
+    border: 1px solid var(--mq-g200);
+    border-radius: 6px;
+    background: var(--mq-g100);
+    font-size: 0.59375rem;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: var(--mq-g700);
+  }
+
+  /* Desplegable: fondo blanco y su flecha, dibujada con dos bordes */
+  .ma-input--lista {
+    position: relative;
+    padding-right: 22px;
+    background: #fff;
+  }
+
+  .ma-input--lista::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    width: 4px;
+    height: 4px;
+    margin-top: -3px;
+    border-right: 1.5px solid var(--mq-g500);
+    border-bottom: 1.5px solid var(--mq-g500);
+    transform: rotate(45deg);
+  }
+
+  .ma-input--url {
+    background: #fff;
+    color: var(--mq-g800);
+  }
+
+  /* El enlace ya está validado: reporte y workspace reconocidos */
+  .ma-ok {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    margin: 0 0 4px;
+    padding: 6px 8px;
+    border: 1px solid #bbf7d0;
+    border-radius: 6px;
+    background: #f0fdf4;
+    font-size: 0.53125rem;
+    color: #166534;
+  }
+
+  .ma-ok svg {
+    width: 10px;
+    height: 10px;
+    flex: none;
+    fill: #16a34a;
+  }
+
+  .ma-ok code {
+    padding: 0 4px;
+    border-radius: 3px;
+    background: #dcfce7;
+    font-family: var(--mq-mono);
+    font-size: 0.5rem;
+  }
+
+  .ma-chat {
+    display: flex;
+    gap: 8px;
+    padding: 8px 10px;
+    border: 1px solid var(--mq-g200);
+    border-radius: 8px;
+  }
+
+  .ma-check {
+    display: grid;
+    place-items: center;
+    width: 12px;
+    height: 12px;
+    flex: none;
+    margin-top: 1px;
+    border-radius: 3px;
+    background: var(--mq-ia-2);
+  }
+
+  .ma-check svg {
+    width: 9px;
+    height: 9px;
+    fill: none;
+    stroke: #fff;
+    stroke-width: 3.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .ma-chat strong,
+  .ma-op strong {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.625rem;
+    font-weight: 600;
+  }
+
+  .ma-chat strong svg {
+    width: 10px;
+    height: 10px;
+    fill: var(--mq-ia);
+  }
+
+  .ma-chat small,
+  .ma-op small {
+    display: block;
+    margin-top: 1px;
+    font-size: 0.53125rem;
+    line-height: 1.4;
+    color: var(--mq-g600);
+  }
+
+  .ma-op {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 5px;
+    padding: 7px 10px;
+    border: 1px solid var(--mq-g200);
+    border-radius: 8px;
+  }
+
+  .ma-op--on {
+    border-color: var(--mq-marca);
+    background: color-mix(in srgb, var(--mq-marca) 6%, #fff);
+  }
+
+  .ma-radio {
+    width: 11px;
+    height: 11px;
+    flex: none;
+    margin-top: 1px;
+    border: 1.5px solid var(--mq-g300);
+    border-radius: 50%;
+    background: #fff;
+  }
+
+  .ma-op--on .ma-radio {
+    border: 3.5px solid var(--mq-marca);
+  }
+
+  .ma-modal__pie {
+    display: flex;
+    justify-content: flex-end;
+    gap: 7px;
+    padding: 10px 14px;
+    border-top: 1px solid var(--mq-g200);
+  }
+
+  .ma-cancelar {
+    padding: 5px 12px;
+    border: 1px solid var(--mq-g200);
+    border-radius: 7px;
+    background: var(--mq-g100);
+    font-size: 0.59375rem;
+    color: var(--mq-g700);
+  }
+
+  /* ═══ Con lugar: el menú aparece, la búsqueda y la URL también, y el cuadro se monta
+     sobre el borde derecho de la ventana ═══ */
+  @container maqueta-admin (min-width: 40rem) {
+    .ma-rejilla {
+      grid-template-columns: 11.75rem minmax(0, 1fr);
+    }
+
+    .ma-menu {
+      display: flex;
+    }
+
+    .ma-acciones {
+      display: flex;
+    }
+  }
+
+  @container maqueta-admin (min-width: 56rem) {
+    .ma-escena__rejilla {
+      grid-template-columns: minmax(0, 1fr) 20.5rem;
+      align-items: start;
+    }
+
+    .ma-modal {
+      width: auto;
+      margin: 3.5rem 0 0 -4.5rem;
+    }
+
+    .ma-buscar {
+      display: inline-flex;
+    }
+
+    .ma-col-url {
+      display: table-cell;
+    }
+
+    .ma-tabla td {
+      white-space: nowrap;
+    }
+  }
+</style>

@@ -18,6 +18,10 @@ import Migas from '../components/Migas.astro';
 import Ventana from '../components/portal/Ventana.astro';
 import MaquetaPortal from '../components/portal/MaquetaPortal.astro';
 import MaquetaChat from '../components/portal/MaquetaChat.astro';
+import MaquetaLogin from '../components/portal/MaquetaLogin.astro';
+import MaquetaVisor from '../components/portal/MaquetaVisor.astro';
+import MaquetaTelefono from '../components/portal/MaquetaTelefono.astro';
+import MaquetaAdmin from '../components/portal/MaquetaAdmin.astro';
 import Calculadora from '../components/portal/Calculadora.astro';
 import Preguntas, { type Pregunta } from '../components/Preguntas.astro';
 import { MENSAJES, CONTACTO, SITIO, enlaceWhatsApp } from '../data/sitio';
@@ -222,7 +226,8 @@ const SERVICIO = {
         <div class="pb-heroe__visual">
           <Ventana
             url="portal.tuempresa.com/tableros"
-            descripcion="Maqueta del Portal BI: menú lateral con tableros agrupados por área, modelos semánticos y herramientas, y tarjetas de tableros de Power BI."
+            ejemplo
+            descripcion="Maqueta del Portal BI: menú lateral con el color de la marca, con los tableros agrupados por área, los modelos semánticos y las herramientas; arriba, las migas y el usuario; y seis tarjetas de tableros de Power BI, dos con chat de IA."
           >
             <MaquetaPortal />
           </Ventana>
@@ -341,25 +346,14 @@ const SERVICIO = {
         </p>
         <div class="pb-dos-marcas">
           <div>
-            <Ventana url="bi.acme.com" marca="acme" variante="mini" descripcion="El Portal BI con la marca de ejemplo ACME: menú negro y acento verde.">
-              <MaquetaPortal
-                variante="mini"
-                marca="ACME"
-                inicial="A"
-                tarjetas={[{ titulo: 'Ventas' }, { titulo: 'Metas' }, { titulo: 'Cartera' }]}
-              />
+            <Ventana url="bi.acme.com" marca="acme" variante="mini" descripcion="Pantalla de ingreso del Portal BI con la marca de ejemplo ACME: fondo verde, botón negro, su nombre y su logo.">
+              <MaquetaLogin marca="acme" />
             </Ventana>
             <p class="pb-pie-marca">Instalación A</p>
           </div>
           <div>
-            <Ventana url="datos.nordex.com" marca="nordex" variante="mini" descripcion="El mismo Portal BI con la marca de ejemplo NORDEX: menú azul marino y acento ámbar.">
-              <MaquetaPortal
-                variante="mini"
-                marca="NORDEX"
-                seccion="Logística"
-                inicial="N"
-                tarjetas={[{ titulo: 'Rutas' }, { titulo: 'Flota' }, { titulo: 'Costos' }]}
-              />
+            <Ventana url="datos.nordex.com" marca="nordex" variante="mini" descripcion="La misma pantalla de ingreso con la marca de ejemplo NORDEX: fondo azul marino, botón ámbar, otra tipografía, su nombre y su logo.">
+              <MaquetaLogin marca="nordex" />
             </Ventana>
             <p class="pb-pie-marca">Instalación B</p>
           </div>
@@ -380,22 +374,14 @@ const SERVICIO = {
             <li><Icono nombre="usuarios" /><span>Si la persona cambia de teléfono, entra con su usuario y ya está todo.</span></li>
           </ul>
         </div>
-        <figure class="pb-telefono">
-          <figcaption class="solo-lectores">Maqueta del Portal BI en un celular: tarjetas de tableros apiladas.</figcaption>
-          <div class="pb-telefono__cuerpo" aria-hidden="true">
-            <div class="pb-telefono__pantalla">
-              <div class="pb-telefono__barra"><span class="pb-telefono__menu"></span>Comercial</div>
-              <div class="pb-telefono__tarjetas">
-                {['Ventas por sucursal', 'Cumplimiento de metas', 'Cartera y cobranzas'].map((t) => (
-                  <div class="pb-telefono__tarjeta">
-                    <svg viewBox="0 0 41.5 41.5"><path d="M0.5,12.6h8.7V41H0.5V12.6z M16.7,0.5h8.1V41h-8.1V0.5z M32.9,23.7H41V41h-8.1V23.7z" /></svg>
-                    <span>{t}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </figure>
+        <div class="pb-telefonos mq-diferida">
+          <MaquetaTelefono descripcion="Maqueta del Portal BI en un celular: la barra con el botón del menú y las tarjetas de tableros apiladas, una por fila.">
+            <MaquetaPortal variante="telefono" />
+          </MaquetaTelefono>
+          <MaquetaTelefono class="pb-telefonos__chat" descripcion="Maqueta del chat con IA en un celular, con datos de ejemplo: el análisis de las ventas por sucursal, un gráfico que compara 2025 con 2026 y el campo para preguntar, con el botón del micrófono.">
+            <MaquetaChat vista="grafico" />
+          </MaquetaTelefono>
+        </div>
       </div>
     </div>
   </section>
@@ -413,13 +399,15 @@ const SERVICIO = {
         </p>
       </header>
 
-      <!-- data-revelar con significado: dispara la secuencia de la maqueta (pasos, mapa de calor, línea) -->
+      {/* data-revelar con significado: dispara la respuesta del chat (pregunta, pasos, consulta, tabla, análisis) */}
       <div class="prod-bloque" data-revelar>
         <Ventana
-          url="portal.tuempresa.com/tableros/chat?nombre=Ventas"
-          descripcion="Maqueta del chat con IA del Portal BI: una pregunta sobre ventas por vendedor, los pasos de la consulta, el código DAX ejecutado, un mapa de calor y un gráfico de líneas con datos de ejemplo."
+          url="portal.tuempresa.com/tableros/visor?nombre=Ventas+por+sucursal"
+          class="mq-diferida pb-reserva-visor"
+          ejemplo
+          descripcion="Maqueta del visor del Portal BI con datos de ejemplo: a la izquierda, un reporte de Power BI de ventas por sucursal; a la derecha, el chat con IA abierto al costado, con la pregunta, los pasos de la consulta, el código DAX que se ejecutó, la tabla de resultados y el análisis."
         >
-          <MaquetaChat />
+          <MaquetaVisor />
         </Ventana>
       </div>
 
@@ -447,30 +435,7 @@ const SERVICIO = {
       </header>
 
       <div class="prod-bloque">
-        <Ventana
-          url="portal.tuempresa.com/admin/asignaciones"
-          descripcion="Maqueta del panel de administración: tabla de asignaciones de tableros por usuario, con empresa, vista personalizada y chat de IA."
-        >
-          <div class="mka">
-            <div class="mka__cabecera">
-              <p class="mka__titulo">Asignaciones de tableros</p>
-              <span class="mka__boton">+ Asignar tablero</span>
-            </div>
-            <div class="mka__tabla">
-              <table>
-                <thead>
-                  <tr><th>Usuario</th><th>Tablero</th><th>Empresa</th><th>Vista</th><th>Chat</th></tr>
-                </thead>
-                <tbody>
-                  <tr><td>mariana.s</td><td>Ventas por sucursal</td><td><span class="mka__pill">Comercial</span></td><td>Sucursal Norte</td><td><span class="mka__pill mka__pill--ia">IA</span></td></tr>
-                  <tr><td>mariana.s</td><td>Cumplimiento de metas</td><td><span class="mka__pill">Comercial</span></td><td>Sucursal Norte</td><td><span class="mka__pill mka__pill--ia">IA</span></td></tr>
-                  <tr><td>r.quiroga</td><td>Cartera y cobranzas</td><td><span class="mka__pill">Comercial</span></td><td>Cartera propia</td><td>—</td></tr>
-                  <tr><td>opersup</td><td>Productividad por turno</td><td><span class="mka__pill">Operaciones</span></td><td>Todo</td><td>—</td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </Ventana>
+<MaquetaAdmin descripcion="Maqueta del panel de administración: el menú con los módulos de usuarios, asignaciones, Power BI, auditoría y sistema; las asignaciones de tableros agrupadas por usuario, con un grupo abierto; y el cuadro para asignar un tablero, con el chat con IA activado y abierto al costado del tablero." />
       </div>
     </div>
   </section>
@@ -748,164 +713,42 @@ const SERVICIO = {
     color: var(--texto-3);
   }
 
-  /* ── Teléfono: el bisel es el fondo del cuerpo, la pantalla va adentro ── */
-  .pb-telefono {
-    margin: 0;
-    justify-self: center;
-  }
-
-  .pb-telefono__cuerpo {
-    width: 15.75rem;
-    max-width: 100%;
-    padding: 10px;
-    border-radius: 34px;
-    background: var(--color-abismo);
-    box-shadow: 0 22px 46px -22px rgb(0 23 32 / 0.55);
-  }
-
-  .pb-telefono__pantalla {
-    overflow: hidden;
-    border-radius: 24px;
-    background: #f3f5f2;
-  }
-
-  .pb-telefono__barra {
+  /* ── Celular: dos teléfonos, los tableros y el chat, el segundo un poco más abajo.
+     Se achican con el lugar que tienen y, si no entran lado a lado, se superponen. ── */
+  .pb-telefonos {
+    --mq-reserva: 34rem;
+    container-type: inline-size;
     display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 22px 15px 13px;
-    background: var(--color-abismo);
-    color: #fff;
-    font-size: 0.8125rem;
-    font-weight: 600;
+    justify-content: center;
+    /* El segundo teléfono baja 2,75 rem, y su sombra necesita lugar: lo diferido recorta */
+    padding-bottom: 4.5rem;
   }
 
-  .pb-telefono__menu {
-    width: 16px;
-    height: 11px;
-    flex: none;
-    border-top: 2px solid #fff;
-    border-bottom: 2px solid #fff;
+  .pb-telefonos > :global(.tel) {
+    --tel-ancho: clamp(10.5rem, 47cqw, 13.25rem);
   }
 
-  .pb-telefono__tarjetas {
-    display: grid;
-    gap: 11px;
-    padding: 14px;
+  .pb-telefonos > :global(.pb-telefonos__chat) {
+    position: relative;
+    margin-top: 2.75rem;
+    margin-left: min(1rem, calc(100cqw - 2 * var(--tel-ancho)));
   }
 
-  .pb-telefono__tarjeta {
-    padding: 16px 11px;
-    border-radius: 13px;
-    background: #fff;
-    border: 1px solid #e1e7e0;
-    text-align: center;
+  /* Reserva del visor diferido: barra de dirección + el alto de la maqueta */
+  :global(.pb-reserva-visor) {
+    --mq-reserva: 36.5rem;
   }
 
-  .pb-telefono__tarjeta svg {
-    display: block;
-    width: 26px;
-    height: 26px;
-    margin: 0 auto 9px;
-    fill: #f2c811;
-  }
-
-  .pb-telefono__tarjeta span {
-    font-size: 0.71875rem;
-    font-weight: 600;
-    color: #1f2937;
+  @media (min-width: 64rem) {
+    :global(.pb-reserva-visor) {
+      --mq-reserva: 42.5rem;
+    }
   }
 
   /* ── Chat ──────────────────────────────────────────────────────────── */
   .pb-chat {
     background:
       var(--fondo);
-  }
-
-  /* ── Panel de administración ───────────────────────────────────────── */
-  .mka {
-    padding: 18px;
-    background: var(--mq-tarjeta);
-  }
-
-  .mka__cabecera {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 14px;
-    margin-bottom: 14px;
-  }
-
-  .mka__titulo {
-    font-size: 0.875rem;
-    font-weight: 600;
-  }
-
-  .mka__boton {
-    padding: 6px 13px;
-    border-radius: var(--radio-pill);
-    background: var(--mq-acento);
-    color: #fff;
-    font-size: 0.6875rem;
-    font-weight: 600;
-  }
-
-  .mka__tabla {
-    overflow-x: auto;
-  }
-
-  .mka table {
-    width: 100%;
-    min-width: 30rem;
-    border-collapse: collapse;
-    font-size: 0.75rem;
-  }
-
-  .mka th {
-    padding: 8px 12px 8px 0;
-    border-bottom: 1px solid var(--mq-borde);
-    font-family: var(--font-datos);
-    font-size: 0.5625rem;
-    font-weight: 500;
-    letter-spacing: 0.1em;
-    text-align: left;
-    text-transform: uppercase;
-    color: var(--mq-tinta-3);
-  }
-
-  .mka td {
-    padding: 10px 12px 10px 0;
-    border-bottom: 1px solid var(--mq-borde-2);
-    color: var(--mq-tinta-2);
-  }
-
-  .mka td:first-child {
-    font-weight: 600;
-    color: var(--mq-tinta);
-  }
-
-  .mka tbody tr {
-    transition: background-color var(--dur-1) var(--ease-out);
-  }
-
-  .mka tbody tr:hover {
-    background: var(--mq-fondo);
-  }
-
-  .mka__pill {
-    display: inline-block;
-    padding: 1px 8px;
-    border-radius: var(--radio-pill);
-    background: #dcefe9;
-    color: var(--color-verde-oscuro);
-    font-size: 0.625rem;
-    font-weight: 600;
-  }
-
-  .mka__pill--ia {
-    background: var(--mq-ia-tenue);
-    color: var(--mq-ia);
   }
 
   /* ── Dos caminos: dos tarjetas con la misma jerarquía; se apilan en móvil ── */

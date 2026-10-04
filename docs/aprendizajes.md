@@ -46,6 +46,19 @@ Cada entrada: **síntoma → causa → solución → cómo evitarlo**.
 ### El proveedor de fuentes `npm` no es "local"
 - Reescribe las URLs al CDN de jsdelivr y solo encuentra el peso 400 del `index.css`. Se usa `fontProviders.local()` con los woff2 en el repo.
 
+### Maquetas grandes: el costo es estilo y layout, y el diferido tiene una trampa
+- **Síntoma**: con las maquetas nuevas, el trabajo de estilo y layout al cargar se duplicó (592 → 1.175 ms en el teléfono simulado) y el Speed Index pasó de 1,2 a 2,4 s.
+- **Solución**: `content-visibility: auto` en las maquetas que no están en el primer pantallazo (clase `.mq-diferida`, con su alto de reserva).
+- **La trampa**: `contain-intrinsic-size: auto 34rem` reserva **ancho y alto**. En una grilla de una columna el ancho reservado ensanchó el bloque a 544 px y rompió el teléfono. Se reserva solo el alto: `contain-intrinsic-block-size`.
+
+### Un documento que cruza ~44 KB comprimidos paga un viaje más de TCP en Lighthouse
+- **Síntoma**: FCP 1,2 → 1,4 s y LCP 1,5 → 1,7 s con 46 KB; quitando una maqueta (42 KB) volvía a 1,2 / 1,5. La simulación arranca TCP con ~14,6 KB y duplica: con ~43,8 KB entra en dos viajes, con más hace falta un tercero.
+- **Qué se hizo**: las maquetas usan `<style is:global>` (sus clases llevan prefijo propio: `mp-`, `mc-`, `mv-`, `ma-`, `ml-`, `tel`). Con estilos con alcance Astro marca cada elemento con `data-astro-cid-…`, y eso solo eran ~1,4 KB comprimidos. Medido A/B intercalado: global y con alcance cuestan lo mismo en estilo.
+- **Ojo al medir**: en esta máquina la misma versión da 96 o 100 según la carga del momento. Comparar siempre intercalando versiones, nunca contra una corrida de otro momento.
+
+### Un contenedor no puede consultarse a sí mismo
+- `@container` evalúa contra un **ancestro**: la regla que cambia la grilla del propio contenedor no aplica nunca. La grilla va en un hijo (`.mp-rejilla`, `.ma-escena__rejilla`).
+
 ## Entorno Windows
 
 ### Saltos de línea

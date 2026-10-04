@@ -4,9 +4,17 @@
  * Las maquetas reproducen el portal real en HTML/CSS (no son capturas): se ven nítidas,
  * pesan casi nada y se editan como cualquier componente.
  * Dentro del marco los colores son fijos: una pantalla no cambia según el tema de quien mira.
+ * Los tokens viven en maqueta.css (los comparte con <MaquetaTelefono>).
  * Solo la barra de dirección, sin botones de navegador falsos: la URL es lo que informa
  * (el portal vive en el dominio del cliente).
+ *
+ * Estilos globales (is:global) a propósito: con alcance, Astro marca cada elemento con un
+ * atributo data-astro-cid, y en /portal-bi/ eso sumaba lo justo para que el documento cruzara
+ * un viaje más de TCP en la simulación de Lighthouse. Todas las clases llevan el prefijo de
+ * su maqueta, así que no chocan. Ver docs/aprendizajes.md.
  */
+import './maqueta.css';
+
 interface Props {
   url: string;
   /** Descripción para lectores de pantalla; la maqueta en sí queda oculta para ellos. */
@@ -14,13 +22,15 @@ interface Props {
   /** Identidad del portal dibujado: el mismo producto con distintas marcas. */
   marca?: 'datastudio' | 'acme' | 'nordex';
   variante?: 'normal' | 'mini';
+  /** Rótulo "Datos de ejemplo" en la barra (ADR-013): para las pantallas con cifras. */
+  ejemplo?: boolean;
   class?: string;
 }
 
-const { url, descripcion, marca = 'datastudio', variante = 'normal', class: clase } = Astro.props;
+const { url, descripcion, marca = 'datastudio', variante = 'normal', ejemplo = false, class: clase } = Astro.props;
 ---
 
-<figure class:list={['ventana', `ventana--${marca}`, { 'ventana--mini': variante === 'mini' }, clase]}>
+<figure class:list={['ventana', 'mq', `mq--${marca}`, `ventana--${marca}`, { 'ventana--mini': variante === 'mini' }, clase]}>
   <figcaption class="solo-lectores">{descripcion}</figcaption>
   <div class="ventana__cuerpo" aria-hidden="true">
     <div class="ventana__barra">
@@ -28,29 +38,14 @@ const { url, descripcion, marca = 'datastudio', variante = 'normal', class: clas
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></svg>
         {url}
       </span>
+      {ejemplo && <span class="ventana__ejemplo">Datos de ejemplo</span>}
     </div>
     <slot />
   </div>
 </figure>
 
-<style>
+<style is:global>
   .ventana {
-    /* Tokens de la maqueta: colores del portal, no del sitio */
-    --mq-fondo: #f3f5f2;
-    --mq-tarjeta: #ffffff;
-    --mq-borde: #e1e7e0;
-    --mq-borde-2: #ecf0eb;
-    --mq-tinta: #0f1d1c;
-    --mq-tinta-2: #44544f;
-    --mq-tinta-3: #5b6964;
-    --mq-ia: #4338ca;
-    --mq-ia-2: #6366f1;
-    --mq-ia-tenue: #eef2ff;
-    --pbi: #f2c811;
-    --pbi-hondo: #e6a800;
-    --mq-acento: var(--color-verde);
-    --mq-lateral: var(--color-abismo);
-
     margin: 0;
     min-width: 0;
     border-radius: 14px;
@@ -67,19 +62,11 @@ const { url, descripcion, marca = 'datastudio', variante = 'normal', class: clas
     box-shadow: 0 0 0 1px rgb(206 217 189 / 0.18), 0 32px 64px -32px rgb(0 0 0 / 0.75);
   }
 
-  .ventana--acme {
-    --mq-acento: #186b45;
-    --mq-lateral: #111111;
-  }
-
-  .ventana--nordex {
-    --mq-acento: #b45309;
-    --mq-lateral: #14213d;
-  }
-
   .ventana__barra {
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    gap: 12px;
     padding: 9px 12px;
     background: var(--mq-fondo);
     border-bottom: 1px solid var(--mq-borde-2);
@@ -109,7 +96,19 @@ const { url, descripcion, marca = 'datastudio', variante = 'normal', class: clas
     flex: none;
   }
 
+  .ventana__ejemplo {
+    flex: none;
+    font-family: var(--font-datos);
+    font-size: 0.625rem;
+    letter-spacing: 0.04em;
+    color: var(--mq-tinta-3);
+    white-space: nowrap;
+  }
+
   .ventana--mini .ventana__url {
     font-size: 0.625rem;
   }
+
+  /* El rótulo no se esconde nunca (ADR-013): en pantallas angostas cede la dirección,
+     que se corta con puntos suspensivos. */
 </style>
