@@ -1,5 +1,10 @@
 # Bitácora de cambios
 
+## 04/10/2026 · Gráfico de soluciones: Portal BI como producto estrella
+
+- Escritorio: barras con tope redondeado y degradado; la del Portal BI es más ancha, verde, con sombra e insignia "Producto estrella".
+- Móvil: cada solución es una tarjeta clara con el texto sobre un solo fondo y la barra como franja al pie (antes el relleno partía el texto en dos colores). El Portal BI, tarjeta verde con insignia.
+
 ## 04/10/2026 · Ajustes del dueño a las maquetas del Portal BI
 
 - **Chat**: vuelve la maqueta anterior (pregunta, pasos, DAX, mapa de calor, líneas y el cursor que escribe varias preguntas), idéntica a la de `6054a11`. El visor con el reporte al costado se retiró: el dueño prefiere que la sección muestre solo el chat.
