@@ -4,7 +4,7 @@
  * (views/modules/chat.ejs + chat.css del repositorio del portal): el análisis y el gráfico que
  * se pide aparte, con el campo, el micrófono y la memoria de la conversación. El hilo está
  * abajo del todo, como lo deja el portal cuando llega el gráfico. Va dentro de
- * <MaquetaTelefono>. Datos de ejemplo: 5.216.100 en 2026 contra 4.832.200 en 2025 (+7,9 %).
+ * <MaquetaTelefono>. Datos de ejemplo: 5.216.100 en 2026 contra 4.832.200 en 2025 (+7,9 %); el gráfico muestra 2026 por sucursal.
  *
  * Estilos globales (is:global) a propósito: con alcance, Astro marca cada elemento con un
  * atributo data-astro-cid, y en /portal-bi/ eso sumaba lo justo para que el documento cruzara
@@ -14,15 +14,17 @@
 const VARITA =
   'M3 19.6 14.2 8.4l1.4 1.4L4.4 21zM15.6 7l1.4-1.4 1.4 1.4-1.4 1.4zM8 2l.7 1.8 1.8.7-1.8.7L8 7l-.7-1.8-1.8-.7 1.8-.7zM19 11l.6 1.4 1.4.6-1.4.6L19 15l-.6-1.4L17 13l1.4-.6zM20 1.5l.5 1.2 1.2.5-1.2.5-.5 1.2-.5-1.2-1.2-.5 1.2-.5z';
 
-/* Gráfico de mancuernas, en el orden en que lo dibuja el portal (por tamaño del cambio).
-   La escala va de 400.000 a 1.300.000: posición = (valor − 400.000) / 900.000. */
-const MANCUERNAS = [
-  { nombre: 'Online', clase: 'mc-md-1', cambio: '+241.500', sube: true },
-  { nombre: 'Centro', clase: 'mc-md-2', cambio: '+85.800', sube: true },
-  { nombre: 'Oeste', clase: 'mc-md-3', cambio: '+42.300', sube: true },
-  { nombre: 'Sur', clase: 'mc-md-4', cambio: '+37.300', sube: true },
-  { nombre: 'Norte', clase: 'mc-md-5', cambio: '−36.500', sube: false },
-  { nombre: 'Este', clase: 'mc-md-6', cambio: '+13.500', sube: true },
+/* Barras horizontales de mayor a menor: en el ancho de un celular se leen de un vistazo.
+   Ventas 2026 por sucursal, en miles (suman 5.216.100, como dice el análisis). El ancho de
+   cada barra es su valor sobre el mayor (Centro); va por clase porque la CSP no admite style.
+   Online, la que más crece, en verde; Norte, la única que cae, en rojo. */
+const BARRAS = [
+  { nombre: 'Centro', valor: '1.285', clase: 'mc-bh-1' },
+  { nombre: 'Norte', valor: '1.106', clase: 'mc-bh-2', marca: 'baja' },
+  { nombre: 'Online', valor: '943', clase: 'mc-bh-3', marca: 'sube' },
+  { nombre: 'Sur', valor: '769', clase: 'mc-bh-4' },
+  { nombre: 'Este', valor: '616', clase: 'mc-bh-5' },
+  { nombre: 'Oeste', valor: '498', clase: 'mc-bh-6' },
 ];
 ---
 
@@ -54,19 +56,15 @@ const MANCUERNAS = [
       </div>
 
           <div class="mc-grafico">
-            <p class="mc-grafico__porque">Dos años por sucursal: la distancia entre los puntos es lo que cambió.</p>
-            <p class="mc-leyenda"><span><i class="mc-s0"></i>Ventas 2025</span><span><i class="mc-s1"></i>Ventas 2026</span></p>
-            <div class="mc-db">
-              <div class="mc-db__escala"><span>400.000</span><span class="mc-db__aviso">el eje no arranca en cero</span><span>1.300.000</span><span>Cambio</span></div>
-              {MANCUERNAS.map((m) => (
-                <div class:list={['mc-db__fila', m.clase]}>
-                  <span class="mc-db__nombre">{m.nombre}</span>
-                  <span class="mc-db__pista">
-                    <span class:list={['mc-db__tramo', { 'mc-db__tramo--baja': !m.sube }]}></span>
-                    <span class="mc-db__pt mc-db__pt--a"></span>
-                    <span class="mc-db__pt mc-db__pt--b"></span>
-                  </span>
-                  <span class:list={['mc-db__cambio', { 'mc-db__cambio--baja': !m.sube }]}>{m.cambio}</span>
+            <p class="mc-grafico__titulo">Ventas 2026 por sucursal</p>
+            <p class="mc-grafico__porque">En miles, de mayor a menor.</p>
+            <p class="mc-leyenda"><span><i class="mc-s1"></i>Crece más</span><span><i class="mc-s2"></i>Única que cae</span></p>
+            <div class="mc-bh">
+              {BARRAS.map((r) => (
+                <div class:list={['mc-bh__fila', r.clase, r.marca && `mc-bh__fila--${r.marca}`]}>
+                  <span class="mc-bh__nombre">{r.nombre}</span>
+                  <span class="mc-bh__pista"><span class="mc-bh__barra"></span></span>
+                  <span class="mc-bh__valor">{r.valor}</span>
                 </div>
               ))}
             </div>
@@ -307,7 +305,7 @@ const MANCUERNAS = [
     font-weight: 650;
   }
 
-  /* ── El gráfico de mancuernas: antes y después, con el cambio fuera de la pista ── */
+  /* ── El gráfico: barras horizontales de mayor a menor, con el valor al lado ── */
   .mc-grafico {
     padding: 11px 12px 12px;
     border: 1px solid var(--mq-g200);
@@ -315,8 +313,15 @@ const MANCUERNAS = [
     background: #fff;
   }
 
+  .mc-grafico__titulo {
+    margin: 0;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: var(--mq-g800, #1f2937);
+  }
+
   .mc-grafico__porque {
-    margin: 0 0 7px;
+    margin: 1px 0 7px;
     font-size: 0.5625rem;
     line-height: 1.45;
     color: var(--mq-g500);
@@ -326,7 +331,7 @@ const MANCUERNAS = [
     display: flex;
     flex-wrap: wrap;
     gap: 4px 12px;
-    margin: 0 0 8px;
+    margin: 0 0 9px;
     font-size: 0.5625rem;
     color: var(--mq-g700);
   }
@@ -343,113 +348,56 @@ const MANCUERNAS = [
     border-radius: 2px;
   }
 
-  .mc-s0 { background: var(--mq-ia-2); }
   .mc-s1 { background: #14b8a6; }
+  .mc-s2 { background: #dc2626; }
 
-  .mc-db {
+  .mc-bh {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr) auto;
-    gap: 6px 8px;
+    gap: 5px 8px;
     align-items: center;
   }
 
-  /* La escala y el aviso del eje recortado van en la cabecera: callarlo es la forma más
-     común de mentir con un gráfico. */
-  .mc-db__escala {
-    display: grid;
-    grid-column: 2 / 4;
-    grid-template-columns: auto minmax(0, 1fr) auto auto;
-    gap: 6px;
-    align-items: baseline;
-    font-size: 0.5rem;
-    font-variant-numeric: tabular-nums;
-    color: var(--mq-g500);
-  }
-
-  .mc-db__escala > :last-child {
-    padding-left: 4px;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-  }
-
-  .mc-db__aviso {
-    overflow: hidden;
-    text-align: center;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    color: #b45309;
-  }
-
-  .mc-db__fila {
+  .mc-bh__fila {
     display: contents;
   }
 
-  .mc-db__nombre {
-    font-size: 0.59375rem;
+  .mc-bh__nombre {
+    font-size: 0.625rem;
     color: var(--mq-g700);
   }
 
-  .mc-db__pista {
-    position: relative;
-    height: 12px;
-    border-radius: 3px;
-    background: rgb(229 231 235 / 0.45);
+  .mc-bh__pista {
+    display: block;
+    height: 9px;
   }
 
-  .mc-db__tramo {
-    position: absolute;
-    top: 50%;
-    left: var(--ini);
-    width: calc(var(--fin) - var(--ini));
-    height: 2px;
-    transform: translateY(-50%);
-    background: rgb(37 99 235 / 0.45);
+  .mc-bh__barra {
+    display: block;
+    width: var(--w);
+    height: 100%;
+    border-radius: 0 3px 3px 0;
+    background: rgb(99 102 241 / 0.55);
   }
 
-  .mc-db__tramo--baja {
-    background: rgb(217 119 6 / 0.45);
-  }
+  .mc-bh__fila--sube .mc-bh__barra { background: #14b8a6; }
+  .mc-bh__fila--baja .mc-bh__barra { background: #dc2626; }
 
-  .mc-db__pt {
-    position: absolute;
-    top: 50%;
-    width: 8px;
-    height: 8px;
-    margin-left: -4px;
-    border-radius: 50%;
-    transform: translateY(-50%);
-    box-shadow: 0 0 0 1.5px #fff;
-  }
-
-  .mc-db__pt--a {
-    left: var(--a);
-    background: var(--mq-ia-2);
-  }
-
-  .mc-db__pt--b {
-    left: var(--b);
-    background: #14b8a6;
-  }
-
-  .mc-db__cambio {
-    font-size: 0.59375rem;
+  .mc-bh__valor {
+    font-size: 0.625rem;
     font-weight: 600;
     text-align: right;
     font-variant-numeric: tabular-nums;
-    color: #1d4ed8;
+    color: var(--mq-g700);
   }
 
-  .mc-db__cambio--baja {
-    color: #b45309;
-  }
-
-  /* Posiciones en la escala 400.000 → 1.300.000 (a = 2025, b = 2026) */
-  .mc-md-1 { --a: 33.5%; --b: 60.3%; --ini: 33.5%; --fin: 60.3%; }
-  .mc-md-2 { --a: 88.7%; --b: 98.3%; --ini: 88.7%; --fin: 98.3%; }
-  .mc-md-3 { --a: 6.2%; --b: 10.9%; --ini: 6.2%; --fin: 10.9%; }
-  .mc-md-4 { --a: 36.8%; --b: 40.9%; --ini: 36.8%; --fin: 40.9%; }
-  .mc-md-5 { --a: 82.5%; --b: 78.5%; --ini: 78.5%; --fin: 82.5%; }
-  .mc-md-6 { --a: 22.5%; --b: 24%; --ini: 22.5%; --fin: 24%; }
+  /* Ancho = valor / mayor (Centro, 1.284.500) */
+  .mc-bh-1 { --w: 100%; }
+  .mc-bh-2 { --w: 86.1%; }
+  .mc-bh-3 { --w: 73.4%; }
+  .mc-bh-4 { --w: 59.8%; }
+  .mc-bh-5 { --w: 48%; }
+  .mc-bh-6 { --w: 38.8%; }
 
   /* ── Pie: el campo, el micrófono, enviar, y la memoria de la conversación ── */
   .mc-pie {
