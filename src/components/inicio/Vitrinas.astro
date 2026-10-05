@@ -21,7 +21,7 @@ const VITRINAS = [
     id: 'portal-bi',
     tema: 'oscuro',
     nombre: 'Portal BI',
-    pregunta: '¿Cuántas personas de tu empresa solo miran tableros?',
+    pregunta: '',
     frase: 'Power BI para toda tu empresa. Nunca más una licencia por persona.',
     puntos: [
       'Basta la licencia de la cuenta que publica. Cada persona entra con su usuario y ve solo sus tableros, con tu marca.',
@@ -29,7 +29,7 @@ const VITRINAS = [
       'Dos caminos: lo implementas tú con el código, la guía y el curso, o lo implementamos por ti.',
     ],
     href: '/portal-bi/',
-    accion: 'Mira lo que dejas de pagar',
+    accion: 'Ver más detalles',
   },
   {
     id: 'social-metrics',
@@ -63,12 +63,12 @@ const VITRINAS = [
     id: 'consultoria',
     tema: 'blanco',
     nombre: 'Consultoría de datos',
-    pregunta: '¿Cada área llega a la reunión con un número distinto?',
+    pregunta: '¿Quieres tomar decisiones basadas en datos?',
     frase: 'Ordenamos tus datos para que todos miren la misma cifra.',
     puntos: [
       'Integramos tus fuentes con procesos que se actualizan solos.',
       'Un modelo único define cada indicador una sola vez, en Power BI a tu medida.',
-      'Reportes automáticos, sin consolidar planillas a mano.',
+      'Reportes automáticos, sin consolidar Excels a mano.',
     ],
     href: '/consultoria/',
     accion: 'Así ordenamos tus datos',
@@ -86,7 +86,7 @@ const VITRINAS = [
     <div class="contenedor vitrina__rejilla">
       <div class="vitrina__texto">
         <div class="vitrina__cabecera">
-          <p class="vitrina__pregunta">{v.pregunta}</p>
+          {v.pregunta && <p class="vitrina__pregunta">{v.pregunta}</p>}
           <h2 id={`vitrina-${v.id}-titulo`} class="vitrina__nombre">
             <BarrasMarca activa={v.id} class="vitrina__barras" />{v.nombre}
           </h2>

@@ -27,7 +27,7 @@ Data Studio vende soluciones basadas en datos y el sitio existe para que cada vi
 
 ## Operating Context
 
-Todo se vende e implementa **de forma remota**. El contacto comercial es por WhatsApp (+591 760 18778) y correo (datastudio.scz@gmail.com). El sitio no debe presentar a la empresa como local de Santa Cruz o Bolivia: el público es internacional.
+Todo se vende e implementa **de forma remota**. El contacto comercial es por WhatsApp (+591 7600 8398) y correo (datastudio.scz@gmail.com). El sitio no debe presentar a la empresa como local de Santa Cruz o Bolivia: el público es internacional.
 
 ## Capabilities and Constraints
 

@@ -1,5 +1,10 @@
 # Bitácora de cambios
 
+## 04/10/2026 · Nuevo número de contacto y textos del inicio
+
+- WhatsApp y teléfono: **+591 7600 8398** (`wa.me/59176008398`), en `src/data/sitio.ts`; llega a todo el sitio.
+- Inicio: botón del Portal BI "Ver más detalles"; sin la pregunta "¿Cuántas personas…?"; la de Consultoría pasa a "¿Quieres tomar decisiones basadas en datos?"; "planillas" → "Excels".
+
 ## 04/10/2026 · Gráfico de soluciones: Portal BI como producto estrella
 
 - Escritorio: barras con tope redondeado y degradado; la del Portal BI es más ancha, verde, con sombra e insignia "Producto estrella".

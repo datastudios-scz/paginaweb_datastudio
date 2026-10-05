@@ -13,7 +13,7 @@ Empresa de soluciones de datos con base en Santa Cruz de la Sierra, Bolivia, que
 
 ## Contacto (fuente: `src/data/sitio.ts`)
 
-- WhatsApp y teléfono: +591 760 18778 (`wa.me/59176018778`)
+- WhatsApp y teléfono: +591 7600 8398 (`wa.me/59176008398`)
 - Correo: datastudio.scz@gmail.com
 - Facebook: facebook.com/DataStudioscz
 - Modalidad: implementación remota en cualquier país (no se publica ubicación)

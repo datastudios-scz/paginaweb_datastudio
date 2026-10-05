@@ -19,9 +19,9 @@ export const SITIO = {
 } as const;
 
 export const CONTACTO = {
-  telefono: '+59176018778',
-  telefonoVisible: '+591 760 18778',
-  whatsapp: '59176018778',
+  telefono: '+59176008398',
+  telefonoVisible: '+591 7600 8398',
+  whatsapp: '59176008398',
   email: 'datastudio.scz@gmail.com',
   facebook: 'https://www.facebook.com/DataStudioscz',
   modalidad: 'Implementación remota en cualquier país',
