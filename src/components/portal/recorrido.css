@@ -1,0 +1,2865 @@
+/*
+ * El recorrido animado del Portal BI (/portal-bi/como-funciona/).
+ *
+ * Dos mundos, como en el resto del sitio: AFUERA la marca Data Studio (abismo, petróleo,
+ * salvia, Poppins y DM Mono); ADENTRO de la ventana, los colores del producto (el verde del
+ * portal, el amarillo de Power BI, el violeta de la IA), calcados del CSS real del portal.
+ *
+ * La pantalla mide 1280 × 760 y se dibuja a tamaño real: la "cámara" (src/scripts/recorrido.ts)
+ * la escala y la mueve para seguir la acción, como una grabación de pantalla con zoom.
+ *
+ * Reglas que vienen de errores ya pagados (docs/aprendizajes.md):
+ *  · toda clase con `display` que nace con `hidden` lleva su `.clase[hidden] { display: none }`;
+ *  · sin atributos style: lo dinámico (cámara, cursor, progreso) se pone por CSSOM desde el JS;
+ *  · todo texto, también el de la pantalla (aria-hidden), cumple AA: Lighthouse lo mide igual.
+ */
+
+/* ═══════════════════════════════════════════════════════════════════════════════════
+   LA PÁGINA: una sala de proyección. La pantalla manda y la narración la acompaña:
+   al costado en los escritorios anchos, debajo en teléfonos, tabletas y ventanas más
+   cuadradas. Lo que decide es dónde la ventana del portal sale más grande.
+   ═══════════════════════════════════════════════════════════════════════════════════ */
+.rc {
+  --rc-ventana-barra: 38px;
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  min-height: 100svh;
+  background:
+    radial-gradient(70% 60% at 62% 38%, rgb(0 57 78 / 0.72), transparent 72%),
+    radial-gradient(45% 45% at 50% 100%, rgb(3 122 112 / 0.18), transparent 70%),
+    var(--color-abismo);
+  color: var(--color-blanco);
+  font-family: var(--font-texto);
+}
+
+/* Con JS es exactamente la pantalla, sin scroll. Sin JS se lee el guion como una página. */
+.js .rc {
+  height: 100svh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+/* ── La barra de arriba ───────────────────────────────────────────────────────────── */
+.rc-cabecera {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 3.25rem;
+  padding: 0.25rem var(--gutter);
+  border-bottom: 1px solid var(--color-linea-oscura);
+}
+
+.rc-volver {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  min-height: 2.75rem;
+  padding: 0 0.875rem 0 0.5rem;
+  border-radius: var(--radio-pill);
+  color: var(--color-salvia);
+  font-size: var(--text-sm);
+  font-weight: var(--peso-medio);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background var(--dur-1) ease, color var(--dur-1) ease;
+}
+
+.rc-volver:hover {
+  background: rgb(206 217 189 / 0.08);
+  color: var(--color-blanco);
+}
+
+.rc-volver:focus-visible {
+  outline: 2px solid var(--color-verde-claro);
+  outline-offset: 2px;
+}
+
+.rc-volver svg {
+  width: 1.125rem;
+  height: 1.125rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.rc-nombre {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  font-size: var(--text-sm);
+  font-weight: var(--peso-semi);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--color-blanco);
+}
+
+.rc-controles {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.rc-control {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 1px solid rgb(206 217 189 / 0.22);
+  border-radius: 50%;
+  background: rgb(0 23 32 / 0.5);
+  color: var(--color-blanco);
+  cursor: pointer;
+  transition: background var(--dur-1) ease, border-color var(--dur-1) ease;
+}
+
+.rc-control:hover {
+  background: var(--color-petroleo);
+  border-color: rgb(206 217 189 / 0.4);
+}
+
+.rc-control:focus-visible,
+.rc-progreso__paso:focus-visible {
+  outline: 2px solid var(--color-verde-claro);
+  outline-offset: 2px;
+}
+
+.rc-control svg {
+  width: 1.125rem;
+  height: 1.125rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.rc-control[hidden] {
+  display: none;
+}
+
+/* El de pausa lleva los dos íconos: se ve el de la acción que hace. Antes de empezar y al
+   terminar, esa acción es reproducir. */
+.rc-control__seguir,
+.rc[data-pausa] .rc-control__pausar,
+.rc:not([data-estado='reproduciendo']) .rc-control__pausar {
+  display: none;
+}
+
+.rc[data-pausa] .rc-control__seguir,
+.rc:not([data-estado='reproduciendo']) .rc-control__seguir {
+  display: block;
+}
+
+/* Sin JS no hay nada que controlar */
+html:not(.js) .rc-controles {
+  display: none;
+}
+
+/* ── El escenario y la ventana ────────────────────────────────────────────────────── */
+.rc-escenario {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 0;
+  padding: clamp(0.75rem, 2vh, 1.5rem) var(--gutter) 0;
+  container-type: size;
+}
+
+html:not(.js) .rc-escenario {
+  display: none;
+}
+
+/* La ventana entra entera en el escenario con la proporción de la pantalla (1280 × 760 más
+   la barra de dirección). En un teléfono parado ocupa todo el alto: la cámara la llena. */
+.rc-ventana {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: min(100cqw, (100cqh - var(--rc-ventana-barra)) * 1.6842);
+  height: min(100cqh, 100cqw / 1.6842 + var(--rc-ventana-barra));
+  border-radius: 14px;
+  overflow: hidden;
+  background: #0b1013;
+  box-shadow:
+    0 0 0 1px rgb(206 217 189 / 0.16),
+    0 18px 40px -24px rgb(0 0 0 / 0.6),
+    0 50px 100px -40px rgb(0 0 0 / 0.85);
+}
+
+@container (aspect-ratio < 1.15) and (width < 36rem) {
+  .rc-ventana {
+    width: 100cqw;
+    height: 100cqh;
+  }
+}
+
+.rc-ventana__barra {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: var(--rc-ventana-barra);
+  flex: none;
+  padding: 0 12px;
+  background: #f3f5f2;
+  border-bottom: 1px solid #e1e7e0;
+}
+
+.rc-url {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 4px 11px;
+  border: 1px solid #e1e7e0;
+  border-radius: var(--radio-pill);
+  background: #fff;
+  font-family: var(--font-datos);
+  font-size: 0.6875rem;
+  color: #5b6964;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rc-url svg {
+  width: 11px;
+  height: 11px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.rc-url__txt {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* La descarga, como la burbuja del navegador: aparece cuando el archivo baja */
+.rc-descarga {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  padding: 3px 10px 3px 6px;
+  border-radius: var(--radio-pill);
+  background: #fff;
+  border: 1px solid #cfe0d9;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: #0f1d1c;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(-6px) scale(0.96);
+  transition: opacity 0.3s ease, transform 0.45s var(--ease-out);
+}
+
+.rc-descarga.es-visible {
+  opacity: 1;
+  transform: none;
+}
+
+.rc-descarga__ico {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #e3f1ee;
+  color: var(--color-verde);
+}
+
+.rc-descarga__ico svg {
+  width: 11px;
+  height: 11px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.rc-descarga__ok {
+  display: none;
+}
+
+.rc-descarga.es-lista .rc-descarga__bajando {
+  display: none;
+}
+
+.rc-descarga.es-lista .rc-descarga__ok {
+  display: block;
+}
+
+.rc-descarga.es-lista .rc-descarga__ico {
+  background: var(--color-verde);
+  color: #fff;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .rc-descarga:not(.es-lista) .rc-descarga__bajando {
+    animation: rc-bajar 0.7s ease-in-out infinite;
+  }
+}
+
+.rc-ejemplo {
+  flex: none;
+  margin-left: auto;
+  font-family: var(--font-datos);
+  font-size: 0.625rem;
+  letter-spacing: 0.04em;
+  color: #5b6964;
+  white-space: nowrap;
+}
+
+.rc-descarga + .rc-ejemplo {
+  margin-left: 0;
+}
+
+/* Lo que se ve por la ventana: la pantalla, escalada y movida por la cámara. El fondo es el
+   de la escena, por si alguna toma deja ver un borde mientras se mueve. */
+.rc-vista {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  background: #037a70;
+  transition: background 0.6s ease;
+}
+
+.rc-vista[data-escena='portal'] {
+  background: #f3f4f6;
+}
+
+.rc-vista[data-escena='visor'] {
+  background: #fff;
+}
+
+/* ── La portada y el cierre: encima de la pantalla, debajo de la barra de dirección ── */
+.rc-portada,
+.rc-final {
+  position: absolute;
+  inset: var(--rc-ventana-barra) 0 0;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  padding: var(--space-4);
+  text-align: center;
+}
+
+.rc-portada[hidden],
+.rc-final[hidden] {
+  display: none;
+}
+
+/* Llegó desde «Mira cómo funciona» (#ver): arranca solo, la portada no se pinta ni un instante.
+   Con movimiento reducido no arranca solo, así que se queda. */
+@media (prefers-reduced-motion: no-preference) {
+  .js #ver:target .rc-portada {
+    display: none;
+  }
+}
+
+/* La portada deja ver el ingreso del portal: es lo primero que verá el equipo */
+.rc-portada {
+  background: radial-gradient(60% 70% at 50% 50%, rgb(0 23 32 / 0.66), rgb(0 23 32 / 0.38));
+}
+
+.rc-portada__dentro {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+}
+
+.rc-reproducir {
+  min-height: 3.5rem;
+  padding-inline: 1.5rem 1.875rem;
+  background: var(--color-verde-claro);
+  color: var(--color-abismo);
+  font-size: var(--text-md);
+  box-shadow: 0 14px 34px -12px rgb(0 0 0 / 0.6);
+}
+
+.rc-reproducir:hover {
+  background: var(--color-blanco);
+  color: var(--color-abismo);
+}
+
+.rc-reproducir svg {
+  fill: currentColor;
+}
+
+.rc-atajos {
+  margin: 0;
+  padding: 0.3125rem 0.75rem;
+  border-radius: var(--radio-pill);
+  background: rgb(0 23 32 / 0.62);
+  font-family: var(--font-datos);
+  font-size: var(--text-xs);
+  color: var(--color-salvia);
+}
+
+/* Sin teclado no hay atajos que contar */
+@media (pointer: coarse), (max-width: 30rem) {
+  .rc-atajos {
+    display: none;
+  }
+}
+
+/* El cierre: la pantalla queda atrás, velada, y adelante lo que se puede hacer */
+.rc-final {
+  background: rgb(0 23 32 / 0.74);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
+.rc-final__dentro {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-4);
+}
+
+.rc-final__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+.rc-final__volver {
+  color: var(--color-salvia);
+  font-size: var(--text-sm);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .rc-final:not([hidden]) {
+    animation: rc-velo 0.7s var(--ease-out) both;
+  }
+
+  .rc-final:not([hidden]) .rc-final__dentro > * {
+    animation: rc-detalle 0.6s var(--ease-out) both;
+  }
+
+  .rc-final:not([hidden]) .rc-final__dentro > :nth-child(2) { animation-delay: 0.12s; }
+  .rc-final:not([hidden]) .rc-final__dentro > :nth-child(3) { animation-delay: 0.24s; }
+}
+
+/* ── La narración ─────────────────────────────────────────────────────────────────── */
+.rc-banda {
+  display: grid;
+  gap: 0.75rem;
+  padding: clamp(0.625rem, 1.8vh, 1.125rem) var(--gutter) clamp(0.875rem, 2.6vh, 1.5rem);
+}
+
+html:not(.js) .rc-banda {
+  width: 100%;
+  max-width: var(--ancho-texto);
+  margin-inline: auto;
+  padding-block: var(--space-7) var(--space-8);
+}
+
+/* Un segmento por paso: el que corre se llena. Es una secuencia de verdad, y se toca para
+   saltar. El blanco del toque mide 24 px aunque la barra mida 4. */
+.rc-progreso {
+  display: flex;
+  gap: 6px;
+  height: 1.5rem;              /* nace vacía y el script le pone los segmentos: el alto ya reservado */
+  margin-block: -0.625rem -0.25rem;
+}
+
+html:not(.js) .rc-progreso {
+  display: none;
+}
+
+.rc-progreso__paso {
+  display: grid;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  height: 1.5rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.rc-progreso__paso i {
+  position: relative;
+  display: block;
+  height: 4px;
+  border-radius: 2px;
+  overflow: hidden;
+  background: rgb(206 217 189 / 0.2);
+  transition: background var(--dur-1) ease;
+}
+
+.rc-progreso__paso:hover i {
+  background: rgb(206 217 189 / 0.36);
+}
+
+.rc-progreso__paso i::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--color-verde-claro);
+  transform: scaleX(var(--p, 0));
+  transform-origin: left;
+}
+
+/* La caja mide lo que mide el texto más largo de todo el guion (la medida invisible de
+   atrás): así la ventana no cambia de tamaño entre un paso y otro. */
+.rc-narracion-caja {
+  display: grid;
+}
+
+.rc-narracion-caja > * {
+  grid-area: 1 / 1;
+}
+
+.rc-medida {
+  display: grid;
+  visibility: hidden;
+}
+
+.rc-medida > * {
+  grid-area: 1 / 1;
+}
+
+html:not(.js) .rc-medida {
+  display: none;
+}
+
+.rc-narracion {
+  display: grid;
+  align-content: start;
+  row-gap: 0.3125rem;
+}
+
+.rc-narracion__n {
+  margin: 0;
+  font-family: var(--font-datos);
+  font-size: var(--text-xs);
+  letter-spacing: 0.08em;
+  color: var(--color-verde-claro);
+  white-space: nowrap;
+}
+
+.rc-narracion__t {
+  margin: 0;
+  font-size: clamp(1.375rem, 0.9rem + 1.6vw, 2.25rem);
+  font-weight: var(--peso-semi);
+  letter-spacing: var(--tracking-titulo);
+  line-height: 1.12;
+  text-wrap: balance;
+}
+
+.rc-narracion__d {
+  margin: 0;
+  max-width: 68ch;
+  font-size: clamp(0.9375rem, 0.88rem + 0.25vw, 1.0625rem);
+  line-height: 1.55;
+  color: var(--color-salvia);
+  text-wrap: pretty;
+}
+
+/* Las palabras suben de a una desde una ranura, entintadas, y se enfocan al llegar. El
+   detalle las sigue más rápido. Al irse, se van en el mismo orden. */
+.rc-p {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  padding-bottom: 0.12em;
+  margin-bottom: -0.12em;
+}
+
+.rc-p > span,
+.rc-d {
+  display: inline-block;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .rc-narracion.es-entrando .rc-p > span {
+    animation: rc-palabra 0.85s var(--ease-out) both;
+    animation-delay: calc(100ms + var(--k, 0) * 55ms);
+  }
+
+  .rc-narracion.es-entrando .rc-d {
+    animation: rc-palabrita 0.55s var(--ease-out) both;
+    animation-delay: calc(var(--base, 400ms) + var(--k, 0) * 12ms);
+  }
+
+  .rc-narracion.es-entrando .rc-narracion__n {
+    animation: rc-detalle 0.5s var(--ease-out) both;
+  }
+
+  .rc-narracion.es-saliendo .rc-p > span,
+  .rc-narracion.es-saliendo .rc-d,
+  .rc-narracion.es-saliendo .rc-narracion__n {
+    animation: rc-sale 0.22s var(--ease-in) both;
+    animation-delay: calc(min(var(--k, 0), 10) * 10ms);
+  }
+}
+
+/* El guion completo: sin JS es la página; con JS queda para lectores de pantalla */
+.rc-guion {
+  display: grid;
+  gap: var(--space-4);
+  margin: var(--space-6) 0 0;
+  padding: 0 0 0 1.25rem;
+  color: var(--color-salvia);
+  line-height: 1.55;
+}
+
+.rc-guion strong {
+  display: block;
+  color: var(--color-blanco);
+  font-weight: var(--peso-semi);
+}
+
+.js .rc-guion-caja {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ── Escritorio ancho (y teléfono acostado): la narración al costado, la ventana se queda
+   con el resto. Acostado, con la narración abajo, la ventana medía 278 px de ancho. ──── */
+@media (min-width: 64rem) and (min-aspect-ratio: 5/3), (orientation: landscape) and (max-height: 34rem) and (min-width: 40rem) {
+  .js .rc {
+    grid-template-columns: clamp(18rem, 28vw, 27rem) minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .js .rc-cabecera {
+    grid-column: 1 / -1;
+  }
+
+  .js .rc-escenario {
+    grid-column: 2;
+    grid-row: 2;
+    padding: clamp(1rem, 3vh, 2rem) var(--gutter) clamp(1rem, 3vh, 2rem) 0;
+  }
+
+  .js .rc-banda {
+    grid-column: 1;
+    grid-row: 2;
+    align-self: center;
+    gap: 1.5rem;
+    width: auto;
+    max-width: none;
+    margin: 0;
+    padding: 0 clamp(1.5rem, 2.6vw, 3rem) 0 var(--gutter);
+    box-sizing: border-box;
+  }
+
+  .js .rc-narracion {
+    row-gap: 0.875rem;
+  }
+
+  .js .rc-narracion__t {
+    font-size: clamp(1.75rem, 0.9rem + 1.5vw, 2.5rem);
+    line-height: 1.1;
+    text-wrap: balance;
+  }
+
+  .js .rc-narracion__d {
+    font-size: var(--text-md);
+  }
+}
+
+/* ── Escritorio más cuadrado: la ventana queda más angosta que la página (la limita el
+   alto), así que la narración va centrada debajo, como subtítulos, en vez de arrancar a la
+   izquierda de la ventana. Sin medir nada con el script: no hay nada que salte. ──── */
+@media (min-width: 64rem) and (aspect-ratio >= 6/5) and (aspect-ratio < 5/3) {
+  .js .rc-narracion {
+    justify-items: center;
+    text-align: center;
+  }
+
+  .js .rc-narracion__d {
+    max-width: 62ch;
+  }
+
+  .js .rc-progreso {
+    width: min(100%, 42rem);
+    margin-inline: auto;
+  }
+}
+
+/* ── Tableta parada: a la ventana la limita el ancho y sobra alto. El escenario mide justo
+   la ventana y el conjunto (ventana + narración) queda centrado entre dos espacios iguales,
+   en vez de dejar la narración despegada abajo. Todo en CSS: con el script saltaba. ──── */
+@media (orientation: portrait) and (min-width: 40rem) and (min-height: 42rem) {
+  .js .rc {
+    grid-template-rows: auto minmax(0, 1fr) auto auto minmax(0, 1fr);
+  }
+
+  .js .rc-cabecera {
+    grid-row: 1;
+  }
+
+  .js .rc-escenario {
+    grid-row: 3;
+    height: calc((100vw - 2 * var(--gutter)) / 1.6842 + var(--rc-ventana-barra) + clamp(0.75rem, 2vh, 1.5rem) + 2px);
+  }
+
+  .js .rc-banda {
+    grid-row: 4;
+  }
+}
+
+/* ── Teléfono: el número va arriba y el titular usa todo el ancho ─────────────────── */
+@media (max-width: 40rem) {
+  .rc-cabecera {
+    gap: var(--space-2);
+  }
+
+  .rc-volver span {
+    display: none;
+  }
+
+  .rc-volver {
+    padding: 0 0.625rem;
+  }
+
+  .rc-controles {
+    gap: 0.375rem;
+  }
+
+  .rc-nombre__extra {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .rc-ejemplo {
+    display: none;
+  }
+
+}
+
+/* Teléfonos chicos: los controles se achican un poco para que el título siga entrando
+   (40 px de blanco siguen muy por encima de los 24 que pide WCAG 2.5.8) */
+@media (max-width: 22.5rem) {
+  .rc-control {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .rc-volver {
+    padding: 0 0.375rem;
+  }
+}
+
+/* Ventanas bajas (un teléfono acostado): solo el titular */
+@media (max-height: 34rem) and (orientation: landscape) {
+  .rc-narracion__d {
+    display: none;
+  }
+
+  .rc-narracion__t {
+    font-size: var(--text-lg);
+  }
+}
+
+/* Teléfono acostado con la narración al costado: entra todo, en letra más chica */
+@media (orientation: landscape) and (max-height: 34rem) and (min-width: 40rem) {
+  .js .rc-banda {
+    gap: 0.75rem;
+  }
+
+  .js .rc-narracion {
+    row-gap: 0.375rem;
+  }
+
+  .js .rc-narracion__t {
+    font-size: var(--text-lg);
+  }
+
+  .js .rc-narracion__d {
+    display: block;
+    font-size: var(--text-sm);
+    line-height: 1.5;
+  }
+}
+
+/* Escritorios bajos con la narración abajo: el titular se achica para dejarle alto a la pantalla */
+@media (max-height: 46rem) and (orientation: landscape) and (min-width: 40.01rem) {
+  .rc-narracion__t {
+    font-size: clamp(1.25rem, 0.8rem + 1.2vw, 1.75rem);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════════
+   LA PANTALLA DEL PORTAL (1280 × 760, tamaño real)
+   ═══════════════════════════════════════════════════════════════════════════════════ */
+.rc-pantalla {
+  --rc-marca: #037a70;
+  --rc-marca-hondo: #00635b;
+  --rc-ia: #4338ca;
+  --rc-ia-2: #4f46e5;           /* el portal usa #6366f1; con texto blanco da 4,46:1, acá sube a AA */
+  --rc-ia-3: #8b5cf6;
+  --rc-ia-tenue: #eef2ff;
+  --rc-ia-borde: #c7d2fe;
+  --rc-pbi: #f2c811;
+  --rc-pbi-azul: #118dff;
+  --rc-pbi-tinta: #252423;
+  --rc-pbi-tinta-2: #605e5c;
+  --rc-pbi-linea: #edebe9;
+  --rc-g100: #f3f4f6;
+  --rc-g200: #e5e7eb;
+  --rc-g500: #6b7280;
+  --rc-g600: #4b5563;
+  --rc-g700: #374151;
+  --rc-g800: #1f2937;
+  --rc-g900: #111827;
+  --rc-ui: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --rc-pbi-fuente: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+  --rc-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', Consolas, monospace;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1280px;
+  height: 760px;
+  overflow: hidden;
+  transform-origin: 0 0;
+  font-family: var(--font-texto);
+  line-height: 1.4;
+  color: var(--rc-g800);
+  user-select: none;
+}
+
+/* Hasta que la cámara la encuadra, no se ve: así no aparece un recorte por un instante */
+.js .rc-pantalla:not(.es-lista) {
+  visibility: hidden;
+}
+
+.rc-pantalla p {
+  margin: 0;
+}
+
+.rc-escena {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.6s ease, visibility 0s linear 0.6s;
+}
+
+[data-escena='ingreso'] .rc-ingreso,
+[data-escena='portal'] .rc-portal,
+[data-escena='visor'] .rc-visor {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.6s ease;
+}
+
+/* ═══ 1. EL INGRESO (login.css): la tarjeta de vidrio con las olas que giran ═══ */
+.rc-ingreso {
+  display: grid;
+  place-items: center;
+  background: var(--rc-marca);
+}
+
+.rc-login {
+  position: relative;
+  isolation: isolate;
+  width: 400px;
+  padding: 40px 32px 32px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: color-mix(in srgb, #fff 82%, transparent);
+  box-shadow:
+    0 0 40px rgb(255 255 255 / 0.16),
+    0 25px 45px rgb(0 0 0 / 0.28),
+    0 10px 20px rgb(0 0 0 / 0.16),
+    inset 0 0 14px 3px rgb(17 24 39 / 0.06),
+    inset 0 10px 16px -12px rgb(17 24 39 / 0.16),
+    inset 0 -30px 38px -16px rgb(255 255 255 / 0.5);
+  color: var(--rc-g900);
+}
+
+/* Las olas: dos manchas de 600 px con el borde irregular, corridas abajo a la derecha. Al
+   girar, el borde se deforma y se ve una ola que sube en diagonal. Es la firma del login. */
+.rc-login::before,
+.rc-login::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  width: 600px;
+  height: 600px;
+  border-radius: 40% 45% 35% 40%;
+  filter: blur(1px) saturate(1.7);
+  pointer-events: none;
+}
+
+.rc-login::before {
+  left: 35%;
+  bottom: -90%;
+  background: rgb(0 57 78 / 0.15);
+  animation: rc-olas 6s linear infinite;
+}
+
+.rc-login::after {
+  left: 30%;
+  bottom: -85%;
+  background: rgb(77 207 193 / 0.2);
+  animation: rc-olas 7s linear infinite;
+}
+
+/* El canto especular: la luz que se dobla en el borde del vidrio */
+.rc-login__canto {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  padding: 1.5px;
+  border-radius: inherit;
+  background: conic-gradient(
+    rgb(255 255 255 / 1) 0deg,
+    rgb(255 255 255 / 0.22) 80deg,
+    rgb(255 255 255 / 0.88) 180deg,
+    rgb(255 255 255 / 0.26) 275deg,
+    rgb(255 255 255 / 1) 360deg
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  pointer-events: none;
+}
+
+@supports not ((-webkit-mask-composite: xor) or (mask-composite: exclude)) {
+  .rc-login__canto {
+    display: none;
+  }
+}
+
+.rc-login__titulo {
+  margin-bottom: 28px !important;
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-align: center;
+}
+
+.rc-login__campo {
+  margin-bottom: 17px;
+}
+
+.rc-login__rotulo {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--rc-g600);
+}
+
+.rc-login__input {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  height: 47px;
+  padding: 0 14px;
+  border: 1.5px solid var(--rc-g200);
+  border-radius: 10px;
+  background: #f8fafc;
+  font-size: 15px;
+  color: var(--rc-g900);
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+
+.rc-login__input.es-foco {
+  border-color: var(--rc-marca);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgb(3 122 112 / 0.18);
+}
+
+.rc-login__ojo {
+  width: 17px;
+  height: 17px;
+  flex: none;
+  fill: none;
+  stroke: var(--rc-g500);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.rc-tipeo {
+  white-space: pre;
+}
+
+.rc-tipeo--clave {
+  letter-spacing: 0.14em;
+}
+
+/* El cursor de texto, mientras el campo tiene el foco */
+.es-foco .rc-tipeo::after {
+  content: '';
+  display: inline-block;
+  width: 1.5px;
+  height: 1.15em;
+  margin-left: 1px;
+  vertical-align: -0.22em;
+  background: currentColor;
+  animation: rc-parpadeo 1.05s steps(2, start) infinite;
+}
+
+.rc-login__boton {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: 47px;
+  margin-top: 8px;
+  border-radius: 10px;
+  background: var(--rc-marca);
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.16),
+    0 5px 14px rgb(0 0 0 / 0.16),
+    inset 0 1px 0 rgb(255 255 255 / 0.26),
+    inset 0 -1px 0 rgb(0 0 0 / 0.22);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transition: background 0.18s ease, transform 0.08s ease, box-shadow 0.18s ease;
+}
+
+.rc-login__boton.es-hover {
+  background: color-mix(in srgb, var(--rc-marca) 88%, #000);
+}
+
+.rc-login__boton.es-presionado {
+  transform: translateY(1px);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.14), inset 0 2px 5px rgb(0 0 0 / 0.24);
+}
+
+.rc-login__boton.es-enviando {
+  opacity: 0.88;
+}
+
+.rc-login__boton.es-enviando .rc-login__boton-txt::after {
+  content: '';
+  display: inline-block;
+  width: 13px;
+  height: 13px;
+  margin-left: 9px;
+  vertical-align: -2px;
+  border: 2px solid rgb(255 255 255 / 0.45);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: rc-girar 0.6s linear infinite;
+}
+
+.rc-login__logo {
+  display: grid;
+  place-items: center;
+  margin-top: 24px;
+}
+
+.rc-login__logo svg {
+  width: 150px;
+  height: auto;
+}
+
+.rc-login__logo-f {
+  fill: var(--rc-marca);
+}
+
+.rc-login__logo-f2 {
+  fill: var(--rc-g900);
+}
+
+.rc-login__logo-t {
+  font-family: var(--font-texto);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  fill: var(--rc-g900);
+}
+
+/* ═══ 2. EL PORTAL (home.css + tableros.css) ═══ */
+.rc-portal {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  background: #f0f2f5;
+}
+
+.rc-menu {
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, var(--rc-marca) 0%, var(--rc-marca-hondo) 100%);
+  box-shadow: inset -1px 0 0 rgb(255 255 255 / 0.2);
+  color: #fff;
+}
+
+.rc-menu__marca {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 18px 16px 16px;
+  border-bottom: 1px solid rgb(0 0 0 / 0.12);
+}
+
+.rc-menu__logo {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  flex: none;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgb(255 255 255 / 0.34), 0 2px 8px rgb(0 0 0 / 0.18);
+}
+
+.rc-menu__logo svg {
+  width: 22px;
+  height: 22px;
+  fill: var(--rc-marca);
+}
+
+.rc-menu__nombre {
+  flex: 1;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.rc-menu__plegar,
+.rc-menu__chev {
+  width: 15px;
+  height: 15px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.rc-menu__chev {
+  margin-left: auto;
+  transition: transform 0.35s var(--ease-out);
+}
+
+.rc-menu__item.es-abierto .rc-menu__chev {
+  transform: rotate(180deg);
+}
+
+.rc-menu__nav {
+  flex: 1;
+  padding: 6px 12px 12px;
+}
+
+.rc-menu__seccion {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 18px 6px 7px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.rc-menu__seccion::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgb(255 255 255 / 0.22);
+}
+
+.rc-menu__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: background 0.18s ease;
+}
+
+.rc-menu__item.es-hover {
+  background: rgb(255 255 255 / 0.14);
+}
+
+.rc-menu__ico {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  fill: currentColor;
+}
+
+.rc-menu__sub {
+  max-height: 0;
+  overflow: hidden;
+  padding-left: 14px;
+  transition: max-height 0.5s var(--ease-out);
+}
+
+.rc-menu__sub.es-abierto {
+  max-height: 140px;
+}
+
+.rc-menu__subitem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 3px 0;
+  padding: 8px 10px;
+  border-radius: 7px;
+  font-size: 13.5px;
+  transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.rc-menu__subitem i {
+  width: 6px;
+  height: 6px;
+  flex: none;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.7);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.rc-menu__subitem.es-hover {
+  background: rgb(255 255 255 / 0.14);
+}
+
+/* El elegido: pastilla blanca con el color de la marca, con filo de vidrio */
+.rc-menu__subitem.es-activo {
+  background: #fff;
+  color: var(--rc-marca-hondo);
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.18), 0 0 0 1px rgb(255 255 255 / 0.55), inset 0 -1px 0 rgb(0 0 0 / 0.08);
+}
+
+.rc-menu__subitem.es-activo i {
+  background: var(--rc-marca);
+  transform: scale(1.3);
+}
+
+.rc-menu__pie {
+  padding: 10px 12px;
+  border-top: 1px solid rgb(0 0 0 / 0.12);
+}
+
+.rc-principal {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.rc-barra {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+  flex: none;
+  padding: 0 28px;
+  background: #fff;
+  border-bottom: 2px solid var(--rc-g200);
+  box-shadow: 0 2px 12px rgb(0 0 0 / 0.06);
+}
+
+.rc-barra::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 64px;
+  height: 2px;
+  background: var(--rc-marca);
+}
+
+.rc-migas {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--rc-g800);
+}
+
+.rc-migas b {
+  font-weight: 600;
+}
+
+.rc-migas__casa {
+  width: 17px;
+  height: 17px;
+  fill: var(--rc-g500);
+}
+
+.rc-migas__sep {
+  width: 12px;
+  height: 12px;
+  fill: none;
+  stroke: var(--rc-g500);
+  stroke-width: 2.6;
+  stroke-linecap: round;
+}
+
+.rc-barra__der {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.rc-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 13px 4px 4px;
+  border: 1px solid var(--rc-g200);
+  border-radius: 999px;
+  background: var(--rc-g100);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.rc-chip__avatar {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--rc-marca), var(--rc-marca-hondo));
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.rc-salir {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--rc-g200);
+  border-radius: 8px;
+  background: var(--rc-g100);
+}
+
+.rc-salir svg {
+  width: 16px;
+  height: 16px;
+  fill: var(--rc-g600);
+}
+
+.rc-lienzo {
+  position: relative;
+  flex: 1;
+  padding: 28px;
+  background-color: #f0f2f5;
+  background-image:
+    radial-gradient(circle, rgb(3 122 112 / 0.1) 1px, transparent 1.2px),
+    radial-gradient(70% 55% at 12% 0%, rgb(3 122 112 / 0.06) 0%, transparent 70%);
+  background-size: 28px 28px, 100% 100%;
+}
+
+.rc-bienvenida {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 14px;
+  text-align: center;
+  transition: opacity 0.4s ease, transform 0.5s var(--ease-out);
+}
+
+.rc-bienvenida.es-fuera {
+  opacity: 0;
+  transform: translateY(-12px);
+}
+
+.rc-bienvenida__ico {
+  display: grid;
+  place-items: center;
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: rgb(3 122 112 / 0.1);
+  box-shadow: inset 0 0 0 1px rgb(3 122 112 / 0.18);
+}
+
+.rc-bienvenida__ico svg {
+  width: 34px;
+  height: 34px;
+  fill: var(--rc-marca);
+}
+
+.rc-bienvenida__t {
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--rc-g800);
+}
+
+.rc-bienvenida__t strong {
+  color: var(--rc-marca-hondo);
+}
+
+.rc-bienvenida__p {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14.5px;
+  color: var(--rc-g600);
+}
+
+.rc-bienvenida__p svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: var(--rc-marca);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Las tarjetas de vidrio: entran escalonadas cuando se elige la empresa */
+.rc-tarjetas {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.rc-tarjeta {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 34px 20px 26px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.9), rgb(255 255 255 / 0.7));
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 0.95),
+    inset 0 -16px 22px -20px rgb(17 24 39 / 0.18),
+    0 1px 2px rgb(17 24 39 / 0.04),
+    0 10px 26px rgb(17 24 39 / 0.09);
+  text-align: center;
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 0.45s ease var(--rc-d, 0s),
+    transform 0.6s var(--ease-out) var(--rc-d, 0s),
+    box-shadow 0.25s ease;
+}
+
+.rc-tarjetas.es-visible .rc-tarjeta {
+  opacity: 1;
+  transform: none;
+}
+
+.rc-tarjeta:nth-child(2) { --rc-d: 0.06s; }
+.rc-tarjeta:nth-child(3) { --rc-d: 0.12s; }
+.rc-tarjeta:nth-child(4) { --rc-d: 0.18s; }
+.rc-tarjeta:nth-child(5) { --rc-d: 0.24s; }
+.rc-tarjeta:nth-child(6) { --rc-d: 0.3s; }
+
+.rc-tarjetas.es-visible .rc-tarjeta.es-hover {
+  transform: translateY(-5px);
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 0.95),
+    inset 0 -16px 22px -20px rgb(17 24 39 / 0.18),
+    0 2px 4px rgb(17 24 39 / 0.06),
+    0 18px 36px rgb(17 24 39 / 0.14);
+  transition-delay: 0s;
+}
+
+.rc-tarjetas.es-visible .rc-tarjeta.es-presionado {
+  transform: translateY(-2px) scale(0.975);
+}
+
+.rc-tarjeta__pbi {
+  width: 48px;
+  height: 48px;
+  fill: var(--rc-pbi);
+  filter: drop-shadow(0 3px 7px rgb(242 200 17 / 0.4));
+  transform-origin: 50% 100%;
+}
+
+.rc-tarjeta__titulo {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--rc-g800);
+}
+
+.rc-tarjeta__ia {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border: 1px solid var(--rc-ia-borde);
+  border-radius: 20px;
+  background: var(--rc-ia-tenue);
+  color: var(--rc-ia);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  line-height: 1;
+}
+
+.rc-tarjeta__ia svg {
+  width: 11px;
+  height: 11px;
+  fill: currentColor;
+}
+
+/* ═══ 3. EL VISOR: el reporte de Power BI, la capa de carga, la lengüeta y el chat ═══ */
+.rc-visor {
+  background: #000;
+}
+
+.rc-reporte {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 1280px;
+  overflow: hidden;
+  background: #fff;
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Con el chat abierto el tablero se corre: Power BI encaja la página en la mitad */
+.rc-visor.es-chat .rc-reporte {
+  width: 640px;
+}
+
+.rc-pbi {
+  position: relative;
+  width: 1280px;
+  height: 724px;
+  padding: 22px 30px;
+  box-sizing: border-box;
+  background: #fff;
+  font-family: var(--rc-pbi-fuente);
+  color: var(--rc-pbi-tinta);
+  transform-origin: 0 0;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.rc-visor.es-chat .rc-pbi {
+  transform: scale(0.5);
+}
+
+.rc-pbi__cab {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.rc-pbi__titulo {
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.rc-pbi__filtro {
+  padding: 7px 13px;
+  border: 1px solid #c8c6c4;
+  border-radius: 4px;
+  font-size: 13px;
+  color: var(--rc-pbi-tinta-2);
+}
+
+.rc-pbi__filtro b {
+  font-weight: 600;
+  color: var(--rc-pbi-tinta);
+}
+
+.rc-pbi__kpis {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin: 20px 0 16px;
+}
+
+.rc-kpi {
+  padding: 16px 18px 14px;
+  border: 1px solid var(--rc-pbi-linea);
+  border-radius: 6px;
+  background: #fff;
+}
+
+.rc-kpi__v {
+  font-size: 34px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.rc-kpi__v--sube {
+  color: #107c10;
+}
+
+.rc-kpi__t {
+  margin-top: 4px !important;
+  font-size: 13px;
+  color: var(--rc-pbi-tinta-2);
+}
+
+.rc-pbi__visuales {
+  display: grid;
+  grid-template-columns: 1.08fr 1fr;
+  gap: 16px;
+}
+
+.rc-vis {
+  position: relative;
+  padding: 14px 16px 10px;
+  border: 1px solid var(--rc-pbi-linea);
+  border-radius: 6px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.rc-vis.es-hover {
+  border-color: #c8c6c4;
+  box-shadow: 0 2px 10px rgb(0 0 0 / 0.08);
+}
+
+.rc-vis__cab {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 26px;
+}
+
+.rc-vis__titulo {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+/* Los íconos del encabezado del visual: aparecen al pasar el mouse, como en Power BI */
+.rc-vis__iconos {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.rc-vis.es-hover .rc-vis__iconos {
+  opacity: 1;
+}
+
+.rc-vis__iconos > svg,
+.rc-vis__mas svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: var(--rc-pbi-tinta-2);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.rc-vis__iconos > svg {
+  margin: 0 3px;
+}
+
+.rc-vis__mas {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 4px;
+  transition: background 0.15s ease;
+}
+
+.rc-vis__mas svg {
+  fill: var(--rc-pbi-tinta-2);
+  stroke: none;
+}
+
+.rc-vis__mas.es-hover,
+.rc-vis__mas.es-presionado {
+  background: #edebe9;
+}
+
+.rc-vis__leyenda {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--rc-pbi-tinta-2);
+}
+
+.rc-vis__sw {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.rc-vis__sw--26 {
+  background: var(--rc-pbi-azul);
+}
+
+.rc-vis__sw--25 {
+  margin-left: 8px;
+  background: #a19f9d;
+}
+
+.rc-barras,
+.rc-lineas {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-top: 6px;
+  overflow: visible;
+}
+
+.rc-barras__etq,
+.rc-barras__v,
+.rc-lineas__txt {
+  font-family: var(--rc-pbi-fuente);
+  font-size: 10.5px;
+  fill: var(--rc-pbi-tinta-2);
+}
+
+.rc-barras__v {
+  font-size: 10px;
+  fill: var(--rc-pbi-tinta);
+}
+
+.rc-barras__b {
+  fill: var(--rc-pbi-azul);
+  transform-box: fill-box;
+  transform-origin: left center;
+}
+
+.rc-lineas__reja {
+  stroke: var(--rc-pbi-linea);
+  stroke-width: 1;
+}
+
+.rc-lineas__eje {
+  stroke: #c8c6c4;
+  stroke-width: 1;
+}
+
+.rc-lineas__s {
+  fill: none;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.rc-lineas__s--26 {
+  stroke: var(--rc-pbi-azul);
+}
+
+.rc-lineas__s--25 {
+  stroke: #a19f9d;
+  stroke-width: 2;
+}
+
+/* El reporte se dibuja: las barras crecen y las líneas se trazan cuando se va la capa */
+@media (prefers-reduced-motion: no-preference) {
+  .js .rc-barras__b {
+    transform: scaleX(0);
+    transition: transform 0.9s var(--ease-out);
+  }
+
+  .js .rc-lineas__s {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    transition: stroke-dashoffset 1.4s var(--ease-out) 0.2s;
+  }
+
+  .js .rc-pbi.es-dibujado .rc-barras__b {
+    transform: none;
+  }
+
+  .js .rc-pbi.es-dibujado .rc-lineas__s {
+    stroke-dashoffset: 0;
+  }
+
+  .rc-barras g:nth-child(2) .rc-barras__b { transition-delay: 0.05s; }
+  .rc-barras g:nth-child(3) .rc-barras__b { transition-delay: 0.1s; }
+  .rc-barras g:nth-child(4) .rc-barras__b { transition-delay: 0.15s; }
+  .rc-barras g:nth-child(5) .rc-barras__b { transition-delay: 0.2s; }
+  .rc-barras g:nth-child(6) .rc-barras__b { transition-delay: 0.25s; }
+  .rc-barras g:nth-child(7) .rc-barras__b { transition-delay: 0.3s; }
+}
+
+/* El menú «Más opciones» del visual (medido: así es con el SDK 2.9.0) */
+.rc-menu-pbi {
+  position: absolute;
+  top: 44px;
+  right: 14px;
+  z-index: 3;
+  width: 228px;
+  padding: 4px 0;
+  border: 1px solid #e1dfdd;
+  border-radius: 4px;
+  background: #fff;
+  box-shadow: 0 6.4px 14.4px rgb(0 0 0 / 0.13), 0 1.2px 3.6px rgb(0 0 0 / 0.11);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transform-origin: top right;
+  transition: opacity 0.16s ease, transform 0.2s var(--ease-out), visibility 0s linear 0.2s;
+}
+
+.rc-menu-pbi.es-abierto {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition: opacity 0.16s ease, transform 0.2s var(--ease-out);
+}
+
+.rc-menu-pbi__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  font-size: 13.5px;
+  color: var(--rc-pbi-tinta);
+}
+
+.rc-menu-pbi__item.es-hover {
+  background: #f3f2f1;
+}
+
+.rc-menu-pbi__item svg {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  fill: none;
+  stroke: var(--rc-pbi-tinta-2);
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.rc-menu-pbi__item .rc-menu-pbi__mas {
+  width: 13px;
+  height: 13px;
+  margin-left: auto;
+}
+
+.rc-menu-pbi__sep {
+  display: block;
+  height: 1px;
+  margin: 4px 0;
+  background: #edebe9;
+}
+
+/* El cuadro de exportar */
+.rc-dialogo {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: grid;
+  place-items: center;
+  background: rgb(0 0 0 / 0.32);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0s linear 0.25s;
+}
+
+.rc-dialogo.es-abierto {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.25s ease;
+}
+
+.rc-dialogo__caja {
+  display: grid;
+  gap: 12px;
+  width: 470px;
+  padding: 24px 26px 22px;
+  border-radius: 6px;
+  background: #fff;
+  box-shadow: 0 25.6px 57.6px rgb(0 0 0 / 0.22), 0 4.8px 14.4px rgb(0 0 0 / 0.18);
+  transform: translateY(10px) scale(0.98);
+  transition: transform 0.35s var(--ease-out);
+}
+
+.rc-dialogo.es-abierto .rc-dialogo__caja {
+  transform: none;
+}
+
+.rc-dialogo__t {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.rc-dialogo__p {
+  font-size: 14px;
+  color: var(--rc-pbi-tinta-2);
+}
+
+.rc-dialogo__op {
+  display: flex;
+  gap: 12px;
+  padding: 11px 13px;
+  border: 1px solid #e1dfdd;
+  border-radius: 4px;
+  font-size: 13px;
+  color: var(--rc-pbi-tinta-2);
+}
+
+.rc-dialogo__op b {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--rc-pbi-tinta);
+}
+
+.rc-dialogo__op i {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  margin-top: 2px;
+  border: 1.5px solid #8a8886;
+  border-radius: 50%;
+}
+
+.rc-dialogo__op--si {
+  border-color: #117865;
+  background: #f4fbf9;
+}
+
+.rc-dialogo__op--si i {
+  border: 5px solid #117865;
+}
+
+.rc-dialogo__formato {
+  font-size: 13px;
+  color: var(--rc-pbi-tinta-2);
+}
+
+.rc-dialogo__formato b {
+  margin-left: 6px;
+  font-weight: 600;
+  color: var(--rc-pbi-tinta);
+}
+
+.rc-dialogo__acc {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.rc-dialogo__boton {
+  padding: 7px 20px;
+  border-radius: 4px;
+  background: #117865;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.rc-dialogo__boton.es-hover {
+  background: #0c5e4f;
+}
+
+.rc-dialogo__boton.es-presionado {
+  transform: scale(0.97);
+}
+
+.rc-dialogo__boton--no {
+  border: 1px solid #8a8886;
+  background: #fff;
+  color: var(--rc-pbi-tinta);
+}
+
+/* Las pestañas de páginas de Power BI, abajo */
+.rc-pbi__pestanas {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+  height: 36px;
+  padding: 0 10px;
+  border-top: 1px solid #e1dfdd;
+  background: #f3f2f1;
+  font-family: var(--rc-pbi-fuente);
+}
+
+.rc-pbi__pestana {
+  display: grid;
+  place-items: center;
+  padding: 0 16px;
+  border-bottom: 3px solid transparent;
+  font-size: 13px;
+  color: var(--rc-pbi-tinta);
+  white-space: nowrap;
+}
+
+.rc-pbi__pestana--si {
+  border-bottom-color: #117865;
+  background: #fff;
+  font-weight: 600;
+}
+
+/* La capa de carga del visor: negra, con el giro en el amarillo de Power BI */
+.rc-capa {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  background: #000;
+  font-family: var(--rc-ui);
+  text-align: center;
+  transition: opacity 0.45s ease;
+}
+
+/* El retardo del visibility va SOLO en el estado oculto. Si estuviera en la regla de base,
+   como la capa hereda el visibility de la escena, al aparecer el visor ella tardaría 0,45 s
+   en verse: el reporte se asomaba sin capa (medido en el teléfono). */
+.rc-capa.es-oculta {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.45s ease, visibility 0s linear 0.45s;
+}
+
+.rc-capa__giro {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgb(255 255 255 / 0.18);
+  border-top-color: var(--rc-pbi);
+  border-radius: 50%;
+  animation: rc-girar 0.7s linear infinite;
+}
+
+.rc-capa__t {
+  font-size: 17px;
+  font-weight: 600;
+  color: #f9fafb;
+}
+
+.rc-capa__p {
+  font-size: 14px;
+  color: #9ca3af;
+}
+
+/* La lengüeta del chat: oscura con texto blanco, el acento de la IA va en el ícono */
+.rc-lengueta {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  z-index: 7;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  padding: 16px 10px 14px;
+  border-radius: 12px 0 0 12px;
+  background: rgb(15 23 42 / 0.9);
+  box-shadow:
+    inset 1px 0 0 rgb(255 255 255 / 0.16),
+    inset 0 1px 0 rgb(255 255 255 / 0.1),
+    -6px 0 22px rgb(0 0 0 / 0.38);
+  color: #fff;
+  font-family: var(--rc-ui);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  transform: translateY(-50%);
+  transition: background 0.16s ease, opacity 0.3s ease;
+}
+
+.rc-lengueta svg {
+  width: 20px;
+  height: 20px;
+  fill: #a5b4fc;
+}
+
+.rc-lengueta__txt {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
+.rc-lengueta.es-hover {
+  background: rgb(15 23 42 / 0.98);
+}
+
+.rc-visor.es-chat .rc-lengueta {
+  opacity: 0;
+  visibility: hidden;
+  transition: background 0.16s ease, opacity 0.3s ease, visibility 0s linear 0.3s;
+}
+
+/* Llama la atención: un anillo violeta que se abre, como el foco de la IA */
+.rc-lengueta.es-llamando::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: 0 0 0 0 rgb(99 102 241 / 0.6);
+  animation: rc-llamar 1.4s ease-out infinite;
+}
+
+/* El chat al costado: entra desde la derecha y empuja al tablero */
+.rc-chat {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 8;
+  display: flex;
+  flex-direction: column;
+  width: 640px;
+  background: #f7f8fa;
+  box-shadow: -1px 0 0 rgb(0 0 0 / 0.14), -6px 0 18px rgb(0 0 0 / 0.1);
+  font-family: var(--rc-ui);
+  color: var(--rc-g900);
+  transform: translateX(101%);
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.rc-visor.es-chat .rc-chat {
+  transform: none;
+}
+
+/* En un teléfono el chat se angosta para entrar legible en la toma (es-angosta, desde el JS);
+   el tablero se queda con el resto, como hace Power BI al encajar la página. */
+.rc-pantalla.es-angosta .rc-chat {
+  width: 520px;
+}
+
+.rc-pantalla.es-angosta .rc-visor.es-chat .rc-reporte {
+  width: 760px;
+}
+
+.rc-pantalla.es-angosta .rc-visor.es-chat .rc-pbi {
+  transform: scale(0.59375);
+}
+
+.rc-pantalla.es-angosta .rc-ch-hilo {
+  padding-inline: 22px;
+}
+
+.rc-pantalla.es-angosta .rc-ch-dax code {
+  font-size: 11.4px;
+}
+
+/* Y el visual de barras se angosta para entrar entero en la toma general del teléfono */
+.rc-pantalla.es-angosta .rc-pbi__visuales {
+  grid-template-columns: 520px minmax(0, 1fr);
+}
+
+.rc-ch-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 22px;
+  background: #fff;
+  border-bottom: 1px solid var(--rc-g200);
+}
+
+.rc-ch-marca {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  flex: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--rc-ia-2), var(--rc-ia-3));
+}
+
+.rc-ch-marca svg {
+  width: 19px;
+  height: 19px;
+  fill: #fff;
+}
+
+.rc-ch-id {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+}
+
+.rc-ch-titulo {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.rc-ch-sub {
+  font-size: 12px;
+  color: var(--rc-g500);
+}
+
+.rc-ch-boton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 11px;
+  border: 1px solid var(--rc-g200);
+  border-radius: 8px;
+  background: #fff;
+  font-size: 12px;
+  color: var(--rc-g600);
+}
+
+.rc-ch-boton svg,
+.rc-ch-x svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.rc-ch-x {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  color: var(--rc-g500);
+}
+
+.rc-ch-hilo {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 24px 28px 16px;
+  scrollbar-width: none;
+}
+
+.rc-ch-hilo::-webkit-scrollbar {
+  display: none;
+}
+
+.rc-ch-hola {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  margin-top: 96px;
+  text-align: center;
+  transition: opacity 0.3s ease;
+}
+
+.rc-ch-hola.es-fuera {
+  display: none;
+}
+
+.rc-ch-hola__t {
+  font-size: 19px;
+  font-weight: 600;
+}
+
+.rc-ch-hola__p {
+  max-width: 410px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--rc-g600);
+}
+
+.rc-ch-ejemplos {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.rc-ch-ejemplo {
+  padding: 8px 14px;
+  border: 1px solid var(--rc-g200);
+  border-radius: 20px;
+  background: #fff;
+  font-size: 12.5px;
+  color: var(--rc-g600);
+}
+
+/* Lo que todavía no pasó no está a la vista (la conversación se arma de a pasos) */
+.rc-ch-yo,
+.rc-ch-bot,
+.rc-ch-dax,
+.rc-ch-tabla,
+.rc-ch-analisis,
+.rc-ch-acciones,
+.rc-ch-grafico {
+  display: none;
+}
+
+.rc-ch-yo.es-visible {
+  display: flex;
+  justify-content: flex-end;
+  margin: 6px 0 18px;
+  animation: rc-entra 0.3s var(--ease-out) both;
+}
+
+.rc-ch-yo__txt {
+  max-width: 82%;
+  padding: 10px 15px;
+  border-radius: 16px 16px 4px 16px;
+  background: var(--rc-ia-2);
+  color: #fff;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.rc-ch-bot.es-visible {
+  display: block;
+  animation: rc-entra 0.3s var(--ease-out) both;
+}
+
+.rc-ch-pasos {
+  position: relative;
+  display: grid;
+  gap: 2px;
+  padding-left: 2px;
+}
+
+/* La línea que une los tres pasos */
+.rc-ch-pasos::before {
+  content: '';
+  position: absolute;
+  top: 12px;
+  bottom: 12px;
+  left: 8px;
+  width: 2px;
+  background: var(--rc-g200);
+}
+
+.rc-ch-paso {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 0;
+  font-size: 13px;
+  color: var(--rc-g500);
+  transition: color 0.3s ease;
+}
+
+.rc-ch-paso i {
+  position: relative;
+  z-index: 1;
+  width: 14px;
+  height: 14px;
+  flex: none;
+  border: 2px solid var(--rc-g200);
+  border-radius: 50%;
+  background: #f7f8fa;
+  transition: border-color 0.3s ease, background 0.3s ease;
+}
+
+.rc-ch-paso b {
+  font-family: var(--rc-mono);
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--rc-g500);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.rc-ch-paso.es-activo {
+  color: var(--rc-g900);
+}
+
+.rc-ch-paso.es-activo i {
+  border-color: var(--rc-ia-2);
+  animation: rc-late 1.1s ease-in-out infinite;
+}
+
+.rc-ch-paso.es-ok {
+  color: var(--rc-g600);
+}
+
+.rc-ch-paso.es-ok i {
+  border-color: var(--rc-ia-2);
+  background: var(--rc-ia-2);
+}
+
+/* La palomita del paso hecho */
+.rc-ch-paso.es-ok i::after {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: 0.5px;
+  width: 3px;
+  height: 6px;
+  border: solid #fff;
+  border-width: 0 1.6px 1.6px 0;
+  transform: rotate(40deg);
+}
+
+.rc-ch-paso.es-ok b {
+  opacity: 1;
+}
+
+/* La consulta: el bloque oscuro que se despliega */
+.rc-ch-dax.es-visible {
+  display: grid;
+  grid-template-rows: auto 0fr;
+  margin-top: 14px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #0f172a;
+  transition: grid-template-rows 0.7s var(--ease-out);
+}
+
+.rc-ch-dax.es-abierto {
+  grid-template-rows: auto 1fr;
+}
+
+.rc-ch-dax__cab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #cbd5e1;
+}
+
+.rc-ch-dax__cab svg {
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: #a5b4fc;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.rc-ch-dax__copiar {
+  margin-left: auto;
+  padding: 2px 8px;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #cbd5e1;
+}
+
+.rc-ch-dax pre {
+  min-height: 0;
+  margin: 0;
+  padding: 0 14px 14px;
+  overflow: hidden;
+}
+
+.rc-ch-dax code {
+  font-family: var(--rc-mono);
+  font-size: 12.2px;
+  line-height: 1.65;
+  color: #e2e8f0;
+  white-space: pre;
+}
+
+.rc-ch-dax .k {
+  color: #a5b4fc;
+}
+
+.rc-ch-dax .s {
+  color: #86efac;
+}
+
+/* La tabla de resultados: las filas llegan de a una */
+.rc-ch-tabla.es-visible {
+  display: grid;
+  margin-top: 14px;
+  border: 1px solid var(--rc-g200);
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.rc-ch-fila {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 16px;
+  padding: 8px 14px;
+  border-top: 1px solid var(--rc-g100);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  animation: rc-entra 0.35s var(--ease-out) both;
+}
+
+.rc-ch-fila:nth-child(2) { animation-delay: 0.08s; }
+.rc-ch-fila:nth-child(3) { animation-delay: 0.16s; }
+.rc-ch-fila:nth-child(4) { animation-delay: 0.24s; }
+.rc-ch-fila:nth-child(5) { animation-delay: 0.32s; }
+.rc-ch-fila:nth-child(6) { animation-delay: 0.4s; }
+
+.rc-ch-fila--cab {
+  border-top: 0;
+  background: #f9fafb;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--rc-g600);
+}
+
+.rc-ch-fila span + span {
+  text-align: right;
+}
+
+.rc-ch-analisis.es-visible {
+  display: block;
+  margin-top: 12px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--rc-g700);
+  animation: rc-entra 0.4s var(--ease-out) both;
+}
+
+.rc-ch-analisis strong {
+  color: var(--rc-g900);
+}
+
+.rc-ch-acciones.es-visible {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  animation: rc-entra 0.35s var(--ease-out) both;
+}
+
+.rc-ch-accion {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 11px;
+  border: 1px solid var(--rc-g200);
+  border-radius: 7px;
+  background: #fff;
+  font-size: 12px;
+  color: var(--rc-g600);
+  transition: border-color 0.16s ease, color 0.16s ease, transform 0.1s ease, background 0.16s ease;
+}
+
+.rc-ch-accion svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.rc-ch-accion--ia {
+  border-color: var(--rc-ia-borde);
+  background: var(--rc-ia-tenue);
+  color: var(--rc-ia);
+}
+
+.rc-ch-accion.es-hover {
+  border-color: var(--rc-ia-2);
+  color: var(--rc-ia);
+}
+
+.rc-ch-accion.es-presionado {
+  transform: scale(0.96);
+}
+
+.rc-ch-accion.es-copiado {
+  border-color: #6ee7b7;
+  background: #ecfdf5;
+  color: #065f46;
+}
+
+.rc-ch-grafico.es-visible {
+  display: grid;
+  gap: 10px;
+  justify-items: start;
+  margin-top: 14px;
+  padding: 14px 16px;
+  border: 1px solid var(--rc-g200);
+  border-radius: 12px;
+  background: #fff;
+  animation: rc-entra 0.4s var(--ease-out) both;
+}
+
+.rc-ch-grafico__t {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.rc-ch-barras {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.rc-ch-barras__etq,
+.rc-ch-barras__v {
+  font-family: var(--rc-ui);
+  font-size: 12px;
+  fill: var(--rc-g600);
+}
+
+.rc-ch-barras__v {
+  font-family: var(--rc-mono);
+  font-size: 11.5px;
+  font-weight: 600;
+  fill: var(--rc-g900);
+}
+
+.rc-ch-barras__b {
+  fill: var(--rc-ia-2);
+  transform-box: fill-box;
+  transform-origin: left center;
+  animation: rc-crece 0.9s var(--ease-out) both;
+}
+
+.rc-ch-barras g:nth-child(2) .rc-ch-barras__b { animation-delay: 0.08s; }
+.rc-ch-barras g:nth-child(3) .rc-ch-barras__b { animation-delay: 0.16s; }
+.rc-ch-barras g:nth-child(4) .rc-ch-barras__b { animation-delay: 0.24s; }
+.rc-ch-barras g:nth-child(5) .rc-ch-barras__b { animation-delay: 0.32s; }
+
+.rc-ch-barra {
+  padding: 12px 22px 14px;
+  border-top: 1px solid var(--rc-g200);
+  background: #f7f8fa;
+}
+
+.rc-ch-campo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 7px 7px 16px;
+  border: 1px solid var(--rc-g200);
+  border-radius: 22px;
+  background: #fff;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.rc-ch-campo.es-foco {
+  border-color: #a5b4fc;
+  box-shadow: 0 0 0 3px rgb(99 102 241 / 0.15);
+}
+
+.rc-ch-input {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 14px;
+  white-space: nowrap;
+  color: var(--rc-g900);
+}
+
+.rc-ch-ph {
+  color: var(--rc-g500);
+}
+
+.rc-ch-campo.es-escribiendo .rc-ch-ph {
+  display: none;
+}
+
+.rc-ch-mic,
+.rc-ch-enviar {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex: none;
+  border-radius: 50%;
+  transition: transform 0.1s ease, background 0.15s ease;
+}
+
+.rc-ch-mic {
+  background: var(--rc-ia-tenue);
+  color: var(--rc-ia);
+}
+
+.rc-ch-enviar {
+  background: var(--rc-ia-2);
+  color: #fff;
+}
+
+.rc-ch-enviar.es-presionado {
+  transform: scale(0.9);
+}
+
+.rc-ch-mic svg,
+.rc-ch-enviar svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.rc-ch-nota {
+  margin-top: 7px !important;
+  font-size: 11px;
+  color: var(--rc-g500);
+  text-align: center;
+}
+
+/* ═══ El cursor y el toque ═══ */
+.rc-cursor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 20;
+  width: 26px;
+  height: 26px;
+  margin: -3px 0 0 -5px;   /* la punta de la flecha, en el punto exacto */
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.rc-cursor.es-visible {
+  opacity: 1;
+}
+
+.rc-cursor svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: #fff;
+  stroke: #111827;
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 2px 3px rgb(0 0 0 / 0.35));
+  transform-origin: 5px 3px;
+  transition: transform 0.12s ease;
+}
+
+.rc-cursor.es-clic svg {
+  transform: scale(0.82);
+}
+
+.rc-onda {
+  position: absolute;
+  z-index: 19;
+  width: 46px;
+  height: 46px;
+  margin: -23px 0 0 -23px;
+  border: 2px solid rgb(17 24 39 / 0.38);
+  border-radius: 50%;
+  background: rgb(17 24 39 / 0.08);
+  pointer-events: none;
+  animation: rc-onda 0.6s ease-out both;
+}
+
+/* Las barras de Power BI de las tarjetas "respiran", como en el portal */
+@media (prefers-reduced-motion: no-preference) {
+  .rc-tarjeta__pbi {
+    animation: rc-respirar 2.4s ease-in-out infinite;
+  }
+
+  .rc-tarjeta:nth-child(3n + 2) .rc-tarjeta__pbi { animation-delay: 0.3s; }
+  .rc-tarjeta:nth-child(3n) .rc-tarjeta__pbi { animation-delay: 0.6s; }
+}
+
+/* ═══ Pausa y saltos ═══════════════════════════════════════════════════════════════
+   En pausa se congela lo que se mueve solo. Al saltar a un paso, la pantalla llega a su
+   estado sin transiciones: el guion corre "de golpe" hasta ahí. */
+.rc[data-pausa] .rc-pantalla *,
+.rc[data-pausa] .rc-pantalla *::before,
+.rc[data-pausa] .rc-pantalla *::after,
+.rc[data-pausa] .rc-descarga__bajando {
+  animation-play-state: paused !important;
+}
+
+.rc-pantalla.es-instante *,
+.rc-pantalla.es-instante *::before,
+.rc-pantalla.es-instante *::after {
+  transition-duration: 0s !important;
+  transition-delay: 0s !important;
+}
+
+.rc-pantalla.es-instante .rc-ch-fila,
+.rc-pantalla.es-instante .rc-ch-yo,
+.rc-pantalla.es-instante .rc-ch-bot,
+.rc-pantalla.es-instante .rc-ch-analisis,
+.rc-pantalla.es-instante .rc-ch-acciones,
+.rc-pantalla.es-instante .rc-ch-grafico,
+.rc-pantalla.es-instante .rc-ch-barras__b {
+  animation-duration: 0s !important;
+  animation-delay: 0s !important;
+}
+
+/* ═══ Movimiento reducido: paso a paso, sin animaciones ambientales ═══ */
+@media (prefers-reduced-motion: reduce) {
+  .rc-login::before,
+  .rc-login::after,
+  .rc-capa__giro,
+  .rc-lengueta.es-llamando::after,
+  .rc-ch-paso.es-activo i,
+  .es-foco .rc-tipeo::after {
+    animation: none;
+  }
+
+  .rc-pantalla *,
+  .rc-pantalla *::before,
+  .rc-pantalla *::after {
+    transition-duration: 0s !important;
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
+}
+
+/* ═══ Animaciones ═══ */
+@keyframes rc-olas { to { transform: rotate(360deg); } }
+@keyframes rc-girar { to { transform: rotate(360deg); } }
+@keyframes rc-parpadeo { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+@keyframes rc-respirar { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(0.62); } }
+@keyframes rc-onda { from { opacity: 1; transform: scale(0.3); } to { opacity: 0; transform: scale(1.35); } }
+@keyframes rc-entra { from { opacity: 0; transform: translateY(8px); } }
+@keyframes rc-crece { from { transform: scaleX(0); } }
+@keyframes rc-bajar { 0%, 100% { transform: translateY(-1.5px); } 50% { transform: translateY(1.5px); } }
+@keyframes rc-late {
+  0%, 100% { box-shadow: 0 0 0 0 rgb(99 102 241 / 0.4); }
+  50% { box-shadow: 0 0 0 5px rgb(99 102 241 / 0); }
+}
+@keyframes rc-llamar {
+  0% { box-shadow: 0 0 0 0 rgb(99 102 241 / 0.55); }
+  100% { box-shadow: 0 0 0 14px rgb(99 102 241 / 0); }
+}
+@keyframes rc-palabra {
+  from { opacity: 0; transform: translateY(110%) rotate(3deg); filter: blur(8px); color: var(--color-verde-claro); }
+  55% { color: var(--color-verde-claro); }
+  to { opacity: 1; transform: none; filter: none; color: var(--color-blanco); }
+}
+@keyframes rc-palabrita {
+  from { opacity: 0; transform: translateY(0.45em); filter: blur(3px); }
+  to { opacity: 1; transform: none; filter: none; }
+}
+@keyframes rc-velo { from { opacity: 0; } }
+@keyframes rc-detalle { from { opacity: 0; transform: translateY(10px); } }
+@keyframes rc-sale { to { opacity: 0; transform: translateY(-40%); } }

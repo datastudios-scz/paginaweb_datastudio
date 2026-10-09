@@ -33,7 +33,7 @@ Empresa de soluciones de datos con base en Santa Cruz de la Sierra, Bolivia, que
 | Con el portal basta una licencia (la de la cuenta que publica) | Página de producto del Portal BI |
 | +1.000 personas, instalación en 2 horas, no se cobra implementación | Página de producto del Portal BI |
 | Solo lectura, cuentas autorizadas, sin redistribución, revocable | Política de Privacidad y Condiciones del Servicio |
-| Datos de las maquetas (tienda de cafetería, ranking de publicaciones, ventas de marzo, chat del portal) | **Ficticios**, rotulados "Datos de ejemplo" en cada maqueta (ADR-013) |
+| Datos de las maquetas (tienda de cafetería, ranking de publicaciones, ventas de marzo, chat del portal, recorrido animado: usuaria «mariana.s», sucursales y ventas de septiembre) | **Ficticios**, rotulados "Datos de ejemplo" en cada maqueta (ADR-013) |
 
 ## Pendientes de confirmar con el dueño
 

@@ -13,6 +13,7 @@
     "preview": "astro preview",
     "recursos": "node scripts/generar-recursos.mjs",
     "qa": "node scripts/qa.mjs",
+    "recorrido": "node scripts/probar-recorrido.mjs",
     "astro": "astro"
   },
   "dependencies": {

@@ -12,7 +12,7 @@ import { mkdirSync, existsSync } from 'node:fs';
 import { chromium } from 'playwright-core';
 
 const BASE = process.argv[2] ?? 'http://localhost:4321';
-const PAGINAS = ['/', '/portal-bi/', '/social-metrics-bi/', '/tienda-ecommerce/', '/consultoria/', '/no-existe-esta-pagina/'];
+const PAGINAS = ['/', '/portal-bi/', '/portal-bi/como-funciona/', '/social-metrics-bi/', '/tienda-ecommerce/', '/consultoria/', '/no-existe-esta-pagina/'];
 const ANCHOS = [1440, 1024, 768, 414, 375, 320];
 
 const ejecutable = [

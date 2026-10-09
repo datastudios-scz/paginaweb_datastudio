@@ -2,6 +2,40 @@
 
 Cada entrada: **síntoma → causa → solución → cómo evitarlo**.
 
+## Recorrido animado del Portal BI (09/10/2026)
+
+### Un `<script is:inline>` dentro de una página lo bloquea la CSP
+- **Síntoma**: «Executing inline script violates the following Content Security Policy directive» en `/portal-bi/como-funciona/`.
+- **Causa**: Astro no calcula el hash de los `is:inline`. El de `Base.astro` funciona solo porque está ANTES del `<meta>` de la CSP, y una CSP por `<meta>` no alcanza a lo que ya se ejecutó. Pasarlo a una línea no cambia nada: el hash ni siquiera se agrega.
+- **Solución**: hacerlo sin script. Para no pintar la portada cuando se llega con `#ver`: `id="ver"` en la raíz y `#ver:target .rc-portada { display: none }` (dentro de `prefers-reduced-motion: no-preference`, porque con movimiento reducido no arranca solo).
+- **Evitarlo**: antes de escribir un script en línea, buscar la forma en CSS. Si no la hay, el hash va a mano en `astro.config.mjs`.
+
+### Un `visibility` con retardo en un elemento que lo HEREDA también retrasa su aparición
+- **Síntoma**: en el teléfono, al abrir el tablero se asomaba el reporte sin la capa negra de carga, y la capa aparecía un instante después.
+- **Causa**: la capa tenía `transition: visibility 0s linear .45s` en su regla de base, pensada para esconderse después del fundido. Pero hereda el `visibility` de la escena, y cuando la escena pasa de oculta a visible ese cambio heredado también transiciona: la capa tardaba 0,45 s en verse.
+- **Solución**: el retardo del `visibility` va solo en el estado oculto (`.rc-capa.es-oculta`). Lo mismo en la lengüeta del chat.
+- **Evitarlo**: `visibility ... <retardo>` nunca en la regla de base de algo que hereda la visibilidad de un padre que cambia.
+
+### El script corre después del primer pintado: si acomoda el diseño, la página salta
+- **Síntoma**: CLS 0,027 en Lighthouse de escritorio, y 0,066 al llamarlo antes. Medido desde adentro con red lenta: la narración se corría 92 px y la ventana se achicaba.
+- **Causa**: el script angostaba la narración al ancho de la ventana (`--rc-ancho`) y la subía en las tabletas (`--rc-hueco`). Con red lenta llega después del primer pintado. Peor: angostar la narración la hacía más alta, eso achicaba la ventana, y eso volvía a angostar la narración.
+- **Solución**: todo en CSS. Escritorio más cuadrado: la narración centrada debajo, como subtítulos (no depende del ancho de la ventana). Tableta parada: el escenario mide justo la ventana, con una fórmula que solo usa el ancho de la pantalla, y dos espacios iguales centran el conjunto. Y la barra de progreso, que nace vacía y el script llena con 8 segmentos, tiene su alto reservado (eran 10 px de salto). CLS: de 0,066 a ≤ 0,0007 en cinco tamaños.
+- **Evitarlo**: lo que el script agrega o mide no puede mover lo que ya se pintó. Y medir con la red lenta: en local el script llega antes del pintado y el salto no aparece. `npm run recorrido` lo mide así (CDP, 150 ms de latencia).
+
+### El minificador escribe `8000` como `8e3`
+- **Síntoma**: el banco buscaba el arreglo de duraciones en el JS publicado con `\d{4,5}` y no lo encontraba.
+- **Solución**: el script publica lo que el banco necesita (`data-duraciones` en la raíz). No leer constantes del código compilado.
+
+### Una prueba que compara dos vacíos pasa sin probar nada
+- **Síntoma**: «en pausa no se escribe nada ("" = "")» en verde. Pausaba antes de que el cursor empezara a escribir.
+- **Solución**: esperar a que el campo tenga texto y pausar a mitad del tipeo; la aserción exige además que no esté completo. Y otra tenía un `|| true` olvidado. Con sabotaje (el reloj sin pausa, el chat sin abrirse) las dos dan rojo.
+- **Evitarlo**: cada aserción tiene que poder fallar. Probarlo rompiendo lo que cuida.
+
+### Las capturas de una corrida con sabotaje pisan las buenas
+- **Síntoma**: en las capturas del modo reducido el chat no aparecía abierto, y parecía un error del recorrido.
+- **Causa**: eran de la corrida con el sabotaje puesto (sin abrir el chat), que escribió en la misma carpeta. El código restaurado estaba bien.
+- **Evitarlo**: después de restaurar un sabotaje, volver a correr antes de mirar capturas, o guardarlas en otra carpeta.
+
 ## Astro
 
 ### Estilos con alcance que no llegan a componentes hijos

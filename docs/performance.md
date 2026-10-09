@@ -28,6 +28,17 @@ Medición del 27/09/2026 (Edge del sistema, `lighthouse@12`):
 
 La portada llegó a 98 (Speed Index 3,8 s por un fundido de toda la escena y "forced reflow" del encabezado); ver [aprendizajes.md](aprendizajes.md).
 
+### Recorrido animado (`/portal-bi/como-funciona/`, 09/10/2026, Chrome del sistema, `lighthouse@12.8`)
+
+| Medición | Rendimiento | Accesibilidad | Buenas prácticas | SEO | LCP | TBT | CLS | Speed Index |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Móvil (4 corridas) | 99–100 | 100 | 100 | 100 | 1,4 s | 0–90 ms | 0–0,004 | 1,1–2,5 s |
+| Escritorio | 100 | 100 | 100 | 100 | 0,4 s | 0 ms | ≤ 0,001 | 0,4 s |
+
+- HTML + CSS en línea: 25,8 KB comprimido. Script del recorrido: 4,8 KB comprimido (11,9 KB sin comprimir), módulo diferido.
+- DOM de ~900 nodos: la medida invisible de la narración repite los diez textos para que la ventana no cambie de tamaño entre un paso y otro. Lighthouse lo marca como diagnóstico; no afecta el puntaje.
+- El CLS se mide también con red lenta (`npm run recorrido`): con la red rápida de una prueba local el script llega antes del primer pintado y un salto real no aparece. Ver [aprendizajes.md](aprendizajes.md).
+
 ## Decisiones que sostienen el resultado
 
 1. **Cero JS de framework**: Astro estático; los scripts son módulos pequeños por componente.

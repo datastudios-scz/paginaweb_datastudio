@@ -15,6 +15,9 @@ interface Props {
   datosEstructurados?: Record<string, unknown>[];
   /** Solo el inicio: el encabezado arranca transparente sobre la portada. */
   inicio?: boolean;
+  /** Página a pantalla completa (el recorrido animado del Portal BI): sin encabezado ni pie;
+      la página trae su propia barra con la salida. */
+  inmersiva?: boolean;
 }
 
 const {
@@ -24,6 +27,7 @@ const {
   imagenAlt = 'Data Studio: datos que toda tu empresa puede usar',
   datosEstructurados = [],
   inicio = false,
+  inmersiva = false,
 } = Astro.props;
 
 const canonica = new URL(Astro.url.pathname, SITIO.url).href;
@@ -118,11 +122,11 @@ const grafo = {
       FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md
     -->
     <a class="saltar-contenido" href="#contenido">Saltar al contenido</a>
-    <Encabezado sobrePortada={inicio} />
+    {!inmersiva && <Encabezado sobrePortada={inicio} />}
     <main id="contenido" tabindex="-1">
       <slot />
     </main>
-    <PiePagina />
+    {!inmersiva && <PiePagina />}
 
     <script>
       import '../scripts/revelar';

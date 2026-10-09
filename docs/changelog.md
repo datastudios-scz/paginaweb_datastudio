@@ -1,5 +1,15 @@
 # Bitácora de cambios
 
+## 09/10/2026 · Recorrido animado del Portal BI
+
+- **Página nueva `/portal-bi/como-funciona/`**: el Portal BI como lo vive una persona del equipo, en un minuto y en una sola toma. Entra con su usuario (con las olas del login real), encuentra sus tableros en el menú, abre un reporte de Power BI con IA, exporta a Excel, abre el chat al costado y le pregunta; ve la consulta DAX, la tabla, el análisis, y pide el gráfico. Ocho pasos narrados con texto que entra palabra por palabra.
+- La pantalla es el portal dibujado en HTML a tamaño real (1280 × 760). Una **cámara** lo encuadra y se acerca a lo que importa, y un cursor viaja en curva y hace clic. Se puede pausar, saltar de paso, volver a empezar y ver a pantalla completa, también con el teclado (espacio y flechas).
+- **Escritorio ancho**: la narración va al costado y la ventana crece (en una laptop de 1440 × 790, de ~800 a ~1000 px de ancho). **Escritorio más cuadrado**: narración centrada debajo, como subtítulos. **Teléfono**: la toma llena la ventana y se acerca hasta que se lee; el chat y el visual de barras se angostan para entrar enteros. **Teléfono acostado**: también con la narración al costado (la ventana pasó de 278 a 450 px).
+- **Movimiento reducido**: paso a paso con Anterior y Siguiente, hasta el cierre con la compra.
+- El héroe de `/portal-bi/` cambia «Pide una demo · 30 min» por **«Mira cómo funciona»**, que abre el recorrido y lo reproduce solo (`#ver`). La demo de 30 minutos sigue más abajo en la página.
+- Banco nuevo, `npm run recorrido`: portada, `#ver`, movimiento reducido, teclado, duración de cada paso y CLS con red lenta en cinco tamaños. Probado saboteando: detecta lo que cuida.
+- QA 42/42 sin problemas. Lighthouse de `/portal-bi/como-funciona/`: escritorio 100 / 100 / 100 / 100; móvil 100 en 3 de 4 corridas (99 en la otra, por el Speed Index). `/portal-bi/` queda como estaba: 99–100 en móvil con las mismas métricas (LCP 1,7 s), 100 en escritorio.
+
 ## 04/10/2026 · Nuevo número de contacto y textos del inicio
 
 - WhatsApp y teléfono: **+591 7600 8398** (`wa.me/59176008398`), en `src/data/sitio.ts`; llega a todo el sitio.

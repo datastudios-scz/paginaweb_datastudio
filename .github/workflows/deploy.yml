@@ -55,6 +55,7 @@ jobs:
             index.html \
             404.html \
             portal-bi/index.html \
+            portal-bi/como-funciona/index.html \
             social-metrics-bi/index.html \
             tienda-ecommerce/index.html \
             consultoria/index.html \

@@ -30,6 +30,6 @@ Memoria viva del proyecto **datastudio.es**. Se lee antes de trabajar y se actua
 1. Leer este índice, [aprendizajes.md](aprendizajes.md) y el documento del área a tocar.
 2. Cargar la skill que corresponde (ver [skills.md](skills.md)).
 3. Cambiar el código. Los datos de negocio van en `src/data/sitio.ts`, nunca sueltos en componentes.
-4. Verificar: `npm run build`, `npm run preview` y `npm run qa` (capturas 320–1440 px, desbordes, errores, CSP).
+4. Verificar: `npm run build`, `npm run preview` y `npm run qa` (capturas 320–1440 px, desbordes, errores, CSP). Si se tocó el recorrido animado, también `npm run recorrido`.
 5. Actualizar la documentación afectada y el [changelog.md](changelog.md).
 6. Commit en español, descriptivo, y `git push` a `main`.

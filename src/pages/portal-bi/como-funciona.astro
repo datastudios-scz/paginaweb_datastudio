@@ -1,0 +1,222 @@
+---
+/**
+ * El recorrido animado del Portal BI: lo que vive una persona de tu equipo, del ingreso al
+ * chat con IA, como una grabación de pantalla con narración. Se llega desde el botón
+ * «Mira cómo funciona» del héroe de /portal-bi/ (con #ver arranca solo; si se entra directo,
+ * la pantalla espera el botón Reproducir).
+ *
+ * La pantalla es el portal dibujado a tamaño real (RecorridoPantalla.astro); el guion, la
+ * cámara y el cursor viven en src/scripts/recorrido.ts; los estilos en recorrido.css.
+ * El guion de abajo es la fuente de la narración: sin JS se lee como la página, y con JS queda
+ * para lectores de pantalla mientras la región en vivo cuenta cada paso.
+ * Datos de ejemplo (ADR-013). Decisión: ADR-015.
+ */
+import Base from '../../layouts/Base.astro';
+import Icono from '../../components/Icono.astro';
+import RecorridoPantalla from '../../components/portal/RecorridoPantalla.astro';
+import { MENSAJES, SITIO, enlaceWhatsApp } from '../../data/sitio';
+import { migas } from '../../scripts/esquemas';
+import '../../components/portal/recorrido.css';
+
+const URL_PAGINA = `${SITIO.url}/portal-bi/como-funciona/`;
+const compra = enlaceWhatsApp(MENSAJES.portalCompra);
+
+/** El guion: un paso, una frase. Cada afirmación es algo que el producto hace hoy. */
+const PASOS = [
+  {
+    titulo: 'Cada persona entra con su usuario.',
+    detalle: 'Sin cuenta de Power BI y sin una licencia propia. La pantalla lleva tu marca, tus colores y tu logo.',
+  },
+  {
+    titulo: 'Encuentra solo lo que le asignaste.',
+    detalle: 'Los tableros aparecen agrupados por área en el menú. Un operador ve uno; una gerente, los de todas sus sucursales.',
+  },
+  {
+    titulo: 'Abre Power BI dentro de tu portal.',
+    detalle: 'El reporte se dibuja desde tu propio Power BI, en el momento. Con una sola licencia: la de la cuenta que publica.',
+  },
+  {
+    titulo: 'Se lleva los datos cuando los necesita.',
+    detalle: 'Exporta a Excel desde los visuales del reporte. Y si en un tablero prefieres que no, lo ocultas desde el panel.',
+  },
+  {
+    titulo: 'La IA, al costado del tablero.',
+    detalle: 'El chat se abre sin salir del reporte, para preguntar mirando los mismos datos.',
+  },
+  {
+    titulo: 'Pregunta como le hablaría a un analista.',
+    detalle: 'En español y con sus palabras. El chat la traduce a una consulta sobre tu modelo de Power BI y la ejecuta.',
+  },
+  {
+    titulo: 'Responde con tus datos y te muestra cómo.',
+    detalle: 'La consulta que se ejecutó queda a la vista: quien conoce el modelo puede revisarla antes de decidir.',
+  },
+  {
+    titulo: 'Y si se entiende mejor dibujado, lo dibuja.',
+    detalle: 'Un gráfico a pedido, listo para copiarlo como imagen y pegarlo en un informe.',
+  },
+];
+
+/** Lo que dice la narración antes de empezar y al terminar. */
+const INICIO = {
+  n: 'Portal BI · 1 minuto',
+  titulo: 'Así lo vive tu equipo.',
+  detalle: 'Del ingreso al chat con IA, en una sola toma: lo que ve cada persona cuando entra a tu portal.',
+};
+const CIERRE = {
+  n: 'Portal BI',
+  titulo: 'Todo esto, con una sola licencia de Power BI.',
+  detalle: 'El código es tuyo y la marca también. Lo implementas tú o lo implementamos por ti.',
+};
+
+const dos = (n: number) => String(n).padStart(2, '0');
+const TEXTOS = [
+  INICIO,
+  ...PASOS.map((p, i) => ({ n: `${dos(i + 1)} / ${dos(PASOS.length)}`, ...p })),
+  CIERRE,
+];
+
+/* El texto partido como lo parte el script al narrar (ranuras para el titular, palabras para
+   el detalle): la medida invisible y el inicio tienen que medir lo mismo que lo animado. */
+const esc = (t: string) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const ranuras = (t: string) =>
+  t.split(' ').map((w) => `<span class="rc-p"><span>${esc(w)}</span></span>`).join(' ');
+const palabras = (t: string) => t.split(' ').map((w) => `<span class="rc-d">${esc(w)}</span>`).join(' ');
+---
+
+<Base
+  titulo="Cómo funciona el Portal BI, paso a paso · Data Studio"
+  descripcion="Mira en un minuto lo que vive tu equipo con el Portal BI: entra con su usuario, abre Power BI sin licencia propia, descarga los datos y le pregunta a la IA."
+  imagen="/og/portal-bi.png"
+  imagenAlt="Portal BI de Data Studio: Power BI para toda la empresa con una sola licencia"
+  inmersiva
+  datosEstructurados={[
+    migas([
+      { nombre: 'Inicio', url: `${SITIO.url}/` },
+      { nombre: 'Portal BI', url: `${SITIO.url}/portal-bi/` },
+      { nombre: 'Cómo funciona', url: URL_PAGINA },
+    ]),
+  ]}
+>
+  <!-- id="ver": desde el botón «Mira cómo funciona» (#ver) el recorrido arranca solo, y la
+       portada ni llega a pintarse (#ver:target en recorrido.css). Sin script en línea: la CSP
+       de Astro no le calcula el hash a un is:inline, y lo bloquearía. -->
+  <div class="rc" id="ver" data-r="raiz" data-tema="oscuro">
+    <header class="rc-cabecera">
+      <!-- En el teléfono el texto se esconde y queda el ícono: el nombre lo da aria-label
+           (contiene el texto visible, como pide WCAG 2.5.3). -->
+      <a class="rc-volver" href="/portal-bi/" aria-label="Volver al Portal BI">
+        <Icono nombre="anterior" />
+        <span>Portal BI</span>
+      </a>
+      <h1 class="rc-nombre">Cómo funciona<span class="rc-nombre__extra"> el Portal BI</span></h1>
+      <div class="rc-controles">
+        <button type="button" class="rc-control" data-r="anterior" aria-label="Paso anterior" title="Paso anterior" hidden>
+          <Icono nombre="anterior" />
+        </button>
+        <button type="button" class="rc-control" data-r="siguiente" aria-label="Paso siguiente" title="Paso siguiente" hidden>
+          <Icono nombre="siguiente" />
+        </button>
+        <button type="button" class="rc-control" data-r="pausa" aria-label="Reproducir" title="Reproducir (espacio)">
+          <span class="rc-control__pausar"><Icono nombre="pausa" /></span>
+          <span class="rc-control__seguir"><Icono nombre="reproducir" /></span>
+        </button>
+        <button type="button" class="rc-control" data-r="reiniciar" aria-label="Empezar de nuevo" title="Empezar de nuevo">
+          <Icono nombre="reiniciar" />
+        </button>
+        <button type="button" class="rc-control" data-r="completa" aria-label="Pantalla completa" title="Pantalla completa">
+          <Icono nombre="expandir" />
+        </button>
+      </div>
+    </header>
+
+    <div class="rc-escenario">
+      <div class="rc-ventana">
+        <div class="rc-ventana__barra" aria-hidden="true">
+          <span class="rc-url">
+            <svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></svg>
+            <span class="rc-url__txt" data-r="url">portal.tuempresa.com</span>
+          </span>
+          <span class="rc-descarga" data-r="descarga">
+            <span class="rc-descarga__ico">
+              <svg class="rc-descarga__bajando" viewBox="0 0 24 24"><path d="M12 4v12M6 11l6 6 6-6" /></svg>
+              <svg class="rc-descarga__ok" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5" /></svg>
+            </span>
+            Ventas por sucursal.xlsx
+          </span>
+          <span class="rc-ejemplo">Datos de ejemplo</span>
+        </div>
+        <div class="rc-vista" data-r="vista" data-escena="ingreso" aria-hidden="true">
+          <RecorridoPantalla />
+        </div>
+
+        <div class="rc-portada" data-r="portada">
+          <div class="rc-portada__dentro">
+            <button type="button" class="boton boton--primario rc-reproducir" data-r="reproducir">
+              <Icono nombre="reproducir" />
+              <span>Reproducir</span>
+            </button>
+            <p class="rc-atajos" data-r="atajos">Espacio pausa · Flechas cambian de paso</p>
+          </div>
+        </div>
+
+        <div class="rc-final" data-r="final" hidden>
+          <div class="rc-final__dentro">
+            <div class="rc-final__acciones">
+              <a class="boton boton--primario" href={compra} target="_blank" rel="noopener noreferrer">
+                <Icono nombre="whatsapp" />
+                <span>Comprar código + guía</span>
+              </a>
+              <button type="button" class="boton boton--secundario" data-r="otra-vez">
+                <Icono nombre="reiniciar" />
+                <span>Verlo otra vez</span>
+              </button>
+            </div>
+            <a class="enlace rc-final__volver" href="/portal-bi/">Volver al Portal BI</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rc-banda">
+      <div class="rc-progreso" data-r="progreso" role="group" aria-label="Pasos del recorrido"></div>
+
+      <div class="rc-narracion-caja">
+        <div class="rc-medida" aria-hidden="true">
+          {TEXTOS.map((t) => (
+            <div class="rc-narracion">
+              <p class="rc-narracion__n">{t.n}</p>
+              <p class="rc-narracion__t" set:html={ranuras(t.titulo)} />
+              <p class="rc-narracion__d" set:html={palabras(t.detalle)} />
+            </div>
+          ))}
+        </div>
+        <div class="rc-narracion" data-r="narracion" aria-live="polite">
+          <p class="rc-narracion__n" data-r="numero">{INICIO.n}</p>
+          <p class="rc-narracion__t" data-r="titular" set:html={ranuras(INICIO.titulo)} />
+          <p class="rc-narracion__d" data-r="detalle" set:html={palabras(INICIO.detalle)} />
+        </div>
+      </div>
+
+      <section class="rc-guion-caja" aria-labelledby="rc-guion-titulo">
+        <h2 id="rc-guion-titulo" class="solo-lectores">Lo que muestra el recorrido</h2>
+        <ol class="rc-guion" data-r="guion">
+          {PASOS.map((p) => (
+            <li>
+              <strong>{p.titulo}</strong>
+              <span>{p.detalle}</span>
+            </li>
+          ))}
+        </ol>
+        <p class="rc-guion" data-r="cierre" data-n={CIERRE.n}>
+          <strong>{CIERRE.titulo}</strong>
+          <span>{CIERRE.detalle}</span>
+        </p>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    import '../../scripts/recorrido';
+  </script>
+</Base>

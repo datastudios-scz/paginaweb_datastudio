@@ -2,6 +2,14 @@
 
 Formato: contexto → decisión → consecuencias. Las decisiones nuevas van arriba.
 
+## ADR-015 · El recorrido del Portal BI es el portal dibujado y una cámara, no un video (09/10/2026)
+
+- **Contexto**: el dueño pidió cambiar «Pide una demo» por un botón que muestre, a pantalla completa, el flujo entero como si fuera el portal real, con una narración muy animada.
+- **Decisión**: una página propia (`/portal-bi/como-funciona/`) con la pantalla del portal en HTML a tamaño real (1280 × 760) y una cámara (transform por CSSOM) que encuadra y se acerca, como una grabación de pantalla. Un guion de ocho pasos con reloj propio: se pausa, se salta de paso y se reinicia sin que nada quede a medias, porque saltar es volver a dibujar y correr el guion «de golpe» hasta ahí. Desde el botón del héroe (`#ver`) arranca solo; entrando directo, espera Reproducir. La narración va al costado donde así la ventana sale más grande (escritorios de 5/3 o más y teléfonos acostados) y debajo en lo demás. En el teléfono la cámara nunca muestra la pantalla entera: la llena y se acerca hasta que se lee.
+- **Por qué no un video**: pesaría megas contra un presupuesto de 150 KB por página, no se vería nítido en todos los tamaños, el texto no sería texto (ni accesible ni traducible), no respetaría «reducir movimiento», y habría que regrabarlo con cada cambio del producto. Así la página pesa ~80 KB y el guion se edita como código.
+- **Lo que se acomoda alrededor de la ventana lo resuelve el CSS, no el script**: el script corre después del primer pintado, y cuando angostaba la narración al ancho de la ventana, la página saltaba (ver aprendizajes).
+- **Consecuencias**: la pantalla repite el producto. Cuando el portal cambie, hay que actualizar `RecorridoPantalla.astro` (mismas reglas que ADR-014). El DOM llega a ~900 nodos porque la medida invisible de la narración repite los diez textos. Las duraciones de los pasos (`DURACION`, lo que llena cada segmento) se controlan con `npm run recorrido`.
+
 ## ADR-014 · Las maquetas del Portal BI copian pantallas reales, no las resumen (04/10/2026)
 
 - **Contexto**: las maquetas eran esquemas (menú plano, un chat con mapa de calor que el producto ya no tiene, una tabla de asignaciones que no existe). El dueño pidió diseños "más reales y más visuales".

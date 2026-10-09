@@ -11,6 +11,7 @@ Lighthouse: 100 en `/` y `/portal-bi/` (25/09/2026). Lighthouse no lo detecta to
 - **Preguntas frecuentes**: `<details>/<summary>` nativo (teclado y lector sin JS).
 - **Calculadora**: `<label for>` en el control deslizante; el ahorro se anuncia con `aria-live="polite"`.
 - **Maquetas del Portal BI**: son ilustraciones. Van en `<figure>` con `<figcaption>` solo para lectores y el cuerpo con `aria-hidden="true"` (un lector no recorre un menú falso).
+- **Recorrido animado** (`/portal-bi/como-funciona/`): la pantalla es `aria-hidden` (un lector no recorre un portal falso); lo que se dice está en la narración, una región `aria-live="polite"` que cuenta cada paso, y el guion completo queda en la página para lectores (y es lo que se ve sin JS). Se pausa (WCAG 2.2.2), con botón y con espacio; las flechas cambian de paso y los segmentos de progreso son botones con «Paso N de 8: …». El botón que se toca y desaparece con su capa (Reproducir, Verlo otra vez) pasa el foco al control que sigue. Con movimiento reducido no reproduce: muestra cada paso quieto con Anterior y Siguiente, y después del último, el cierre con la compra.
 - **Íconos**: decorativos (`aria-hidden`) cuando hay texto al lado; los enlaces que abren pestaña nueva lo anuncian donde el texto no lo dice.
 - **Movimiento**: con `prefers-reduced-motion: reduce` no hay animaciones (barras, aparición, cursor del chat); todo se muestra en su estado final.
 - **Sin JS**: el contenido completo se ve igual (la aparición al hacer scroll solo se activa con la clase `.js`).

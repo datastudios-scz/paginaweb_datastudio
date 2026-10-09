@@ -1,0 +1,400 @@
+---
+/**
+ * La pantalla del recorrido animado (/portal-bi/como-funciona/): el Portal BI dibujado a
+ * TAMAÑO REAL (1280 × 760), con las tres escenas que vive una persona de tu equipo —el
+ * ingreso, el portal y el visor con el chat al costado— una encima de la otra.
+ * El guion (src/scripts/recorrido.ts) enciende cada escena, mueve el cursor y la cámara.
+ *
+ * Calcada del portal real, con sus medidas y sus palabras (en tuteo, como todo el sitio):
+ *   views/login.ejs + login.css      el ingreso, con las olas que giran de verdad
+ *   home.css + tableros.css          el menú de 260 px, la barra de 60 y las tarjetas
+ *   visor-embed.ejs                  la capa de carga y la lengüeta «Chat IA»
+ *   chat.ejs + chat.css              los tres pasos, la consulta, la tabla y el gráfico
+ *
+ * Datos de ejemplo (ADR-013), cuadrados entre sí: las siete sucursales suman el total del año
+ * (5.216.100), los nueve meses también, y lo que responde el chat es septiembre (612.000).
+ * Sin atributos style (CSP): las barras son <rect> con su ancho como atributo de SVG.
+ */
+
+/* ── El reporte de Power BI ────────────────────────────────────────────────── */
+const SUCURSALES = [
+  { nombre: 'Centro', valor: 1262400 },
+  { nombre: 'Plaza Mayor', valor: 1041200 },
+  { nombre: 'Norte', valor: 935800 },
+  { nombre: 'Aeropuerto', valor: 822300 },
+  { nombre: 'Costanera', valor: 708900 },
+  { nombre: 'Sur', valor: 268500 },
+  { nombre: 'Parque Industrial', valor: 177000 },
+];
+const MESES = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep'];
+const SERIE_2026 = [541200, 528900, 566000, 552400, 589700, 571300, 603800, 650800, 612000];
+const SERIE_2025 = [508300, 497100, 523600, 515200, 540900, 532400, 556000, 597500, 563200];
+
+/** Miles con punto, siempre (Intl agrupa raro en español: ver docs/aprendizajes.md). */
+const miles = (n: number) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+const MILES_K = (n: number) => `${miles(n / 1000)} mil`;
+
+/* Barras horizontales: 7 filas en 330 × 210. La más larga mide 168 para que su rótulo
+   («1.262 mil») entre antes del borde. */
+const MAX_SUC = SUCURSALES[0].valor;
+const BARRAS = SUCURSALES.map((s, i) => ({
+  ...s,
+  y: 8 + i * 29,
+  ancho: Math.round((s.valor / MAX_SUC) * 168 * 10) / 10,
+}));
+
+/* Líneas: 9 meses en 300 × 170, eje de 450 mil a 700 mil */
+const x = (i: number) => 38 + i * 31.5;
+const y = (v: number) => Math.round((150 - ((v - 450000) / 250000) * 132) * 10) / 10;
+const LINEA_26 = SERIE_2026.map((v, i) => `${x(i)},${y(v)}`).join(' ');
+const LINEA_25 = SERIE_2025.map((v, i) => `${x(i)},${y(v)}`).join(' ');
+
+/* ── La respuesta del chat: septiembre, las cinco que más vendieron ───────── */
+const TOP5 = [
+  { nombre: 'Centro', valor: 148320 },
+  { nombre: 'Plaza Mayor', valor: 121940 },
+  { nombre: 'Norte', valor: 109870 },
+  { nombre: 'Aeropuerto', valor: 96410 },
+  { nombre: 'Costanera', valor: 83150 },
+];
+const BARRAS_CHAT = TOP5.map((s, i) => ({ ...s, y: 6 + i * 34, ancho: Math.round((s.valor / 160000) * 300) }));
+
+/* ── Íconos: los mismos trazados que usa el portal ─────────────────────────── */
+const BARRAS_PBI = 'M0.5,12.6h8.7V41H0.5V12.6z M16.7,0.5h8.1V41h-8.1V0.5z M32.9,23.7H41V41h-8.1V23.7z';
+const VARITA =
+  'M3 19.6 14.2 8.4l1.4 1.4L4.4 21zM15.6 7l1.4-1.4 1.4 1.4-1.4 1.4zM8 2l.7 1.8 1.8.7-1.8.7L8 7l-.7-1.8-1.8-.7 1.8-.7zM19 11l.6 1.4 1.4.6-1.4.6L19 15l-.6-1.4L17 13l1.4-.6zM20 1.5l.5 1.2 1.2.5-1.2.5-.5 1.2-.5-1.2-1.2-.5 1.2-.5z';
+const DESTELLO = 'M12 2l1.9 5.6L19.5 9l-5.6 1.9L12 16.5l-1.9-5.6L4.5 9l5.6-1.4z';
+
+const TARJETAS = [
+  { titulo: 'Ventas por sucursal', ia: true, r: 'tarjeta-ventas' },
+  { titulo: 'Cumplimiento de metas', ia: true },
+  { titulo: 'Cartera y cobranzas' },
+  { titulo: 'Margen por línea' },
+  { titulo: 'Pedidos en curso' },
+  { titulo: 'Indicadores públicos' },
+];
+---
+
+<div class="rc-pantalla" data-r="pantalla" data-escena="ingreso">
+  <!-- ═══ 1. EL INGRESO (views/login.ejs) ═══════════════════════════════════ -->
+  <section class="rc-escena rc-ingreso">
+    <div class="rc-login" data-r="login">
+      <span class="rc-login__canto"></span>
+      <p class="rc-login__titulo">Portal BI</p>
+      <div class="rc-login__campo">
+        <span class="rc-login__rotulo">Usuario</span>
+        <span class="rc-login__input" data-r="usuario"><span class="rc-tipeo" data-r="usuario-txt"></span></span>
+      </div>
+      <div class="rc-login__campo">
+        <span class="rc-login__rotulo">Contraseña</span>
+        <span class="rc-login__input" data-r="clave">
+          <span class="rc-tipeo rc-tipeo--clave" data-r="clave-txt"></span>
+          <svg class="rc-login__ojo" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z" /><circle cx="12" cy="12" r="3" /></svg>
+        </span>
+      </div>
+      <span class="rc-login__boton" data-r="ingresar"><span class="rc-login__boton-txt">Ingresar</span></span>
+      <div class="rc-login__logo">
+        <svg viewBox="0 0 168 32">
+          <rect class="rc-login__logo-f" x="2" y="14" width="6" height="14" rx="1" />
+          <rect class="rc-login__logo-f" x="11" y="5" width="6" height="23" rx="1" />
+          <rect class="rc-login__logo-f2" x="20" y="10" width="6" height="18" rx="1" />
+          <text class="rc-login__logo-t" x="36" y="23">TU EMPRESA</text>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 2. EL PORTAL (layout.ejs + home.css + tableros.css) ═══════════════ -->
+  <section class="rc-escena rc-portal">
+    <aside class="rc-menu">
+      <div class="rc-menu__marca">
+        <span class="rc-menu__logo"><svg viewBox="0 0 24 24"><path d="M5 17h3v-6H5zM10.5 17h3V7h-3zM16 17h3v-8h-3z" /></svg></span>
+        <span class="rc-menu__nombre">PORTAL BI</span>
+        <svg class="rc-menu__plegar" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6" /></svg>
+      </div>
+      <div class="rc-menu__nav">
+        <p class="rc-menu__seccion">Tableros</p>
+        <div class="rc-menu__item" data-r="menu-tableros">
+          <svg class="rc-menu__ico" viewBox="0 0 24 24"><path d="M4 13h4v8H4zM10 4h4v17h-4zM16 9h4v12h-4z" /></svg>
+          <span>Tableros BI</span>
+          <svg class="rc-menu__chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" /></svg>
+        </div>
+        <div class="rc-menu__sub" data-r="menu-sub">
+          <div class="rc-menu__subitem" data-r="menu-comercial"><i></i>Comercial</div>
+          <div class="rc-menu__subitem"><i></i>Operaciones</div>
+          <div class="rc-menu__subitem"><i></i>Recursos Humanos</div>
+        </div>
+        <p class="rc-menu__seccion">Modelos</p>
+        <div class="rc-menu__item">
+          <svg class="rc-menu__ico" viewBox="0 0 24 24"><path d="M12 2 3 6.5v11L12 22l9-4.5v-11zm0 2.3 6.4 3.2L12 10.7 5.6 7.5zM5 9.1l6 3v7.4l-6-3zm8 10.4v-7.4l6-3v7.4z" /></svg>
+          <span>Modelos Semánticos</span>
+          <svg class="rc-menu__chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" /></svg>
+        </div>
+        <p class="rc-menu__seccion">Recursos</p>
+        <div class="rc-menu__item">
+          <svg class="rc-menu__ico" viewBox="0 0 24 24"><path d="M9 3h6a2 2 0 0 1 2 2v2h3a2 2 0 0 1 2 2v4H2V9a2 2 0 0 1 2-2h3V5a2 2 0 0 1 2-2zm0 4h6V5H9zM2 14.5h8v1.5h4v-1.5h8V19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2z" /></svg>
+          <span>Herramientas</span>
+        </div>
+      </div>
+      <div class="rc-menu__pie">
+        <div class="rc-menu__item">
+          <svg class="rc-menu__ico" viewBox="0 0 24 24"><path d="M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5v-2.5H5.5v-13H10zM16 7l-1.8 1.8 2 2H9v2.5h7.2l-2 2L16 17l5-5z" /></svg>
+          <span>Cerrar Sesión</span>
+        </div>
+      </div>
+    </aside>
+
+    <div class="rc-principal">
+      <div class="rc-barra">
+        <span class="rc-migas">
+          <svg class="rc-migas__casa" viewBox="0 0 24 24"><path d="M12 3 2.5 11H5v9h5.2v-6h3.6v6H19v-9h2.5z" /></svg>
+          <svg class="rc-migas__sep" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" /></svg>
+          <b data-r="migas">Inicio</b>
+        </span>
+        <span class="rc-barra__der">
+          <span class="rc-chip"><span class="rc-chip__avatar">M</span><span>mariana.s</span></span>
+          <span class="rc-salir"><svg viewBox="0 0 24 24"><path d="M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5v-2.5H5.5v-13H10zM16 7l-1.8 1.8 2 2H9v2.5h7.2l-2 2L16 17l5-5z" /></svg></span>
+        </span>
+      </div>
+
+      <div class="rc-lienzo">
+        <div class="rc-bienvenida" data-r="bienvenida">
+          <span class="rc-bienvenida__ico"><svg viewBox="0 0 24 24"><path d="M11 3a9 9 0 1 0 10 10H11z" /><path d="M13 1.1V11h9.9A10 10 0 0 0 13 1.1z" /></svg></span>
+          <p class="rc-bienvenida__t">Buenos días, <strong>mariana.s</strong></p>
+          <p class="rc-bienvenida__p">
+            <svg viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6" /></svg>
+            Usa el menú lateral para acceder a tus tableros o herramientas.
+          </p>
+        </div>
+
+        <div class="rc-tarjetas" data-r="tarjetas">
+          {TARJETAS.map((t) => (
+            <div class:list={['rc-tarjeta', { 'rc-tarjeta--ia': t.ia }]} data-r={t.r}>
+              {t.ia && (
+                <span class="rc-tarjeta__ia">
+                  <svg viewBox="0 0 24 24"><path d={VARITA} /></svg>IA
+                </span>
+              )}
+              <svg class="rc-tarjeta__pbi" viewBox="0 0 41.5 41.5"><path d={BARRAS_PBI} /></svg>
+              <span class="rc-tarjeta__titulo">{t.titulo}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 3. EL VISOR (visor-embed.ejs): el reporte, la capa, la lengüeta y el chat ═══ -->
+  <section class="rc-escena rc-visor">
+    <div class="rc-reporte" data-r="reporte">
+      <div class="rc-pbi" data-r="pbi">
+        <div class="rc-pbi__cab">
+          <p class="rc-pbi__titulo">Ventas por sucursal</p>
+          <span class="rc-pbi__filtro">Año <b>2026</b> · Ene – Sep</span>
+        </div>
+
+        <div class="rc-pbi__kpis">
+          <div class="rc-kpi"><p class="rc-kpi__v" data-contar="5216100">5.216.100</p><p class="rc-kpi__t">Ventas (US$)</p></div>
+          <div class="rc-kpi"><p class="rc-kpi__v rc-kpi__v--sube" data-contar="7.9" data-sufijo=" %" data-signo="+">+7,9 %</p><p class="rc-kpi__t">contra 2025</p></div>
+          <div class="rc-kpi"><p class="rc-kpi__v" data-contar="48297">48.297</p><p class="rc-kpi__t">Tickets</p></div>
+          <div class="rc-kpi"><p class="rc-kpi__v" data-contar="108">108</p><p class="rc-kpi__t">Ticket promedio (US$)</p></div>
+        </div>
+
+        <div class="rc-pbi__visuales">
+          <div class="rc-vis rc-vis--barras" data-r="vis-barras">
+            <div class="rc-vis__cab">
+              <p class="rc-vis__titulo">Ventas por sucursal (US$)</p>
+              <span class="rc-vis__iconos">
+                <svg viewBox="0 0 24 24"><path d="M4 5h16l-6 7v6l-4 2v-8z" /></svg>
+                <svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" /></svg>
+                <span class="rc-vis__mas" data-r="vis-mas"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.8" /><circle cx="12" cy="12" r="1.8" /><circle cx="19" cy="12" r="1.8" /></svg></span>
+              </span>
+            </div>
+            <svg class="rc-barras" viewBox="0 0 330 210">
+              {BARRAS.map((b) => (
+                <g>
+                  <text class="rc-barras__etq" x="92" y={b.y + 14} text-anchor="end">{b.nombre}</text>
+                  <rect class="rc-barras__b" x="98" y={b.y + 3} width={b.ancho} height="17" />
+                  <text class="rc-barras__v" x={98 + b.ancho + 5} y={b.y + 15}>{MILES_K(b.valor)}</text>
+                </g>
+              ))}
+            </svg>
+
+            <div class="rc-menu-pbi" data-r="menu-pbi">
+              <span class="rc-menu-pbi__item" data-r="exportar">
+                <svg viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14" /></svg>Exportar datos
+              </span>
+              <span class="rc-menu-pbi__item"><svg viewBox="0 0 24 24"><path d="M4 5h16v14H4zM4 10h16M10 10v9" /></svg>Mostrar como tabla</span>
+              <span class="rc-menu-pbi__item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7" /><circle cx="12" cy="12" r="2.5" /></svg>Destacados</span>
+              <span class="rc-menu-pbi__item"><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9V16h7v-2.1A6 6 0 0 0 12 3z" /></svg>Obtener información</span>
+              <span class="rc-menu-pbi__sep"></span>
+              <span class="rc-menu-pbi__item"><svg viewBox="0 0 24 24"><path d="M7 4v16M3 16l4 4 4-4M17 20V4M13 8l4-4 4 4" /></svg>Ordenar por<svg class="rc-menu-pbi__mas" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" /></svg></span>
+            </div>
+          </div>
+
+          <div class="rc-vis rc-vis--lineas">
+            <div class="rc-vis__cab">
+              <p class="rc-vis__titulo">Ventas por mes (US$)</p>
+              <span class="rc-vis__leyenda"><i class="rc-vis__sw rc-vis__sw--26"></i>2026<i class="rc-vis__sw rc-vis__sw--25"></i>2025</span>
+            </div>
+            <svg class="rc-lineas" viewBox="0 0 330 170">
+              <line class="rc-lineas__reja" x1="38" y1="18" x2="290" y2="18" />
+              <line class="rc-lineas__reja" x1="38" y1="84" x2="290" y2="84" />
+              <line class="rc-lineas__eje" x1="38" y1="150" x2="290" y2="150" />
+              <text class="rc-lineas__txt" x="32" y="21" text-anchor="end">700 mil</text>
+              <text class="rc-lineas__txt" x="32" y="87" text-anchor="end">575 mil</text>
+              <text class="rc-lineas__txt" x="32" y="153" text-anchor="end">450 mil</text>
+              <polyline class="rc-lineas__s rc-lineas__s--25" pathLength="1" points={LINEA_25} />
+              <polyline class="rc-lineas__s rc-lineas__s--26" pathLength="1" points={LINEA_26} />
+              {MESES.map((m, i) => (
+                <text class="rc-lineas__txt" x={x(i)} y="164" text-anchor="middle">{m}</text>
+              ))}
+            </svg>
+          </div>
+        </div>
+
+        <!-- El cuadro de exportar de Power BI -->
+        <div class="rc-dialogo" data-r="dialogo">
+          <div class="rc-dialogo__caja" data-r="dialogo-caja">
+            <p class="rc-dialogo__t">Exportar datos</p>
+            <p class="rc-dialogo__p">¿Qué datos quieres exportar?</p>
+            <span class="rc-dialogo__op rc-dialogo__op--si"><i></i><span><b>Datos con el diseño actual</b>Lo mismo que ves en el visual.</span></span>
+            <span class="rc-dialogo__op"><i></i><span><b>Datos resumidos</b>Los totales de cada sucursal.</span></span>
+            <p class="rc-dialogo__formato">Formato de archivo <b>.xlsx (Excel)</b></p>
+            <span class="rc-dialogo__acc">
+              <span class="rc-dialogo__boton" data-r="dialogo-exportar">Exportar</span>
+              <span class="rc-dialogo__boton rc-dialogo__boton--no">Cancelar</span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Las pestañas de páginas de Power BI -->
+      <div class="rc-pbi__pestanas">
+        <span class="rc-pbi__pestana rc-pbi__pestana--si">Resumen</span>
+        <span class="rc-pbi__pestana">Sucursales</span>
+        <span class="rc-pbi__pestana">Productos</span>
+      </div>
+    </div>
+
+    <!-- La capa de carga del visor -->
+    <div class="rc-capa" data-r="capa">
+      <span class="rc-capa__giro"></span>
+      <p class="rc-capa__t">Abriendo Ventas por sucursal</p>
+      <p class="rc-capa__p">Preparando el tablero…</p>
+    </div>
+
+    <!-- La lengüeta: oscura, con el acento de la IA en el ícono -->
+    <span class="rc-lengueta" data-r="lengueta">
+      <svg viewBox="0 0 24 24"><path d={DESTELLO} /></svg>
+      <span class="rc-lengueta__txt">Chat IA</span>
+    </span>
+
+    <!-- ═══ El chat al costado (chat.ejs, modo embebido) ═══ -->
+    <aside class="rc-chat" data-r="chat">
+      <div class="rc-ch-top">
+        <span class="rc-ch-marca"><svg viewBox="0 0 24 24"><path d={DESTELLO} /></svg></span>
+        <span class="rc-ch-id">
+          <span class="rc-ch-titulo">Ventas por sucursal</span>
+          <span class="rc-ch-sub">Pregunta sobre los datos de este tablero</span>
+        </span>
+        <span class="rc-ch-boton"><svg viewBox="0 0 24 24"><path d="M4 5h16v14H4zM12 5v14" /></svg>El modelo</span>
+        <span class="rc-ch-x"><svg viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18" /></svg></span>
+      </div>
+
+      <div class="rc-ch-hilo" data-r="hilo">
+        <div class="rc-ch-hola" data-r="hola">
+          <p class="rc-ch-hola__t">¿Qué quieres saber?</p>
+          <p class="rc-ch-hola__p">
+            Escribe una pregunta en español. Se traduce a una consulta sobre el modelo,
+            <strong>se te muestra la consulta</strong> y recién ahí se ejecuta.
+          </p>
+          <span class="rc-ch-ejemplos">
+            <span class="rc-ch-ejemplo">¿Cuánto vendimos este mes?</span>
+            <span class="rc-ch-ejemplo">Ticket promedio por sucursal</span>
+            <span class="rc-ch-ejemplo">¿Qué sucursal creció más?</span>
+          </span>
+        </div>
+
+        <div class="rc-ch-yo" data-r="yo"><p class="rc-ch-yo__txt" data-r="yo-txt"></p></div>
+
+        <div class="rc-ch-bot" data-r="bot">
+          <div class="rc-ch-pasos">
+            <div class="rc-ch-paso" data-r="paso-1"><i></i>Leyendo la estructura del modelo<b>0,4 s · desde la caché</b></div>
+            <div class="rc-ch-paso" data-r="paso-2"><i></i>Redactando la consulta<b>2,1 s</b></div>
+            <div class="rc-ch-paso" data-r="paso-3"><i></i>Consultando Power BI<b>0,8 s</b></div>
+          </div>
+
+          <div class="rc-ch-dax" data-r="dax">
+            <p class="rc-ch-dax__cab">
+              <svg viewBox="0 0 24 24"><path d="m8 8-4 4 4 4M16 8l4 4-4 4" /></svg>La consulta que se ejecutó
+              <span class="rc-ch-dax__copiar">Copiar</span>
+            </p>
+            <pre><code><span class="k">EVALUATE</span>
+<span class="k">TOPN</span> (
+    5,
+    <span class="k">SUMMARIZECOLUMNS</span> (
+        Sucursales[Sucursal],
+        <span class="k">FILTER</span> ( Calendario, Calendario[Mes] = <span class="s">"Septiembre"</span> ),
+        <span class="s">"Ventas"</span>, [Ventas]
+    ),
+    [Ventas], <span class="k">DESC</span>
+)</code></pre>
+          </div>
+
+          <div class="rc-ch-tabla" data-r="tabla">
+            <span class="rc-ch-fila rc-ch-fila--cab"><span>Sucursal</span><span>Ventas</span></span>
+            {TOP5.map((s) => (
+              <span class="rc-ch-fila"><span>{s.nombre}</span><span>{miles(s.valor)}</span></span>
+            ))}
+          </div>
+
+          <p class="rc-ch-analisis" data-r="analisis">
+            <strong>Centro</strong> lideró septiembre con 148.320, un 22 % más que Plaza Mayor.
+            Las cinco suman el 91 % de las ventas del mes.
+          </p>
+
+          <span class="rc-ch-acciones" data-r="acciones">
+            <span class="rc-ch-accion rc-ch-accion--ia" data-r="generar">
+              <svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" /></svg>Generar gráfico
+            </span>
+            <span class="rc-ch-accion"><svg viewBox="0 0 24 24"><path d="M8 8h12v12H8zM16 8V4H4v12h4" /></svg>Copiar tabla</span>
+          </span>
+
+          <div class="rc-ch-grafico" data-r="grafico">
+            <p class="rc-ch-grafico__t">Ventas de septiembre, las cinco sucursales que más vendieron</p>
+            <svg class="rc-ch-barras" viewBox="0 0 440 176">
+              {BARRAS_CHAT.map((b) => (
+                <g>
+                  <text class="rc-ch-barras__etq" x="86" y={b.y + 17} text-anchor="end">{b.nombre}</text>
+                  <rect class="rc-ch-barras__b" x="92" y={b.y + 4} width={b.ancho} height="20" rx="3" />
+                  <text class="rc-ch-barras__v" x={92 + b.ancho + 6} y={b.y + 18}>{miles(b.valor)}</text>
+                </g>
+              ))}
+            </svg>
+            <span class="rc-ch-accion rc-ch-copiado" data-r="copiar-imagen">
+              <svg viewBox="0 0 24 24"><path d="M4 6h16v12H4zM8 14l3-3 3 3 2-2 4 4" /></svg><span data-r="copiar-txt">Copiar como imagen</span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="rc-ch-barra">
+        <div class="rc-ch-campo" data-r="campo">
+          <span class="rc-ch-input">
+            <span class="rc-tipeo" data-r="pregunta"></span>
+            <span class="rc-ch-ph" data-r="ph">Pregunta algo sobre estos datos…</span>
+          </span>
+          <span class="rc-ch-mic"><svg viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z" /><path d="M19 11a7 7 0 0 1-14 0M12 18v4" /></svg></span>
+          <span class="rc-ch-enviar" data-r="enviar"><svg viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6" /></svg></span>
+        </div>
+        <p class="rc-ch-nota">Las respuestas salen de una consulta al modelo. La consulta siempre queda a la vista.</p>
+      </div>
+    </aside>
+  </section>
+
+  <!-- El cursor: vive DENTRO de la pantalla, así la cámara lo acerca junto con lo que toca -->
+  <span class="rc-cursor" data-r="cursor">
+    <svg viewBox="0 0 24 24"><path d="M5 2.5v16.8l4.3-4.1 2.9 6.6 2.9-1.3-2.9-6.5h6z" /></svg>
+  </span>
+</div>
