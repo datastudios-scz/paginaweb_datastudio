@@ -1,0 +1,378 @@
+---
+/**
+ * El anuncio del Portal BI para redes sociales (/portal-bi/anuncio/): 30 segundos, nueve tomas.
+ *
+ * Todo el movimiento es CSS (@keyframes con su retardo contado desde el segundo 0) y el script
+ * (src/scripts/anuncio.ts) lo maneja como una línea de tiempo: puede reproducir, pausar o ir a
+ * cualquier instante exacto. Así el mismo anuncio se ve en la página y se graba cuadro por
+ * cuadro a MP4 (scripts/grabar-anuncio.mjs) sin perder un solo cuadro.
+ *
+ * Cada toma declara su ventana (--a: entra, --z: sale) en anuncio.css. Los tamaños van en
+ * `--u` (1/1080 del lado corto del lienzo), así que la misma pieza sirve en 9:16, 4:5, 1:1 y
+ * 16:9; lo que cambia por formato es dónde va cada bloque.
+ *
+ * Reglas del sitio que aplican acá: el monto que NO es el precio va tachado en rojo y con
+ * palabras ("sin el portal pagarías", ver PRODUCT.md); solo afirmaciones respaldadas; los
+ * datos del reporte y del chat son de ejemplo (los mismos de las maquetas).
+ */
+import { CONTACTO, PRECIO_LICENCIA_USD } from '../../data/sitio';
+import { LOGO_BARRAS, LOGO_WORDMARK } from '../../data/logo';
+import { miles } from '../../scripts/formato';
+
+const PERSONAS = 1000;
+const COSTO = miles(PERSONAS * PRECIO_LICENCIA_USD);
+
+/* Un titular partido en palabras con ranura: la animación las sube de a una (w0, w1…). */
+const esc = (t: string) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const titular = (texto: string) =>
+  texto
+    .split(' ')
+    .map((w, k) => `<span class="an-p w${k}"><span>${esc(w)}</span></span>`)
+    .join(' ');
+
+/* Las barras amarillas de Power BI (las de las tarjetas del portal) */
+const PBI = 'M27.6 0h8.3a2.7 2.7 0 0 1 2.7 2.7v36.1a2.7 2.7 0 0 1-2.7 2.7h-8.3a2.7 2.7 0 0 1-2.7-2.7V2.7A2.7 2.7 0 0 1 27.6 0Zm-12.4 11.5h8.3a2.7 2.7 0 0 1 2.7 2.7v24.6a2.7 2.7 0 0 1-2.7 2.7h-8.3a2.7 2.7 0 0 1-2.7-2.7V14.2a2.7 2.7 0 0 1 2.7-2.7ZM2.7 23h8.3a2.7 2.7 0 0 1 2.7 2.7v13.1a2.7 2.7 0 0 1-2.7 2.7H2.7A2.7 2.7 0 0 1 0 38.8V25.7A2.7 2.7 0 0 1 2.7 23Z';
+const VARITA = 'M7.5 5.6 10 7 8.6 4.5 10 2 7.5 3.4 5 2l1.4 2.5L5 7zm12 9.8L17 14l1.4 2.5L17 19l2.5-1.4L22 19l-1.4-2.5L22 14zM22 2l-2.5 1.4L17 2l1.4 2.5L17 7l2.5-1.4L22 7l-1.4-2.5zm-7.63 5.29a1 1 0 0 0-1.41 0L1.29 18.96a1 1 0 0 0 0 1.41l2.34 2.34a1 1 0 0 0 1.41 0L16.7 11.05a1 1 0 0 0 0-1.41zm-1.03 5.49-2.12-2.12 2.44-2.44 2.12 2.12z';
+
+const TARJETAS = [
+  { titulo: 'Ventas por sucursal', ia: true },
+  { titulo: 'Cumplimiento de metas', ia: true },
+  { titulo: 'Cartera y cobranzas', ia: false },
+  { titulo: 'Margen por línea', ia: false },
+  { titulo: 'Pedidos en curso', ia: false },
+  { titulo: 'Indicadores públicos', ia: false },
+];
+
+/* Reporte de ejemplo: los mismos datos de las maquetas y del recorrido */
+const SUCURSALES = [
+  ['Centro', 1262400],
+  ['Plaza Mayor', 1041200],
+  ['Norte', 935800],
+  ['Aeropuerto', 822300],
+  ['Costanera', 708900],
+  ['Sur', 268500],
+] as const;
+const MAX_SUC = SUCURSALES[0][1];
+const SERIE_26 = [541200, 528900, 566000, 552400, 589700, 571300, 603800, 650800, 612000];
+const SERIE_25 = [508300, 497100, 523600, 515200, 540900, 532400, 556000, 597500, 563200];
+const linea = (serie: number[]) =>
+  serie.map((v, i) => `${(i * 400) / (serie.length - 1)},${(130 - ((v - 480000) / 190000) * 120).toFixed(1)}`).join(' ');
+
+/* La respuesta del chat: las cinco que más vendieron en septiembre */
+const TOP5 = [
+  ['Centro', 148320],
+  ['Plaza Mayor', 121940],
+  ['Norte', 109870],
+  ['Aeropuerto', 96410],
+  ['Costanera', 83150],
+] as const;
+
+const PREGUNTA = '¿Qué sucursal vendió más en septiembre?';
+---
+
+<div class="an-lienzo" data-a="lienzo" data-formato="9x16" aria-hidden="true">
+  <!-- El reloj: una animación lineal de 30 s que el script lee para saber en qué segundo va -->
+  <i class="an-reloj" data-a="reloj"></i>
+
+  <!-- Fondo vivo de las tomas oscuras: dos luces que respiran -->
+  <div class="an-fondo"><i></i><i></i></div>
+
+  <!-- Los mil asientos (y el anillo de las mil personas): los dibuja el script -->
+  <canvas class="an-canvas" data-a="canvas"></canvas>
+
+  <!-- ═══ 1 · GANCHO: el dolor exacto, con el contador corriendo ═══ -->
+  <section class="an-escena an-s1">
+    <div class="an-texto">
+      <p class="an-h1 an-s1-pregunta" set:html={titular('¿Pagas Power BI por cada persona?')} />
+      <div class="an-s1-costo">
+        <p class="an-h3 an-s1-sin">Sin el portal pagarías</p>
+        <p class="an-monto">
+          <span class="an-monto__n">US$ <span data-a="costo">{COSTO}</span></span>
+          <i class="an-tacha"></i>
+        </p>
+        <p class="an-h3 an-s1-mes">al mes, por {miles(PERSONAS)} personas.</p>
+      </div>
+    </div>
+    <div class="an-visual an-s1-visual">
+      <div class="an-asientos" data-a="asientos"></div>
+      <p class="an-contador"><span data-a="personas">{miles(PERSONAS)}</span> personas, una licencia cada una</p>
+    </div>
+  </section>
+
+  <!-- ═══ 2 · GIRO: los mil colapsan en una sola licencia ═══ -->
+  <section class="an-escena an-s2">
+    <i class="an-destello"></i>
+    <div class="an-texto">
+      <p class="an-h3 an-s2-con">Con Portal BI</p>
+      <p class="an-h1 an-s2-una" set:html={titular('1 licencia.')} />
+      <p class="an-h1 an-s2-mil" set:html={titular(`${miles(PERSONAS)} personas.`)} />
+    </div>
+    <div class="an-visual an-s2-visual" data-a="licencia">
+      <div class="an-licencia">
+        <svg class="an-licencia__pbi" viewBox="0 0 41.5 41.5"><path d={PBI} /></svg>
+        <svg class="an-licencia__ok" viewBox="0 0 48 48"><path d="M11 25.5 20 34l17-19" pathLength="1" /></svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- Las cuatro barras del logo como cortina (de la 2 a la 3) -->
+  <div class="an-barras an-barras--1"><i></i><i></i><i></i><i></i></div>
+
+  <!-- ═══ 3 · TU MARCA: la misma pantalla, tres empresas ═══ -->
+  <section class="an-escena an-s3">
+    <i class="an-s3-fondo an-s3-fondo--b"></i>
+    <i class="an-s3-fondo an-s3-fondo--c"></i>
+    <div class="an-texto">
+      <p class="an-h1 an-s3-titulo" set:html={titular('Con tu marca.')} />
+      <p class="an-h3 an-s3-sub">Tu logo. Tus colores.</p>
+    </div>
+    <div class="an-visual an-s3-visual">
+      <div class="an-ui an-login">
+        <div class="an-ui__in">
+          <div class="an-login__giro">
+            <div class="an-login__tarjeta">
+              <i class="an-login__ola an-login__ola--1"></i>
+              <i class="an-login__ola an-login__ola--2"></i>
+              <div class="an-login__marca an-login__marca--a">
+                <svg viewBox="0 0 28 28"><rect x="3" y="14" width="5" height="11" rx="1.2" /><rect x="11.5" y="8" width="5" height="17" rx="1.2" /><rect x="20" y="3" width="5" height="22" rx="1.2" /></svg>
+                <span>TU EMPRESA</span>
+              </div>
+              <div class="an-login__marca an-login__marca--b">
+                <svg viewBox="0 0 32 32"><path d="M16 2 26 16 16 30 6 16z" /><path class="an-login__marca-in" d="M16 7.5 21.5 16H10.5z" /></svg>
+                <span>NORDEX</span>
+              </div>
+              <div class="an-login__marca an-login__marca--c">
+                <svg viewBox="0 0 36 32"><path d="M4 28 16 5l12 23z" /><path class="an-login__marca-in" d="M15 28 24 12l9 16z" /></svg>
+                <span>ACME</span>
+              </div>
+              <span class="an-login__rotulo">Usuario</span>
+              <span class="an-login__campo">mariana.s</span>
+              <span class="an-login__rotulo">Contraseña</span>
+              <span class="an-login__campo an-login__campo--clave">••••••••••</span>
+              <span class="an-login__boton">Ingresar</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 4 · CADA UNO LO SUYO: el portal y quién ve qué ═══ -->
+  <section class="an-escena an-s4">
+    <div class="an-texto">
+      <p class="an-h1 an-s4-titulo" set:html={titular('Cada persona ve solo sus tableros.')} />
+    </div>
+    <div class="an-visual an-s4-visual">
+      <div class="an-ui an-ventana an-portal">
+        <div class="an-ui__in">
+          <div class="an-ventana__barra"><i></i><i></i><i></i><span>portal.tuempresa.com/tableros</span><em>Datos de ejemplo</em></div>
+          <div class="an-portal__cuerpo">
+            <div class="an-portal__menu">
+              <span class="an-portal__logo"><svg viewBox="0 0 28 28"><rect x="3" y="14" width="5" height="11" rx="1.2" /><rect x="11.5" y="8" width="5" height="17" rx="1.2" /><rect x="20" y="3" width="5" height="22" rx="1.2" /></svg>Portal BI</span>
+              <span class="an-portal__seccion">Tableros</span>
+              <span class="an-portal__item an-portal__item--si">Comercial</span>
+              <span class="an-portal__item">Operaciones</span>
+              <span class="an-portal__item">Recursos Humanos</span>
+              <span class="an-portal__seccion">Modelos</span>
+              <span class="an-portal__item">Ventas 2026</span>
+            </div>
+            <div class="an-portal__contenido">
+              <span class="an-portal__migas">Comercial</span>
+              <div class="an-portal__tarjetas">
+                {TARJETAS.map((t, i) => (
+                  <div class={`an-tarjeta an-tarjeta--${i + 1}`}>
+                    {t.ia && (
+                      <span class="an-tarjeta__ia"><svg viewBox="0 0 24 24"><path d={VARITA} /></svg>IA</span>
+                    )}
+                    <svg class="an-tarjeta__pbi" viewBox="0 0 41.5 41.5"><path d={PBI} /></svg>
+                    <span class="an-tarjeta__t">{t.titulo}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          <i class="an-toque"></i>
+        </div>
+      </div>
+      <div class="an-personas">
+        <span class="an-persona an-persona--1"><i>G</i>Gerencia</span>
+        <span class="an-persona an-persona--2"><i>V</i>Ventas</span>
+        <span class="an-persona an-persona--3"><i>O</i>Operaciones</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 5 · POWER BI ADENTRO: el reporte se dibuja ═══ -->
+  <section class="an-escena an-s5">
+    <div class="an-texto">
+      <p class="an-h1 an-s5-titulo" set:html={titular('Power BI de verdad,')} />
+      <p class="an-h2 an-s5-sub" set:html={titular('sin cuenta de Power BI.')} />
+    </div>
+    <div class="an-visual an-s5-visual">
+      <div class="an-ui an-ventana an-reporte">
+        <div class="an-ui__in">
+          <div class="an-ventana__barra"><i></i><i></i><i></i><span>portal.tuempresa.com/visor</span><em>Datos de ejemplo</em></div>
+          <div class="an-reporte__cuerpo">
+            <div class="an-reporte__cab">
+              <span class="an-reporte__titulo">Ventas por sucursal</span>
+              <span class="an-reporte__filtro">Año <b>2026</b></span>
+            </div>
+            <div class="an-reporte__kpis">
+              <div class="an-kpi"><span class="an-kpi__v" data-a="kpi" data-desde="0" data-hasta="5216100" data-en="13" data-dur="0.9">5.216.100</span><span class="an-kpi__t">Ventas (US$)</span></div>
+              <div class="an-kpi"><span class="an-kpi__v an-kpi__v--sube" data-a="kpi" data-desde="0" data-hasta="7.9" data-en="13.05" data-dur="0.9" data-signo="+" data-sufijo=" %">+7,9 %</span><span class="an-kpi__t">contra 2025</span></div>
+              <div class="an-kpi"><span class="an-kpi__v" data-a="kpi" data-desde="0" data-hasta="48297" data-en="13.1" data-dur="0.9">48.297</span><span class="an-kpi__t">Tickets</span></div>
+              <div class="an-kpi"><span class="an-kpi__v" data-a="kpi" data-desde="0" data-hasta="108" data-en="13.15" data-dur="0.9">108</span><span class="an-kpi__t">Ticket promedio</span></div>
+            </div>
+            <div class="an-reporte__visuales">
+              <div class="an-vis">
+                <span class="an-vis__t">Ventas por sucursal</span>
+                <div class="an-barrash">
+                  {SUCURSALES.map(([n, v], i) => (
+                    <div class={`an-barrash__fila an-barrash__fila--${i + 1}`}>
+                      <span class="an-barrash__n">{n}</span>
+                      <span class="an-barrash__b"><i class={`an-barrash__r an-ancho-${Math.round((v / MAX_SUC) * 20)}`}></i></span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div class="an-vis">
+                <span class="an-vis__t">Ventas por mes</span>
+                <svg class="an-lineas" viewBox="-6 -6 412 150" preserveAspectRatio="none">
+                  <polyline class="an-lineas__25" points={linea(SERIE_25)} pathLength="1" />
+                  <polyline class="an-lineas__26" points={linea(SERIE_26)} pathLength="1" />
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 6 · IA: le pregunta a sus datos ═══ -->
+  <section class="an-escena an-s6">
+    <div class="an-texto">
+      <p class="an-h1 an-s6-titulo" set:html={titular('Pregúntale a tus datos.')} />
+      <p class="an-h3 an-s6-sub">Con IA, en español.</p>
+    </div>
+    <div class="an-visual an-s6-visual">
+      <div class="an-ui an-chat">
+        <div class="an-ui__in">
+          <div class="an-chat__cab">
+            <span class="an-chat__ico"><svg viewBox="0 0 24 24"><path d={VARITA} /></svg></span>
+            <span class="an-chat__id"><b>Ventas por sucursal</b><span>Pregunta sobre los datos de este tablero</span></span>
+            <em class="an-chat__ejemplo">Datos de ejemplo</em>
+          </div>
+          <div class="an-chat__hilo">
+            <div class="an-chat__yo">{PREGUNTA}</div>
+            <div class="an-chat__pasos">
+              <span class="an-chat__paso an-chat__paso--1"><i></i>Leyendo el modelo</span>
+              <span class="an-chat__paso an-chat__paso--2"><i></i>Redactando la consulta</span>
+              <span class="an-chat__paso an-chat__paso--3"><i></i>Consultando Power BI</span>
+            </div>
+            <p class="an-chat__resp"><b>Centro</b> lideró septiembre con <b>US$ 148.320</b>, un 22 % más que Plaza Mayor.</p>
+            <div class="an-chat__graf">
+              {TOP5.map(([n, v], i) => (
+                <div class={`an-chat__fila an-chat__fila--${i + 1}`}>
+                  <span class="an-chat__n">{n}</span>
+                  <span class="an-chat__b"><i class={`an-ancho-${Math.round((v / TOP5[0][1]) * 20)}`}></i></span>
+                  <span class="an-chat__v">{miles(v)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div class="an-chat__campo">
+            <span class="an-chat__input"><span data-a="tipeo" data-texto={PREGUNTA} data-en="16.25" data-fin="17.55"></span><i class="an-chat__caret"></i></span>
+            <span class="an-chat__enviar"><svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7" /></svg></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 7 · EN EL CELULAR ═══ -->
+  <section class="an-escena an-s7">
+    <div class="an-texto">
+      <p class="an-h1 an-s7-titulo" set:html={titular('También desde el celular.')} />
+    </div>
+    <div class="an-visual an-s7-visual">
+      <div class="an-ui an-celular">
+        <div class="an-ui__in">
+          <div class="an-celular__pantalla">
+            <div class="an-celular__barra">
+              <span class="an-portal__logo"><svg viewBox="0 0 28 28"><rect x="3" y="14" width="5" height="11" rx="1.2" /><rect x="11.5" y="8" width="5" height="17" rx="1.2" /><rect x="20" y="3" width="5" height="22" rx="1.2" /></svg>Portal BI</span>
+              <i class="an-celular__menu"></i>
+            </div>
+            <div class="an-celular__lista">
+              <span class="an-celular__hola">Comercial</span>
+              {TARJETAS.slice(0, 4).map((t) => (
+                <div class="an-celular__tarjeta">
+                  <svg class="an-tarjeta__pbi" viewBox="0 0 41.5 41.5"><path d={PBI} /></svg>
+                  <span>{t.titulo}</span>
+                  {t.ia && <span class="an-tarjeta__ia"><svg viewBox="0 0 24 24"><path d={VARITA} /></svg>IA</span>}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 8 · RÁFAGA: cuatro razones, una por tiempo ═══ -->
+  <section class="an-escena an-s8">
+    <div class="an-corte an-corte--1">
+      <svg class="an-corte__ico" viewBox="0 0 48 48"><path d="M17 14 7 24l10 10M31 14l10 10-10 10M27 9l-6 30" pathLength="1" /></svg>
+      <p class="an-h1" set:html={titular('El código es tuyo.')} />
+    </div>
+    <div class="an-corte an-corte--2">
+      <svg class="an-corte__ico" viewBox="0 0 48 48"><path d="M12 8h24a4 4 0 0 1 4 4v24a4 4 0 0 1-4 4H12a4 4 0 0 1-4-4V12a4 4 0 0 1 4-4ZM8 19h32M8 29h32M19 8v32" pathLength="1" /></svg>
+      <p class="an-h1" set:html={titular('Excel: tú decides quién descarga.')} />
+    </div>
+    <div class="an-corte an-corte--3">
+      <svg class="an-corte__ico" viewBox="0 0 48 48"><path d="M30 8a10 10 0 0 0-9.6 12.8L8 33.2V40h6.8l12.4-12.4A10 10 0 1 0 30 8Z" pathLength="1" /></svg>
+      <p class="an-h1" set:html={titular('Lo instalas tú o lo instalamos.')} />
+    </div>
+    <div class="an-corte an-corte--4">
+      <svg class="an-corte__ico" viewBox="0 0 48 48"><path d="M10 25.5 19.5 35 38 14" pathLength="1" /></svg>
+      <p class="an-h1" set:html={titular('Nunca más una licencia por persona.')} />
+    </div>
+  </section>
+
+  <!-- Las barras otra vez, para entrar al cierre -->
+  <div class="an-barras an-barras--2"><i></i><i></i><i></i><i></i></div>
+
+  <!-- ═══ 9 · CIERRE: la marca y a dónde escribir ═══ -->
+  <section class="an-escena an-s9">
+    <div class="an-cierre">
+      <div class="an-logo">
+        <svg class="an-logo__icono" viewBox="0 0 1893 1895">
+          <path class="an-logo__pantalla" d="M0 1107V130A130 130 0 0 1 130 0h1633a130 130 0 0 1 130 130v977Z" />
+          {LOGO_BARRAS.map((b, i) => (
+            <rect class={`an-logo__barra an-logo__barra--${i + 1}`} x={b.x} y={b.y} width="233" height={b.alto} />
+          ))}
+          <path class="an-logo__pie" d="M0 1181h1893v201a120 120 0 0 1-120 120h-669v153h273a120 120 0 0 1 120 120v120H396v-120a120 120 0 0 1 120-120h273v-153H120A120 120 0 0 1 0 1382ZM596.5 1260h70a41.5 41.5 0 0 1 0 83h-70a41.5 41.5 0 0 1 0-83ZM911.5 1260h70a41.5 41.5 0 0 1 0 83h-70a41.5 41.5 0 0 1 0-83ZM1226.5 1260h70a41.5 41.5 0 0 1 0 83h-70a41.5 41.5 0 0 1 0-83Z" fill-rule="evenodd" />
+        </svg>
+        <svg class="an-logo__wordmark" viewBox="0 0 4733 484"><path d={LOGO_WORDMARK} /></svg>
+      </div>
+      <p class="an-h1 an-s9-titulo" set:html={titular('Power BI para toda tu empresa.')} />
+      <ul class="an-fichas">
+        <li>1 licencia</li>
+        <li>Con tu marca</li>
+        <li>Chat con IA</li>
+        <li>En el celular</li>
+      </ul>
+      <p class="an-cta">
+        <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.3-.5 0-1 .2-3.3-.7-2.8-1.1-4.6-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.9s.7-2.1 1-2.4c.3-.3.6-.3.8-.3h.6c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.4 0 .6l-.4.6-.5.5c-.2.2-.3.3-.1.6.2.3.8 1.4 1.8 2.2 1.2 1.1 2.3 1.4 2.6 1.6.3.1.5.1.7-.1l1-1.2c.2-.3.4-.2.7-.1l2 1c.3.1.5.2.5.3.1.2.1.8-.1 1.4Z" /></svg>
+        <span>Escríbenos: {CONTACTO.telefonoVisible}</span>
+      </p>
+      <p class="an-url">datastudio.es/portal-bi</p>
+    </div>
+  </section>
+
+  <!-- La firma: chica, arriba, mientras dura el anuncio (el cierre trae la grande) -->
+  <div class="an-firma">
+    <svg viewBox="0 0 28 28"><rect x="3" y="14" width="5" height="11" rx="1.2" /><rect x="11.5" y="8" width="5" height="17" rx="1.2" /><rect x="20" y="3" width="5" height="22" rx="1.2" /></svg>
+    <span>Portal BI</span>
+  </div>
+</div>

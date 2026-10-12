@@ -27,6 +27,9 @@ export default defineConfig({
       // Las páginas legales viven en public/ (HTML estático preservado), así que
       // Astro no las conoce: se agregan a mano. /oauth/tiktok/ queda fuera a propósito.
       customPages: [`${SITIO}/privacidad/`, `${SITIO}/terminos/`],
+      // Páginas ocultas (noindex): no se anuncian. El anuncio del Portal BI es una herramienta
+      // para grabar el video de redes, no una página para buscadores.
+      filter: (pagina) => !pagina.includes('/portal-bi/anuncio/'),
     }),
   ],
 

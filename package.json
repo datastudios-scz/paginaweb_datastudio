@@ -14,6 +14,8 @@
     "recursos": "node scripts/generar-recursos.mjs",
     "qa": "node scripts/qa.mjs",
     "recorrido": "node scripts/probar-recorrido.mjs",
+    "anuncio:video": "node scripts/grabar-anuncio.mjs",
+    "anuncio:probar": "node scripts/probar-anuncio.mjs",
     "astro": "astro"
   },
   "dependencies": {

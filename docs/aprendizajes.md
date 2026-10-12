@@ -2,6 +2,36 @@
 
 Cada entrada: **síntoma → causa → solución → cómo evitarlo**.
 
+## Anuncio del Portal BI (11/10/2026)
+
+### Una variable CSS sin registrar resuelve el `var()` donde se DECLARA, no donde se usa
+- **Síntoma**: en la página del anuncio los textos salían enormes (el titular, 118 px en un lienzo de 453); en el video de 1080 px se veía perfecto.
+- **Causa**: `--h1: calc(118 * var(--u))` estaba en el lienzo, y `--u` (registrada con `@property`, se calcula con `cqmin`) recién vale en los HIJOS del lienzo. Una variable sin registrar sustituye sus `var()` en el elemento donde se declara: ahí `--u` tenía su valor inicial, 1px, y `--h1` quedó fija en `118px` para todos. En el video el lienzo mide 1080 y `--u` vale justo 1px: salía bien por casualidad.
+- **Solución**: las variables de formato que usan `--u` se declaran en los hijos del lienzo (`.an-lienzo[data-formato] > *`).
+- **Evitarlo**: probar la pieza en un tamaño donde la casualidad no tape el error. Que el video final se vea bien no prueba la página.
+
+### `animation-fill-mode: both` muestra el primer cuadro ANTES del retardo
+- **Síntoma**: el aro del "toque" sobre la primera tarjeta se veía durante toda la toma, no solo al tocar.
+- **Causa**: su `@keyframes` arranca en opacidad 0,9, y con `both` ese primer cuadro se aplica desde el principio, antes de que llegue su momento.
+- **Solución**: `forwards` cuando el estado inicial de la animación no es el de reposo del elemento.
+
+### "El mismo cuadro" no es "los mismos bytes"
+- **Síntoma**: el banco exigía que ir dos veces al mismo instante diera un PNG idéntico, y en 1:1 fallaba de a ratos.
+- **Causa**: Chrome re-rasteriza a veces un degradado con una diferencia mínima. Medido: 33 píxeles, a lo sumo 3 niveles de 765, todos dentro del ícono del chat (degradado + trazo SVG a escala 0,736). Invisible, y no es un error de la línea de tiempo.
+- **Solución**: comparar píxel por píxel con una tolerancia escrita (más de 12 niveles, en menos del 0,01 % del cuadro) y, en la misma prueba, comprobar que dos instantes distintos SÍ se distinguen: una comparación que nunca puede decir "distinto" no prueba nada.
+
+### Un sabotaje que no se puede ver en el instante que mira la prueba no prueba nada
+- **Síntoma**: se saboteó el lienzo moviendo un asiento al azar y la prueba de determinismo siguió en verde.
+- **Causa**: la prueba miraba los 5,7 s, y a esa altura los asientos ya colapsaron: el lienzo dibuja la espiral. El sabotaje era real pero invisible para esa prueba, y la fase de los asientos no estaba cubierta por nada.
+- **Solución**: una comprobación por fase (los asientos a los 3 s, la espiral a los 5,7 s) y un sabotaje en cada una. Con eso, 7 rojas.
+
+### ffmpeg convierte las fotos a YUV en BT.601 y no lo dice
+- **Riesgo**: de PNG (RGB) a yuv420p, ffmpeg usa la matriz BT.601 y deja el video sin etiqueta; los reproductores asumen BT.709 para HD y los verdes de la marca se corren.
+- **Solución**: `-vf scale=out_color_matrix=bt709:out_range=tv` para convertir, y las etiquetas con `-x264-params colorprim=bt709:transfer=bt709:colormatrix=bt709:range=tv`. Con `-color_primaries/-color_trc` no quedaban escritas: ffprobe decía "unknown". Verificarlo siempre con `ffprobe -show_entries stream=color_space,color_primaries,color_transfer`.
+
+### El modo sin pérdida de x264 no acepta el perfil `high`
+- `--crf 0` (máster para recodificar sin volver a grabar) falla en el acto con `-profile:v high`: necesita su perfil High 4:4:4. El script no fija perfil en ese caso, y si ffmpeg se cae, lo dice en vez de reventar al escribirle.
+
 ## Recorrido animado del Portal BI (09/10/2026)
 
 ### Un `<script is:inline>` dentro de una página lo bloquea la CSP

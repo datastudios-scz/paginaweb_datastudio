@@ -1,0 +1,115 @@
+---
+/**
+ * El anuncio del Portal BI para redes sociales. Página OCULTA: no se enlaza desde ningún lado,
+ * no se indexa (Base con indexar={false}) y está fuera del sitemap (astro.config.mjs).
+ *
+ * Es una herramienta para el dueño: ver el anuncio en cualquier formato, grabarlo en pantalla
+ * completa o descargar los MP4 que genera `npm run anuncio:video` (scripts/grabar-anuncio.mjs,
+ * cuadro por cuadro con ?render=1). Decisión: ADR-016.
+ */
+import { existsSync, statSync } from 'node:fs';
+import Base from '../../layouts/Base.astro';
+import Icono from '../../components/Icono.astro';
+import Anuncio from '../../components/anuncio/Anuncio.astro';
+import '../../components/anuncio/anuncio.css';
+
+const FORMATOS = [
+  { id: '9x16', nombre: '9:16', uso: 'Reels, TikTok, historias y Shorts', px: '1080 × 1920' },
+  { id: '4x5', nombre: '4:5', uso: 'Feed de Instagram y Facebook', px: '1080 × 1350' },
+  { id: '1x1', nombre: '1:1', uso: 'Feed cuadrado', px: '1080 × 1080' },
+  { id: '16x9', nombre: '16:9', uso: 'YouTube, LinkedIn y presentaciones', px: '1920 × 1080' },
+];
+const VIDEO = (f: string) => `/portal-bi/anuncio/portal-bi-anuncio-${f}.mp4`;
+const PORTADA = (f: string) => `/portal-bi/anuncio/portal-bi-portada-${f}.jpg`;
+
+/* El peso de cada MP4 se lee del archivo al compilar: así no queda viejo cuando se regeneran
+   con `npm run anuncio:video`. Si un formato no está generado, se dice (no un enlace roto). */
+const peso = (f: string) => {
+  const ruta = `public${VIDEO(f)}`;
+  if (!existsSync(ruta)) return null;
+  return `${(statSync(ruta).size / 1024 / 1024).toFixed(1).replace('.', ',')} MB`;
+};
+---
+
+<Base
+  titulo="Anuncio del Portal BI · Data Studio"
+  descripcion="Anuncio de 30 segundos del Portal BI para redes sociales."
+  imagen="/og/portal-bi.png"
+  inmersiva
+  indexar={false}
+>
+  <div class="an" data-a="raiz">
+    <header class="an-barra">
+      <a class="an-barra__volver" href="/portal-bi/" aria-label="Volver al Portal BI">
+        <Icono nombre="anterior" />
+        <span>Portal BI</span>
+      </a>
+      <h1 class="an-barra__nombre">Anuncio del Portal BI · 30 s</h1>
+      <div class="an-formatos" role="group" aria-label="Formato del video">
+        {FORMATOS.map((f) => (
+          <button type="button" class="an-formato" data-formato-boton={f.id} aria-pressed={f.id === '9x16' ? 'true' : 'false'} title={f.uso}>
+            {f.nombre}
+          </button>
+        ))}
+      </div>
+      <div class="an-controles">
+        <button type="button" class="an-control" data-a="pausa" aria-label="Pausar" title="Pausar (espacio)">
+          <span class="an-control__pausar"><Icono nombre="pausa" /></span>
+          <span class="an-control__seguir"><Icono nombre="reproducir" /></span>
+        </button>
+        <button type="button" class="an-control" data-a="reiniciar" aria-label="Desde el principio" title="Desde el principio">
+          <Icono nombre="reiniciar" />
+        </button>
+        <button type="button" class="an-control" data-a="completa" aria-label="Pantalla completa" title="Pantalla completa (para grabarlo)">
+          <Icono nombre="expandir" />
+        </button>
+      </div>
+    </header>
+
+    <div class="an-sala">
+      <div class="an-marco">
+        <Anuncio />
+      </div>
+
+      <aside class="an-panel" aria-labelledby="an-panel-titulo">
+        <h2 id="an-panel-titulo">Descargar el video</h2>
+        <p>MP4 de 60 cuadros por segundo, listo para subir. Uno por formato:</p>
+        <ul class="an-descargas">
+          {FORMATOS.map((f) => (
+            <li>
+              {peso(f.id) ? (
+                <a class="an-descarga" href={VIDEO(f.id)} download>
+                  <span>{f.nombre} · {f.uso}</span>
+                  <small>{f.px} · {peso(f.id)}</small>
+                </a>
+              ) : (
+                <span class="an-descarga">
+                  <span>{f.nombre} · {f.uso}</span>
+                  <small>sin generar</small>
+                </span>
+              )}
+            </li>
+          ))}
+        </ul>
+        <p>
+          Y la portada de cada uno (el primer segundo, para elegirla como miniatura):
+          <a class="enlace" data-a="descarga-actual" data-molde={PORTADA('{f}')} href={PORTADA('9x16')} download>la del formato que estás viendo</a>.
+        </p>
+        <h2>Música</h2>
+        <p>
+          No trae audio: en las redes casi todo se mira sin sonido, y la música se elige en la app.
+          Los cortes caen cada medio segundo, así que cualquier tema a <strong>120 BPM</strong> calza.
+        </p>
+        <h2>Grabarlo tú mismo</h2>
+        <p>
+          Elige el formato, toca pantalla completa y graba la pantalla: el anuncio vuelve a empezar
+          solo al terminar. Espacio pausa; las flechas avanzan o retroceden un segundo.
+        </p>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    import '../../scripts/anuncio';
+  </script>
+</Base>

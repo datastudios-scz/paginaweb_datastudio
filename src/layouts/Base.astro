@@ -18,6 +18,9 @@ interface Props {
   /** Página a pantalla completa (el recorrido animado del Portal BI): sin encabezado ni pie;
       la página trae su propia barra con la salida. */
   inmersiva?: boolean;
+  /** false = página oculta: no se indexa ni se sigue (el anuncio del Portal BI). Además hay que
+      sacarla del sitemap en astro.config.mjs. */
+  indexar?: boolean;
 }
 
 const {
@@ -28,6 +31,7 @@ const {
   datosEstructurados = [],
   inicio = false,
   inmersiva = false,
+  indexar = true,
 } = Astro.props;
 
 const canonica = new URL(Astro.url.pathname, SITIO.url).href;
@@ -79,7 +83,7 @@ const grafo = {
     <title>{titulo}</title>
     <meta name="description" content={descripcion} />
     <link rel="canonical" href={canonica} />
-    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="robots" content={indexar ? 'index, follow, max-image-preview:large' : 'noindex, nofollow'} />
     <meta name="theme-color" content="#001720" />
     <meta name="color-scheme" content="light" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />

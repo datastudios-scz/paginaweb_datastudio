@@ -1,5 +1,16 @@
 # Bitácora de cambios
 
+## 11/10/2026 · Anuncio del Portal BI para redes (página oculta)
+
+- **`/portal-bi/anuncio/`**, sin enlaces, sin indexar y fuera del sitemap: un anuncio de 30 segundos para vender el Portal BI en redes, en cuatro formatos (9:16 Reels/TikTok/historias, 4:5 y 1:1 feed, 16:9 YouTube/LinkedIn). Se ve en la página, se graba en pantalla completa o se descargan los MP4.
+- **El guion, pensado para vender**: el primer cuadro ya dice el dolor ("¿Pagas Power BI por cada persona?") mientras se llenan mil asientos con licencia; el costo sube hasta US$ 14.000 al mes y se tacha en rojo ("sin el portal pagarías", regla del dueño); los mil colapsan en una sola licencia que se vuelve verde y se abre en mil personas. Después, una idea por toma: tu marca (la misma pantalla con tres empresas), cada persona ve solo sus tableros, Power BI de verdad sin cuenta de Power BI, el chat con IA respondiendo, el celular, una ráfaga de cuatro razones y el cierre con el logo, las fichas y el WhatsApp.
+- **Cuadro por cuadro**: todo el movimiento es CSS con una línea de tiempo que el script puede llevar a cualquier instante exacto. `npm run anuncio:video` abre la página en Chrome al tamaño de cada formato, saca una foto por cuadro (60 por segundo) y `ffmpeg` arma el MP4 H.264 con color BT.709. Ningún cuadro se pierde, y el resultado es siempre el mismo.
+- Sin audio: en las redes casi todo se mira sin sonido y la música se elige en la app. Los cortes caen cada medio segundo (120 BPM).
+- Los datos del reporte y del chat son los de las maquetas, rotulados "Datos de ejemplo".
+- **Los cuatro MP4 ya están generados** en `public/portal-bi/anuncio/`: 30,000 s, 1.800 cuadros a 60 cps, H.264 High con color BT.709, entre 7,4 y 9,5 MB cada uno (CRF 18), más una portada JPEG por formato. Se grabó primero un máster sin pérdida y de ahí se recodificó, así que se puede elegir otro peso sin volver a grabar.
+- Banco nuevo, `npm run anuncio:probar`: cada toma en su ventana en los cuatro formatos, el mismo instante da el mismo cuadro (también en las dos fases del lienzo), la letra escala con el lienzo, el aro del toque no se adelanta, y la página reproduce, pausa y cambia de formato. Saboteado: detecta lo que cuida. QA 48/48 sin problemas.
+- Arreglo de paso: los trazos del logo pasaron a `src/data/logo.ts` para animar el ícono por separado; el `Logo.astro` dibuja exactamente lo mismo (comparado byte a byte).
+
 ## 09/10/2026 · Recorrido animado del Portal BI
 
 - **Página nueva `/portal-bi/como-funciona/`**: el Portal BI como lo vive una persona del equipo, en un minuto y en una sola toma. Entra con su usuario (con las olas del login real), encuentra sus tableros en el menú, abre un reporte de Power BI con IA, exporta a Excel, abre el chat al costado y le pregunta; ve la consulta DAX, la tabla, el análisis, y pide el gráfico. Ocho pasos narrados con texto que entra palabra por palabra.

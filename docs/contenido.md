@@ -33,6 +33,8 @@ Empresa de soluciones de datos con base en Santa Cruz de la Sierra, Bolivia, que
 | Con el portal basta una licencia (la de la cuenta que publica) | Página de producto del Portal BI |
 | +1.000 personas, instalación en 2 horas, no se cobra implementación | Página de producto del Portal BI |
 | Solo lectura, cuentas autorizadas, sin redistribución, revocable | Política de Privacidad y Condiciones del Servicio |
+| Anuncio del Portal BI: "1.000 personas × US$ 14 = US$ 14.000 al mes" | Cuenta sobre el precio de lista de Power BI Pro (`PRECIO_LICENCIA_USD`) con 1.000 personas como ejemplo; tachado en rojo y dicho como "sin el portal pagarías" |
+| Anuncio: "El código es tuyo", "Excel: tú decides quién descarga", "Lo instalas tú o lo instalamos", "Chat con IA", "En el celular", "Con tu marca" | Lo que el producto hace hoy (dos caminos de compra, opción "Ocultar Exportar datos" por asignación, chat al costado, marca blanca, móvil) |
 | Datos de las maquetas (tienda de cafetería, ranking de publicaciones, ventas de marzo, chat del portal, recorrido animado: usuaria «mariana.s», sucursales y ventas de septiembre) | **Ficticios**, rotulados "Datos de ejemplo" en cada maqueta (ADR-013) |
 
 ## Pendientes de confirmar con el dueño

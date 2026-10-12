@@ -33,6 +33,8 @@
 │   ├── generar-recursos.mjs     Favicons, íconos de app e imágenes OG desde el logo vectorial
 │   ├── qa.mjs                   QA visual y técnico en 6 anchos (necesita `npm run preview`)
 │   ├── probar-recorrido.mjs     Banco del recorrido animado: estados, teclado, duración de los pasos, CLS con red lenta (`npm run recorrido`)
+│   ├── grabar-anuncio.mjs       Graba el anuncio a MP4 cuadro por cuadro con Chrome + ffmpeg (`npm run anuncio:video`)
+│   ├── probar-anuncio.mjs       Banco del anuncio: tomas en su ventana, cuadros deterministas, escala, página (`npm run anuncio:probar`)
 │   ├── capturas-scroll.mjs      Capturas del viewport en varias posiciones de scroll, con movimiento (portada → telón)
 │   └── cortar-capturas.mjs      Corta capturas de página completa en tramos
 ├── src/
@@ -45,14 +47,17 @@
 │   │   ├── inicio/              Portada (sticky), Soluciones (telón + gráfico), Vitrinas, Manifiesto
 │   │   ├── portal/              Maquetas del Portal BI (Ventana, MaquetaPortal, MaquetaChat) y Calculadora;
 │   │   │                        RecorridoPantalla.astro + recorrido.css: la pantalla del recorrido animado (1280 × 760)
+│   │   ├── anuncio/             Anuncio.astro + anuncio.css: el anuncio de 30 s para redes (nueve tomas, cuatro formatos)
 │   │   ├── social/              MaquetaTablero (variantes completa, compacta y publicaciones)
 │   │   ├── tienda/              Catalogo (tienda de ejemplo, variantes completa y compacta)
 │   │   └── consultoria/         Flujo (recorrido de los datos) y Consolidado (héroe: planillas → reporte)
 │   ├── data/sitio.ts            ★ Fuente única de verdad: contacto, WhatsApp, navegación, soluciones, precio de licencia
+│   ├── data/logo.ts             Trazos del logo (ícono, barras, wordmark): los usan Logo.astro y el anuncio
 │   ├── layouts/Base.astro       <head> (SEO, OG, JSON-LD, fuentes), encabezado, pie (`inmersiva`: sin encabezado ni pie)
 │   ├── pages/                   index, portal-bi, portal-bi/como-funciona, social-metrics-bi, tienda-ecommerce, consultoria, 404
 │   ├── scripts/                 formato.ts (miles, cálculo de ahorro), esquemas.ts (JSON-LD), revelar.ts,
-│   │                            recorrido.ts (guion, reloj, cámara y cursor del recorrido animado)
+│   │                            recorrido.ts (guion, reloj, cámara y cursor del recorrido animado),
+│   │                            anuncio.ts (línea de tiempo del anuncio: reproducir, pausar, ir a un instante exacto)
 │   └── styles/                  tokens.css (diseño), global.css (base y utilidades), producto.css (clases prod-* de las subpáginas)
 ├── astro.config.mjs             Sitio, fuentes, CSP, sitemap
 └── CLAUDE.md                    Reglas para agentes de IA que trabajen en el repo
@@ -65,6 +70,7 @@
 | `/` | `src/pages/index.astro` | Portada de marca (sticky) → Soluciones: gráfico de 4 barras = 4 soluciones (telón) → Vitrinas por producto → Manifiesto. Solo distribuye: sin WhatsApp |
 | `/portal-bi/` | `src/pages/portal-bi.astro` | Producto completo: maquetas del portal y del chat con IA, compra de código + guía, instalación, calculadora de ahorro, requisitos, límites y preguntas |
 | `/portal-bi/como-funciona/` | `src/pages/portal-bi/como-funciona.astro` | Recorrido animado de un minuto: la pantalla del portal (`RecorridoPantalla`) con cámara, cursor y narración por pasos. Sin encabezado ni pie (`Base` con `inmersiva`). Con `#ver` arranca solo (ADR-015) |
+| `/portal-bi/anuncio/` | `src/pages/portal-bi/anuncio.astro` | **Oculta** (noindex, fuera del sitemap, sin enlaces): el anuncio de 30 s para redes en 9:16, 4:5, 1:1 y 16:9, con las descargas en MP4 de `public/portal-bi/anuncio/` (ADR-016) |
 | `/social-metrics-bi/` | `src/pages/social-metrics-bi.astro` | Métricas de redes en Power BI: vista de publicaciones, recorrido de los datos, tablero completo, acceso, implementación, tratamiento de datos y preguntas |
 | `/tienda-ecommerce/` | `src/pages/tienda-ecommerce.astro` | Código de tienda online + guía, pago único, pedidos por WhatsApp |
 | `/consultoria/` | `src/pages/consultoria.astro` | Consultoría de datos: planillas → reporte, recorrido de los datos, qué resolvemos, proceso y preguntas |
