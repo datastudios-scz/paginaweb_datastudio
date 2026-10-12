@@ -1,5 +1,32 @@
 # Bitácora de cambios
 
+## 12/10/2026 · El anuncio: la IA al costado del tablero (55 s)
+
+- **Pedido del dueño**: el chat con IA se veía como otra pantalla, y la gracia del producto es que vive al lado del tablero. Es un botón al costado; un clic lo despliega y ahí se conversa con los datos del modelo. «Es la bomba», así que lleva diseño propio, aunque el anuncio se alargue un poco, y tiene que resolver dos preguntas difíciles.
+- **La toma 6 nueva (24 – 40,75 s)** arranca con el mismo reporte de la toma 5, sin corte. Se apagan las luces y asoma la lengüeta «Chat IA», con su halo. La cámara la mira, hay un toque, y la lengüeta tira del panel: entra desde el costado mientras el reporte se encaja en lo que queda, como en el portal. Después la cámara entra al panel y el chat resuelve:
+  1. **«¿Qué sucursales crecieron más que el promedio contra 2025?»** Muestra los tres pasos del chat real («Leyendo la estructura del modelo», «Redactando la consulta», «Consultando Power BI») y responde «**3 de 7** sucursales crecieron más que el promedio. **Aeropuerto** lidera: **+18,4 %**». El gráfico es de barras divergentes, con un solo eje de −10 a +20 y el promedio (+7,9 %) como línea punteada. Las barras que lo superan van en el violeta de la IA y las demás en gris.
+  2. **«¿Y qué explica lo de Aeropuerto?»** Hace tres consultas («Consulta 1 de 3», como las muestra el chat) y responde «Lo explica **el ticket promedio**, no la cantidad de tickets». Lo muestran dos fichas de 2025 contra 2026: el ticket promedio sube de US$ 94 a 118 (+26 %) y los tickets bajan de 7.388 a 6.969 (−6 %).
+  Al final la cámara se aleja y quedan el tablero y su IA juntos, con «Pregúntale lo que el tablero no muestra».
+- **De 46 a 55 segundos** (3.300 cuadros). Las tomas 7, 8 y 9 no cambian: corren 9 s más tarde.
+- **La cámara se mide por formato, no a ojo.** El panel es lo más grande que entra entre la firma de arriba y el borde de abajo. En 9:16 ese borde está en el 79 % del alto, porque más abajo van los botones de Reels y TikTok y ahí quedaba el campo donde se tipea. La mirada a la lengüeta no tapa el subtítulo: en 16:9 la ventana ya no se corre hacia el titular, y el subtítulo va en dos renglones. Los primeros valores, puestos a ojo, rompían tres formatos.
+- **Arreglos encontrados en el camino:**
+  - **La lengüeta quedaba medio alto más abajo que el aro de su toque.** El minificador borró su `translate` porque la misma regla declaraba `transform`. Ahora se centra con márgenes automáticos. El mismo minificador fundió en el `transform` el giro de −4° de la tacha de la toma 1, y la animación lo pisa: la tacha sale derecha desde la primera versión. No se tocó, porque es la que se aprobó en los videos. Queda anotada en el banco.
+  - **Motor: al volver atrás se perdían las animaciones sin relleno** (sin `fill`). `getAnimations()` deja de listarlas cuando terminan. No volvía el pulso del botón de enviar, ni el giro de la tarjeta del login en la segunda vuelta del bucle. Ahora el motor guarda todas las animaciones que vio y suelta las que CSS cancela.
+  - **El botón de enviar pulsaba con `scale`.** Eso lo subía a una capa propia, y dentro de la cámara salía nítido o borroso según desde dónde se llegaba al instante. Ahora se oscurece y suelta un anillo, sin capa.
+  - **El acento de «Pregúntale» asomaba por la ranura.** La frase final espera 15 s su turno, y la punta del acento dejaba una mota blanca sobre el cielo toda la toma. Ahora no se pinta hasta su turno.
+- **Banco** (`npm run anuncio:probar`) con comprobaciones nuevas:
+  - el encuadre de la toma 6 en los cuatro formatos: la mirada no tapa el subtítulo, y adentro el chat entra entero, sin pisar la firma y, en 9:16, sobre el 79 %;
+  - el aro cae sobre la lengüeta;
+  - al volver atrás, las animaciones sin relleno se mueven;
+  - ninguna regla mezcla `transform` con `translate`, `rotate` o `scale`.
+  - El comparador del «mismo cuadro» ya no cuenta las líneas de un píxel, que son bordes rasterizados en otra posición subpíxel. Una mancha sigue contando entera.
+- **Sabotajes**:
+  - con la cámara vieja del 1:1, 2 rojas;
+  - sin el arreglo del motor, 1 roja (el botón y la tarjeta);
+  - el comparador, con imágenes sintéticas, ignora la fila y la columna de un píxel y cuenta la mancha de 40 × 40 y la fila de 2 px;
+  - la regla nueva, sobre el CSS anterior, señala la lengüeta.
+- QA 54/54 y banco del anuncio sin problemas.
+
 ## 12/10/2026 · Recorrido del administrador del Portal BI
 
 - **Página nueva `/portal-bi/como-funciona/administrador/`**: el Portal BI como lo maneja quien lo administra, en una toma de 72 s y ocho pasos. Muestra el panel con todos sus módulos y el alta de una persona (con su usuario o con su correo). Sigue con su vista armada en el constructor, que recorre el modelo de tabla a columna y valor y devuelve el JSON. Después el tablero asignado, con el enlace que el panel lee en palabras, y las opciones del tablero (una página oculta y sin «Exportar datos»). Termina con el chat con IA al costado (con el aviso de lo que podrá consultar), la marca con su vista previa y los registros de acceso.

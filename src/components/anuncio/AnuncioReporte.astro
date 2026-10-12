@@ -1,0 +1,75 @@
+---
+/**
+ * El reporte de Power BI del anuncio: el cuerpo de la ventana del visor (indicadores, barras por
+ * sucursal y líneas por mes). Lo usan dos tomas: la 5 («Power BI de verdad»), donde se dibuja y
+ * sus indicadores cuentan, y la 6, donde el mismo reporte ya está quieto y a su lado se abre el
+ * chat. Los datos son los de las maquetas y del recorrido (de ejemplo, ADR-013).
+ */
+interface Props {
+  /** Si los indicadores cuentan hasta su valor (los lee src/scripts/anuncio.ts con data-a="kpi"). */
+  contar?: boolean;
+}
+
+const { contar = false } = Astro.props;
+
+const SUCURSALES = [
+  ['Centro', 1262400],
+  ['Plaza Mayor', 1041200],
+  ['Norte', 935800],
+  ['Aeropuerto', 822300],
+  ['Costanera', 708900],
+  ['Sur', 268500],
+] as const;
+const MAX_SUC = SUCURSALES[0][1];
+const SERIE_26 = [541200, 528900, 566000, 552400, 589700, 571300, 603800, 650800, 612000];
+const SERIE_25 = [508300, 497100, 523600, 515200, 540900, 532400, 556000, 597500, 563200];
+const linea = (serie: number[]) =>
+  serie.map((v, i) => `${(i * 400) / (serie.length - 1)},${(130 - ((v - 480000) / 190000) * 120).toFixed(1)}`).join(' ');
+
+/* Los cuatro indicadores; con `contar`, cada uno sube hasta su valor en su segundo */
+const KPIS = [
+  { v: '5.216.100', t: 'Ventas (US$)', hasta: '5216100', en: '19.8' },
+  { v: '+7,9 %', t: 'contra 2025', hasta: '7.9', en: '19.85', signo: '+', sufijo: ' %', sube: true },
+  { v: '48.297', t: 'Tickets', hasta: '48297', en: '19.9' },
+  { v: '108', t: 'Ticket promedio', hasta: '108', en: '19.95' },
+];
+---
+
+<div class="an-reporte__cuerpo">
+  <div class="an-reporte__cab">
+    <span class="an-reporte__titulo">Ventas por sucursal</span>
+    <span class="an-reporte__filtro">Año <b>2026</b></span>
+  </div>
+  <div class="an-reporte__kpis">
+    {KPIS.map((k) => (
+      <div class="an-kpi">
+        {contar ? (
+          <span class:list={['an-kpi__v', { 'an-kpi__v--sube': k.sube }]} data-a="kpi" data-desde="0" data-hasta={k.hasta} data-en={k.en} data-dur="1" data-signo={k.signo} data-sufijo={k.sufijo}>{k.v}</span>
+        ) : (
+          <span class:list={['an-kpi__v', { 'an-kpi__v--sube': k.sube }]}>{k.v}</span>
+        )}
+        <span class="an-kpi__t">{k.t}</span>
+      </div>
+    ))}
+  </div>
+  <div class="an-reporte__visuales">
+    <div class="an-vis">
+      <span class="an-vis__t">Ventas por sucursal</span>
+      <div class="an-barrash">
+        {SUCURSALES.map(([n, v], i) => (
+          <div class={`an-barrash__fila an-barrash__fila--${i + 1}`}>
+            <span class="an-barrash__n">{n}</span>
+            <span class="an-barrash__b"><i class={`an-barrash__r an-ancho-${Math.round((v / MAX_SUC) * 20)}`}></i></span>
+          </div>
+        ))}
+      </div>
+    </div>
+    <div class="an-vis">
+      <span class="an-vis__t">Ventas por mes</span>
+      <svg class="an-lineas" viewBox="-6 -6 412 150" preserveAspectRatio="none">
+        <polyline class="an-lineas__25" points={linea(SERIE_25)} pathLength="1" />
+        <polyline class="an-lineas__26" points={linea(SERIE_26)} pathLength="1" />
+      </svg>
+    </div>
+  </div>
+</div>

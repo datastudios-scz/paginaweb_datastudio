@@ -1,8 +1,10 @@
 ---
 /**
- * El anuncio del Portal BI para redes sociales (/portal-bi/anuncio/): 46 segundos, nueve tomas.
+ * El anuncio del Portal BI para redes sociales (/portal-bi/anuncio/): 55 segundos, nueve tomas.
  * Primero fue de 30 s y el dueño lo vio rápido ("no da tiempo de leer"): cada titular queda
- * ahora entre 3 y 4,5 s a la vista.
+ * ahora entre 3 y 4,5 s a la vista. Después pidió que el chat con IA se viera como es —al
+ * costado del tablero, con su botón— y con dos preguntas difíciles: es «la bomba» del
+ * producto, y la toma 6 creció de 8 a 16,5 s.
  *
  * Todo el movimiento es CSS (@keyframes con su retardo contado desde el segundo 0) y el script
  * (src/scripts/anuncio.ts) lo maneja como una línea de tiempo: puede reproducir, pausar o ir a
@@ -17,6 +19,7 @@
  * palabras ("sin el portal pagarías", ver PRODUCT.md); solo afirmaciones respaldadas; los
  * datos del reporte y del chat son de ejemplo (los mismos de las maquetas).
  */
+import AnuncioReporte from './AnuncioReporte.astro';
 import { CONTACTO, PRECIO_LICENCIA_USD } from '../../data/sitio';
 import { LOGO_BARRAS, LOGO_WORDMARK } from '../../data/logo';
 import { miles } from '../../scripts/formato';
@@ -45,35 +48,32 @@ const TARJETAS = [
   { titulo: 'Indicadores públicos', ia: false },
 ];
 
-/* Reporte de ejemplo: los mismos datos de las maquetas y del recorrido */
-const SUCURSALES = [
-  ['Centro', 1262400],
-  ['Plaza Mayor', 1041200],
-  ['Norte', 935800],
-  ['Aeropuerto', 822300],
-  ['Costanera', 708900],
-  ['Sur', 268500],
-] as const;
-const MAX_SUC = SUCURSALES[0][1];
-const SERIE_26 = [541200, 528900, 566000, 552400, 589700, 571300, 603800, 650800, 612000];
-const SERIE_25 = [508300, 497100, 523600, 515200, 540900, 532400, 556000, 597500, 563200];
-const linea = (serie: number[]) =>
-  serie.map((v, i) => `${(i * 400) / (serie.length - 1)},${(130 - ((v - 480000) / 190000) * 120).toFixed(1)}`).join(' ');
+/* El ícono de la IA del portal (la lengüeta y el chat) */
+const DESTELLO = 'M12 2l1.9 5.6L19.5 9l-5.6 1.9L12 16.5l-1.9-5.6L4.5 9l5.6-1.4z';
 
-/* La respuesta del chat: las cinco que más vendieron en septiembre */
-const TOP5 = [
-  ['Centro', 148320],
-  ['Plaza Mayor', 121940],
-  ['Norte', 109870],
-  ['Aeropuerto', 96410],
-  ['Costanera', 83150],
+/* El chat al costado del tablero: dos preguntas que el tablero no contesta solo.
+   Datos de ejemplo, cuadrados con los del reporte (ADR-013): las siete sucursales crecen, en
+   promedio ponderado, el +7,9 % del indicador; Aeropuerto vende 822.300 (6.969 tickets de
+   US$ 118) contra 694.510 en 2025 (7.388 tickets de US$ 94): +18,4 %. */
+const PREGUNTA_1 = '¿Qué sucursales crecieron más que el promedio contra 2025?';
+const PREGUNTA_2 = '¿Y qué explica lo de Aeropuerto?';
+const PROMEDIO = 7.9;
+const CRECIMIENTO = [
+  ['Aeropuerto', 18.4],
+  ['Norte', 11.2],
+  ['Centro', 9.1],
+  ['Plaza Mayor', 5.6],
+  ['Costanera', 3.3],
+  ['Sur', -3.3],
+  ['Parque Industrial', -7.4],
 ] as const;
-
-const PREGUNTA = '¿Qué sucursal vendió más en septiembre?';
+const pct = (v: number) => `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v).toFixed(1).replace('.', ',')} %`;
+/* Las consultas del analista para la segunda, como las muestra el chat: «Consulta n de m» y para qué */
+const CONSULTAS = ['ventas de 2025 y 2026', 'tickets de cada año', 'ticket promedio'];
 ---
 
 <div class="an-lienzo" data-a="lienzo" data-formato="9x16" data-movimiento-propio aria-hidden="true">
-  <!-- El reloj: una animación lineal de 46 s que el script lee para saber en qué segundo va -->
+  <!-- El reloj: una animación lineal de 55 s que el script lee para saber en qué segundo va -->
   <i class="an-reloj" data-a="reloj"></i>
 
   <!-- Fondo vivo de las tomas oscuras: dos luces que respiran -->
@@ -214,78 +214,98 @@ const PREGUNTA = '¿Qué sucursal vendió más en septiembre?';
       <div class="an-ui an-ventana an-reporte">
         <div class="an-ui__in">
           <div class="an-ventana__barra"><i></i><i></i><i></i><span>portal.tuempresa.com/visor</span><em>Datos de ejemplo</em></div>
-          <div class="an-reporte__cuerpo">
-            <div class="an-reporte__cab">
-              <span class="an-reporte__titulo">Ventas por sucursal</span>
-              <span class="an-reporte__filtro">Año <b>2026</b></span>
-            </div>
-            <div class="an-reporte__kpis">
-              <div class="an-kpi"><span class="an-kpi__v" data-a="kpi" data-desde="0" data-hasta="5216100" data-en="19.8" data-dur="1">5.216.100</span><span class="an-kpi__t">Ventas (US$)</span></div>
-              <div class="an-kpi"><span class="an-kpi__v an-kpi__v--sube" data-a="kpi" data-desde="0" data-hasta="7.9" data-en="19.85" data-dur="1" data-signo="+" data-sufijo=" %">+7,9 %</span><span class="an-kpi__t">contra 2025</span></div>
-              <div class="an-kpi"><span class="an-kpi__v" data-a="kpi" data-desde="0" data-hasta="48297" data-en="19.9" data-dur="1">48.297</span><span class="an-kpi__t">Tickets</span></div>
-              <div class="an-kpi"><span class="an-kpi__v" data-a="kpi" data-desde="0" data-hasta="108" data-en="19.95" data-dur="1">108</span><span class="an-kpi__t">Ticket promedio</span></div>
-            </div>
-            <div class="an-reporte__visuales">
-              <div class="an-vis">
-                <span class="an-vis__t">Ventas por sucursal</span>
-                <div class="an-barrash">
-                  {SUCURSALES.map(([n, v], i) => (
-                    <div class={`an-barrash__fila an-barrash__fila--${i + 1}`}>
-                      <span class="an-barrash__n">{n}</span>
-                      <span class="an-barrash__b"><i class={`an-barrash__r an-ancho-${Math.round((v / MAX_SUC) * 20)}`}></i></span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div class="an-vis">
-                <span class="an-vis__t">Ventas por mes</span>
-                <svg class="an-lineas" viewBox="-6 -6 412 150" preserveAspectRatio="none">
-                  <polyline class="an-lineas__25" points={linea(SERIE_25)} pathLength="1" />
-                  <polyline class="an-lineas__26" points={linea(SERIE_26)} pathLength="1" />
-                </svg>
-              </div>
-            </div>
-          </div>
+          <AnuncioReporte contar />
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ═══ 6 · IA: le pregunta a sus datos ═══ -->
+  <!-- ═══ 6 · LA IA AL COSTADO DEL TABLERO: la bomba del producto ═══
+       El mismo reporte de la toma 5; se apagan las luces, asoma la lengüeta «Chat IA», un toque
+       y el panel se abre al costado (el reporte se encaja en lo que queda, como en el portal).
+       La cámara se acerca al panel y el chat resuelve dos preguntas que el tablero no contesta
+       solo; al final se aleja: el tablero y su IA, juntos. -->
   <section class="an-escena an-s6">
-    <div class="an-texto">
-      <p class="an-h1 an-s6-titulo" set:html={titular('Pregúntale a tus datos.')} />
-      <p class="an-h3 an-s6-sub">Con IA, en español.</p>
+    <i class="an-s6-luz"></i>
+    <div class="an-texto an-s6-texto">
+      <p class="an-h1 an-s6-titulo" set:html={titular('La IA, al lado de tu tablero.')} />
+      <p class="an-h3 an-s6-sub">Un clic y conversas con tus datos.</p>
+    </div>
+    <div class="an-texto an-s6-final">
+      <p class="an-h1 an-s6-final__t" set:html={titular('Pregúntale lo que el tablero no muestra.')} />
     </div>
     <div class="an-visual an-s6-visual">
-      <div class="an-ui an-chat">
+      <div class="an-ui an-ventana an-s6-ventana">
         <div class="an-ui__in">
-          <div class="an-chat__cab">
-            <span class="an-chat__ico"><svg viewBox="0 0 24 24"><path d={VARITA} /></svg></span>
-            <span class="an-chat__id"><b>Ventas por sucursal</b><span>Pregunta sobre los datos de este tablero</span></span>
-            <em class="an-chat__ejemplo">Datos de ejemplo</em>
-          </div>
-          <div class="an-chat__hilo">
-            <div class="an-chat__yo">{PREGUNTA}</div>
-            <div class="an-chat__pasos">
-              <span class="an-chat__paso an-chat__paso--1"><i></i>Leyendo el modelo</span>
-              <span class="an-chat__paso an-chat__paso--2"><i></i>Redactando la consulta</span>
-              <span class="an-chat__paso an-chat__paso--3"><i></i>Consultando Power BI</span>
-            </div>
-            <p class="an-chat__resp"><b>Centro</b> lideró septiembre con <b>US$ 148.320</b>, un 22 % más que Plaza Mayor.</p>
-            <div class="an-chat__graf">
-              {TOP5.map(([n, v], i) => (
-                <div class={`an-chat__fila an-chat__fila--${i + 1}`}>
-                  <span class="an-chat__n">{n}</span>
-                  <span class="an-chat__b"><i class={`an-ancho-${Math.round((v / TOP5[0][1]) * 20)}`}></i></span>
-                  <span class="an-chat__v">{miles(v)}</span>
+          <div class="an-ventana__barra"><i></i><i></i><i></i><span>portal.tuempresa.com/visor</span><em>Datos de ejemplo</em></div>
+          <div class="an-s6-escena">
+            <div class="an-s6-rep"><AnuncioReporte /></div>
+            <span class="an-s6-lengueta"><svg viewBox="0 0 24 24"><path d={DESTELLO} /></svg><b>Chat IA</b></span>
+            <i class="an-toque an-s6-toque"></i>
+            <div class="an-s6-panel">
+              <div class="an-s6-cab">
+                <span class="an-s6-cab__ico"><svg viewBox="0 0 24 24"><path d={DESTELLO} /></svg></span>
+                <span class="an-s6-cab__id"><b>Ventas por sucursal</b><span>Pregunta sobre los datos de este tablero</span></span>
+              </div>
+              <div class="an-s6-hilo">
+                <div class="an-s6-hilo__in">
+                  <div class="an-s6-turno an-s6-turno--1">
+                    <p class="an-s6-yo">{PREGUNTA_1}</p>
+                    <div class="an-s6-pasos">
+                      <span class="an-s6-paso an-s6-paso--1"><i></i>Leyendo la estructura del modelo</span>
+                      <span class="an-s6-paso an-s6-paso--2"><i></i>Redactando la consulta</span>
+                      <span class="an-s6-paso an-s6-paso--3"><i></i>Consultando Power BI</span>
+                    </div>
+                    <p class="an-s6-resp"><b>3 de 7</b> sucursales crecieron más que el promedio. <b>Aeropuerto</b> lidera: <b>+18,4 %</b>.</p>
+                    <div class="an-s6-graf">
+                      <p class="an-s6-graf__t">Crecimiento contra 2025<span class="an-s6-graf__ley"><i></i>promedio {pct(PROMEDIO)}</span></p>
+                      <div class="an-s6-graf__filas">
+                        {CRECIMIENTO.map(([n, v], i) => (
+                          <div class:list={['an-s6-fila', `an-s6-fila--${i + 1}`, { 'an-s6-fila--arriba': v > PROMEDIO, 'an-s6-fila--neg': v < 0 }]}>
+                            <span class="an-s6-fila__n">{n}</span>
+                            <span class="an-s6-fila__b"><i></i></span>
+                            <span class="an-s6-fila__v">{pct(v)}</span>
+                          </div>
+                        ))}
+                        <i class="an-s6-graf__prom"></i>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="an-s6-turno an-s6-turno--2">
+                    <p class="an-s6-yo">{PREGUNTA_2}</p>
+                    <div class="an-s6-pasos">
+                      {CONSULTAS.map((c, i) => (
+                        <span class={`an-s6-paso an-s6-consulta an-s6-consulta--${i + 1}`}><i></i><b>Consulta {i + 1} de {CONSULTAS.length}</b><em>{c}</em></span>
+                      ))}
+                    </div>
+                    <p class="an-s6-resp">Lo explica <b>el ticket promedio</b>, no la cantidad de tickets.</p>
+                    <div class="an-s6-fichas">
+                      <div class="an-s6-ficha an-s6-ficha--si">
+                        <p class="an-s6-ficha__cab"><span>Ticket promedio · Aeropuerto</span><b class="an-s6-ficha__d">+26 %</b></p>
+                        <p class="an-s6-par"><em>2025</em><span class="an-s6-par__b"><i class="an-s6-par__r an-s6-par__r--antes an-s6-par__r--80"></i></span><span class="an-s6-par__v">US$ 94</span></p>
+                        <p class="an-s6-par an-s6-par--ahora"><em>2026</em><span class="an-s6-par__b"><i class="an-s6-par__r an-s6-par__r--100"></i></span><b class="an-s6-par__v">US$ <span data-a="kpi" data-desde="94" data-hasta="118" data-en="36.4" data-dur="0.8">118</span></b></p>
+                      </div>
+                      <div class="an-s6-ficha">
+                        <p class="an-s6-ficha__cab"><span>Tickets · Aeropuerto</span><b class="an-s6-ficha__d an-s6-ficha__d--no">−6 %</b></p>
+                        <p class="an-s6-par"><em>2025</em><span class="an-s6-par__b"><i class="an-s6-par__r an-s6-par__r--antes an-s6-par__r--100"></i></span><span class="an-s6-par__v">7.388</span></p>
+                        <p class="an-s6-par an-s6-par--ahora an-s6-par--gris"><em>2026</em><span class="an-s6-par__b"><i class="an-s6-par__r an-s6-par__r--94"></i></span><b class="an-s6-par__v"><span data-a="kpi" data-desde="7388" data-hasta="6969" data-en="36.5" data-dur="0.8">6.969</span></b></p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              ))}
+              </div>
+              <div class="an-s6-campo">
+                <span class="an-s6-input">
+                  <span class="an-s6-ph">Pregunta algo sobre estos datos…</span>
+                  <span class="an-s6-txt">
+                    <span data-a="tipeo" data-texto={PREGUNTA_1} data-en="27.5" data-fin="29.2"></span>
+                    <span data-a="tipeo" data-texto={PREGUNTA_2} data-en="33.2" data-fin="34.1"></span>
+                  </span>
+                  <i class="an-s6-caret"></i>
+                </span>
+                <span class="an-s6-enviar"><svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7" /></svg></span>
+              </div>
             </div>
-          </div>
-          <div class="an-chat__campo">
-            <span class="an-chat__input"><span data-a="tipeo" data-texto={PREGUNTA} data-en="24.9" data-fin="26.7"></span><i class="an-chat__caret"></i></span>
-            <span class="an-chat__enviar"><svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7" /></svg></span>
           </div>
         </div>
       </div>

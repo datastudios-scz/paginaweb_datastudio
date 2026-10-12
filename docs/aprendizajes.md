@@ -2,6 +2,41 @@
 
 Cada entrada: **síntoma → causa → solución → cómo evitarlo**.
 
+## La IA al costado del tablero, en el anuncio (12/10/2026)
+
+### Dos animaciones de la misma propiedad en cadena: la de después no puede llevar `both`
+- **Riesgo** (visto antes de correrlo): la cámara de la toma 6 tiene una mirada a la lengüeta y después una entrada al panel, las dos sobre `transform`. Con `both`, la segunda aplica su primer cuadro durante TODO su retardo, y por ir más tarde en la lista le gana a la primera desde el segundo 0: la mirada no se habría visto nunca.
+- **Regla**: en una cadena sobre la misma propiedad, cada eslabón va con `forwards`. El que espera no se aplica, y el que terminó sostiene su final hasta que llega el siguiente.
+
+### El minificador borra `translate` si la misma regla declara `transform`
+- **Síntoma**: el aro del toque caía medio alto más arriba que la lengüeta «Chat IA», sobre el reporte.
+- **Causa**: Lightning CSS (el minificador de Vite) trata `transform` y las propiedades sueltas como una sola. La regla tenía `translate: 0 -50%` y `transform: translateX(110%)`, y en el build quedó solo el `transform`. En la tacha de la toma 1 hizo otra cosa: fundió `rotate: -4deg` dentro del `transform` estático, que la animación reemplaza entero. Esa tacha sale derecha desde la primera versión, y nadie lo vio porque derecha también se ve bien.
+- **Solución**: centrar la lengüeta con `top: 0; bottom: 0; margin-block: auto; height: max-content`. La tacha se dejó como está, porque es la que se aprobó en los videos.
+- **Evitarlo**: ninguna regla mezcla `transform` con `translate`, `rotate` o `scale`. Lo comprueba el banco del anuncio, con la tacha como excepción escrita. Es el mismo tipo de trampa que `animation-timeline` dentro del atajo (más abajo): mirar el CSS del build, no el del código.
+
+### `getAnimations()` olvida una animación sin relleno cuando termina
+- **Síntoma**: después de pasar por el final, el pulso del botón de enviar no volvía a verse al volver a su instante. En el bucle de la página, la tarjeta del login dejaba de girar desde la segunda vuelta.
+- **Causa**: `getAnimations()` devuelve solo las animaciones «relevantes» (las que van a correr, corren o sostienen su efecto). Una sin `fill` que ya terminó deja de serlo. El motor pedía la lista en cada salto, así que esa animación quedaba fuera para siempre, clavada en su final.
+- **Solución**: el motor guarda en un `Set` todas las que vio alguna vez y suelta las que quedan en `idle`, que son las que CSS cancela, por ejemplo al cambiar de formato.
+- **Evitarlo**: un motor que salta en el tiempo no puede depender de una lista que cambia según el instante. El banco salta al final y vuelve a los dos casos.
+
+### Una capa propia dentro de la cámara se rasteriza según por dónde se llegó
+- **Síntoma**: el banco dio «distinto» en un instante de 4:5 y se puso en verde al correrlo de nuevo. Una prueba de estrés de la toma (cada instante, desde cinco historias) encontró el botón de enviar nítido o borroso según de dónde venía. También encontró filas de un píxel en el borde de la ventana, de hasta 480 píxeles con 19 niveles de diferencia.
+- **Causa**: una animación de `scale` sube el elemento a una capa propia, y Chrome elige la escala de esa capa con lo que pasó antes. Dentro de una cámara que agranda la ventana, la elección cambia con la historia. Los bordes de la ventana quedan en posiciones subpíxel que también se rasterizan distinto.
+- **Solución**: el pulso del botón pasó a color y anillo (`background-color` y `box-shadow`, sin capa). El comparador ya no cuenta las líneas de un píxel (un píxel que cambia sin ningún vecino de arriba o de abajo que cambie, o sin ninguno a los costados). Las manchas siguen contando enteras. Se probó con imágenes sintéticas: la fila y la columna de 1 px se ignoran, y la mancha de 40 × 40 y la fila de 2 px cuentan.
+- **Evitarlo**: nada de `scale` en elementos chicos que viven dentro de un `transform` animado. La prueba de estrés vive en el scratchpad de la sesión: vale la pena repetirla cuando se toque la cámara.
+
+### Un acento asoma por la ranura de una palabra que espera
+- **Síntoma**: una mota blanca, quieta, en el cielo de la toma 6 durante 15 s.
+- **Causa**: cada palabra sube desde su ranura (`overflow: hidden` con 0,14 em de aire abajo). La punta del acento de «Pregúntale» queda por encima de la caja de la línea, y al bajarla un 108 % para esconderla, cae justo dentro del aire de abajo. Mientras la frase final esperaba su turno, ese pedacito se veía.
+- **Solución**: la frase final no se pinta hasta su turno (`an-aparece`, 0,01 s, en el instante en que arranca).
+- **Evitarlo**: un titular que espera mucho se esconde entero, no solo palabra por palabra.
+
+### La cámara se mide: a ojo rompió tres formatos de cuatro
+- **Síntoma**: con los primeros valores, puestos mirando el 9:16, la ventana tapaba el subtítulo en 1:1 y en 16:9. Además pisaba la firma en 1:1, y en 9:16 el campo donde se tipea quedaba en el 85 % del alto, donde van los botones de Reels.
+- **Solución**: medir la caja de la ventana sin transformar y despejar la cámara (traslado y escala, con el origen fijo) para que el panel sea lo más grande que entra entre la firma más 30 px y el borde de abajo, que en 9:16 es el 79 %. La mirada a la lengüeta va por formato (`--mira-*`).
+- **Evitarlo**: el banco comprueba esas tres cosas en los cuatro formatos, y se saboteó con la cámara vieja del 1:1 (2 rojas).
+
 ## Recorrido del administrador (12/10/2026)
 
 ### Cuando la cámara se pega al borde, se corre para el otro lado

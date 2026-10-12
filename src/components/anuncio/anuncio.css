@@ -399,7 +399,7 @@
   position: absolute;
   width: 0;
   height: 0;
-  animation: an-reloj 46s linear both;
+  animation: an-reloj 55s linear both;
 }
 
 /* El fondo oscuro: dos luces que se mueven despacio (las tomas claras lo tapan) */
@@ -418,7 +418,7 @@
   height: 130cqmax;
   border-radius: 50%;
   background: radial-gradient(closest-side, rgb(3 122 112 / 0.38), transparent 72%);
-  animation: an-deriva 46s var(--suave) both;
+  animation: an-deriva 55s var(--suave) both;
 }
 
 .an-fondo i:first-child {
@@ -566,11 +566,11 @@
   animation:
     an-entra 0.5s var(--sale) -0.4s both,
     an-tinta 1ms step-end 15s forwards,
-    an-blanca 1ms step-end 24s forwards,
-    an-tinta 1ms step-end 36.5s forwards,
-    an-blanca 1ms step-end 38s forwards,
-    an-tinta 1ms step-end 39.5s forwards,
-    an-sale 0.3s var(--entra) 41.1s forwards;
+    an-blanca 1ms step-end 24.8s forwards,
+    an-tinta 1ms step-end 45.5s forwards,
+    an-blanca 1ms step-end 47s forwards,
+    an-tinta 1ms step-end 48.5s forwards,
+    an-sale 0.3s var(--entra) 50.1s forwards;
 }
 
 .an-firma svg {
@@ -798,8 +798,8 @@
 }
 
 .an-barras--2 {
-  --a: 41.15s;
-  --z: 42.05s;
+  --a: 50.15s;
+  --z: 51.05s;
   --c1: var(--ab);
   --c2: var(--vc);
 }
@@ -1095,8 +1095,7 @@
 }
 
 /* Los datos del anuncio son los de las maquetas: se rotulan como ejemplo (ADR-013) */
-.an-ventana__barra em,
-.an-chat__ejemplo {
+.an-ventana__barra em {
   margin-left: auto;
   font-family: var(--font-datos);
   font-size: calc(14 * var(--m));
@@ -1358,7 +1357,6 @@
 
 /* La luz que cruza cada maqueta cuando entra: da volumen sin agregar nada */
 .an-ventana > .an-ui__in::after,
-.an-chat > .an-ui__in::after,
 .an-login__tarjeta::after,
 .an-celular__pantalla::after {
   content: '';
@@ -1394,10 +1392,9 @@
   color: var(--ve);
 }
 
+/* No se va: la toma 6 empieza con el mismo reporte en el mismo lugar y a su lado se abre el chat */
 .an-reporte {
-  animation:
-    an-cambia 0.35s var(--sale) var(--a) both,
-    an-ui-sale 0.32s var(--entra) calc(var(--a) + 4.4s) forwards;
+  animation: an-cambia 0.35s var(--sale) var(--a) both;
 }
 
 .an-reporte > .an-ui__in {
@@ -1549,12 +1546,73 @@
   animation: an-traza 0.9s var(--suave) calc(var(--a) + 0.6s) both;
 }
 
-/* ═══ 6 · IA (24 – 31,75 s) ══════════════════════════════════════════════════════════ */
+/* ═══ 6 · LA IA AL COSTADO DEL TABLERO (24 – 40,75 s) ═════════════════════════════ */
+/* La bomba del producto, a pedido del dueño: el chat no es otra pantalla, es un botón al
+   costado del tablero que se despliega. Empieza con el mismo reporte de la toma 5 (sin corte
+   de continuidad): se apagan las luces, asoma la lengüeta «Chat IA», un toque, y el panel entra
+   desde el costado mientras el reporte se encaja en lo que queda, como en el portal. La cámara
+   se acerca al panel —es lo que hace que se lea en un teléfono— y el chat resuelve dos
+   preguntas que el tablero no contesta solo: la 1 con un gráfico de crecimiento y su promedio;
+   la 2 con tres consultas del analista («Consulta n de 3», como las muestra el chat) y el antes
+   y el después del ticket promedio. Al final la cámara se aleja: el tablero y su IA, juntos.
+
+   Tiempos desde --a: luces 0,3 · lengüeta 0,7 (la cámara la mira 0,8) · toque 1,75 · panel
+   1,95 · la cámara entra 2,5 · pregunta 1 3,5 (envía 5,2) · respuesta 6,4 · gráfico 6,55 ·
+   pregunta 2 9,2 (envía 10,1) · consultas 10,75 · respuesta 12 · fichas 12,2 · se aleja 14,6 ·
+   frase final 15,3.
+   La cámara es un transform de la ventana con su origen en el centro del panel; cuánto se
+   acerca y hacia dónde lo dice cada formato (--cam-*). Medido, no a ojo: el panel lo más grande
+   que entra entre la firma de arriba (con aire) y el borde de abajo, que en 9:16 es el 79 % del
+   alto — más abajo están los botones de Reels y TikTok, y ahí quedaba el campo donde se tipea.
+   Lo comprueba scripts/probar-anuncio.mjs en los cuatro formatos. */
 .an-s6 {
   --a: 24s;
-  --z: 31.75s;
+  --z: 40.75s;
+  --cam-ox: 77.1%;
+  --cam-oy: 53.4%;
+  --cam-tx: -27.1%;
+  --cam-ty: -39.5%;
+  --cam-s: 1.97;
+  /* La primera mirada, a la lengüeta: un tercio del camino hacia el panel */
+  --mira-tx: calc(var(--cam-tx) * 0.35);
+  --mira-ty: calc(var(--cam-ty) * 0.35);
+  --mira-s: calc(1 + (var(--cam-s) - 1) * 0.3);
 }
 
+/* La mirada sube menos: el subtítulo está justo encima */
+.an-lienzo[data-formato='4x5'] .an-s6 {
+  --cam-ty: -28.3%;
+  --cam-s: 1.83;
+  --mira-ty: -8%;
+}
+
+.an-lienzo[data-formato='1x1'] .an-s6 {
+  --cam-ty: -24%;
+  --cam-s: 1.55;
+  --mira-ty: -0.5%;
+  --mira-s: 1.1;
+}
+
+/* En 16:9 entra todo: la ventana entera, reporte y chat, al centro y más grande */
+.an-lienzo[data-formato='16x9'] .an-s6 {
+  --cam-ox: 50%;
+  --cam-oy: 50%;
+  --cam-tx: -43.7%;
+  --cam-ty: 9.6%;
+  --cam-s: 1.42;
+  /* A la izquierda está el titular: la mirada empuja hacia la lengüeta sin taparlo */
+  --mira-tx: 1.5%;
+  --mira-ty: 0%;
+  --mira-s: 1.04;
+}
+
+/* El subtítulo llegaba hasta el borde de la ventana: en dos renglones parejos */
+.an-lienzo[data-formato='16x9'] .an-s6-sub {
+  max-width: 16em;
+  text-wrap: balance;
+}
+
+/* El cielo de la IA, debajo; encima, la luz de la toma 5, que se apaga */
 .an-s6::before {
   content: '';
   position: absolute;
@@ -1562,256 +1620,627 @@
   background:
     radial-gradient(70% 45% at 60% 70%, rgb(79 70 229 / 0.45), transparent 70%),
     radial-gradient(50% 35% at 15% 20%, rgb(139 92 246 / 0.25), transparent 70%);
-  animation: an-aparece 0.6s ease var(--a) both;
+}
+
+.an-s6-luz {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(70% 50% at 70% 65%, #ffffff, transparent 75%),
+    var(--pa);
+  animation: an-desaparece 0.9s ease calc(var(--a) + 0.3s) forwards;
+}
+
+/* El titular nace en tinta, sobre la luz, y se vuelve blanco mientras se apaga */
+.an-s6-texto {
+  animation:
+    an-s6-a-blanco 0.9s ease calc(var(--a) + 0.3s) both,
+    an-sale 0.32s var(--entra) calc(var(--a) + 2.3s) forwards;
 }
 
 .an-s6-titulo {
-  --o: 0.2s;
+  --o: 0.25s;
 }
 
 .an-s6-sub {
   color: #c7d2fe;
-  animation: an-entra 0.45s var(--sale) calc(var(--a) + 0.7s) both;
+  animation: an-entra 0.45s var(--sale) calc(var(--a) + 0.9s) both;
 }
 
-.an-lienzo[data-formato='9x16'] .an-s6 {
-  --vi-t: 33%;
-  --vi-b: 19%;
+.an-s6-final__t {
+  --o: 15.3s;
 }
 
-.an-lienzo[data-formato='4x5'] .an-s6 {
-  --vi-t: 32%;
+/* Sus palabras esperan quince segundos en la ranura, y el acento de «Pregúntale» asoma por el
+   borde de abajo: una mota blanca sobre el cielo, toda la toma. Hasta su turno, no se pinta */
+.an-s6-final {
+  animation: an-aparece 0.01s linear calc(var(--a) + 15.3s) both;
 }
 
-.an-lienzo[data-formato='1x1'] .an-s6 {
-  --vi-t: 30%;
-  --vi-l: 22%;
-  --vi-r: 22%;
-}
-
-.an-lienzo[data-formato='1x1'] .an-s6 .an-texto,
-.an-lienzo[data-formato='4x5'] .an-s6 .an-texto {
-  --h1: calc(76 * var(--u));
-}
-
-.an-chat {
-  --d: 720;
-  width: min(100cqw, 100cqh * 720 / 960);
-  aspect-ratio: 720 / 960;
+/* ── La ventana y la cámara ── */
+.an-s6-ventana {
+  transform-origin: var(--cam-ox) var(--cam-oy);
   animation:
-    an-ui-entra 0.6s var(--sale) calc(var(--a) + 0.1s) both,
-    an-ui-sale 0.32s var(--entra) calc(var(--a) + 7.4s) forwards;
+    an-s6-mira 0.9s var(--suave) calc(var(--a) + 0.8s) forwards,
+    an-s6-acerca 1.1s var(--suave) calc(var(--a) + 2.5s) forwards,
+    an-s6-aleja 1s var(--suave) calc(var(--a) + 14.6s) forwards;
 }
 
-.an-chat > .an-ui__in {
+/* Viene inclinada de la toma 5 y se endereza */
+.an-s6-ventana > .an-ui__in {
+  animation: an-s6-endereza 1.2s var(--suave) var(--a) both;
+}
+
+.an-s6-escena {
+  position: relative;
+  height: calc(100% - 44 * var(--m));
+  overflow: hidden;
+}
+
+/* El reporte se encaja en lo que deja el panel, como hace Power BI (520 de 960) */
+.an-s6-rep {
+  position: absolute;
+  inset: 0;
+  transform-origin: 0 50%;
+  animation: an-s6-encaja 0.6s var(--sale) calc(var(--a) + 1.95s) forwards;
+}
+
+.an-s6-rep .an-reporte__cuerpo {
+  height: 100%;
+}
+
+/* Ya está dibujado: en esta toma no vuelve a crecer */
+.an-s6 .an-barrash__r,
+.an-s6 .an-lineas polyline {
+  animation: none;
+}
+
+/* ── La lengüeta «Chat IA»: oscura, con el acento de la IA en el ícono (la del portal) ── */
+/* Centrada con márgenes automáticos y NO con translate: el minificador (Lightning CSS) borra el
+   translate de una regla que también declara transform, y la lengüeta quedaba medio alto más
+   abajo que el aro de su toque */
+.an-s6-lengueta {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  z-index: 3;
+  height: max-content;
+  margin-block: auto;
   display: flex;
   flex-direction: column;
-  border-radius: calc(28 * var(--m));
-  overflow: hidden;
-  background: #f7f8fa;
+  align-items: center;
+  gap: calc(12 * var(--m));
+  padding: calc(24 * var(--m)) calc(15 * var(--m)) calc(22 * var(--m));
+  border-radius: calc(18 * var(--m)) 0 0 calc(18 * var(--m));
+  background: rgb(15 23 42 / 0.94);
   box-shadow:
-    0 0 0 calc(2 * var(--m)) rgb(255 255 255 / 0.5),
-    0 calc(60 * var(--m)) calc(130 * var(--m)) rgb(0 0 0 / 0.55),
-    0 0 calc(120 * var(--m)) rgb(79 70 229 / 0.35);
+    inset 1px 0 0 rgb(255 255 255 / 0.16),
+    calc(-6 * var(--m)) 0 calc(24 * var(--m)) rgb(0 0 0 / 0.35);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: calc(19 * var(--m));
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: #fff;
+  transform: translateX(110%);
+  /* Se aprieta y tira del panel: viaja pegada a su borde (los mismos 440 y la misma curva) y se
+     apaga al llegar, para no quedar flotando encima del chat */
+  animation:
+    an-s6-asoma 0.45s var(--sale) calc(var(--a) + 0.7s) forwards,
+    an-s6-aprieta 0.2s ease calc(var(--a) + 1.8s),
+    an-s6-arrastra 0.6s var(--sale) calc(var(--a) + 1.95s) forwards,
+    an-desaparece 0.3s ease calc(var(--a) + 2.3s) forwards;
+}
+
+.an-s6-lengueta svg {
+  width: calc(32 * var(--m));
+  height: calc(32 * var(--m));
+  fill: #a5b4fc;
+}
+
+.an-s6-lengueta b {
+  font-weight: 600;
+  writing-mode: vertical-rl;
+  rotate: 180deg;
+}
+
+/* El halo y el anillo que llama, dos veces: el foco de la IA */
+.an-s6-lengueta::before,
+.an-s6-lengueta::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.an-s6-lengueta::before {
+  box-shadow: 0 0 calc(56 * var(--m)) calc(8 * var(--m)) rgb(99 102 241 / 0.6);
+}
+
+.an-s6-lengueta::after {
+  animation: an-s6-llama 0.9s ease-out calc(var(--a) + 1s) 2 both;
+}
+
+.an-s6-toque {
+  left: calc(930 * var(--m));
+  top: 50%;
+  z-index: 4;
+  border-color: #a5b4fc;
+  background: rgb(129 140 248 / 0.22);
+  animation: an-toque 0.5s ease-out calc(var(--a) + 1.75s) forwards;
+}
+
+/* ── El panel del chat: entra desde el costado y empuja al reporte ── */
+.an-s6-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  width: calc(440 * var(--m));
+  background: #f7f8fa;
   font-family: 'Segoe UI', system-ui, sans-serif;
   color: #111827;
+  /* Cerrado, justo detrás del borde (la lengüeta es su borde); la sombra llega con él, que si
+     no se asomaría sobre el reporte antes de abrir */
+  transform: translateX(100%);
+  animation: an-s6-abre 0.6s var(--sale) calc(var(--a) + 1.95s) forwards;
 }
 
-.an-chat__cab {
+.an-s6-cab {
   display: flex;
   align-items: center;
-  gap: calc(16 * var(--m));
-  padding: calc(22 * var(--m)) calc(28 * var(--m));
-  background: #fff;
+  gap: calc(12 * var(--m));
+  height: calc(62 * var(--m));
+  flex: none;
+  padding: 0 calc(16 * var(--m));
   border-bottom: calc(1.5 * var(--m)) solid #e5e7eb;
+  background: #fff;
 }
 
-.an-chat__ico {
+.an-s6-cab__ico {
   display: grid;
   place-items: center;
-  width: calc(66 * var(--m));
-  height: calc(66 * var(--m));
-  border-radius: calc(18 * var(--m));
+  width: calc(38 * var(--m));
+  height: calc(38 * var(--m));
+  flex: none;
+  border-radius: calc(11 * var(--m));
   background: linear-gradient(135deg, #4f46e5, #8b5cf6);
 }
 
-.an-chat__ico svg {
-  width: 52%;
-  height: 52%;
+.an-s6-cab__ico svg {
+  width: 56%;
+  height: 56%;
   fill: #fff;
 }
 
-.an-chat__id {
+.an-s6-cab__id {
   display: grid;
-  gap: calc(2 * var(--m));
-  font-size: calc(20 * var(--m));
+  gap: calc(1 * var(--m));
+  min-width: 0;
+  font-size: calc(12.5 * var(--m));
+  white-space: nowrap;
   color: #6b7280;
 }
 
-.an-chat__id b {
-  font-size: calc(30 * var(--m));
+.an-s6-cab__id b {
+  font-size: calc(17 * var(--m));
   font-weight: 600;
   color: #111827;
 }
 
-.an-chat__hilo {
-  display: flex;
-  flex-direction: column;
-  gap: calc(18 * var(--m));
+/* La conversación: un turno por pregunta, cada uno del alto del hilo. Al enviar la segunda,
+   el hilo sube un turno entero y la deja arriba (como baja el chat del portal) */
+.an-s6-hilo {
   flex: 1;
   min-height: 0;
-  padding: calc(30 * var(--m)) calc(30 * var(--m)) calc(16 * var(--m));
+  overflow: hidden;
 }
 
-.an-chat__yo {
+.an-s6-hilo__in {
+  animation: an-s6-sube 0.6s var(--suave) calc(var(--a) + 10.2s) forwards;
+}
+
+.an-s6-turno {
+  display: flex;
+  flex-direction: column;
+  gap: calc(10 * var(--m));
+  height: calc(462 * var(--m));
+  padding: calc(14 * var(--m)) calc(16 * var(--m)) 0;
+  overflow: hidden;
+}
+
+.an-s6-yo {
   align-self: flex-end;
-  max-width: 86%;
-  padding: calc(16 * var(--m)) calc(22 * var(--m));
-  border-radius: calc(24 * var(--m)) calc(24 * var(--m)) calc(6 * var(--m)) calc(24 * var(--m));
+  max-width: 90%;
+  margin: 0;
+  padding: calc(10 * var(--m)) calc(14 * var(--m));
+  border-radius: calc(18 * var(--m)) calc(18 * var(--m)) calc(4 * var(--m)) calc(18 * var(--m));
   background: #4f46e5;
-  font-size: calc(30 * var(--m));
+  font-size: calc(16 * var(--m));
   line-height: 1.35;
   color: #fff;
-  animation: an-burbuja 0.35s var(--sale) calc(var(--a) + 2.85s) both;
+  animation: an-burbuja 0.35s var(--sale) calc(var(--a) + var(--yo, 5.3s)) both;
 }
 
-.an-chat__pasos {
+.an-s6-turno--2 .an-s6-yo {
+  --yo: 10.3s;
+}
+
+/* Lo que hace la IA mientras piensa: los pasos del chat, y en la segunda las consultas */
+.an-s6-pasos {
+  display: grid;
+  gap: calc(5 * var(--m));
+}
+
+.an-s6-paso {
+  display: flex;
+  align-items: center;
+  gap: calc(8 * var(--m));
+  font-size: calc(12.5 * var(--m));
+  white-space: nowrap;
+  color: #4b5563;
+  animation: an-entra 0.25s var(--sale) calc(var(--a) + var(--pe)) both;
+}
+
+.an-s6-paso i {
+  width: calc(14 * var(--m));
+  height: calc(14 * var(--m));
+  flex: none;
+  border: calc(2.5 * var(--m)) solid #c7d2fe;
+  border-radius: 50%;
+  animation: an-paso-ok 0.2s ease calc(var(--a) + var(--pk)) forwards;
+}
+
+.an-s6-paso--1 { --pe: 5.5s; --pk: 5.75s; }
+.an-s6-paso--2 { --pe: 5.75s; --pk: 6s; }
+.an-s6-paso--3 { --pe: 6s; --pk: 6.3s; }
+.an-s6-consulta--1 { --pe: 10.75s; --pk: 11.05s; }
+.an-s6-consulta--2 { --pe: 11.15s; --pk: 11.45s; }
+.an-s6-consulta--3 { --pe: 11.55s; --pk: 11.85s; }
+
+.an-s6-consulta b {
+  font-weight: 600;
+  color: #111827;
+}
+
+.an-s6-consulta em {
+  font-style: normal;
+  color: #6b7280;
+}
+
+.an-s6-resp {
+  margin: 0;
+  font-size: calc(16 * var(--m));
+  line-height: 1.4;
+  color: #374151;
+  animation: an-entra 0.4s var(--sale) calc(var(--a) + var(--rs, 6.4s)) both;
+}
+
+.an-s6-resp b {
+  font-weight: 700;
+  color: #111827;
+}
+
+.an-s6-turno--2 .an-s6-resp {
+  --rs: 12s;
+}
+
+.an-s6-turno--2 .an-s6-resp b {
+  color: #4338ca;
+}
+
+/* La 1: cuánto creció cada sucursal, con el promedio (+7,9 %) como línea. Las que lo
+   superan, en el violeta de la IA; las demás, en gris. Un solo eje: −10 a +20 */
+.an-s6-graf {
+  padding: calc(10 * var(--m)) calc(12 * var(--m)) calc(12 * var(--m));
+  border: calc(1.5 * var(--m)) solid #e5e7eb;
+  border-radius: calc(12 * var(--m));
+  background: #fff;
+  animation: an-entra 0.35s var(--sale) calc(var(--a) + 6.55s) both;
+}
+
+.an-s6-graf__t {
+  display: flex;
+  align-items: center;
+  margin: 0 0 calc(8 * var(--m));
+  font-size: calc(12.5 * var(--m));
+  font-weight: 600;
+  color: #4b5563;
+}
+
+.an-s6-graf__ley {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(6 * var(--m));
+  margin-left: auto;
+  font-size: calc(11.5 * var(--m));
+  font-weight: 600;
+  color: #b45309;
+}
+
+.an-s6-graf__ley i {
+  width: calc(16 * var(--m));
+  border-top: calc(2 * var(--m)) dashed #f59e0b;
+}
+
+.an-s6-graf__filas {
+  position: relative;
+  display: grid;
+  gap: calc(5 * var(--m));
+}
+
+.an-s6-fila {
+  display: grid;
+  grid-template-columns: calc(118 * var(--m)) 1fr calc(56 * var(--m));
+  align-items: center;
+  gap: calc(8 * var(--m));
+  height: calc(22 * var(--m));
+}
+
+.an-s6-fila__n {
+  font-size: calc(13 * var(--m));
+  text-align: right;
+  white-space: nowrap;
+  color: #4b5563;
+}
+
+.an-s6-fila__b {
+  position: relative;
+  height: calc(15 * var(--m));
+}
+
+/* El cero */
+.an-s6-fila__b::before {
+  content: '';
+  position: absolute;
+  top: calc(-3.5 * var(--m));
+  bottom: calc(-3.5 * var(--m));
+  left: 33.333%;
+  width: calc(1.5 * var(--m));
+  background: #cbd5e1;
+}
+
+.an-s6-fila__b i {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 33.333%;
+  border-radius: 0 calc(4 * var(--m)) calc(4 * var(--m)) 0;
+  background: #cbd5e1;
+  transform-origin: 0 50%;
+  animation: an-crece-x 0.6s var(--sale) calc(var(--a) + 6.65s + var(--fd, 0s)) both;
+}
+
+.an-s6-fila--neg .an-s6-fila__b i {
+  left: auto;
+  right: 66.667%;
+  border-radius: calc(4 * var(--m)) 0 0 calc(4 * var(--m));
+  transform-origin: 100% 50%;
+}
+
+.an-s6-fila--arriba .an-s6-fila__b i {
+  background: linear-gradient(90deg, #4f46e5, #7c6cf7);
+}
+
+.an-s6-fila__v {
+  font-family: var(--font-datos);
+  font-size: calc(12.5 * var(--m));
+  font-weight: 500;
+  white-space: nowrap;
+  color: #374151;
+  animation: an-aparece 0.3s ease calc(var(--a) + 7s + var(--fd, 0s)) both;
+}
+
+.an-s6-fila--arriba .an-s6-fila__v {
+  font-weight: 600;
+  color: #4338ca;
+}
+
+/* El ancho de cada barra, sobre 30 puntos (de −10 a +20) */
+.an-s6-fila--1 { --fd: 0s; }
+.an-s6-fila--2 { --fd: 0.06s; }
+.an-s6-fila--3 { --fd: 0.12s; }
+.an-s6-fila--4 { --fd: 0.18s; }
+.an-s6-fila--5 { --fd: 0.24s; }
+.an-s6-fila--6 { --fd: 0.3s; }
+.an-s6-fila--7 { --fd: 0.36s; }
+.an-s6-fila--1 i { width: 61.333%; }
+.an-s6-fila--2 i { width: 37.333%; }
+.an-s6-fila--3 i { width: 30.333%; }
+.an-s6-fila--4 i { width: 18.667%; }
+.an-s6-fila--5 i { width: 11%; }
+.an-s6-fila--6 i { width: 11%; }
+.an-s6-fila--7 i { width: 24.667%; }
+
+/* El promedio (+7,9 %): 33,3 % del eje + 7,9 / 30 */
+.an-s6-graf__prom {
+  position: absolute;
+  top: calc(-4 * var(--m));
+  bottom: calc(-4 * var(--m));
+  left: calc(126 * var(--m) + (100% - 190 * var(--m)) * 0.59667);
+  border-left: calc(2 * var(--m)) dashed #f59e0b;
+  transform-origin: 50% 0;
+  animation: an-crece-y 0.45s var(--sale) calc(var(--a) + 7.2s) both;
+}
+
+/* La 2: el antes y el después de Aeropuerto. El ticket promedio cuenta de 94 a 118 */
+.an-s6-fichas {
+  display: grid;
+  gap: calc(10 * var(--m));
+  animation: an-entra 0.35s var(--sale) calc(var(--a) + 12.2s) both;
+}
+
+.an-s6-ficha {
   display: grid;
   gap: calc(8 * var(--m));
-}
-
-.an-chat__paso {
-  display: flex;
-  align-items: center;
-  gap: calc(14 * var(--m));
-  font-size: calc(23 * var(--m));
-  color: #4b5563;
-  animation: an-entra 0.25s var(--sale) calc(var(--a) + 3.05s + var(--pd, 0s)) both;
-}
-
-.an-chat__paso i {
-  width: calc(24 * var(--m));
-  height: calc(24 * var(--m));
-  border: calc(3 * var(--m)) solid #c7d2fe;
-  border-radius: 50%;
-  animation: an-paso-ok 0.2s ease calc(var(--a) + 3.25s + var(--pd, 0s)) forwards;
-}
-
-.an-chat__paso--2 { --pd: 0.3s; }
-.an-chat__paso--3 { --pd: 0.6s; }
-
-.an-chat__resp {
-  font-size: calc(29 * var(--m));
-  line-height: 1.45;
-  color: #374151;
-  animation: an-entra 0.4s var(--sale) calc(var(--a) + 4.1s) both;
-}
-
-.an-chat__resp b {
-  color: #111827;
-}
-
-.an-chat__graf {
-  display: grid;
-  gap: calc(11 * var(--m));
-  padding: calc(20 * var(--m)) calc(22 * var(--m));
+  padding: calc(12 * var(--m)) calc(14 * var(--m)) calc(13 * var(--m));
   border: calc(1.5 * var(--m)) solid #e5e7eb;
-  border-radius: calc(16 * var(--m));
+  border-radius: calc(12 * var(--m));
   background: #fff;
-  animation: an-entra 0.35s var(--sale) calc(var(--a) + 4.25s) both;
 }
 
-.an-chat__fila {
-  display: grid;
-  grid-template-columns: calc(150 * var(--m)) 1fr calc(112 * var(--m));
+.an-s6-ficha--si {
+  border-color: #c7d2fe;
+  background: linear-gradient(180deg, #eef2ff, #ffffff 70%);
+}
+
+.an-s6-ficha__cab {
+  display: flex;
   align-items: center;
-  gap: calc(12 * var(--m));
-}
-
-.an-chat__n {
-  font-size: calc(21 * var(--m));
-  text-align: right;
+  justify-content: space-between;
+  margin: 0;
+  font-size: calc(13 * var(--m));
+  font-weight: 600;
+  white-space: nowrap;
   color: #4b5563;
 }
 
-.an-chat__b {
-  height: calc(30 * var(--m));
+/* Un año por fila: el año, su barra y su valor (el de 2026, grande y contando) */
+.an-s6-par {
+  display: grid;
+  grid-template-columns: calc(40 * var(--m)) 1fr calc(96 * var(--m));
+  align-items: center;
+  gap: calc(10 * var(--m));
+  margin: 0;
+  font-size: calc(13 * var(--m));
+  color: #6b7280;
 }
 
-.an-chat__b i {
-  display: block;
-  width: var(--w);
-  height: 100%;
-  border-radius: 0 calc(6 * var(--m)) calc(6 * var(--m)) 0;
-  background: linear-gradient(90deg, #4f46e5, #6d5df6);
-  transform-origin: 0 50%;
-  animation: an-crece-x 0.6s var(--sale) calc(var(--a) + 4.35s + var(--fd, 0s)) both;
-}
-
-.an-chat__v {
+.an-s6-par em {
   font-family: var(--font-datos);
-  font-size: calc(20 * var(--m));
-  font-weight: 500;
+  font-style: normal;
+}
+
+.an-s6-par__b {
+  height: calc(14 * var(--m));
+}
+
+.an-s6-par__r {
+  display: block;
+  height: 100%;
+  border-radius: 0 calc(4 * var(--m)) calc(4 * var(--m)) 0;
+  background: linear-gradient(90deg, #4f46e5, #7c6cf7);
+  transform-origin: 0 50%;
+  animation: an-crece-x 0.7s var(--sale) calc(var(--a) + 12.4s) both;
+}
+
+.an-s6-par__r--antes {
+  background: #cbd5e1;
+  animation-delay: calc(var(--a) + 12.3s);
+}
+
+.an-s6-par--gris .an-s6-par__r {
+  background: #94a3b8;
+}
+
+.an-s6-par__r--100 { width: 100%; }
+.an-s6-par__r--94 { width: 94.3%; }
+.an-s6-par__r--80 { width: 79.7%; }
+
+.an-s6-par__v {
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.an-s6-par--ahora .an-s6-par__v {
+  font-size: calc(22 * var(--m));
+  font-weight: 700;
+  letter-spacing: -0.02em;
   color: #111827;
-  animation: an-aparece 0.3s ease calc(var(--a) + 4.65s + var(--fd, 0s)) both;
 }
 
-.an-chat__fila--2 { --fd: 0.07s; }
-.an-chat__fila--3 { --fd: 0.14s; }
-.an-chat__fila--4 { --fd: 0.21s; }
-.an-chat__fila--5 { --fd: 0.28s; }
-
-/* Hasta que se envía, la conversación no existe: solo el campo con la pregunta */
-.an-chat__yo,
-.an-chat__pasos,
-.an-chat__resp,
-.an-chat__graf {
-  transform-origin: 100% 0;
+.an-s6-ficha--si .an-s6-par--ahora .an-s6-par__v {
+  color: #4338ca;
 }
 
-.an-chat__campo {
+.an-s6-ficha__d {
+  padding: calc(2 * var(--m)) calc(9 * var(--m));
+  border-radius: calc(20 * var(--m));
+  background: #dcfce7;
+  font-size: calc(13 * var(--m));
+  font-weight: 700;
+  color: #15803d;
+  animation: an-pop 0.45s var(--resorte) calc(var(--a) + 13.1s) both;
+}
+
+.an-s6-ficha__d--no {
+  background: #f3f4f6;
+  color: #4b5563;
+}
+
+/* ── El campo: lo que se tipea; si no entra, se corre a la izquierda y el cursor queda a la vista ── */
+.an-s6-campo {
   display: flex;
   align-items: center;
-  gap: calc(12 * var(--m));
-  margin: calc(8 * var(--m)) calc(24 * var(--m)) calc(26 * var(--m));
-  padding: calc(10 * var(--m)) calc(10 * var(--m)) calc(10 * var(--m)) calc(26 * var(--m));
-  border: calc(2.5 * var(--m)) solid #a5b4fc;
-  border-radius: calc(40 * var(--m));
+  gap: calc(10 * var(--m));
+  height: calc(72 * var(--m));
+  flex: none;
+  padding: 0 calc(14 * var(--m));
+  border-top: calc(1.5 * var(--m)) solid #e5e7eb;
   background: #fff;
-  box-shadow: 0 0 0 calc(6 * var(--m)) rgb(99 102 241 / 0.14);
 }
 
-.an-chat__input {
+.an-s6-input {
+  position: relative;
   display: flex;
   align-items: center;
   flex: 1;
   min-width: 0;
-  overflow: hidden;
-  font-size: calc(28 * var(--m));
+  height: calc(46 * var(--m));
+  padding: 0 calc(16 * var(--m));
+  border: calc(2 * var(--m)) solid #a5b4fc;
+  border-radius: calc(24 * var(--m));
+  box-shadow: 0 0 0 calc(4 * var(--m)) rgb(99 102 241 / 0.14);
+  font-size: calc(15 * var(--m));
   white-space: nowrap;
   color: #111827;
 }
 
-.an-chat__caret {
-  width: calc(2.5 * var(--m));
-  height: calc(34 * var(--m));
-  margin-left: calc(2 * var(--m));
-  background: #4f46e5;
-  animation: an-parpadeo 1s step-end calc(var(--a)) infinite;
+.an-s6-ph {
+  position: absolute;
+  left: calc(18 * var(--m));
+  color: #6b7280;
 }
 
-.an-chat__enviar {
+.an-s6-input:has([data-a='tipeo']:not(:empty)) .an-s6-ph {
+  visibility: hidden;
+}
+
+.an-s6-txt {
+  display: flex;
+  justify-content: flex-end;
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.an-s6-caret {
+  width: calc(2 * var(--m));
+  height: calc(20 * var(--m));
+  flex: none;
+  margin-left: calc(1 * var(--m));
+  background: #4f46e5;
+  animation: an-parpadeo 1s step-end var(--a) infinite;
+}
+
+.an-s6-enviar {
   display: grid;
   place-items: center;
-  width: calc(66 * var(--m));
-  height: calc(66 * var(--m));
+  width: calc(46 * var(--m));
+  height: calc(46 * var(--m));
   flex: none;
   border-radius: 50%;
   background: #4f46e5;
-  animation: an-pulsa 0.3s ease calc(var(--a) + 2.8s) both;
+  animation:
+    an-pulsa 0.3s ease calc(var(--a) + 5.2s),
+    an-pulsa 0.3s ease calc(var(--a) + 10.1s);
 }
 
-.an-chat__enviar svg {
+.an-s6-enviar svg {
   width: 46%;
   height: 46%;
   fill: none;
@@ -1821,10 +2250,10 @@
   stroke-linejoin: round;
 }
 
-/* ═══ 7 · EN EL CELULAR (31,5 – 35,25 s) ════════════════════════════════════════════ */
+/* ═══ 7 · EN EL CELULAR (40,5 – 44,25 s) ════════════════════════════════════════════ */
 .an-s7 {
-  --a: 31.5s;
-  --z: 35.25s;
+  --a: 40.5s;
+  --z: 44.25s;
   background: radial-gradient(90% 70% at 50% 75%, #0a8f83, #037a70 55%, #00534c);
 }
 
@@ -1943,10 +2372,10 @@
   font-size: calc(13 * var(--m));
 }
 
-/* ═══ 8 · RÁFAGA (35 – 41,7 s): cuatro cortes, el último más largo ══════════════════════ */
+/* ═══ 8 · RÁFAGA (44 – 50,7 s): cuatro cortes, el último más largo ══════════════════════ */
 .an-s8 {
-  --a: 35s;
-  --z: 41.7s;
+  --a: 44s;
+  --z: 50.7s;
 }
 
 .an-corte {
@@ -2032,10 +2461,10 @@
   max-width: calc(1300 * var(--u));
 }
 
-/* ═══ 9 · CIERRE (41,5 s – fin) ═══════════════════════════════════════════════════════ */
+/* ═══ 9 · CIERRE (50,5 s – fin) ═══════════════════════════════════════════════════════ */
 .an-s9 {
-  --a: 41.5s;
-  --z: 47s;
+  --a: 50.5s;
+  --z: 56s;
   background: radial-gradient(90% 65% at 50% 40%, #0a8f83, #037a70 50%, #005a52);
 }
 
@@ -2295,6 +2724,46 @@
 
 @keyframes an-brillo { from { transform: translateX(-130%); } to { transform: translateX(130%); } }
 
+/* La toma 6 */
+@keyframes an-s6-a-blanco { from { color: var(--ab); } to { color: #fff; } }
+@keyframes an-s6-endereza { from { transform: rotateY(4deg) rotateX(3deg) scale(1.03); } to { transform: none; } }
+@keyframes an-s6-asoma { to { transform: none; } }
+@keyframes an-s6-aprieta { 50% { scale: 0.92; } }
+@keyframes an-s6-abre {
+  from {
+    transform: translateX(100%);
+    box-shadow: -1px 0 0 rgb(15 23 42 / 0), calc(-12 * var(--m)) 0 calc(36 * var(--m)) rgb(15 23 42 / 0);
+  }
+  to {
+    transform: none;
+    box-shadow: -1px 0 0 rgb(15 23 42 / 0.12), calc(-12 * var(--m)) 0 calc(36 * var(--m)) rgb(15 23 42 / 0.2);
+  }
+}
+@keyframes an-s6-arrastra { from { transform: none; } to { transform: translateX(calc(-440 * var(--m))); } }
+@keyframes an-s6-encaja { to { transform: scale(0.5417); } }
+/* Mira la lengüeta (--mira-*, por formato) y después entra al panel (--cam-*) */
+@keyframes an-s6-mira {
+  from { transform: none; }
+  to { transform: translate(var(--mira-tx), var(--mira-ty)) scale(var(--mira-s)); }
+}
+
+@keyframes an-s6-acerca {
+  from { transform: translate(var(--mira-tx), var(--mira-ty)) scale(var(--mira-s)); }
+  to { transform: translate(var(--cam-tx), var(--cam-ty)) scale(var(--cam-s)); }
+}
+
+@keyframes an-s6-aleja {
+  from { transform: translate(var(--cam-tx), var(--cam-ty)) scale(var(--cam-s)); }
+  to { transform: none; }
+}
+
+@keyframes an-s6-sube { to { transform: translateY(calc(-462 * var(--m))); } }
+
+@keyframes an-s6-llama {
+  from { box-shadow: 0 0 0 0 rgb(129 140 248 / 0.8); }
+  to { box-shadow: 0 0 0 calc(26 * var(--m)) rgb(129 140 248 / 0); }
+}
+
 @keyframes an-burbuja {
   from { opacity: 0; transform: translateY(calc(30 * var(--m))) scale(0.94); }
   to { opacity: 1; transform: none; }
@@ -2307,10 +2776,12 @@
   }
 }
 
+/* El botón de enviar se oscurece y suelta un anillo. Sin scale a propósito: una animación de
+   escala lo sube a una capa propia, y dentro de la cámara de la toma 6 esa capa salía nítida o
+   borrosa según desde dónde se llegaba al instante (el banco lo vio como cuadros distintos) */
 @keyframes an-pulsa {
-  0% { scale: 1; }
-  45% { scale: 0.86; }
-  100% { scale: 1; }
+  0%, 100% { background-color: #4f46e5; box-shadow: 0 0 0 0 rgb(79 70 229 / 0); }
+  45% { background-color: #3730a3; box-shadow: 0 0 0 calc(7 * var(--m)) rgb(79 70 229 / 0.28); }
 }
 
 @keyframes an-cel-entra {

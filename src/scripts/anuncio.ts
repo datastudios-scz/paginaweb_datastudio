@@ -13,7 +13,7 @@
 
 import { PRECIO_LICENCIA_USD } from '../data/sitio';
 
-const DURACION = 46000;
+const DURACION = 55000;
 const FORMATOS = ['9x16', '4x5', '1x1', '16x9'] as const;
 type Formato = (typeof FORMATOS)[number];
 
@@ -64,7 +64,17 @@ function iniciar(raiz: HTMLElement) {
   let jugando = false;
   let pedido = 0;
 
-  const animaciones = () => lienzo.getAnimations({ subtree: true });
+  /* Todas las que se vieron alguna vez, no solo las que devuelve getAnimations(): esa lista deja
+     afuera a una animación SIN relleno (fill) cuando ya terminó —deja de ser «relevante»—, y al
+     volver atrás el motor ya no la movía. Pasaba con el pulso del botón de enviar del chat y con
+     el giro de la tarjeta del login en la segunda vuelta del bucle. Las que CSS cancela (cambiar
+     de formato rehace algunas) quedan en 'idle' y se sueltan. */
+  const vistas = new Set<Animation>();
+  const animaciones = () => {
+    for (const a of lienzo.getAnimations({ subtree: true })) vistas.add(a);
+    for (const a of vistas) if (a.playState === 'idle') vistas.delete(a);
+    return [...vistas];
+  };
   const tiempoReloj = () => {
     const a = reloj.getAnimations()[0];
     return a ? Number(a.currentTime ?? t) : t;
@@ -117,15 +127,18 @@ function iniciar(raiz: HTMLElement) {
   const personas = $('personas');
   const costo = $('costo');
   const kpis = [...lienzo.querySelectorAll<HTMLElement>('[data-a="kpi"]')];
-  const tipeo = $('tipeo');
+  /* Las preguntas que se tipean: las dos del chat de la toma 6, en el mismo campo */
+  const tipeos = [...lienzo.querySelectorAll<HTMLElement>('[data-a="tipeo"]')];
 
   function dibujar(ms: number) {
     const s = ms / 1000;
     personas.textContent = miles(cuantosHay(s));
     costo.textContent = miles(PERSONAS * PRECIO_LICENCIA_USD * sale((s - 3.5) / 0.75));
     for (const k of kpis) {
+      /* Cuentan desde data-desde (el ticket promedio de 94 a 118; los indicadores, desde 0) */
+      const desdeK = Number(k.dataset.desde ?? 0);
       const hasta = Number(k.dataset.hasta);
-      const v = hasta * sale((s - Number(k.dataset.en)) / Number(k.dataset.dur));
+      const v = desdeK + (hasta - desdeK) * sale((s - Number(k.dataset.en)) / Number(k.dataset.dur));
       const decimales = k.dataset.hasta!.includes('.') ? 1 : 0;
       k.textContent =
         (k.dataset.signo ?? '') +
@@ -133,10 +146,12 @@ function iniciar(raiz: HTMLElement) {
         (k.dataset.sufijo ?? '');
     }
     /* La pregunta se tipea letra por letra y, al enviarla, el campo queda vacío */
-    const texto = tipeo.dataset.texto ?? '';
-    const desde = Number(tipeo.dataset.en);
-    const hasta = Number(tipeo.dataset.fin);
-    tipeo.textContent = s >= hasta + 0.1 ? '' : texto.slice(0, Math.round(texto.length * acotar((s - desde) / (hasta - desde), 0, 1)));
+    for (const tipeo of tipeos) {
+      const texto = tipeo.dataset.texto ?? '';
+      const desde = Number(tipeo.dataset.en);
+      const hasta = Number(tipeo.dataset.fin);
+      tipeo.textContent = s >= hasta + 0.1 ? '' : texto.slice(0, Math.round(texto.length * acotar((s - desde) / (hasta - desde), 0, 1)));
+    }
     pintarLienzo(s);
   }
 
@@ -401,7 +416,7 @@ function iniciar(raiz: HTMLElement) {
     if (!grabando && !reducido) jugar();
     else {
       /* Con movimiento reducido queda quieto en el cierre ya armado: logo, fichas, botón y URL */
-      ir(grabando ? 0 : 45000);
+      ir(grabando ? 0 : 54000);
       raiz.dataset.pausa = '';
       rotular();
     }
