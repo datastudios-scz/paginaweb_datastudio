@@ -2,6 +2,14 @@
 
 Formato: contexto → decisión → consecuencias. Las decisiones nuevas van arriba.
 
+## ADR-017 · El recorrido del administrador: otro guion sobre el mismo motor (12/10/2026)
+
+- **Contexto**: después del recorrido de tu equipo (ADR-015) el dueño pidió «la parte de Administrador», reusando formatos e ideas.
+- **Decisión**: una página propia (`/portal-bi/como-funciona/administrador/`) con el panel de administración dibujado a tamaño real y su propio guion. Lo que no depende de la pantalla se separó para los dos: el motor (`src/scripts/recorrido-motor.ts`) recibe las duraciones, el guion y lo que hay que volver a su estado al saltar, y le presta al guion sus herramientas (cámara, cursor, esperar, escribir, contar, escena). El marco de la página (`RecorridoMarco.astro`) recibe los textos, la escena inicial y el otro recorrido que se ofrece en el cierre.
+- **Por qué no una sola página con los dos**: cargaría las dos pantallas (el HTML y el CSS de las dos, unos 70 KB) para mostrar una, y el enlace de cada una no podría arrancarla sola con `#ver`.
+- **Ritmo y encuadre**: el cursor del administrador viaja más (del menú a los botones de la derecha), así que el motor aceptó su velocidad como opción; con la del recorrido de tu equipo duraba 78 s, con una mano más rápida dura 72. En escritorio, toda toma del área principal va con zoom ≥ 1,26: con menos, el borde de la toma parte el menú (ver aprendizajes). En el teléfono, cada toma apunta a lo que se está llenando, no al cuadro entero.
+- **Consecuencias**: el panel se dibuja dos veces en el sitio (la maqueta de `/portal-bi/` y esta pantalla) y comparten el menú en `src/data/admin.ts`. Cuando el panel real cambie, hay que actualizar `RecorridoAdmin.astro` (mismas reglas que ADR-014). Cada afirmación de la narración es algo que el panel hace hoy (ver contenido.md).
+
 ## ADR-016 · El anuncio se anima en HTML y se graba cuadro por cuadro a MP4 (11/10/2026)
 
 - **Contexto**: el dueño pidió un motion graphics para publicidad en redes, en una URL oculta, "para grabarlo o descargarlo", en varios tamaños y con la mejor calidad posible.

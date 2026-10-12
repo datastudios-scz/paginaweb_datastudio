@@ -1,0 +1,168 @@
+---
+/**
+ * El marco de los recorridos animados del Portal BI: la barra con los controles, la ventana
+ * del navegador con la pantalla adentro, la portada, el cierre y la narración con su guion.
+ * Lo usan /portal-bi/como-funciona/ (tu equipo) y /portal-bi/como-funciona/administrador/.
+ *
+ * La pantalla va en el slot por defecto; lo que se muestra en la barra de la ventana además
+ * de la dirección (la descarga del recorrido de tu equipo), en el slot «barra».
+ * El guion es la fuente de la narración: sin JS se lee como la página, y con JS queda para
+ * lectores de pantalla mientras la región en vivo cuenta cada paso. Lo anima
+ * src/scripts/recorrido-motor.ts con el guion de cada página.
+ *
+ * id="ver": desde el botón que enlaza el recorrido (#ver) arranca solo, y la portada ni llega a
+ * pintarse (#ver:target en recorrido.css). Sin script en línea: la CSP de Astro no le calcula
+ * el hash a un is:inline, y lo bloquearía.
+ */
+import Icono from '../Icono.astro';
+import { MENSAJES, enlaceWhatsApp } from '../../data/sitio';
+
+interface Texto {
+  titulo: string;
+  detalle: string;
+}
+
+interface Props {
+  /** El título de la barra: lo que queda siempre y lo que se esconde en un teléfono. */
+  nombre: string;
+  nombreExtra: string;
+  /** La dirección y la escena con que abre la pantalla. */
+  url: string;
+  escena: string;
+  inicio: Texto & { n: string };
+  pasos: Texto[];
+  cierre: Texto & { n: string };
+  /** El otro recorrido: se ofrece en el cierre, y con #ver arranca solo. */
+  otro: { href: string; texto: string };
+}
+
+const { nombre, nombreExtra, url, escena, inicio, pasos, cierre, otro } = Astro.props;
+const compra = enlaceWhatsApp(MENSAJES.portalCompra);
+
+const dos = (n: number) => String(n).padStart(2, '0');
+const TEXTOS = [
+  inicio,
+  ...pasos.map((p, i) => ({ n: `${dos(i + 1)} / ${dos(pasos.length)}`, ...p })),
+  cierre,
+];
+
+/* El texto partido como lo parte el script al narrar (ranuras para el titular, palabras para
+   el detalle): la medida invisible y el inicio tienen que medir lo mismo que lo animado. */
+const esc = (t: string) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const ranuras = (t: string) =>
+  t.split(' ').map((w) => `<span class="rc-p"><span>${esc(w)}</span></span>`).join(' ');
+const palabras = (t: string) => t.split(' ').map((w) => `<span class="rc-d">${esc(w)}</span>`).join(' ');
+---
+
+<div class="rc" id="ver" data-r="raiz" data-tema="oscuro">
+  <header class="rc-cabecera">
+    <!-- En el teléfono el texto se esconde y queda el ícono: el nombre lo da aria-label
+         (contiene el texto visible, como pide WCAG 2.5.3). -->
+    <a class="rc-volver" href="/portal-bi/" aria-label="Volver al Portal BI">
+      <Icono nombre="anterior" />
+      <span>Portal BI</span>
+    </a>
+    <h1 class="rc-nombre">{nombre}<span class="rc-nombre__extra">{nombreExtra}</span></h1>
+    <div class="rc-controles">
+      <button type="button" class="rc-control" data-r="anterior" aria-label="Paso anterior" title="Paso anterior" hidden>
+        <Icono nombre="anterior" />
+      </button>
+      <button type="button" class="rc-control" data-r="siguiente" aria-label="Paso siguiente" title="Paso siguiente" hidden>
+        <Icono nombre="siguiente" />
+      </button>
+      <button type="button" class="rc-control" data-r="pausa" aria-label="Reproducir" title="Reproducir (espacio)">
+        <span class="rc-control__pausar"><Icono nombre="pausa" /></span>
+        <span class="rc-control__seguir"><Icono nombre="reproducir" /></span>
+      </button>
+      <button type="button" class="rc-control" data-r="reiniciar" aria-label="Empezar de nuevo" title="Empezar de nuevo">
+        <Icono nombre="reiniciar" />
+      </button>
+      <button type="button" class="rc-control" data-r="completa" aria-label="Pantalla completa" title="Pantalla completa">
+        <Icono nombre="expandir" />
+      </button>
+    </div>
+  </header>
+
+  <div class="rc-escenario">
+    <div class="rc-ventana">
+      <div class="rc-ventana__barra" aria-hidden="true">
+        <span class="rc-url">
+          <svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></svg>
+          <span class="rc-url__txt" data-r="url">{url}</span>
+        </span>
+        <slot name="barra" />
+        <span class="rc-ejemplo">Datos de ejemplo</span>
+      </div>
+      <div class="rc-vista" data-r="vista" data-escena={escena} aria-hidden="true">
+        <slot />
+      </div>
+
+      <div class="rc-portada" data-r="portada">
+        <div class="rc-portada__dentro">
+          <button type="button" class="boton boton--primario rc-reproducir" data-r="reproducir">
+            <Icono nombre="reproducir" />
+            <span>Reproducir</span>
+          </button>
+          <p class="rc-atajos" data-r="atajos">Espacio pausa · Flechas cambian de paso</p>
+        </div>
+      </div>
+
+      <div class="rc-final" data-r="final" hidden>
+        <div class="rc-final__dentro">
+          <div class="rc-final__acciones">
+            <a class="boton boton--primario" href={compra} target="_blank" rel="noopener noreferrer">
+              <Icono nombre="whatsapp" />
+              <span>Comprar código + guía</span>
+            </a>
+            <a class="boton boton--secundario" href={otro.href}>
+              <Icono nombre="reproducir" />
+              <span>{otro.texto}</span>
+            </a>
+            <button type="button" class="boton boton--secundario" data-r="otra-vez">
+              <Icono nombre="reiniciar" />
+              <span>Verlo otra vez</span>
+            </button>
+          </div>
+          <a class="enlace rc-final__volver" href="/portal-bi/">Volver al Portal BI</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="rc-banda">
+    <div class="rc-progreso" data-r="progreso" role="group" aria-label="Pasos del recorrido"></div>
+
+    <div class="rc-narracion-caja">
+      <div class="rc-medida" aria-hidden="true">
+        {TEXTOS.map((t) => (
+          <div class="rc-narracion">
+            <p class="rc-narracion__n">{t.n}</p>
+            <p class="rc-narracion__t" set:html={ranuras(t.titulo)} />
+            <p class="rc-narracion__d" set:html={palabras(t.detalle)} />
+          </div>
+        ))}
+      </div>
+      <div class="rc-narracion" data-r="narracion" aria-live="polite">
+        <p class="rc-narracion__n" data-r="numero">{inicio.n}</p>
+        <p class="rc-narracion__t" data-r="titular" set:html={ranuras(inicio.titulo)} />
+        <p class="rc-narracion__d" data-r="detalle" set:html={palabras(inicio.detalle)} />
+      </div>
+    </div>
+
+    <section class="rc-guion-caja" aria-labelledby="rc-guion-titulo">
+      <h2 id="rc-guion-titulo" class="solo-lectores">Lo que muestra el recorrido</h2>
+      <ol class="rc-guion" data-r="guion">
+        {pasos.map((p) => (
+          <li>
+            <strong>{p.titulo}</strong>
+            <span>{p.detalle}</span>
+          </li>
+        ))}
+      </ol>
+      <p class="rc-guion" data-r="cierre" data-n={cierre.n}>
+        <strong>{cierre.titulo}</strong>
+        <span>{cierre.detalle}</span>
+      </p>
+    </section>
+  </div>
+</div>

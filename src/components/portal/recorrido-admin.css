@@ -1,0 +1,2900 @@
+/*
+ * La pantalla del recorrido del administrador (/portal-bi/como-funciona/administrador/): el
+ * panel de administración del Portal BI (RecorridoAdmin.astro), calcado de admin.css y de las
+ * vistas de views/modules/admin con sus medidas reales a 1280 × 760.
+ * Se carga DESPUÉS de recorrido.css, que trae la base de la pantalla (.rc-pantalla, .rc-escena),
+ * el cursor, la pausa, los saltos, el texto que se tipea y las animaciones.
+ *
+ * Lo que cambia con el guion se enciende con clases (es-abierta, es-visible, es-marcada…): al
+ * saltar de paso la pantalla se vuelve a dibujar y el guion la lleva de golpe a su estado.
+ * Toda clase con `display` que nace oculta se enciende con una clase, nunca con `hidden`.
+ */
+
+/* ═══ La pantalla: el menú fijo a la izquierda y el cuerpo ═══════════════════════════ */
+.ra {
+  --ra-marca: #037a70;
+  --ra-marca-hondo: #00635b;
+  --ra-marca-tinte: #f0fdfa;
+  --ra-acme: #1d6b47;
+  --ra-admin: #001720;
+  --ra-linea: #e5e7eb;
+  --ra-g50: #f9fafb;
+  --ra-g100: #f3f4f6;
+  --ra-g500: #6b7280;
+  --ra-g600: #4b5563;
+  --ra-g700: #374151;
+  --ra-g900: #111827;
+  display: grid;
+  grid-template-columns: 262px minmax(0, 1fr);
+  background: var(--ra-g100);
+  color: var(--ra-g700);
+}
+
+.ra svg {
+  display: block;
+  flex: none;
+}
+
+/* Los enlaces, los ID y el JSON, sin ligaduras: con la fuente monoespaciada de Windows
+   (Cascadia Code) «https://» se dibujaba con un hueco después de las barras */
+.ra-input--url,
+.ra-input--hex,
+.ra-url,
+.ra-mono,
+.ra-modelo,
+.ra-ws__info small,
+.ra-sem__ds code,
+.ra-lectura code,
+.ra-lectura-filtro,
+.ra-json pre,
+.ra-filtros__caja {
+  font-variant-ligatures: none;
+}
+
+/* Fuera del área de la pantalla, la vista toma el gris del panel */
+.rc-vista:has(.ra) {
+  background: var(--ra-g100);
+}
+
+/* ═══ El menú (admin-layout.ejs) ═══ */
+.ra-menu {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--ra-admin);
+  color: rgb(255 255 255 / 0.78);
+}
+
+.ra-marca {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 16px 15px;
+  border-bottom: 1px solid rgb(255 255 255 / 0.08);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #2dd4bf;
+}
+
+.ra-marca svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+.ra-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  padding: 8px 12px;
+}
+
+.ra-seccion {
+  padding: 11px 11px 3px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8a9aa3;
+}
+
+.ra-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 11px;
+  border-radius: 6px;
+  font-size: 13px;
+  white-space: nowrap;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.ra-item svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+.ra-item.es-hover {
+  background: rgb(255 255 255 / 0.08);
+  color: #fff;
+}
+
+/* El módulo de la sección que se ve, encendido con el color de la marca */
+.ra[data-escena='tablero'] [data-clave='tablero'],
+.ra[data-escena='usuarios'] [data-clave='usuarios'],
+.ra[data-escena='workspaces'] [data-clave='workspaces'],
+.ra[data-escena='licencia'] [data-clave='licencia'],
+.ra[data-escena='personalizacion'] [data-clave='personalizacion'],
+.ra[data-escena='registros'] [data-clave='registros'] {
+  background: var(--ra-marca);
+  font-weight: 500;
+  color: #fff;
+}
+
+.ra-pie {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 23px 13px;
+  border-top: 1px solid rgb(255 255 255 / 0.08);
+  font-size: 13px;
+  color: #f87171;
+}
+
+.ra-pie svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+/* ═══ El cuerpo: la barra de arriba y lo de cada sección ═══ */
+.ra-cuerpo {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+.ra-barra {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 24px;
+  background: #fff;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.15);
+}
+
+.ra-barra__t {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16.8px;
+  font-weight: 600;
+  color: var(--ra-g900);
+}
+
+.ra-barra__t svg {
+  width: 14px;
+  height: 14px;
+  fill: var(--ra-marca);
+}
+
+.ra-titulo {
+  display: none;
+}
+
+.ra[data-escena='tablero'] [data-para='tablero'],
+.ra[data-escena='usuarios'] [data-para='usuarios'],
+.ra[data-escena='workspaces'] [data-para='workspaces'],
+.ra[data-escena='licencia'] [data-para='licencia'],
+.ra[data-escena='personalizacion'] [data-para='personalizacion'],
+.ra[data-escena='registros'] [data-para='registros'] {
+  display: inline;
+}
+
+.ra-quien {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--ra-g700);
+}
+
+.ra-quien svg {
+  width: 17px;
+  height: 17px;
+  fill: var(--ra-marca);
+}
+
+.ra-main {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Cada sección scrollea por su cuenta, como el <main> del panel; la barra no se ve */
+.ra-v {
+  overflow-y: auto;
+  padding: 24px;
+  scrollbar-width: none;
+  transition: opacity 0.35s ease, visibility 0s linear 0.35s;
+}
+
+.ra-v::-webkit-scrollbar {
+  display: none;
+}
+
+.ra[data-escena='tablero'] .ra-tablero,
+.ra[data-escena='usuarios'] .ra-usuarios,
+.ra[data-escena='workspaces'] .ra-workspaces,
+.ra[data-escena='licencia'] .ra-licencia,
+.ra[data-escena='personalizacion'] .ra-personalizacion,
+.ra[data-escena='registros'] .ra-registros {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.35s ease;
+}
+
+/* ═══ Piezas que se repiten ═══ */
+.ra-tarjeta {
+  padding: 22px;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.12);
+}
+
+.ra-boton,
+.ra-boton-2 {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 16px;
+  border-radius: 7px;
+  font-size: 13.6px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background 0.15s ease, transform 0.12s ease;
+}
+
+.ra-boton {
+  background: var(--ra-marca);
+  color: #fff;
+}
+
+.ra-boton svg {
+  width: 15px;
+  height: 15px;
+  fill: currentColor;
+}
+
+.ra-boton.es-hover {
+  background: var(--ra-marca-hondo);
+}
+
+.ra-boton-2 {
+  border: 1px solid var(--ra-linea);
+  background: var(--ra-g100);
+  font-weight: 500;
+  color: var(--ra-g700);
+}
+
+.ra-boton-2 svg {
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
+}
+
+.es-presionado {
+  transform: scale(0.96);
+}
+
+.ra-buscar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 300px;
+  padding: 8px 12px;
+  border: 1px solid var(--ra-linea);
+  border-radius: 8px;
+  background: var(--ra-g50);
+  font-size: 13px;
+  white-space: nowrap;
+  color: var(--ra-g500);
+}
+
+.ra-buscar svg {
+  width: 15px;
+  height: 15px;
+  fill: var(--ra-g500);
+}
+
+.ra-avatar {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--ra-marca);
+  font-size: 12px;
+  font-weight: 700;
+  font-style: normal;
+  color: #fff;
+}
+
+.ra-avatar--chico {
+  width: 22px;
+  height: 22px;
+  font-size: 10.5px;
+}
+
+/* Las casillas: el tilde aparece al marcar */
+.ra-casilla {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  flex: none;
+  border: 1.5px solid #9ca3af;
+  border-radius: 4px;
+  background: #fff;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.ra-casilla::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 5px;
+  height: 9px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg) scale(0);
+  transition: transform 0.15s ease;
+}
+
+.es-marcada > .ra-casilla {
+  border-color: var(--ra-marca);
+  background: var(--ra-marca);
+}
+
+.es-marcada > .ra-casilla::after {
+  transform: rotate(45deg) scale(1);
+}
+
+/* Los campos: lo que se tipea es .rc-tipeo; vacío, dice su ejemplo como el placeholder real */
+.ra-campo {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.ra-rotulo {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ra-g700);
+}
+
+.ra-input,
+.ra-select {
+  display: flex;
+  align-items: center;
+  min-height: 38px;
+  padding: 8px 12px;
+  overflow: hidden;
+  border: 1px solid var(--ra-linea);
+  border-radius: 6px;
+  background: #fff;
+  font-size: 14px;
+  white-space: nowrap;
+  color: var(--ra-g900);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ra-input.es-foco {
+  border-color: var(--ra-marca);
+  box-shadow: 0 0 0 3px rgb(3 122 112 / 0.15);
+}
+
+.ra .rc-tipeo:empty::before {
+  content: attr(data-ph);
+  color: var(--ra-g500);
+}
+
+/* El texto elegido para reemplazarlo */
+.ra-input.es-seleccion .rc-tipeo {
+  background: #bfdbfe;
+}
+
+.ra-select {
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.ra-select svg {
+  width: 15px;
+  height: 15px;
+  fill: var(--ra-g500);
+}
+
+.ra-par {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.ra-pista-campo {
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--ra-g500);
+}
+
+/* Las tablas de adentro de los grupos (inner-table) */
+.ra-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.1px;
+}
+
+.ra-tabla th {
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--ra-linea);
+  background: #fff;
+  font-size: 11.2px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-align: left;
+  text-transform: uppercase;
+  color: var(--ra-g500);
+}
+
+.ra-tabla td {
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--ra-g100);
+  vertical-align: middle;
+  color: var(--ra-g700);
+}
+
+.ra-tabla tr:last-child td {
+  border-bottom: none;
+}
+
+.ra-acc {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.ra-editar,
+.ra-borrar {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+}
+
+.ra-editar {
+  border: 1px solid #bfdbfe;
+}
+
+.ra-borrar {
+  border: 1px solid #fecaca;
+}
+
+.ra-editar svg,
+.ra-borrar svg {
+  width: 13px;
+  height: 13px;
+}
+
+.ra-editar svg {
+  fill: #2563eb;
+}
+
+.ra-borrar svg {
+  fill: #dc2626;
+}
+
+/* La barra de herramientas de una lista y el «Agrupar por» */
+.ra-herr {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.ra-herr__t {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  font-size: 15.2px;
+  font-weight: 600;
+  color: var(--ra-g900);
+}
+
+.ra-herr__t svg {
+  width: 17px;
+  height: 17px;
+  fill: var(--ra-marca);
+}
+
+.ra-n {
+  padding: 2px 9px;
+  border-radius: 20px;
+  background: var(--ra-g100);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ra-g600);
+}
+
+.ra-agrupar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--ra-linea);
+}
+
+.ra-agrupar__t {
+  margin-right: 4px;
+  font-size: 12.8px;
+  font-weight: 600;
+  color: var(--ra-g500);
+}
+
+.ra-ficha {
+  padding: 5px 13px;
+  border: 1px solid var(--ra-linea);
+  border-radius: 20px;
+  background: #fff;
+  font-size: 12.8px;
+  color: var(--ra-g700);
+}
+
+.ra-ficha--on {
+  border-color: var(--ra-marca);
+  background: var(--ra-marca);
+  font-weight: 500;
+  color: #fff;
+}
+
+.ra-agrupar__acc {
+  padding: 4px 8px;
+  font-size: 12.8px;
+  color: var(--ra-g500);
+}
+
+.ra-ficha + .ra-agrupar__acc {
+  margin-left: auto;
+}
+
+/* Los grupos plegables (group-block) */
+.ra-grupo {
+  margin-bottom: 8px;
+  overflow: hidden;
+  border: 1px solid var(--ra-linea);
+  border-radius: 8px;
+}
+
+.ra-grupo__cab {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--ra-g50);
+  font-size: 14px;
+}
+
+.ra-grupo__cab svg {
+  width: 14px;
+  height: 14px;
+  fill: var(--ra-g500);
+}
+
+.ra-grupo__cab b {
+  font-weight: 600;
+  color: var(--ra-g900);
+}
+
+.ra-cuenta {
+  min-width: 22px;
+  padding: 1px 8px;
+  border-radius: 20px;
+  background: var(--ra-marca);
+  font-size: 11.2px;
+  font-weight: 600;
+  text-align: center;
+  color: #fff;
+}
+
+.ra-grupo__cab em {
+  margin-left: auto;
+  font-size: 11.5px;
+  color: var(--ra-g500);
+}
+
+/* La cabecera de una sección (setup-header) */
+.ra-cab {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.ra-cab__t {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 4px;
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--ra-g900);
+}
+
+.ra-cab__t svg {
+  width: 19px;
+  height: 19px;
+  fill: var(--ra-marca);
+}
+
+.ra-cab__p {
+  max-width: 600px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ra-g500);
+}
+
+.ra-cab__p b {
+  font-weight: 600;
+  color: var(--ra-g700);
+}
+
+.ra-cab__acc {
+  display: flex;
+  gap: 10px;
+  flex: none;
+}
+
+/* La fila o el grupo recién creados: entran con un destello verde que se apaga */
+@keyframes ra-destello {
+  0%, 35% { background: #dcfce7; }
+  100% { background: rgb(220 252 231 / 0); }
+}
+
+@keyframes ra-entra {
+  from { opacity: 0; transform: translateY(-4px); }
+}
+
+/* ═══ 1. DASHBOARD (dashboard.ejs) ═══════════════════════════════════════════════════ */
+.ra-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.ra-stat {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.12);
+}
+
+.ra-stat__ico {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  flex: none;
+  border-radius: 10px;
+  background: var(--ra-marca);
+}
+
+.ra-stat__ico svg {
+  width: 22px;
+  height: 22px;
+  fill: #fff;
+}
+
+.ra-stat__ico--pbi {
+  background: #0078d4;
+}
+
+.ra-stat__ico--herramientas {
+  background: #7c3aed;
+}
+
+.ra-stat__ico--registros {
+  background: #d97706;
+}
+
+.ra-stat__info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.ra-stat__n {
+  font-size: 28.8px;
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--ra-g900);
+}
+
+.ra-stat__t {
+  margin-top: 3px;
+  font-size: 12.8px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--ra-g700);
+}
+
+.ra-stat__sub {
+  margin-top: 2px;
+  font-size: 11.5px;
+  color: var(--ra-g500);
+}
+
+.ra-rapidas .ra-tarjeta__t {
+  margin-bottom: 14px;
+  font-size: 15.2px;
+  font-weight: 600;
+  color: var(--ra-g900);
+}
+
+.ra-rapidas__lista {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.ra-rapida {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: var(--ra-g100);
+  font-size: 13.6px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--ra-g700);
+}
+
+.ra-rapida svg {
+  width: 16px;
+  height: 16px;
+  fill: var(--ra-marca);
+}
+
+/* ═══ 2. USUARIOS (credenciales.ejs) ═════════════════════════════════════════════════ */
+.ra-ucelda {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ra-ucelda > span:last-child {
+  display: flex;
+  flex-direction: column;
+}
+
+.ra-ucelda b {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 600;
+  color: var(--ra-g900);
+}
+
+.ra-llave {
+  width: 12px;
+  height: 12px;
+  fill: var(--ra-g500);
+}
+
+.ra-ucelda small {
+  font-size: 11.5px;
+  color: var(--ra-g500);
+}
+
+.ra-clave {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  color: var(--ra-g500);
+}
+
+.ra-clave em {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10.9px;
+  font-weight: 600;
+  font-style: normal;
+  letter-spacing: 0.02em;
+}
+
+.ra-clave em svg {
+  width: 10px;
+  height: 10px;
+  fill: var(--ra-g500);
+}
+
+.ra-interruptor {
+  position: relative;
+  display: block;
+  width: 40px;
+  height: 22px;
+  border-radius: 22px;
+  background: #d1d5db;
+}
+
+.ra-interruptor::before {
+  content: '';
+  position: absolute;
+  left: 3px;
+  bottom: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.2);
+}
+
+.ra-interruptor--si {
+  background: var(--ra-marca);
+}
+
+.ra-interruptor--si::before {
+  transform: translateX(18px);
+}
+
+/* La fila de la persona nueva: no existe hasta que se crea */
+.ra-fila-nueva {
+  display: none;
+}
+
+.ra-fila-nueva.es-visible {
+  display: table-row;
+}
+
+.ra-fila-nueva.es-visible td {
+  animation: ra-destello 2.4s ease both;
+}
+
+/* ═══ El cuadro «Nuevo usuario» y el de asignar (modal-overlay + modal-box) ═══════════ */
+.ra-capa {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgb(0 0 0 / 0.5);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0s linear 0.2s;
+}
+
+.ra-capa.es-abierta {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.2s ease;
+}
+
+.ra-modal {
+  display: flex;
+  flex-direction: column;
+  width: 540px;
+  max-height: 720px;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 20px 60px rgb(0 0 0 / 0.25);
+  transform: translateY(-16px) scale(0.97);
+  transition: transform 0.2s ease;
+}
+
+.ra-capa.es-abierta .ra-modal {
+  transform: none;
+}
+
+.ra-modal--chico {
+  width: 420px;
+  overflow: visible;
+}
+
+/* En un teléfono el cuadro de asignar se angosta (es-angosta, desde el motor): la toma se
+   acerca a lo que se está llenando y así entran las dos columnas */
+.ra.es-angosta .ra-modal:not(.ra-modal--chico) {
+  width: 440px;
+}
+
+.ra-modal__cab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 18px 22px 14px;
+  border-bottom: 1px solid var(--ra-linea);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ra-g900);
+}
+
+.ra-modal__cab svg {
+  width: 17px;
+  height: 17px;
+  fill: var(--ra-g900);
+}
+
+.ra-modal__cab .ra-modal__x {
+  width: 16px;
+  height: 16px;
+  margin-left: auto;
+  fill: var(--ra-g500);
+}
+
+.ra-modal__cuerpo {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+  padding: 20px 22px 18px;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.ra-modal__cuerpo::-webkit-scrollbar {
+  display: none;
+}
+
+.ra-modal--chico .ra-modal__cuerpo {
+  overflow: visible;
+}
+
+.ra-modal__pie {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 22px 20px;
+  border-top: 1px solid var(--ra-linea);
+}
+
+/* Las tarjetas de sección del cuadro chico (modal-section) */
+.ra-seccion-m {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  border: 1px solid var(--ra-linea);
+  border-radius: 8px;
+  background: var(--ra-g50);
+}
+
+.ra-seccion-m + .ra-seccion-m {
+  margin-top: 8px;
+}
+
+.ra-seccion-m__t {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ra-g500);
+}
+
+.ra-seccion-m__t svg {
+  width: 13px;
+  height: 13px;
+  fill: var(--ra-g500);
+}
+
+/* ═══ 3. WORKSPACES Y EL CONSTRUCTOR DE FILTROS (powerbi.ejs) ════════════════════════ */
+.ra-ws-herr {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.ra-ws-resumen {
+  flex: 1;
+  font-size: 13px;
+  color: var(--ra-g600);
+}
+
+.ra-ws-resumen b {
+  font-weight: 600;
+  color: var(--ra-g900);
+}
+
+.ra-ws {
+  margin-bottom: 10px;
+  overflow: hidden;
+  border: 1px solid var(--ra-linea);
+  border-radius: 10px;
+  background: #fff;
+}
+
+.ra-ws__cab {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  background: #f6faf7;
+}
+
+.ra-ws__flecha {
+  width: 13px;
+  height: 13px;
+  fill: var(--ra-g500);
+}
+
+.ra-ws__ico {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #e6f2f0;
+}
+
+.ra-ws__ico svg {
+  width: 16px;
+  height: 16px;
+  fill: var(--ra-marca);
+}
+
+.ra-ws__info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+}
+
+.ra-ws__info b {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ra-g900);
+}
+
+.ra-ws__info small {
+  font-family: var(--rc-mono);
+  font-size: 10.9px;
+  color: var(--ra-g500);
+}
+
+.ra-insignia {
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: #eff6ff;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #1d4ed8;
+}
+
+.ra-tabla--ws th,
+.ra-tabla--ws td {
+  padding: 8px 12px;
+}
+
+.ra-td-nombre {
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--ra-g900);
+}
+
+.ra-modelo {
+  padding: 2px 7px;
+  border-radius: 5px;
+  background: var(--ra-g100);
+  font-family: var(--rc-mono);
+  font-size: 11.5px;
+  white-space: nowrap;
+  color: var(--ra-g700);
+}
+
+.ra-mono {
+  font-family: var(--rc-mono);
+  font-size: 11.5px;
+  color: var(--ra-g500);
+}
+
+.ra-url {
+  display: block;
+  max-width: 220px;
+  overflow: hidden;
+  font-family: var(--rc-mono);
+  font-size: 11.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ra-g500);
+}
+
+.ra-accion {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--ra-linea);
+  border-radius: 6px;
+  background: #fff;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.ra-accion svg {
+  width: 13px;
+  height: 13px;
+  fill: var(--ra-g600);
+}
+
+.ra-accion.es-hover,
+.ra-accion.es-activa {
+  border-color: var(--ra-marca);
+  background: var(--ra-marca-tinte);
+}
+
+.ra-accion.es-hover svg,
+.ra-accion.es-activa svg {
+  fill: var(--ra-marca);
+}
+
+/* La fila del modelo: se abre con el botón del filtro */
+.ra-sem-fila {
+  display: none;
+}
+
+.ra-sem-fila.es-abierta {
+  display: table-row;
+}
+
+.ra-tabla .ra-sem-fila td {
+  padding: 0;
+  background: #fbfdfc;
+}
+
+.ra-sem {
+  padding: 14px 16px 16px;
+  border-top: 1px solid var(--ra-linea);
+  border-bottom: 1px solid var(--ra-linea);
+}
+
+.ra-sem__inicio {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.ra-sem.es-cargado .ra-sem__inicio {
+  display: none;
+}
+
+.ra-sem__cargar {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  border-radius: 7px;
+  background: var(--ra-marca);
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  transition: background 0.15s ease, transform 0.12s ease;
+}
+
+.ra-sem__cargar svg {
+  width: 13px;
+  height: 13px;
+  fill: currentColor;
+}
+
+.ra-sem__cargar.es-hover {
+  background: var(--ra-marca-hondo);
+}
+
+.ra-sem__cargar.es-cargando {
+  opacity: 0.75;
+}
+
+.ra-sem__ds {
+  font-size: 12px;
+  color: var(--ra-g500);
+}
+
+.ra-sem__ds code {
+  font-family: var(--rc-mono);
+}
+
+.ra-sem__pasos {
+  display: none;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.ra-sem.es-cargado .ra-sem__pasos {
+  display: flex;
+  animation: ra-entra 0.25s ease both;
+}
+
+.ra-sem__meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12.5px;
+  color: var(--ra-g600);
+}
+
+.ra-sem__meta b {
+  color: var(--ra-g900);
+}
+
+.ra-sem__meta em {
+  padding: 1px 8px;
+  border-radius: 20px;
+  background: #ecfdf5;
+  font-size: 10.9px;
+  font-weight: 600;
+  font-style: normal;
+  color: #047857;
+}
+
+.ra-sem__t {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ra-g700);
+}
+
+.ra-sem__t small {
+  font-weight: 400;
+  color: var(--ra-g500);
+}
+
+.ra-sem__t b {
+  font-weight: 700;
+  color: var(--ra-g900);
+}
+
+.ra-num {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--ra-marca);
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.ra-num--ok {
+  background: #15803d;
+}
+
+.ra-num--ok svg {
+  width: 13px;
+  height: 13px;
+  fill: #fff;
+}
+
+.ra-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.ra-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  border: 1px solid var(--ra-linea);
+  border-radius: 20px;
+  background: #fff;
+  font-size: 12.5px;
+  color: var(--ra-g700);
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.ra-chip svg {
+  width: 12px;
+  height: 12px;
+  fill: var(--ra-g500);
+}
+
+.ra-chip small {
+  padding: 0 6px;
+  border-radius: 10px;
+  background: var(--ra-g100);
+  font-size: 10.6px;
+  color: var(--ra-g600);
+}
+
+.ra-chip.es-hover {
+  border-color: var(--ra-marca);
+}
+
+.ra-chip.es-activo {
+  border-color: var(--ra-marca);
+  background: var(--ra-marca);
+  color: #fff;
+}
+
+.ra-chip.es-activo svg {
+  fill: #fff;
+}
+
+.ra-chip.es-activo small {
+  background: rgb(255 255 255 / 0.2);
+  color: #fff;
+}
+
+.ra-sem__paso--2,
+.ra-sem__paso--3 {
+  display: none;
+}
+
+.ra-sem__paso--2.es-visible,
+.ra-sem__paso--3.es-visible {
+  display: block;
+  animation: ra-entra 0.25s ease both;
+}
+
+.ra-tipo {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 4px;
+  padding: 1px 8px;
+  border-radius: 20px;
+  background: var(--ra-g100);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ra-g600);
+}
+
+.ra-tipo svg {
+  width: 11px;
+  height: 11px;
+  fill: currentColor;
+}
+
+.ra-cond {
+  display: grid;
+  grid-template-columns: 230px minmax(0, 1fr);
+  gap: 14px;
+  margin-bottom: 10px;
+}
+
+.ra-cond__op {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ra-cond .ra-select {
+  min-height: 34px;
+  font-size: 13px;
+}
+
+.ra-valores {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 2px 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--ra-linea);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.ra-valor {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px;
+  border-radius: 5px;
+  font-size: 12.5px;
+  white-space: nowrap;
+  color: var(--ra-g700);
+}
+
+.ra-valor .ra-casilla {
+  width: 14px;
+  height: 14px;
+  margin-top: 0;
+}
+
+.ra-valor .ra-casilla::after {
+  left: 3.5px;
+  top: 0.5px;
+  width: 4px;
+  height: 8px;
+}
+
+.ra-valor.es-hover {
+  background: var(--ra-marca-tinte);
+}
+
+.ra-sem__hint {
+  margin-top: 6px;
+  font-size: 11.5px;
+  color: var(--ra-g500);
+}
+
+.ra-agregar {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border: 1px solid var(--ra-marca);
+  border-radius: 7px;
+  background: #fff;
+  font-size: 12.8px;
+  font-weight: 600;
+  color: var(--ra-marca);
+  transition: background 0.15s ease, color 0.15s ease, transform 0.12s ease;
+}
+
+.ra-agregar svg {
+  width: 13px;
+  height: 13px;
+  fill: currentColor;
+}
+
+.ra-agregar.es-hover {
+  background: var(--ra-marca);
+  color: #fff;
+}
+
+.ra-sem__listo {
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px;
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+  background: #f0fdf4;
+}
+
+.ra-sem__listo.es-visible {
+  display: flex;
+  animation: ra-entra 0.25s ease both;
+}
+
+.ra-sem__t--ok {
+  margin: 0;
+  color: #166534;
+}
+
+.ra-sem__t--ok b {
+  color: #14532d;
+}
+
+.ra-lectura-filtro {
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: #fff;
+  font-family: var(--rc-mono);
+  font-size: 12px;
+  color: var(--ra-g900);
+}
+
+.ra-json {
+  position: relative;
+}
+
+.ra-json pre {
+  max-height: 128px;
+  margin: 0;
+  overflow: hidden;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #0f172a;
+  font-family: var(--rc-mono);
+  font-size: 11px;
+  line-height: 1.5;
+  color: #e2e8f0;
+}
+
+.ra-copiar {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  background: var(--ra-marca);
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  transition: background 0.15s ease, transform 0.12s ease;
+}
+
+.ra-copiar svg {
+  width: 12px;
+  height: 12px;
+  fill: currentColor;
+}
+
+.ra-copiar.es-hover {
+  background: var(--ra-marca-hondo);
+}
+
+.ra-copiar.es-copiado {
+  background: #15803d;
+}
+
+/* ═══ 4. ASIGNACIONES Y EL CUADRO DE ASIGNAR (licencia.ejs) ══════════════════════════ */
+.ra-grupo--nuevo {
+  display: none;
+}
+
+.ra-grupo--nuevo.es-visible {
+  display: block;
+  animation: ra-entra 0.3s ease both;
+}
+
+.ra-grupo--nuevo.es-visible .ra-fila-viva td {
+  animation: ra-destello 2.6s ease both;
+}
+
+.ra-ia {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: 8px;
+  padding: 1px 7px;
+  border: 1px solid #c7d2fe;
+  border-radius: 999px;
+  background: #eef2ff;
+  font-size: 10.6px;
+  font-weight: 700;
+  vertical-align: 1px;
+  color: #4338ca;
+}
+
+.ra-ia svg {
+  width: 10px;
+  height: 10px;
+  fill: currentColor;
+}
+
+/* El ícono de panel: el chat se abre al costado */
+.ra-ia i {
+  width: 11px;
+  height: 8px;
+  margin-left: 2px;
+  border: 1px solid currentColor;
+  border-radius: 1.5px;
+  background: linear-gradient(90deg, transparent 0 50%, currentColor 50% 62%, transparent 62%);
+}
+
+.ra-opc,
+.ra-filtro-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-right: 6px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 10.6px;
+  font-weight: 700;
+}
+
+.ra-opc {
+  border: 1px solid #fde68a;
+  background: #fefce8;
+  color: #854d0e;
+}
+
+.ra-filtro-chip {
+  border: 1px solid #bfdbfe;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.ra-opc svg,
+.ra-filtro-chip svg {
+  width: 10px;
+  height: 10px;
+  fill: currentColor;
+}
+
+/* Los pasos del formulario, con su regla fina (asig-paso) */
+.ra-paso {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 14px 0 4px;
+  font-size: 10.9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ra-g500);
+}
+
+.ra-paso::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--ra-linea);
+}
+
+.ra-modal__cuerpo > .ra-paso:first-child {
+  margin-top: 0;
+}
+
+.ra-modal__cuerpo > .ra-campo + .ra-campo {
+  margin-top: 6px;
+}
+
+/* El selector de usuario (_user-picker.ejs) */
+.ra-picker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 6px 10px;
+  border: 1px solid var(--ra-linea);
+  border-radius: 6px;
+  background: #fff;
+  font-size: 13.5px;
+  transition: border-color 0.15s ease;
+}
+
+.ra-picker__vacio,
+.ra-picker__lleno {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex: 1;
+  min-width: 0;
+}
+
+.ra-picker__vacio {
+  color: var(--ra-g500);
+}
+
+.ra-picker__vacio svg {
+  width: 14px;
+  height: 14px;
+  fill: #9ca3af;
+}
+
+.ra-picker__lleno {
+  display: none;
+  font-weight: 500;
+  color: var(--ra-g900);
+}
+
+.ra-picker.es-elegido .ra-picker__vacio {
+  display: none;
+}
+
+.ra-picker.es-elegido .ra-picker__lleno {
+  display: flex;
+}
+
+.ra-picker__flecha {
+  width: 14px;
+  height: 14px;
+  fill: var(--ra-g500);
+  transition: transform 0.2s ease;
+}
+
+.ra-picker.es-abierto {
+  border-color: var(--ra-marca);
+}
+
+.ra-picker.es-abierto .ra-picker__flecha {
+  transform: rotate(180deg);
+}
+
+.ra-picker__lista {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-top: 4px;
+  padding: 6px;
+  border: 1px solid var(--ra-linea);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 12px 28px rgb(0 0 0 / 0.16);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition: opacity 0.15s ease, transform 0.15s ease, visibility 0s linear 0.15s;
+}
+
+.ra-picker__lista.es-abierta {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.ra-picker__buscar {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 4px;
+  padding: 7px 9px;
+  border: 1px solid var(--ra-linea);
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--ra-g900);
+}
+
+.ra-picker__buscar svg {
+  width: 13px;
+  height: 13px;
+  fill: var(--ra-g500);
+}
+
+.ra-picker__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--ra-g900);
+}
+
+.ra-picker__item > span:nth-child(2) {
+  flex: 1;
+}
+
+.ra-picker__item--inactivo {
+  color: var(--ra-g500);
+}
+
+.ra-picker__item.es-hover {
+  background: var(--ra-marca-tinte);
+}
+
+.ra-tipo-chip {
+  padding: 1px 8px;
+  border-radius: 20px;
+  background: #ede9fe;
+  font-size: 11px;
+  font-weight: 500;
+  color: #5b21b6;
+}
+
+.ra-punto {
+  width: 7px;
+  height: 7px;
+  flex: none;
+  border-radius: 50%;
+  background: #22c55e;
+}
+
+.ra-punto--no {
+  background: #ef4444;
+}
+
+/* El enlace pegado y su lectura en palabras: lo distintivo de esta pantalla */
+.ra-input--url {
+  font-family: var(--rc-mono);
+  font-size: 11.5px;
+}
+
+.ra-input--url .rc-tipeo {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ra-lectura {
+  display: none;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 9px 12px;
+  border: 1px solid #bbf7d0;
+  border-radius: 9px;
+  background: #f0fdf4;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #15803d;
+}
+
+.ra-lectura.es-visible {
+  display: flex;
+  animation: ra-entra 0.18s ease both;
+}
+
+.ra-lectura svg {
+  width: 15px;
+  height: 15px;
+  margin-top: 2px;
+  fill: #16a34a;
+}
+
+.ra-lectura code {
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: rgb(0 0 0 / 0.06);
+  font-family: var(--rc-mono);
+  font-size: 0.94em;
+}
+
+/* El filtro de la persona: el JSON del constructor, pegado */
+.ra-filtros-btn {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px dashed #d1d5db;
+  border-radius: 7px;
+  font-size: 13px;
+  color: var(--ra-g600);
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+.ra-filtros-btn small {
+  font-size: 11.5px;
+}
+
+.ra-filtros-btn svg {
+  width: 13px;
+  height: 13px;
+  fill: currentColor;
+  transition: transform 0.2s ease;
+}
+
+.ra-filtros-btn.es-hover,
+.ra-filtros-btn.es-abierto {
+  border-color: var(--ra-marca);
+  background: var(--ra-marca-tinte);
+  color: var(--ra-marca);
+}
+
+.ra-filtros-btn.es-abierto .ra-filtros-btn__f {
+  transform: rotate(180deg);
+}
+
+.ra-filtros {
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.ra-filtros.es-abierto {
+  display: flex;
+}
+
+.ra-filtros__t {
+  font-size: 12.5px;
+  color: var(--ra-g500);
+}
+
+.ra-filtros__caja {
+  display: block;
+  height: 72px;
+  overflow: hidden;
+  padding: 8px 10px;
+  border: 1px solid var(--ra-linea);
+  border-radius: 7px;
+  background: var(--ra-g50);
+  font-family: var(--rc-mono);
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--ra-g700);
+}
+
+.ra-filtros__caja.es-foco {
+  border-color: var(--ra-marca);
+  background: #fff;
+}
+
+/* Las opciones del tablero (_opciones-tablero.ejs): plegadas, con su resumen en la cabecera */
+.ra-opciones-t {
+  margin-top: 12px;
+  border: 1px solid var(--ra-linea);
+  border-radius: 10px;
+  background: #fff;
+}
+
+.ra-opciones-t__cab {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 13px 15px;
+  border-radius: 10px;
+  transition: background 0.18s ease;
+}
+
+.ra-opciones-t__cab.es-hover {
+  background: var(--ra-marca-tinte);
+}
+
+.ra-opciones-t.es-abierto .ra-opciones-t__cab {
+  border-bottom: 1px solid var(--ra-linea);
+  border-radius: 10px 10px 0 0;
+}
+
+.ra-opciones-t__ico {
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  fill: var(--ra-g500);
+}
+
+.ra-opciones-t__txt {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.ra-opciones-t__txt b {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13.6px;
+  font-weight: 600;
+  color: var(--ra-g700);
+}
+
+.ra-opciones-t__txt small {
+  font-size: 11.8px;
+  line-height: 1.45;
+  color: var(--ra-g500);
+}
+
+/* Cuántas hay prendidas: el amarillo de la marca de la lista */
+.ra-cuenta-op {
+  display: none;
+  place-items: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border: 1px solid #fde68a;
+  border-radius: 9px;
+  background: #fefce8;
+  font-size: 10.6px;
+  font-weight: 700;
+  color: #854d0e;
+}
+
+.ra-resumen {
+  display: none;
+}
+
+.ra-opciones-t.es-con-activas .ra-cuenta-op {
+  display: inline-grid;
+}
+
+.ra-opciones-t.es-con-activas .ra-resumen {
+  display: block;
+}
+
+.ra-opciones-t.es-con-activas .ra-resumen-vacio {
+  display: none;
+}
+
+.ra-opciones-t__f {
+  width: 14px;
+  height: 14px;
+  margin-top: 3px;
+  fill: var(--ra-g500);
+  transition: transform 0.2s ease;
+}
+
+.ra-opciones-t.es-abierto .ra-opciones-t__f {
+  transform: rotate(180deg);
+}
+
+.ra-opciones-t__cuerpo {
+  display: none;
+  flex-direction: column;
+  padding: 4px 10px 12px;
+}
+
+.ra-opciones-t.es-abierto .ra-opciones-t__cuerpo {
+  display: flex;
+}
+
+.ra-op-grupo {
+  margin: 10px 5px 2px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--ra-g500);
+}
+
+.ra-op {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 7px 5px;
+  border-radius: 8px;
+  transition: background 0.15s ease;
+}
+
+.ra-op > span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.ra-op b {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ra-g700);
+}
+
+.ra-op b svg {
+  width: 14px;
+  height: 14px;
+  fill: var(--ra-g500);
+}
+
+.ra-op small {
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--ra-g500);
+}
+
+.ra-op.es-hover {
+  background: var(--ra-marca-tinte);
+}
+
+.ra-op--paginas,
+.ra-op--ajuste {
+  flex-direction: column;
+  gap: 8px;
+  padding-left: 31px;
+}
+
+.ra-paginas {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.ra-pagina {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 5px 8px;
+  border-radius: 6px;
+  font-size: 12.8px;
+  color: var(--ra-g700);
+}
+
+.ra-pagina .ra-casilla {
+  width: 15px;
+  height: 15px;
+  margin-top: 0;
+}
+
+.ra-pagina.es-hover {
+  background: var(--ra-marca-tinte);
+}
+
+.ra-seg {
+  display: inline-flex;
+  align-self: flex-start;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--ra-linea);
+  border-radius: 8px;
+  background: var(--ra-g50);
+}
+
+.ra-seg span {
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ra-g600);
+}
+
+.ra-seg .ra-seg--on {
+  background: #fff;
+  font-weight: 600;
+  color: var(--ra-g700);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.14);
+}
+
+/* El chat con IA: la casilla grande, su advertencia y dónde se abre */
+.ra-ia-op {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 13px 15px;
+  border: 1px solid var(--ra-linea);
+  border-radius: 10px;
+  transition: border-color 0.18s ease, background 0.18s ease;
+}
+
+.ra-ia-op > span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ra-ia-op b {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13.6px;
+  font-weight: 600;
+  color: var(--ra-g700);
+}
+
+.ra-ia-op b svg {
+  width: 14px;
+  height: 14px;
+  fill: #6366f1;
+}
+
+.ra-ia-op small {
+  font-size: 11.8px;
+  color: var(--ra-g500);
+}
+
+.ra-ia-op.es-hover {
+  border-color: #c7d2fe;
+  background: #fafaff;
+}
+
+.ra-ia-op.es-marcada > .ra-casilla {
+  border-color: #6366f1;
+  background: #6366f1;
+}
+
+.ra-aviso {
+  display: none;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 8px;
+  padding: 12px 14px;
+  border: 1px solid #fde68a;
+  border-radius: 10px;
+  background: #fffbeb;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: #78350f;
+}
+
+.ra-aviso.es-visible {
+  display: flex;
+  animation: ra-entra 0.2s ease both;
+}
+
+.ra-aviso svg {
+  width: 16px;
+  height: 16px;
+  margin-top: 1px;
+  fill: #d97706;
+}
+
+.ra-modo {
+  display: none;
+  margin-top: 4px;
+}
+
+.ra-modo.es-visible {
+  display: block;
+}
+
+.ra-radio {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 6px;
+  padding: 10px 12px;
+  border: 1px solid var(--ra-linea);
+  border-radius: 8px;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.ra-radio i {
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  flex: none;
+  border: 1.5px solid #9ca3af;
+  border-radius: 50%;
+  background: #fff;
+  transition: border-width 0.15s ease, border-color 0.15s ease;
+}
+
+.ra-radio > span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ra-radio b {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ra-g900);
+}
+
+.ra-radio small {
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--ra-g500);
+}
+
+.ra-radio.es-hover {
+  border-color: #c7d2fe;
+}
+
+.ra-radio--on {
+  border-color: var(--ra-marca);
+  background: #f6fbf7;
+}
+
+.ra-radio--on i {
+  border: 5px solid var(--ra-marca);
+}
+
+/* ═══ 5. PERSONALIZACIÓN (configuracion.ejs) ═════════════════════════════════════════ */
+.ra-guardado {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding: 11px 14px;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  background: #f0fdf4;
+  font-size: 13px;
+  font-weight: 500;
+  color: #166534;
+}
+
+.ra-guardado.es-visible {
+  display: flex;
+  animation: ra-entra 0.25s ease both;
+}
+
+.ra-guardado svg {
+  width: 16px;
+  height: 16px;
+  fill: #16a34a;
+}
+
+.ra-bloque {
+  overflow: hidden;
+  border: 1px solid var(--ra-linea);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.06);
+}
+
+.ra-bloque__cab {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--ra-linea);
+  background: var(--ra-g50);
+}
+
+.ra-bloque__cab > span:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.ra-bloque__cab b {
+  font-size: 14.4px;
+  font-weight: 600;
+  color: var(--ra-g900);
+}
+
+.ra-bloque__cab small {
+  font-size: 12px;
+  color: var(--ra-g500);
+}
+
+.ra-bloque__ico {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: #e6f2f0;
+}
+
+.ra-bloque__ico svg {
+  width: 16px;
+  height: 16px;
+  fill: var(--ra-marca);
+}
+
+.ra-bloque__cuerpo {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 400px;
+  gap: 20px;
+  padding: 18px;
+}
+
+.ra-campos {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ra-campo-cfg {
+  padding: 11px 14px 12px;
+  border: 1px solid var(--ra-linea);
+  border-radius: 10px;
+}
+
+.ra-campo-cfg__t {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.ra-campo-cfg__t > svg {
+  width: 15px;
+  height: 15px;
+  fill: var(--ra-g500);
+}
+
+.ra-campo-cfg__t > span {
+  display: flex;
+  flex-direction: column;
+}
+
+.ra-campo-cfg__t b {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ra-g900);
+}
+
+.ra-campo-cfg__t small {
+  font-size: 11.5px;
+  color: var(--ra-g500);
+}
+
+.ra-campo-cfg .ra-input {
+  min-height: 34px;
+  padding: 6px 11px;
+  font-size: 13.5px;
+}
+
+.ra-muestra {
+  width: 28px;
+  height: 28px;
+  margin-left: auto;
+  flex: none;
+  border-radius: 7px;
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.1);
+  transition: background-color 0.5s ease;
+}
+
+.ra-muestra--principal {
+  background-color: var(--ra-marca);
+}
+
+.ra-muestra--oscuro {
+  background-color: var(--ra-marca-hondo);
+}
+
+.ra-muestra--admin {
+  background-color: var(--ra-admin);
+}
+
+.ra-color {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ra-color__chip {
+  width: 38px;
+  height: 34px;
+  flex: none;
+  border: 3px solid #fff;
+  border-radius: 7px;
+  box-shadow: 0 0 0 1px var(--ra-linea);
+}
+
+.ra-color .ra-input {
+  flex: 1;
+}
+
+.ra-input--hex {
+  font-family: var(--rc-mono);
+}
+
+/* El color nuevo: la muestra, el cuadrito y la vista previa cambian juntos */
+.ra-personalizacion.es-acme .ra-muestra--principal {
+  background-color: var(--ra-acme);
+}
+
+.ra-previa {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ra-previa__t {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ra-g500);
+}
+
+.ra-previa__t svg {
+  width: 14px;
+  height: 14px;
+  fill: var(--ra-g500);
+}
+
+.ra-mini {
+  display: grid;
+  grid-template-columns: 128px minmax(0, 1fr);
+  height: 262px;
+  overflow: hidden;
+  border: 1px solid var(--ra-linea);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgb(17 24 39 / 0.08);
+}
+
+.ra-mini__lado {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 8px;
+  background-color: var(--ra-marca);
+  background-image: linear-gradient(180deg, transparent 40%, rgb(0 0 0 / 0.18));
+  color: #fff;
+  transition: background-color 0.5s ease;
+}
+
+.ra-personalizacion.es-acme .ra-mini__lado {
+  background-color: var(--ra-acme);
+}
+
+.ra-mini__marca {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  overflow: hidden;
+  font-size: 11.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.ra-mini__marca i {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.ra-mini__item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 7px;
+  border-radius: 6px;
+  font-size: 10.5px;
+}
+
+.ra-mini__item svg {
+  width: 11px;
+  height: 11px;
+  fill: currentColor;
+}
+
+.ra-mini__item--on {
+  background: #fff;
+  font-weight: 600;
+  color: var(--ra-marca);
+  transition: color 0.5s ease;
+}
+
+.ra-personalizacion.es-acme .ra-mini__item--on {
+  color: var(--ra-acme);
+}
+
+.ra-mini__cont {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: var(--ra-g100);
+}
+
+.ra-mini__barra {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  background: #fff;
+  font-size: 10px;
+  color: var(--ra-g700);
+}
+
+.ra-mini__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ra-mini__chip i {
+  display: grid;
+  place-items: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background-color: var(--ra-marca);
+  font-size: 8px;
+  font-style: normal;
+  font-weight: 700;
+  color: #fff;
+  transition: background-color 0.5s ease;
+}
+
+.ra-personalizacion.es-acme .ra-mini__chip i {
+  background-color: var(--ra-acme);
+}
+
+.ra-mini__tarjetas {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  padding: 10px;
+}
+
+.ra-mini__tarjeta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 6px;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 9.5px;
+  font-weight: 600;
+  line-height: 1.25;
+  text-align: center;
+  color: #1f2937;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.08);
+}
+
+/* Las barras de Power BI y el maletín de herramientas, en chiquito */
+.ra-mini__pbi {
+  width: 18px;
+  height: 16px;
+  background: linear-gradient(90deg, #f2c811 0 26%, transparent 26% 37%, #f2c811 37% 63%, transparent 63% 74%, #f2c811 74%) bottom / 100% 100% no-repeat;
+  clip-path: polygon(0 40%, 26% 40%, 26% 0, 63% 0, 63% 60%, 100% 60%, 100% 100%, 0 100%);
+}
+
+.ra-mini__herr {
+  width: 16px;
+  height: 14px;
+  border-radius: 3px;
+  background: #7c3aed;
+}
+
+/* ═══ 6. REGISTROS (registros.ejs) ═══════════════════════════════════════════════════ */
+.ra-periodos {
+  display: flex;
+  flex: none;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--ra-linea);
+  border-radius: 9px;
+  background: #fff;
+}
+
+.ra-periodos span {
+  padding: 6px 13px;
+  border-radius: 6px;
+  font-size: 12.8px;
+  font-weight: 500;
+  color: var(--ra-g600);
+}
+
+.ra-periodos .ra-periodo--on {
+  background: var(--ra-marca);
+  font-weight: 600;
+  color: #fff;
+}
+
+.ra-kpis {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.ra-kpi {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.08);
+}
+
+.ra-kpi__ico {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  flex: none;
+  border-radius: 10px;
+}
+
+.ra-kpi__ico svg {
+  width: 17px;
+  height: 17px;
+  fill: #fff;
+}
+
+.ra-kpi__ico--verde {
+  background: linear-gradient(135deg, #22c55e, #15803d);
+}
+
+.ra-kpi__ico--azul {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+}
+
+.ra-kpi__ico--ambar {
+  background: linear-gradient(135deg, #f59e0b, #b45309);
+}
+
+.ra-kpi__ico--violeta {
+  background: linear-gradient(135deg, #a855f7, #7e22ce);
+}
+
+.ra-kpi__ico--cian {
+  background: linear-gradient(135deg, #06b6d4, #0e7490);
+}
+
+.ra-kpi__info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.ra-kpi__info b {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  color: var(--ra-g900);
+}
+
+.ra-kpi__info small {
+  font-size: 11px;
+  line-height: 1.3;
+  color: var(--ra-g500);
+}
+
+.ra-kpi__pct {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin-left: auto;
+  font-size: 13px;
+  font-weight: 700;
+  color: #15803d;
+}
+
+.ra-kpi__pct small {
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--ra-g500);
+}
+
+.ra-tendencia {
+  margin-bottom: 16px;
+  padding: 16px 18px 10px;
+}
+
+.ra-tarjeta__cab {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.ra-tarjeta__cab b {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ra-g900);
+}
+
+.ra-tarjeta__cab span {
+  font-size: 11.5px;
+  color: var(--ra-g500);
+}
+
+.ra-graf {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.ra-graf__reja {
+  stroke: #eef0f2;
+  stroke-width: 1;
+}
+
+.ra-graf__txt {
+  font-family: var(--font-texto);
+  font-size: 10.5px;
+  fill: var(--ra-g500);
+}
+
+.ra-graf__area {
+  fill: rgb(3 122 112 / 0.1);
+  opacity: 0;
+  transition: opacity 0.6s ease 0.6s;
+}
+
+.ra-graf__linea {
+  fill: none;
+  stroke: var(--ra-marca);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 1.5s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.ra-tendencia.es-dibujada .ra-graf__area {
+  opacity: 1;
+}
+
+.ra-tendencia.es-dibujada .ra-graf__linea {
+  stroke-dashoffset: 0;
+}
+
+.ra-dos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.ra-dos .ra-tarjeta {
+  padding: 16px 18px 8px;
+}
+
+.ra-tipo-fila,
+.ra-rank {
+  display: grid;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 9px;
+  font-size: 12.5px;
+  color: var(--ra-g700);
+}
+
+.ra-tipo-fila {
+  grid-template-columns: 112px minmax(0, 1fr) 52px 34px;
+}
+
+.ra-rank {
+  grid-template-columns: 20px minmax(0, 1fr) 96px 46px;
+}
+
+.ra-tipo-fila__b,
+.ra-rank__b {
+  width: 100%;
+  height: 8px;
+}
+
+.ra-rank__b {
+  height: 6px;
+}
+
+.ra-pista {
+  fill: var(--ra-g100);
+}
+
+.ra-barra-reg {
+  transform-box: fill-box;
+  transform-origin: 0 50%;
+  transform: scaleX(0);
+  transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.ra-rank__b .ra-barra-reg {
+  fill: var(--ra-marca);
+}
+
+.ra-registros.es-dibujado .ra-barra-reg {
+  transform: none;
+}
+
+.ra-tipo-fila__n,
+.ra-rank__v {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  color: var(--ra-g900);
+}
+
+.ra-tipo-fila__p {
+  text-align: right;
+  color: var(--ra-g500);
+}
+
+.ra-rank__n {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--ra-g100);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ra-g600);
+}
+
+.ra-rank__t {
+  overflow: hidden;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ═══ Saltos: lo que entra con una animación llega de golpe ═══ */
+.ra.es-instante *,
+.ra.es-instante *::before,
+.ra.es-instante *::after {
+  animation-duration: 0s !important;
+  animation-delay: 0s !important;
+}

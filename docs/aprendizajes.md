@@ -2,6 +2,33 @@
 
 Cada entrada: **síntoma → causa → solución → cómo evitarlo**.
 
+## Recorrido del administrador (12/10/2026)
+
+### Cuando la cámara se pega al borde, se corre para el otro lado
+- **Síntoma**: en el paso de la marca, el borde izquierdo de la toma partía el menú lateral por la mitad de sus palabras («uarios», «ado AAD»).
+- **Causa**: la toma apuntaba a algo cerca del borde derecho con zoom 1,15. Lo visible medía 1.113 px de la pantalla, y al no poder pasarse del borde derecho, la cámara se corrió a la izquierda hasta meterse en el menú.
+- **Regla**: en escritorio lo visible mide 1280 / zoom; para no salir del área principal (1018 px, la pantalla sin el menú de 262) el zoom tiene que ser al menos 1280 / 1018 = 1,26. Las tomas del cuadro de asignar quedan con menos: lo que cortan está detrás del velo.
+
+### En el teléfono, la toma del cuadro entero no se lee
+- **Síntoma**: el cuadro de asignar entraba entero y su letra quedaba en 9 px.
+- **Causa**: la cámara del teléfono se acerca hasta donde el alto lo permite, y el cuadro mide 720 px: por más zoom que se pida, el alto la frena. Angostar el cuadro no cambiaba nada.
+- **Solución**: en el teléfono cada toma apunta a lo que se está usando (el campo, la sección, el botón) y, si es ancho, a su parte izquierda, donde empieza lo que se lee. Es el helper `ver()` del guion.
+
+### El tiempo de un recorrido lo pone el viaje del cursor
+- La primera versión duraba 93 s, con pasos de 14 a 16. Cada clic cuesta el viaje del cursor (hasta 1,15 s) más la pausa sobre el botón, y el panel tiene botones lejos del menú. Recortar esperas dio poco (81 s); sacar clics que no contaban nada nuevo, algo más (78 s); lo que resolvió fue una mano más rápida para este guion (72 s), que el motor aceptó como opción sin tocar el recorrido de tu equipo.
+
+### «//» con un hueco: la ligadura de la fuente monoespaciada
+- En el campo del enlace se veía «https:// app.powerbi.com». Con `--rc-mono`, Chrome en Windows usa Cascadia Code, que dibuja «//» como ligadura. `font-variant-ligatures: none` en los enlaces, los ID y el JSON.
+
+### Partir un CSS compartido se prueba píxel por píxel, y se sabotea la prueba
+- Para que la página del administrador no cargue la pantalla de tu equipo, `recorrido.css` se partió en dos. Las reglas se movieron tal cual (un script verificó que no se perdiera ninguna línea), salvo las de movimiento reducido de esa pantalla: tenían que seguir viniendo DESPUÉS de las animaciones que apagan, y van al final del archivo nuevo.
+- La prueba: los 20 cuadros de movimiento reducido (10 pasos × escritorio y teléfono) antes y después, idénticos píxel por píxel. Y antes de creerle al «todas idénticas», se le dio un cuadro cambiado: dijo «628.255 píxeles distintos».
+
+### Un chequeo que cuenta cero dice «todo bien»
+- **Síntoma**: el script que revisaba las rutas críticas del despliegue dijo «todas están en dist/»… sobre una lista de 0 rutas.
+- **Causa**: la expresión regular pasó por bash y por Python, y en el camino perdió sus barras invertidas. El mismo viaje unió dos líneas de `deploy.yml` (se comió la barra y el salto de línea del final de una ruta), y el error era silencioso: el YAML seguía siendo válido.
+- **Solución**: el chequeo se rehízo sin expresiones regulares y dice cuántas rutas revisó (15). Los scripts con barras invertidas van a un archivo, no a un heredoc, y después de editar un archivo con barras se mira el resultado (aprendizaje ya escrito en el CLAUDE.md del portal: pasó otra vez).
+
 ## Anuncio del Portal BI (11/10/2026)
 
 ### La regla global de «reducir movimiento» vacía lo que se maneja por tiempo

@@ -1,5 +1,15 @@
 # Bitácora de cambios
 
+## 12/10/2026 · Recorrido del administrador del Portal BI
+
+- **Página nueva `/portal-bi/como-funciona/administrador/`**: el Portal BI como lo maneja quien lo administra, en una toma de 72 s y ocho pasos. Muestra el panel con todos sus módulos y el alta de una persona (con su usuario o con su correo). Sigue con su vista armada en el constructor, que recorre el modelo de tabla a columna y valor y devuelve el JSON. Después el tablero asignado, con el enlace que el panel lee en palabras, y las opciones del tablero (una página oculta y sin «Exportar datos»). Termina con el chat con IA al costado (con el aviso de lo que podrá consultar), la marca con su vista previa y los registros de acceso.
+- La pantalla es el panel real dibujado a 1280 × 760 (`RecorridoAdmin.astro`), calcado de `admin.css` y de las vistas del portal, con sus palabras en tuteo. Los grises de los textos chicos suben a AA.
+- **Comparte todo con el recorrido de tu equipo**: el motor (`recorrido-motor.ts`: reloj, cámara, cursor, narración y controles) y el marco de la página (`RecorridoMarco.astro`). Cada uno trae su pantalla y su guion. El CSS se partió en lo común (`recorrido.css`), la pantalla de tu equipo (`recorrido-pantalla.css`) y la del administrador (`recorrido-admin.css`): ninguna página carga la pantalla de la otra.
+- El recorrido de tu equipo quedó idéntico: sus 20 cuadros de movimiento reducido comparados píxel por píxel contra los de antes (el comparador se saboteó para ver que sabe decir «distinto»), y sus pasos duran lo mismo.
+- Se llega desde la sección del panel en `/portal-bi/` («Mira cómo se administra») y desde el cierre de cada recorrido, que ahora ofrece el otro.
+- Banco: `npm run recorrido` prueba los dos (o uno con `--solo equipo|administrador`). QA 54/54. Lighthouse del recorrido nuevo: 100 / 100 / 100 / 100 en móvil (LCP 1,4 s) y en escritorio; `/portal-bi/` sigue en 100 en móvil (LCP 1,7 s).
+- De paso, la página del anuncio dice cuánto tarda de verdad la Action en grabar los videos: unos 25 minutos (medido: 24,6).
+
 ## 11/10/2026 · El anuncio, más lento; los videos, fuera del repositorio
 
 - **De 30 a 46 segundos**, a pedido del dueño ("está muy rápido, no da tiempo de leer"). Cada titular queda entre 3 y 4,5 s a la vista. La pregunta del gancho se lee 3,2 s. Cada persona de "cada uno ve lo suyo" tiene un segundo (antes 0,6). El chat deja la respuesta con su gráfico 2,4 s antes de irse. Cada razón de la ráfaga dura un segundo y medio (antes 0,8), y la última —«Nunca más una licencia por persona», el remate— 2,2. Los cortes siguen cayendo en la grilla de 120 BPM.

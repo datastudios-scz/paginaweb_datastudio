@@ -16,6 +16,7 @@ Todo se define desde `Base.astro` (props `titulo`, `descripcion`, `imagen`). Val
 - **JSON-LD** (`@graph`): `Organization` (contacto, dirección de Santa Cruz, Facebook), `WebSite`, `FAQPage` en `/` y `/portal-bi/`, `BreadcrumbList` en `/portal-bi/`.
 - `sitemap-index.xml` (integración `@astrojs/sitemap`) con `/`, `/portal-bi/`, `/privacidad/` y `/terminos/`. Excluye la 404 y `/oauth/tiktok/` (que además tiene `noindex`).
 - `robots.txt` permite todo y apunta al sitemap.
+- **Recorridos**: `/portal-bi/como-funciona/` y `/portal-bi/como-funciona/administrador/` se indexan y están en el sitemap, con sus migas en JSON-LD (Inicio › Portal BI › Cómo funciona › Administrador). Se enlazan entre sí desde el cierre de cada uno.
 - **Páginas ocultas**: `/portal-bi/anuncio/` (la herramienta del anuncio para redes) lleva `noindex, nofollow` (`Base` con `indexar={false}`) y el filtro de `sitemap()` en `astro.config.mjs` la deja afuera. No se la nombra en `robots.txt`: un `Disallow` la anunciaría.
 - Encabezados jerárquicos: un solo `h1` por página, `h2` por sección.
 - Enlaces internos descriptivos (sin "clic aquí"); el Portal BI enlaza desde el menú, el hero, su sección y el pie.

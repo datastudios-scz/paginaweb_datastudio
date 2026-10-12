@@ -1,0 +1,763 @@
+---
+/**
+ * La pantalla del recorrido del administrador (/portal-bi/como-funciona/administrador/): el panel
+ * de administración del Portal BI dibujado a TAMAÑO REAL (1280 × 760). El menú y la barra de
+ * arriba quedan fijos; lo de adentro cambia por sección (data-escena), y encima se abren los dos
+ * cuadros que usa el guion: «Nuevo usuario» y «Asignar tablero de Power BI».
+ * El guion (src/scripts/recorrido-admin.ts) cambia de sección, mueve el cursor y la cámara.
+ *
+ * Calcada del panel real, con sus medidas y sus palabras (en tuteo, como todo el sitio):
+ *   admin-layout.ejs + admin.css     el menú de 262 px, la barra de arriba, tarjetas y cuadros
+ *   dashboard.ejs                    los indicadores y las acciones rápidas
+ *   credenciales.ejs                 los usuarios agrupados por tipo y el cuadro «Nuevo usuario»
+ *   powerbi.ejs                      los workspaces y el constructor de filtros (tabla → columna → valor)
+ *   licencia.ejs + _opciones-tablero las asignaciones y el cuadro de asignar, con sus opciones
+ *   configuracion.ejs                la personalización con su vista previa
+ *   registros.ejs                    los registros de acceso
+ *
+ * Datos de ejemplo (ADR-013), cuadrados entre sí: los treinta días de la tendencia suman los
+ * accesos del período (18.426) y los tableros más vistos suman los accesos a tableros. Los
+ * nombres y tableros son los del recorrido de tu equipo.
+ * Los grises de los textos chicos suben a #6b7280 donde el panel usa #9ca3af: Lighthouse mide
+ * el contraste también acá adentro (aria-hidden) y tiene que dar AA.
+ * Sin atributos style (CSP): las barras y la línea son <rect> y <path> de SVG.
+ */
+import { MENU_ADMIN, VARITA } from '../../data/admin';
+
+/* ── Íconos (24 × 24) ──────────────────────────────────────────────────────── */
+const icono = (clave: string) => MENU_ADMIN.find((m) => m.clave === clave)?.ico ?? '';
+const I = {
+  escudo: 'M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5z',
+  salir: 'M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5v-2.5H5.5v-13H10zM16 7l-1.8 1.8 2 2H9v2.5h7.2l-2 2L16 17l5-5z',
+  quien: 'M10 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm-7 9c0-3.6 3.1-6.5 7-6.5 1.2 0 2.3.3 3.3.8A5 5 0 0 0 13.5 21H3zm15.5-5.5a3 3 0 1 1 0 6 3 3 0 0 1 0-6z',
+  usuarios: icono('usuarios'),
+  ojo: icono('lectura'),
+  barras: icono('workspaces'),
+  maletin: icono('herramientas'),
+  lista: icono('registros'),
+  paleta: icono('personalizacion'),
+  usuarioMas: 'M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM2 19c0-3.3 3.1-6 7-6s7 2.7 7 6v1H2zM18 7h2v3h3v2h-3v3h-2v-3h-3v-2h3z',
+  llave: 'M7 15a4 4 0 1 1 3.5-6H22v3h-2v3h-3v-3h-6.5A4 4 0 0 1 7 15zm0-5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z',
+  candado: 'M7 10V7a5 5 0 0 1 10 0v3h1a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1zm2 0h6V7a3 3 0 0 0-6 0z',
+  tabla: 'M3 4h18v16H3zm2 2v3.5h6V6zm8 0v3.5h6V6zm-8 5.5V18h6v-6.5zm8 0V18h6v-6.5z',
+  capas: 'M12 2 2 7l10 5 10-5zm-8.2 9L2 12l10 5 10-5-1.8-1L12 15zm0 5L2 17l10 5 10-5-1.8-1L12 20z',
+  filtro: 'M3 4h18l-7 8.5V19l-4 2v-8.5z',
+  ok: 'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm-1.5 14.2-4.2-4.2 1.7-1.7 2.5 2.5 5.5-5.5 1.7 1.7z',
+  celdas: 'M3 3h18v18H3zm2 2v4h4V5zm6 0v4h4V5zm6 0v4h2V5zM5 11v4h4v-4zm6 0v4h4v-4zm6 0v4h2v-4zM5 17v2h4v-2zm6 0v2h4v-2zm6 0v2h2v-2z',
+  letra: 'M4 20 10.5 4h3L20 20h-2.8l-1.6-4H8.4l-1.6 4zm5.4-6.5h5.2L12 6.8z',
+  fecha: 'M7 2h2v2h6V2h2v2h3a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3zM5 9v10h14V9z',
+  ajustes: 'M4 6h9v2H4zm13 0h3v2h-3zm-2-2h2v6h-2zM4 16h3v2H4zm7 0h9v2h-9zm-2-2h2v6H9z',
+  aviso: 'M12 2 1 21h22zm-1 7h2v6h-2zm0 8h2v2h-2z',
+  info: 'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm-1 8h2v8h-2zm0-4h2v2h-2z',
+  disquete: 'M4 3h13l4 4v13a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm3 2v5h9V5zm5 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z',
+  deshacer: 'M12 4a8 8 0 1 1-7.7 10h2.1A6 6 0 1 0 8 7.8L10.2 10H4V3.8l2.6 2.6A8 8 0 0 1 12 4z',
+  linea: 'M3 3h2v16h16v2H3zm4 12 4-5 3 3 5-6 1.5 1.3L14 16l-3-3-2.4 3z',
+  entrar: 'M10 3h9a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-9v-2h9V5h-9zM8 7l5 5-5 5-1.4-1.4 2.6-2.6H2v-2h7.2L6.6 8.4z',
+  base: 'M12 2c4.4 0 8 1.3 8 3v14c0 1.7-3.6 3-8 3s-8-1.3-8-3V5c0-1.7 3.6-3 8-3zm6 5.3C16.6 8 14.4 8.5 12 8.5S7.4 8 6 7.3V10c0 .6 2.4 1.7 6 1.7s6-1.1 6-1.7zm0 5c-1.4.7-3.6 1.2-6 1.2s-4.6-.5-6-1.2V15c0 .6 2.4 1.7 6 1.7s6-1.1 6-1.7z',
+  girar: 'M12 4a8 8 0 0 1 7.4 5h-2.2A6 6 0 1 0 18 14h2.1A8 8 0 1 1 12 4zm8-.5V9h-5.5z',
+  lupa: 'M10.5 4a6.5 6.5 0 0 1 5.2 10.4l4.7 4.7-1.4 1.4-4.7-4.7A6.5 6.5 0 1 1 10.5 4zm0 2a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9z',
+  mas: 'M11 4h2v7h7v2h-7v7h-2v-7H4v-2h7z',
+  x: 'M6.4 5 12 10.6 17.6 5 19 6.4 13.4 12l5.6 5.6-1.4 1.4L12 13.4 6.4 19 5 17.6 10.6 12 5 6.4z',
+  abajo: 'M7.4 8.6 12 13.2l4.6-4.6L18 10l-6 6-6-6z',
+  derecha: 'M8.6 7.4 13.2 12l-4.6 4.6L10 18l6-6-6-6z',
+  lapiz: 'M3 17.2V21h3.8l11-11-3.8-3.8zM20.7 7a1 1 0 0 0 0-1.4l-2.3-2.3a1 1 0 0 0-1.4 0l-1.8 1.8 3.8 3.8z',
+  basura: 'M9 3h6l1 2h4v2H4V5h4zM6 8h12l-1 13H7z',
+  copiar: 'M9 3h11v13h-3v-2h1V5h-7v1H9zM4 8h11v13H4zm2 2v9h7v-9z',
+  persona: 'M12 12a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9zm-8 9c0-4 3.6-7 8-7s8 3 8 7z',
+  marcador: 'M6 3h12v18l-6-4-6 4z',
+  sinVer: 'M2.8 1.4 22.6 21.2l-1.4 1.4-3.6-3.6A10.5 10.5 0 0 1 12 20C6 20 2 12 2 12a19 19 0 0 1 4.3-5.3L1.4 2.8zM12 4c6 0 10 8 10 8a18.6 18.6 0 0 1-3 4.1L15.8 13A4 4 0 0 0 11 8.2L8.7 5.9A9.6 9.6 0 0 1 12 4z',
+  ancho: 'M7 7 2 12l5 5v-4h10v4l5-5-5-5v4H7z',
+  completa: 'M3 3h7v2H5v5H3zm11 0h7v7h-2V5h-5zM3 14h2v5h5v2H3zm16 0h2v7h-7v-2h5z',
+  imprimir: 'M7 3h10v5H7zM4 9h16a1 1 0 0 1 1 1v7h-4v4H7v-4H3v-7a1 1 0 0 1 1-1zm5 7v3h6v-3z',
+  sinExportar: 'M6 2h8l5 5v6.5h-2V8h-4V4H6v16h7v2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm9.6 13 1.9 1.9 1.9-1.9 1.4 1.4-1.9 1.9 1.9 1.9-1.4 1.4-1.9-1.9-1.9 1.9-1.4-1.4 1.9-1.9-1.9-1.9z',
+  sinPagina: 'M6 2h8l5 5v6h-2V8h-4V4H6v16h6v2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm9 16h7v2h-7z',
+  pestana: 'M3 5h18v14H3zm2 2v10h14V7z',
+  varita: VARITA,
+};
+
+/* ── Dashboard ─────────────────────────────────────────────────────────────── */
+const STATS = [
+  { ico: I.usuarios, n: 1000, t: 'Usuarios Registrados', sub: '968 activos · 32 inactivos', tono: '' },
+  { ico: I.ojo, n: 12, t: 'Tableros Solo Lectura', sub: 'asignaciones activas', tono: '' },
+  { ico: I.barras, n: 2415, t: 'Tableros con Licencia AAD', sub: 'asignaciones Power BI', tono: 'pbi' },
+  { ico: I.maletin, n: 38, t: 'Herramientas', sub: 'asignaciones activas', tono: 'herramientas' },
+  { ico: I.lista, n: 186540, t: 'Registros de Acceso', sub: 'total acumulado', tono: 'registros' },
+];
+const ACCIONES = [
+  { ico: I.usuarioMas, t: 'Gestionar Usuarios' },
+  { ico: I.ojo, t: 'Tableros Solo Lectura' },
+  { ico: I.candado, t: 'Tableros con Licencia AAD' },
+  { ico: I.maletin, t: 'Herramientas' },
+  { ico: I.linea, t: 'Ver Registros' },
+];
+const miles = (n: number) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+
+/* ── Usuarios ──────────────────────────────────────────────────────────────── */
+/* El grupo abierto es el de las personas de tipo «usuario», donde entra la nueva */
+const USUARIOS = [
+  { nombre: 'mariana.s', correo: 'mariana.s@tuempresa.com', activo: true },
+  { nombre: 'l.vargas', correo: 'l.vargas@tuempresa.com', activo: true },
+  { nombre: 'r.quiroga', correo: 'r.quiroga@tuempresa.com', activo: true },
+  { nombre: 'j.mendez', correo: 'j.mendez@tuempresa.com', activo: false },
+];
+const PICKER = [
+  { nombre: 'carlos.r', tipo: 'usuario', r: 'mp-carlos' },
+  { nombre: 'gerencia', tipo: 'gerente' },
+  { nombre: 'j.mendez', tipo: 'usuario', inactivo: true },
+  { nombre: 'l.vargas', tipo: 'usuario' },
+  { nombre: 'mariana.s', tipo: 'usuario' },
+];
+
+/* ── Workspaces ────────────────────────────────────────────────────────────── */
+const REPORTES = [
+  { nombre: 'Ventas por sucursal', modelo: 'Ventas', id: '1f3c8d2e-7b41-4c09-a5d2-6e8f0b3a9a2e', r: 'ws-filtro' },
+  { nombre: 'Cumplimiento de metas', modelo: 'Metas comerciales', id: '7a9e2b41-0c3d-4e58-9f16-2b7c4d8e1a05' },
+  { nombre: 'Cartera y cobranzas', modelo: 'Cartera', id: '3c5d7e90-4a1b-4f27-8e63-9d0c2b5a7f14' },
+  { nombre: 'Margen por línea', modelo: 'Ventas', id: '9b8a7c6d-5e4f-4a3b-9c2d-1e0f8a7b6c5d' },
+];
+const TABLAS = [
+  { nombre: 'Calendario', n: 8 },
+  { nombre: 'Clientes', n: 9 },
+  { nombre: 'Productos', n: 12 },
+  { nombre: 'Sucursales', n: 5, r: 'chip-sucursales' },
+  { nombre: 'Vendedores', n: 7 },
+  { nombre: 'Ventas', n: 17 },
+];
+const COLUMNAS = [
+  { nombre: 'Sucursal', ico: I.letra, r: 'chip-sucursal' },
+  { nombre: 'Ciudad', ico: I.letra },
+  { nombre: 'Región', ico: I.letra },
+  { nombre: 'Gerente', ico: I.letra },
+  { nombre: 'Apertura', ico: I.fecha },
+];
+const VALORES = ['Aeropuerto', 'Centro', 'Costanera', 'Norte', 'Parque Industrial', 'Plaza Mayor', 'Sur'];
+/* El JSON tal cual lo arma el portal (FiltrosPBI.armar + JSON.stringify con sangría de 2) */
+const JSON_FILTRO = `[
+  {
+    "$schema": "http://powerbi.com/product/schema#basic",
+    "filterType": 1,
+    "target": {
+      "table": "Sucursales",
+      "column": "Sucursal"
+    },
+    "operator": "In",
+    "values": [
+      "Norte"
+    ],
+    "requireSingleSelection": false
+  }
+]`;
+const LECTURA_FILTRO = 'Sucursales[Sucursal] es uno de "Norte"';
+
+/* ── Asignaciones ──────────────────────────────────────────────────────────── */
+const GRUPOS = [
+  { usuario: 'gerencia', n: 2 },
+  { usuario: 'l.vargas', n: 1 },
+  { usuario: 'mariana.s', n: 6 },
+  { usuario: 'opersup', n: 1 },
+  { usuario: 'r.quiroga', n: 2 },
+  { usuario: 'w.flores', n: 3 },
+];
+const ENLACE = 'https://app.powerbi.com/reportEmbed?reportId=1f3c8d2e-7b41-4c09-a5d2-6e8f0b3a9a2e&groupId=8b41f0a7-2c3e-4f19-9d55-6e0b3a1fc07d';
+const PAGINAS = [
+  { nombre: 'Resumen' },
+  { nombre: 'Sucursales' },
+  { nombre: 'Costos', r: 'pag-costos' },
+];
+
+/* ── Registros ─────────────────────────────────────────────────────────────── */
+const SERIE = [699, 760, 803, 751, 646, 192, 131, 723, 786, 831, 777, 669, 199, 136, 747, 813, 860, 804, 691, 206, 140, 772, 839, 1024, 830, 714, 212, 145, 796, 730];
+const TOTAL_PERIODO = SERIE.reduce((a, b) => a + b, 0); // 18.426
+const MAX = Math.max(...SERIE);
+/* El gráfico de tendencia, como lo arma registros.ejs: 780 × 190, curva suave entre puntos */
+const G = { W: 780, H: 190, pL: 48, pR: 18, pT: 18, pB: 34 };
+const cW = G.W - G.pL - G.pR;
+const cH = G.H - G.pT - G.pB;
+const PUNTOS = SERIE.map((v, i) => ({ x: G.pL + (i / (SERIE.length - 1)) * cW, y: G.pT + (1 - v / 1100) * cH }));
+const f1 = (n: number) => n.toFixed(1);
+let LINEA = `M ${f1(PUNTOS[0].x)},${f1(PUNTOS[0].y)}`;
+for (let i = 1; i < PUNTOS.length; i++) {
+  const a = PUNTOS[i - 1];
+  const b = PUNTOS[i];
+  const mx = f1((a.x + b.x) / 2);
+  LINEA += ` C ${mx},${f1(a.y)} ${mx},${f1(b.y)} ${f1(b.x)},${f1(b.y)}`;
+}
+const BASE_Y = G.pT + cH;
+const AREA = `${LINEA} L ${f1(PUNTOS[PUNTOS.length - 1].x)},${f1(BASE_Y)} L ${f1(PUNTOS[0].x)},${f1(BASE_Y)} Z`;
+const MARCAS_Y = [0, 275, 550, 825, 1100].map((v) => ({ v, y: G.pT + (1 - v / 1100) * cH }));
+const DIAS = ['12/09', '19/09', '26/09', '03/10', '10/10'];
+const TIPOS = [
+  { t: 'Ingreso Portal', n: 9840, color: '#16a34a' },
+  { t: 'Tablero', n: 7226, color: '#2563eb' },
+  { t: 'Herramienta', n: 1360, color: '#d97706' },
+];
+const MAS_VISTOS = [
+  { t: 'Ventas por sucursal', n: 2412 },
+  { t: 'Cumplimiento de metas', n: 1987 },
+  { t: 'Cartera y cobranzas', n: 1104 },
+  { t: 'Productividad por turno', n: 965 },
+  { t: 'Margen por línea', n: 758 },
+];
+const KPIS = [
+  { ico: I.entrar, n: TOTAL_PERIODO, t: 'Accesos en el período', pct: '10%', tono: 'verde' },
+  { ico: I.usuarios, n: 812, t: 'Usuarios únicos', tono: 'azul' },
+  { ico: I.fecha, n: 734, t: 'Accesos hoy', tono: 'ambar' },
+  { ico: I.fecha, n: 4102, t: 'Esta semana', tono: 'violeta' },
+  { ico: I.base, n: 186540, t: 'Total en base de datos', tono: 'cian' },
+];
+---
+
+<div class="rc-pantalla ra" data-r="pantalla" data-escena="tablero">
+  <!-- ═══ EL MENÚ (admin-layout.ejs) ═══════════════════════════════════════════ -->
+  <aside class="ra-menu" data-r="menu">
+    <p class="ra-marca"><svg viewBox="0 0 24 24"><path d={I.escudo} /></svg>Admin panel</p>
+    <div class="ra-nav">
+      {MENU_ADMIN.map((m) =>
+        m.seccion ? (
+          <p class="ra-seccion">{m.seccion}</p>
+        ) : (
+          <div class="ra-item" data-clave={m.clave} data-r={`item-${m.clave}`}>
+            <svg viewBox="0 0 24 24"><path d={m.ico} /></svg>
+            <span>{m.nombre}</span>
+          </div>
+        ),
+      )}
+    </div>
+    <div class="ra-pie"><svg viewBox="0 0 24 24"><path d={I.salir} /></svg>Cerrar Sesión</div>
+  </aside>
+
+  <div class="ra-cuerpo">
+    <div class="ra-barra">
+      <p class="ra-barra__t">
+        <svg viewBox="0 0 24 24"><path d={I.derecha} /></svg>
+        <span class="ra-titulo" data-para="tablero">Panel de Administración</span>
+        <span class="ra-titulo" data-para="usuarios">Gestión de Usuarios</span>
+        <span class="ra-titulo" data-para="workspaces">Workspaces / Tableros BI</span>
+        <span class="ra-titulo" data-para="licencia">Tableros con Licencia AAD</span>
+        <span class="ra-titulo" data-para="personalizacion">Personalización</span>
+        <span class="ra-titulo" data-para="registros">Registros</span>
+      </p>
+      <span class="ra-quien"><svg viewBox="0 0 24 24"><path d={I.quien} /></svg>admin</span>
+    </div>
+
+    <div class="ra-main">
+      <!-- ═══ 1. DASHBOARD (dashboard.ejs) ═══════════════════════════════════ -->
+      <section class="rc-escena ra-v ra-tablero" data-r="v-tablero">
+        <div class="ra-stats" data-r="stats">
+          {STATS.map((s) => (
+            <div class="ra-stat">
+              <span class:list={['ra-stat__ico', s.tono && `ra-stat__ico--${s.tono}`]}><svg viewBox="0 0 24 24"><path d={s.ico} /></svg></span>
+              <span class="ra-stat__info">
+                <span class="ra-stat__n" data-contar={s.n}>{miles(s.n)}</span>
+                <span class="ra-stat__t">{s.t}</span>
+                <span class="ra-stat__sub">{s.sub}</span>
+              </span>
+            </div>
+          ))}
+        </div>
+        <div class="ra-tarjeta ra-rapidas">
+          <p class="ra-tarjeta__t">Acciones rápidas</p>
+          <div class="ra-rapidas__lista">
+            {ACCIONES.map((a) => (
+              <span class="ra-rapida"><svg viewBox="0 0 24 24"><path d={a.ico} /></svg>{a.t}</span>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ 2. USUARIOS (credenciales.ejs) ═════════════════════════════════ -->
+      <section class="rc-escena ra-v ra-usuarios" data-r="v-usuarios">
+        <div class="ra-tarjeta" data-r="lista-usuarios">
+          <div class="ra-herr">
+            <p class="ra-herr__t">
+              <svg viewBox="0 0 24 24"><path d={I.usuarios} /></svg>Usuarios registrados
+              <span class="ra-n" data-r="usuarios-n">1000 usuarios</span>
+            </p>
+            <span class="ra-buscar"><svg viewBox="0 0 24 24"><path d={I.lupa} /></svg>Buscar usuario, tipo, estado...</span>
+            <span class="ra-boton" data-r="nuevo-usuario"><svg viewBox="0 0 24 24"><path d={I.mas} /></svg>Nuevo usuario</span>
+          </div>
+          <div class="ra-agrupar">
+            <span class="ra-agrupar__t">Agrupar por:</span>
+            <span class="ra-ficha ra-ficha--on">Tipo</span>
+            <span class="ra-ficha">Estado</span>
+            <span class="ra-agrupar__acc">Expandir todo</span>
+            <span class="ra-agrupar__acc">Colapsar todo</span>
+          </div>
+
+          <div class="ra-grupo">
+            <p class="ra-grupo__cab"><svg viewBox="0 0 24 24"><path d={I.derecha} /></svg><b>gerente</b><span class="ra-cuenta">12</span><em>Tipo</em></p>
+          </div>
+          <div class="ra-grupo">
+            <p class="ra-grupo__cab"><svg viewBox="0 0 24 24"><path d={I.derecha} /></svg><b>supervisor</b><span class="ra-cuenta">86</span><em>Tipo</em></p>
+          </div>
+          <div class="ra-grupo ra-grupo--abierto">
+            <p class="ra-grupo__cab"><svg viewBox="0 0 24 24"><path d={I.abajo} /></svg><b>usuario</b><span class="ra-cuenta" data-r="grupo-n">902</span><em>Tipo</em></p>
+            <table class="ra-tabla">
+              <thead><tr><th>Usuario</th><th>Contraseña</th><th>Estado</th><th></th></tr></thead>
+              <tbody>
+                <tr class="ra-fila-nueva" data-r="fila-nueva">
+                  <td><span class="ra-ucelda"><span class="ra-avatar">C</span><span><b>carlos.r<svg class="ra-llave" viewBox="0 0 24 24"><path d={I.llave} /></svg></b><small>carlos.r@tuempresa.com</small></span></span></td>
+                  <td><span class="ra-clave">••••••••<em><svg viewBox="0 0 24 24"><path d={I.candado} /></svg>cifrada</em></span></td>
+                  <td><span class="ra-interruptor ra-interruptor--si"></span></td>
+                  <td><span class="ra-acc"><span class="ra-editar"><svg viewBox="0 0 24 24"><path d={I.lapiz} /></svg></span><span class="ra-borrar"><svg viewBox="0 0 24 24"><path d={I.basura} /></svg></span></span></td>
+                </tr>
+                {USUARIOS.map((u) => (
+                  <tr>
+                    <td>
+                      <span class="ra-ucelda">
+                        <span class="ra-avatar">{u.nombre.charAt(0).toUpperCase()}</span>
+                        <span><b>{u.nombre}<svg class="ra-llave" viewBox="0 0 24 24"><path d={I.llave} /></svg></b>{u.correo && <small>{u.correo}</small>}</span>
+                      </span>
+                    </td>
+                    <td><span class="ra-clave">••••••••<em><svg viewBox="0 0 24 24"><path d={I.candado} /></svg>cifrada</em></span></td>
+                    <td><span class:list={['ra-interruptor', { 'ra-interruptor--si': u.activo }]}></span></td>
+                    <td><span class="ra-acc"><span class="ra-editar"><svg viewBox="0 0 24 24"><path d={I.lapiz} /></svg></span><span class="ra-borrar"><svg viewBox="0 0 24 24"><path d={I.basura} /></svg></span></span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ 3. WORKSPACES Y EL CONSTRUCTOR DE FILTROS (powerbi.ejs) ═════════ -->
+      <section class="rc-escena ra-v ra-workspaces" data-r="v-workspaces">
+        <div class="ra-cab">
+          <div>
+            <p class="ra-cab__t"><svg viewBox="0 0 24 24"><path d={I.barras} /></svg>Workspaces / Tableros BI</p>
+            <p class="ra-cab__p">Explora los workspaces y reportes de Power BI. El <b>Embed URL</b> se asigna en <em>Tableros con Licencia</em>; el <b>modelo semántico</b>, en <em>Modelos Semánticos</em>.</p>
+          </div>
+          <span class="ra-boton"><svg viewBox="0 0 24 24"><path d={I.girar} /></svg>Cargar workspaces</span>
+        </div>
+        <div class="ra-ws-herr">
+          <span class="ra-ws-resumen"><b>3</b> workspaces · <b>11</b> tableros</span>
+          <span class="ra-buscar"><svg viewBox="0 0 24 24"><path d={I.lupa} /></svg>Buscar tablero o workspace…</span>
+        </div>
+
+        <div class="ra-ws ra-ws--abierto">
+          <div class="ra-ws__cab">
+            <svg class="ra-ws__flecha" viewBox="0 0 24 24"><path d={I.abajo} /></svg>
+            <span class="ra-ws__ico"><svg viewBox="0 0 24 24"><path d={I.capas} /></svg></span>
+            <span class="ra-ws__info"><b>Comercial</b><small>ID: 8b41f0a7-2c3e-4f19-9d55-6e0b3a1fc07d</small></span>
+            <span class="ra-insignia">4 tableros</span>
+          </div>
+          <table class="ra-tabla ra-tabla--ws">
+            <thead><tr><th>Nombre del tablero</th><th>Modelo semántico</th><th>Report ID</th><th>Embed URL</th><th>Acciones</th></tr></thead>
+            <tbody>
+              {REPORTES.map((r, i) => (
+                <>
+                  <tr>
+                    <td class="ra-td-nombre">{r.nombre}</td>
+                    <td><code class="ra-modelo">{r.modelo}</code></td>
+                    <td class="ra-mono">{r.id.slice(0, 8)}…</td>
+                    <td><code class="ra-url">https://app.powerbi.com/reportEmbed?reportId={r.id}</code></td>
+                    <td><span class="ra-accion" data-r={r.r}><svg viewBox="0 0 24 24"><path d={I.filtro} /></svg></span></td>
+                  </tr>
+                  {i === 0 && (
+                    <tr class="ra-sem-fila" data-r="sem">
+                      <td colspan="5">
+                        <div class="ra-sem">
+                          <div class="ra-sem__inicio" data-r="sem-inicio">
+                            <span class="ra-sem__cargar" data-r="sem-cargar"><svg viewBox="0 0 24 24"><path d={I.filtro} /></svg>Cargar modelo semántico para filtrar el reporte</span>
+                            <span class="ra-sem__ds">Dataset ID: <code>4d2a9c71-…-58e3</code></span>
+                          </div>
+                          <div class="ra-sem__pasos" data-r="sem-pasos">
+                            <p class="ra-sem__meta"><b>Ventas</b><span>6 tablas · 58 columnas · 21 medidas</span><em>dax</em></p>
+                            <div class="ra-sem__paso">
+                              <p class="ra-sem__t"><span class="ra-num">1</span>Elige una tabla <small>(6)</small></p>
+                              <div class="ra-chips">
+                                {TABLAS.map((t) => (
+                                  <span class="ra-chip" data-r={t.r}><svg viewBox="0 0 24 24"><path d={I.celdas} /></svg>{t.nombre}<small>{t.n}</small></span>
+                                ))}
+                              </div>
+                            </div>
+                            <div class="ra-sem__paso ra-sem__paso--2" data-r="paso-2">
+                              <p class="ra-sem__t"><span class="ra-num">2</span>Elige una columna de <b>Sucursales</b> <small>(5)</small></p>
+                              <div class="ra-chips">
+                                {COLUMNAS.map((c) => (
+                                  <span class="ra-chip" data-r={c.r}><svg viewBox="0 0 24 24"><path d={c.ico} /></svg>{c.nombre}</span>
+                                ))}
+                              </div>
+                            </div>
+                            <div class="ra-sem__paso ra-sem__paso--3" data-r="paso-3">
+                              <p class="ra-sem__t"><span class="ra-num">3</span>Condición sobre <b>Sucursal</b><span class="ra-tipo"><svg viewBox="0 0 24 24"><path d={I.letra} /></svg>Texto · texto</span></p>
+                              <div class="ra-cond">
+                                <div class="ra-cond__op">
+                                  <span class="ra-rotulo">Operador</span>
+                                  <span class="ra-select">es uno de estos valores<svg viewBox="0 0 24 24"><path d={I.abajo} /></svg></span>
+                                </div>
+                                <div class="ra-cond__val">
+                                  <div class="ra-valores">
+                                    {VALORES.map((v) => (
+                                      <span class="ra-valor" data-r={v === 'Norte' ? 'val-norte' : undefined}><i class="ra-casilla"></i>{v}</span>
+                                    ))}
+                                  </div>
+                                  <p class="ra-sem__hint">7 valores en total.</p>
+                                </div>
+                              </div>
+                              <span class="ra-agregar" data-r="agregar"><svg viewBox="0 0 24 24"><path d={I.mas} /></svg>Agregar filtro</span>
+                            </div>
+                            <div class="ra-sem__listo" data-r="json">
+                              <p class="ra-sem__t ra-sem__t--ok"><span class="ra-num ra-num--ok"><svg viewBox="0 0 24 24"><path d={I.ok} /></svg></span>Listo — pegar en la columna <b>Filtros</b> al asignar el tablero</p>
+                              <p class="ra-lectura-filtro">{LECTURA_FILTRO}</p>
+                              <div class="ra-json">
+                                <pre>{JSON_FILTRO}</pre>
+                                <span class="ra-copiar" data-r="copiar-json"><svg viewBox="0 0 24 24"><path d={I.copiar} /></svg><span data-r="copiar-json-txt">Copiar JSON</span></span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div class="ra-ws">
+          <div class="ra-ws__cab">
+            <svg class="ra-ws__flecha" viewBox="0 0 24 24"><path d={I.derecha} /></svg>
+            <span class="ra-ws__ico"><svg viewBox="0 0 24 24"><path d={I.capas} /></svg></span>
+            <span class="ra-ws__info"><b>Operaciones</b><small>ID: 2e7d9a14-5b3c-4a80-b1f6-3c9e8d7a0b52</small></span>
+            <span class="ra-insignia">4 tableros</span>
+          </div>
+        </div>
+        <div class="ra-ws">
+          <div class="ra-ws__cab">
+            <svg class="ra-ws__flecha" viewBox="0 0 24 24"><path d={I.derecha} /></svg>
+            <span class="ra-ws__ico"><svg viewBox="0 0 24 24"><path d={I.capas} /></svg></span>
+            <span class="ra-ws__info"><b>Finanzas</b><small>ID: 6a0c3f85-9d2e-4b71-8e4a-7f1b2c9d0e36</small></span>
+            <span class="ra-insignia">3 tableros</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ 4. ASIGNACIONES (licencia.ejs) ═════════════════════════════════ -->
+      <section class="rc-escena ra-v ra-licencia" data-r="v-licencia">
+        <div class="ra-tarjeta">
+          <div class="ra-herr">
+            <p class="ra-herr__t">
+              <svg viewBox="0 0 24 24"><path d={I.tabla} /></svg>Asignaciones
+              <span class="ra-n" data-r="asig-n">2415 resultados</span>
+            </p>
+            <span class="ra-buscar"><svg viewBox="0 0 24 24"><path d={I.lupa} /></svg>Buscar usuario, tablero, empresa, conexión...</span>
+            <span class="ra-boton" data-r="asignar"><svg viewBox="0 0 24 24"><path d={I.mas} /></svg>Asignar tablero</span>
+          </div>
+          <div class="ra-agrupar">
+            <span class="ra-agrupar__t">Agrupar por:</span>
+            <span class="ra-ficha ra-ficha--on">Usuario</span>
+            <span class="ra-ficha">Empresa</span>
+            <span class="ra-ficha">Tablero</span>
+          </div>
+          <div class="ra-grupo ra-grupo--abierto ra-grupo--nuevo" data-r="grupo-nuevo">
+            <p class="ra-grupo__cab"><svg viewBox="0 0 24 24"><path d={I.abajo} /></svg><b>carlos.r</b><span class="ra-cuenta">1</span><em>Usuario</em></p>
+            <table class="ra-tabla">
+              <thead><tr><th>Empresa</th><th>Nombre tablero</th><th>Embed URL</th><th>Opciones</th><th></th></tr></thead>
+              <tbody>
+                <tr class="ra-fila-viva">
+                  <td>Comercial</td>
+                  <td>
+                    Ventas por sucursal
+                    <span class="ra-ia"><svg viewBox="0 0 24 24"><path d={I.varita} /></svg>IA<i></i></span>
+                  </td>
+                  <td><code class="ra-url">https://app.powerbi.com/reportEmbed?reportId=1f3c8d2e-…</code></td>
+                  <td><span class="ra-opc"><svg viewBox="0 0 24 24"><path d={I.ajustes} /></svg>2</span><span class="ra-filtro-chip"><svg viewBox="0 0 24 24"><path d={I.filtro} /></svg>Filtro</span></td>
+                  <td><span class="ra-acc"><span class="ra-editar"><svg viewBox="0 0 24 24"><path d={I.lapiz} /></svg></span><span class="ra-borrar"><svg viewBox="0 0 24 24"><path d={I.basura} /></svg></span></span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          {GRUPOS.map((g) => (
+            <div class="ra-grupo">
+              <p class="ra-grupo__cab"><svg viewBox="0 0 24 24"><path d={I.derecha} /></svg><b>{g.usuario}</b><span class="ra-cuenta">{g.n}</span><em>Usuario</em></p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <!-- ═══ 5. PERSONALIZACIÓN (configuracion.ejs) ═════════════════════════ -->
+      <section class="rc-escena ra-v ra-personalizacion" data-r="v-personalizacion">
+        <div class="ra-cab">
+          <div>
+            <p class="ra-cab__t"><svg viewBox="0 0 24 24"><path d={I.paleta} /></svg>Personalización del Portal</p>
+            <p class="ra-cab__p">Cada sección tiene sus propios colores independientes. Los cambios se aplican en menos de 60 segundos.</p>
+          </div>
+          <span class="ra-cab__acc">
+            <span class="ra-boton-2"><svg viewBox="0 0 24 24"><path d={I.deshacer} /></svg>Restaurar defaults</span>
+            <span class="ra-boton" data-r="guardar"><svg viewBox="0 0 24 24"><path d={I.disquete} /></svg>Guardar cambios</span>
+          </span>
+        </div>
+        <p class="ra-guardado" data-r="guardado"><svg viewBox="0 0 24 24"><path d={I.ok} /></svg>Cambios guardados. Se aplicarán en menos de 60 segundos.</p>
+        <div class="ra-bloque">
+          <div class="ra-bloque__cab">
+            <span class="ra-bloque__ico"><svg viewBox="0 0 24 24"><path d={I.pestana} /></svg></span>
+            <span><b>Portal — Home y Barra Lateral</b><small>Colores del sidebar, botones de acción y acento de tarjetas BI. Independiente del login.</small></span>
+          </div>
+          <div class="ra-bloque__cuerpo">
+            <div class="ra-campos">
+              <div class="ra-campo-cfg">
+                <p class="ra-campo-cfg__t"><svg viewBox="0 0 24 24"><path d={I.letra} /></svg><span><b>Título del Portal</b><small>Nombre que aparece en la barra lateral</small></span></p>
+                <span class="ra-input" data-r="cfg-titulo"><span class="rc-tipeo" data-r="cfg-titulo-txt">Portal BI</span></span>
+              </div>
+              <div class="ra-campo-cfg">
+                <p class="ra-campo-cfg__t"><svg viewBox="0 0 24 24"><path d={I.pestana} /></svg><span><b>Color Principal</b><small>Fondo del sidebar y botones del portal</small></span><i class="ra-muestra ra-muestra--principal"></i></p>
+                <span class="ra-color"><i class="ra-color__chip ra-muestra--principal"></i><span class="ra-input ra-input--hex" data-r="cfg-color"><span class="rc-tipeo" data-r="cfg-color-txt">#037a70</span></span></span>
+              </div>
+              <div class="ra-campo-cfg">
+                <p class="ra-campo-cfg__t"><svg viewBox="0 0 24 24"><path d={I.pestana} /></svg><span><b>Color Oscuro</b><small>Gradiente inferior del sidebar y hover</small></span><i class="ra-muestra ra-muestra--oscuro"></i></p>
+                <span class="ra-color"><i class="ra-color__chip ra-muestra--oscuro"></i><span class="ra-input ra-input--hex"><span class="rc-tipeo">#00635b</span></span></span>
+              </div>
+              <div class="ra-campo-cfg">
+                <p class="ra-campo-cfg__t"><svg viewBox="0 0 24 24"><path d={I.escudo} /></svg><span><b>Sidebar del Admin</b><small>Fondo de la barra lateral del panel de administración</small></span><i class="ra-muestra ra-muestra--admin"></i></p>
+                <span class="ra-color"><i class="ra-color__chip ra-muestra--admin"></i><span class="ra-input ra-input--hex"><span class="rc-tipeo">#001720</span></span></span>
+              </div>
+            </div>
+            <div class="ra-previa" data-r="previa">
+              <p class="ra-previa__t"><svg viewBox="0 0 24 24"><path d={I.ojo} /></svg>Vista previa — Portal</p>
+              <div class="ra-mini">
+                <div class="ra-mini__lado">
+                  <p class="ra-mini__marca"><i></i><span data-r="previa-marca">Portal BI</span></p>
+                  <span class="ra-mini__item ra-mini__item--on"><svg viewBox="0 0 24 24"><path d={I.barras} /></svg>Tableros</span>
+                  <span class="ra-mini__item"><svg viewBox="0 0 24 24"><path d={I.maletin} /></svg>Herramientas</span>
+                  <span class="ra-mini__item"><svg viewBox="0 0 24 24"><path d={I.lista} /></svg>Registros</span>
+                </div>
+                <div class="ra-mini__cont">
+                  <p class="ra-mini__barra"><span>Inicio › Tableros</span><span class="ra-mini__chip"><i>A</i>Admin</span></p>
+                  <div class="ra-mini__tarjetas">
+                    <span class="ra-mini__tarjeta"><i class="ra-mini__pbi"></i>Ventas por sucursal</span>
+                    <span class="ra-mini__tarjeta"><i class="ra-mini__pbi"></i>Cumplimiento de metas</span>
+                    <span class="ra-mini__tarjeta"><i class="ra-mini__herr"></i>Intranet</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ 6. REGISTROS (registros.ejs) ═══════════════════════════════════ -->
+      <section class="rc-escena ra-v ra-registros" data-r="v-registros">
+        <div class="ra-cab">
+          <div>
+            <p class="ra-cab__t"><svg viewBox="0 0 24 24"><path d={I.linea} /></svg>Registros de Acceso</p>
+            <p class="ra-cab__p">186.540 registros en total — mostrando <b>últimos 30 días</b></p>
+          </div>
+          <span class="ra-periodos">
+            <span>Hoy</span><span>Semana</span><span class="ra-periodo--on">Mes</span><span>Año</span><span>Todo</span>
+          </span>
+        </div>
+        <div class="ra-kpis" data-r="kpis">
+          {KPIS.map((k) => (
+            <div class="ra-kpi">
+              <span class:list={['ra-kpi__ico', `ra-kpi__ico--${k.tono}`]}><svg viewBox="0 0 24 24"><path d={k.ico} /></svg></span>
+              <span class="ra-kpi__info"><b data-contar={k.n}>{miles(k.n)}</b><small>{k.t}</small></span>
+              {k.pct && <span class="ra-kpi__pct">{k.pct}<small>del total</small></span>}
+            </div>
+          ))}
+        </div>
+        <div class="ra-tarjeta ra-tendencia" data-r="tendencia">
+          <p class="ra-tarjeta__cab"><b>Tendencia de accesos — Últimos 30 días</b><span>30 puntos · máx {miles(MAX)} accesos</span></p>
+          <svg class="ra-graf" viewBox={`0 0 ${G.W} ${G.H}`}>
+            {MARCAS_Y.map((m) => (
+              <g>
+                <line class="ra-graf__reja" x1={G.pL} x2={G.W - G.pR} y1={m.y} y2={m.y} />
+                <text class="ra-graf__txt" x={G.pL - 8} y={m.y + 4} text-anchor="end">{miles(m.v)}</text>
+              </g>
+            ))}
+            <path class="ra-graf__area" d={AREA} />
+            <path class="ra-graf__linea" d={LINEA} pathLength="1" />
+            {DIAS.map((d, i) => (
+              <text class="ra-graf__txt" x={G.pL + ((i * 7) / (SERIE.length - 1)) * cW} y={G.H - 10} text-anchor="middle">{d}</text>
+            ))}
+          </svg>
+        </div>
+        <div class="ra-dos">
+          <div class="ra-tarjeta">
+            <p class="ra-tarjeta__cab"><b>Por tipo de evento</b></p>
+            {TIPOS.map((t) => (
+              <p class="ra-tipo-fila">
+                <span class="ra-tipo-fila__t">{t.t}</span>
+                <svg class="ra-tipo-fila__b" viewBox="0 0 100 8" preserveAspectRatio="none"><rect width="100" height="8" rx="4" class="ra-pista" /><rect class="ra-barra-reg" width={Math.round((t.n / TOTAL_PERIODO) * 100)} height="8" rx="4" fill={t.color} /></svg>
+                <span class="ra-tipo-fila__n">{miles(t.n)}</span>
+                <span class="ra-tipo-fila__p">{Math.round((t.n / TOTAL_PERIODO) * 100)}%</span>
+              </p>
+            ))}
+          </div>
+          <div class="ra-tarjeta" data-r="mas-vistos">
+            <p class="ra-tarjeta__cab"><b>Tableros más vistos</b></p>
+            {MAS_VISTOS.map((t, i) => (
+              <p class="ra-rank">
+                <span class="ra-rank__n">{i + 1}</span>
+                <span class="ra-rank__t">{t.t}</span>
+                <svg class="ra-rank__b" viewBox="0 0 100 6" preserveAspectRatio="none"><rect width="100" height="6" rx="3" class="ra-pista" /><rect class="ra-barra-reg" width={Math.round((t.n / MAS_VISTOS[0].n) * 100)} height="6" rx="3" /></svg>
+                <span class="ra-rank__v">{miles(t.n)}</span>
+              </p>
+            ))}
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ═══ EL CUADRO «NUEVO USUARIO» (credenciales.ejs) ════════════════════════ -->
+  <div class="ra-capa" data-r="modal-usuario">
+    <div class="ra-modal ra-modal--chico" data-r="mu-caja">
+      <p class="ra-modal__cab"><svg viewBox="0 0 24 24"><path d={I.usuarioMas} /></svg>Nuevo usuario<svg class="ra-modal__x" viewBox="0 0 24 24"><path d={I.x} /></svg></p>
+      <div class="ra-modal__cuerpo">
+        <div class="ra-seccion-m" data-r="mu-acceso">
+          <p class="ra-seccion-m__t"><svg viewBox="0 0 24 24"><path d={I.llave} /></svg>Acceso</p>
+          <div class="ra-campo">
+            <span class="ra-rotulo">Inicia sesión con</span>
+            <span class="ra-select">El usuario<svg viewBox="0 0 24 24"><path d={I.abajo} /></svg></span>
+            <small class="ra-pista-campo">Escribe su usuario para entrar. El correo es opcional.</small>
+          </div>
+          <div class="ra-par">
+            <div class="ra-campo">
+              <span class="ra-rotulo">Usuario</span>
+              <span class="ra-input" data-r="mu-usuario"><span class="rc-tipeo" data-ph="juan.perez" data-r="mu-usuario-txt"></span></span>
+            </div>
+            <div class="ra-campo">
+              <span class="ra-rotulo">Correo</span>
+              <span class="ra-input" data-r="mu-correo"><span class="rc-tipeo" data-ph="juan.perez@empresa.com" data-r="mu-correo-txt"></span></span>
+            </div>
+          </div>
+          <div class="ra-campo">
+            <span class="ra-rotulo">Contraseña</span>
+            <span class="ra-input" data-r="mu-clave"><span class="rc-tipeo rc-tipeo--clave" data-ph="contraseña" data-r="mu-clave-txt"></span></span>
+          </div>
+        </div>
+        <div class="ra-seccion-m">
+          <p class="ra-seccion-m__t"><svg viewBox="0 0 24 24"><path d={I.quien} /></svg>Perfil</p>
+          <div class="ra-par">
+            <div class="ra-campo">
+              <span class="ra-rotulo">Tipo</span>
+              <span class="ra-select">Usuario<svg viewBox="0 0 24 24"><path d={I.abajo} /></svg></span>
+            </div>
+            <div class="ra-campo">
+              <span class="ra-rotulo">Estado</span>
+              <span class="ra-select">Activo<svg viewBox="0 0 24 24"><path d={I.abajo} /></svg></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="ra-modal__pie">
+        <span class="ra-boton-2">Cancelar</span>
+        <span class="ra-boton" data-r="mu-crear"><svg viewBox="0 0 24 24"><path d={I.mas} /></svg>Crear usuario</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ EL CUADRO «ASIGNAR TABLERO DE POWER BI» (licencia.ejs) ══════════════ -->
+  <div class="ra-capa" data-r="modal-asignar">
+    <div class="ra-modal" data-r="ma-caja">
+      <p class="ra-modal__cab"><svg viewBox="0 0 24 24"><path d={I.barras} /></svg>Asignar tablero de Power BI<svg class="ra-modal__x" viewBox="0 0 24 24"><path d={I.x} /></svg></p>
+      <div class="ra-modal__cuerpo" data-r="ma-cuerpo">
+        <p class="ra-paso">Para quién</p>
+        <div class="ra-par" data-r="ma-para">
+          <div class="ra-campo ra-campo--lista">
+            <span class="ra-rotulo">Usuario</span>
+            <span class="ra-picker" data-r="ma-usuario">
+              <span class="ra-picker__vacio"><svg viewBox="0 0 24 24"><path d={I.persona} /></svg>Seleccionar usuario...</span>
+              <span class="ra-picker__lleno"><i class="ra-avatar ra-avatar--chico">C</i>carlos.r<span class="ra-tipo-chip">usuario</span><i class="ra-punto"></i></span>
+              <svg class="ra-picker__flecha" viewBox="0 0 24 24"><path d={I.abajo} /></svg>
+            </span>
+            <span class="ra-picker__lista" data-r="ma-picker">
+              <span class="ra-picker__buscar"><svg viewBox="0 0 24 24"><path d={I.lupa} /></svg><span class="rc-tipeo" data-ph="Buscar usuario..."></span></span>
+              {PICKER.map((u) => (
+                <span class:list={['ra-picker__item', { 'ra-picker__item--inactivo': u.inactivo }]} data-r={u.r}>
+                  <i class="ra-avatar ra-avatar--chico">{u.nombre.charAt(0).toUpperCase()}</i>
+                  <span>{u.nombre}</span>
+                  <span class="ra-tipo-chip">{u.tipo}</span>
+                  <i class:list={['ra-punto', { 'ra-punto--no': u.inactivo }]}></i>
+                </span>
+              ))}
+            </span>
+          </div>
+          <div class="ra-campo">
+            <span class="ra-rotulo">Empresa</span>
+            <span class="ra-input" data-r="ma-empresa"><span class="rc-tipeo" data-ph="Empresa S.A." data-r="ma-empresa-txt"></span></span>
+          </div>
+        </div>
+
+        <p class="ra-paso">Qué reporte</p>
+        <div class="ra-campo">
+          <span class="ra-rotulo">Nombre que verá el usuario</span>
+          <span class="ra-input" data-r="ma-nombre"><span class="rc-tipeo" data-ph="Ventas 2024" data-r="ma-nombre-txt"></span></span>
+        </div>
+        <div class="ra-campo">
+          <span class="ra-rotulo">Enlace de inserción</span>
+          <span class="ra-input ra-input--url" data-r="ma-enlace"><span class="rc-tipeo" data-ph="https://app.powerbi.com/reportEmbed?reportId=…&groupId=…" data-valor={ENLACE} data-r="ma-enlace-txt"></span></span>
+          <p class="ra-lectura" data-r="ma-lectura"><svg viewBox="0 0 24 24"><path d={I.ok} /></svg><span>Reporte <code>1f3c8d2e…9a2e</code> en el workspace <code>8b41f0a7…c07d</code></span></p>
+        </div>
+
+        <p class="ra-paso">Cómo se comporta</p>
+        <span class="ra-filtros-btn" data-r="ma-filtros-btn"><svg viewBox="0 0 24 24"><path d={I.filtro} /></svg>Filtrar los datos para este usuario <small>(opcional)</small><svg class="ra-filtros-btn__f" viewBox="0 0 24 24"><path d={I.abajo} /></svg></span>
+        <div class="ra-filtros" data-r="ma-filtros">
+          <span class="ra-filtros__t">JSON — vacío significa que ve todos los datos del tablero</span>
+          <span class="ra-filtros__caja" data-r="ma-filtros-caja"><span class="rc-tipeo" data-valor={JSON_FILTRO} data-r="ma-filtros-txt"></span></span>
+        </div>
+
+        <div class="ra-opciones-t" data-r="ma-opciones">
+          <p class="ra-opciones-t__cab" data-r="ma-opciones-cab">
+            <svg class="ra-opciones-t__ico" viewBox="0 0 24 24"><path d={I.ajustes} /></svg>
+            <span class="ra-opciones-t__txt">
+              <b>Opciones del tablero <span class="ra-cuenta-op" data-r="ma-cuenta">2</span></b>
+              <small class="ra-resumen-vacio">Paneles de Power BI, páginas, ajuste, botones y exportar. Sin tocar nada, se ve como siempre.</small>
+              <small class="ra-resumen" data-r="ma-resumen">Activas: sin «Exportar datos» y 1 página oculta.</small>
+            </span>
+            <svg class="ra-opciones-t__f" viewBox="0 0 24 24"><path d={I.abajo} /></svg>
+          </p>
+          <div class="ra-opciones-t__cuerpo">
+            <p class="ra-op-grupo">Paneles de Power BI</p>
+            <p class="ra-op"><i class="ra-casilla"></i><span><b><svg viewBox="0 0 24 24"><path d={I.filtro} /></svg>Panel de filtros</b><small>La persona filtra el tablero por su cuenta, con los filtros que dejó el autor del reporte.</small></span></p>
+            <p class="ra-op"><i class="ra-casilla"></i><span><b><svg viewBox="0 0 24 24"><path d={I.marcador} /></svg>Marcadores del reporte</b><small>Las vistas que guardó el autor del reporte. Los marcadores personales no se habilitan: todos entran con la misma cuenta.</small></span></p>
+            <p class="ra-op-grupo">Páginas</p>
+            <div class="ra-op ra-op--paginas" data-r="ma-paginas">
+              <span><b><svg viewBox="0 0 24 24"><path d={I.sinPagina} /></svg>Páginas que no ve</b><small>Marca las que esta persona no tiene que ver: el visor le muestra su propia barra, solo con las demás.</small></span>
+              <span class="ra-paginas">
+                {PAGINAS.map((pg) => (
+                  <span class="ra-pagina" data-r={pg.r}><i class="ra-casilla"></i>{pg.nombre}</span>
+                ))}
+              </span>
+            </div>
+            <p class="ra-op"><i class="ra-casilla"></i><span><b><svg viewBox="0 0 24 24"><path d={I.sinVer} /></svg>Ocultar la barra de páginas</b><small>Quita la barra de abajo entera: se cambia de página solo con los botones que puso el autor.</small></span></p>
+            <p class="ra-op-grupo">Cómo se ve</p>
+            <div class="ra-op ra-op--ajuste">
+              <span><b><svg viewBox="0 0 24 24"><path d={I.ancho} /></svg>Ajuste del reporte</b><small>A lo ancho, el reporte llena el ancho de la pantalla y se recorre hacia abajo.</small></span>
+              <span class="ra-seg"><span class="ra-seg--on">Página completa</span><span>A lo ancho</span></span>
+            </div>
+            <p class="ra-op-grupo">Botones en el visor</p>
+            <p class="ra-op"><i class="ra-casilla"></i><span><b><svg viewBox="0 0 24 24"><path d={I.completa} /></svg>Pantalla completa</b><small>El tablero sin la barra del navegador.</small></span></p>
+            <p class="ra-op"><i class="ra-casilla"></i><span><b><svg viewBox="0 0 24 24"><path d={I.imprimir} /></svg>Imprimir</b><small>Imprime la página que se está viendo, con los filtros puestos.</small></span></p>
+            <p class="ra-op-grupo">Exportar</p>
+            <p class="ra-op" data-r="ma-sin-exportar"><i class="ra-casilla"></i><span><b><svg viewBox="0 0 24 24"><path d={I.sinExportar} /></svg>Ocultar «Exportar datos»</b><small>Lo quita del menú de cada visual. Es una comodidad, no una protección: los datos del reporte llegan igual al navegador.</small></span></p>
+          </div>
+        </div>
+
+        <p class="ra-ia-op" data-r="ma-chat">
+          <i class="ra-casilla ra-casilla--ia"></i>
+          <span><b><svg viewBox="0 0 24 24"><path d={I.varita} /></svg>Chat con IA sobre los datos</b><small>Se abre junto al tablero y responde preguntas en lenguaje natural</small></span>
+        </p>
+        <div class="ra-aviso" data-r="ma-aviso">
+          <svg viewBox="0 0 24 24"><path d={I.aviso} /></svg>
+          <span><b>Este usuario podrá consultar todo el modelo semántico.</b> El chat genera consultas contra el modelo completo, no solo lo que muestra el tablero. <b>Los filtros por usuario no lo limitan</b>: acotan el reporte, no una consulta.</span>
+        </div>
+        <div class="ra-modo" data-r="ma-modo">
+          <p class="ra-paso">Dónde se abre el chat</p>
+          <p class="ra-radio ra-radio--on" data-r="ma-pestana"><i></i><span><b>En otra pestaña</b><small>Como hasta ahora: el tablero y el chat se abren por separado.</small></span></p>
+          <p class="ra-radio" data-r="ma-lateral"><i></i><span><b>Al costado del tablero</b><small>Un panel en la misma pantalla, que el usuario abre cuando quiere preguntar. En el celular ocupa la pantalla entera.</small></span></p>
+        </div>
+      </div>
+      <div class="ra-modal__pie">
+        <span class="ra-boton-2">Cancelar</span>
+        <span class="ra-boton" data-r="ma-asignar"><svg viewBox="0 0 24 24"><path d={I.mas} /></svg>Asignar tablero</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- El cursor: vive DENTRO de la pantalla, así la cámara lo acerca junto con lo que toca -->
+  <span class="rc-cursor" data-r="cursor">
+    <svg viewBox="0 0 24 24"><path d="M5 2.5v16.8l4.3-4.1 2.9 6.6 2.9-1.3-2.9-6.5h6z" /></svg>
+  </span>
+</div>

@@ -1,0 +1,104 @@
+---
+/**
+ * El recorrido animado del administrador del Portal BI: lo que hace quien administra el portal,
+ * del alta de una persona a su tablero con IA, su vista, la marca y los registros, como una
+ * grabación de pantalla con narración. Se llega desde la sección del panel en /portal-bi/
+ * (#admin) y desde el cierre del recorrido de tu equipo; con #ver arranca solo.
+ *
+ * Es el mismo recorrido que /portal-bi/como-funciona/ con otra pantalla y otro guion: el marco
+ * es RecorridoMarco.astro, el motor src/scripts/recorrido-motor.ts; la pantalla es
+ * RecorridoAdmin.astro (el panel a tamaño real), el guion src/scripts/recorrido-admin.ts y los
+ * estilos recorrido.css (lo común) y recorrido-admin.css (esta pantalla).
+ * Datos de ejemplo (ADR-013). Decisión: ADR-017.
+ */
+import Base from '../../../layouts/Base.astro';
+import RecorridoMarco from '../../../components/portal/RecorridoMarco.astro';
+import RecorridoAdmin from '../../../components/portal/RecorridoAdmin.astro';
+import { SITIO } from '../../../data/sitio';
+import { migas } from '../../../scripts/esquemas';
+import '../../../components/portal/recorrido.css';
+import '../../../components/portal/recorrido-admin.css';
+
+const URL_PAGINA = `${SITIO.url}/portal-bi/como-funciona/administrador/`;
+
+/** El guion: un paso, una frase. Cada afirmación es algo que el panel hace hoy. */
+const PASOS = [
+  {
+    titulo: 'Un panel para manejarlo todo.',
+    detalle: 'Usuarios, tableros, conexiones a Power BI, la IA y tu marca, en un solo lugar. Sin tocar código y sin reiniciar nada.',
+  },
+  {
+    titulo: 'Das de alta a una persona.',
+    detalle: 'Con su usuario y una contraseña, o con su correo. No necesita cuenta de Microsoft ni licencia de Power BI.',
+  },
+  {
+    titulo: 'Le armas su vista.',
+    detalle: 'El constructor recorre tu modelo de Power BI —tabla, columna, valor— y arma el filtro solo. Así abrirá el tablero ya filtrado a lo suyo.',
+  },
+  {
+    titulo: 'Le asignas su tablero.',
+    detalle: 'Eliges a la persona, el área de su menú y el reporte. Pegas el enlace y el panel lo revisa antes de guardar.',
+  },
+  {
+    titulo: 'Y decides cómo lo ve.',
+    detalle: 'Le pegas su vista y eliges sus opciones: panel de filtros, marcadores, páginas que no ve, pantalla completa o sin «Exportar datos».',
+  },
+  {
+    titulo: 'La IA, tablero por tablero.',
+    detalle: 'El chat se activa donde quieras, al costado del reporte o en otra pestaña. Al activarlo, el panel te avisa qué podrá consultar.',
+  },
+  {
+    titulo: 'Tu marca, en todo el portal.',
+    detalle: 'Nombre, colores y logos desde el panel, con la vista previa al lado. Los cambios llegan a todos en menos de un minuto.',
+  },
+  {
+    titulo: 'Y sabes quién entra y qué abre.',
+    detalle: 'Cada ingreso queda registrado: cuántas personas entraron, en qué días y cuáles son los tableros más vistos.',
+  },
+];
+
+/** Lo que dice la narración antes de empezar y al terminar. */
+const INICIO = {
+  n: 'Portal BI · Administrador',
+  titulo: 'Así lo manejas tú.',
+  detalle: 'Del alta de una persona a su tablero con IA, en una sola toma: lo que hace quien administra tu portal.',
+};
+const CIERRE = {
+  n: 'Portal BI',
+  titulo: 'Toda tu empresa, desde un panel.',
+  detalle: 'Con una sola licencia de Power BI. El código es tuyo y la marca también.',
+};
+---
+
+<Base
+  titulo="Cómo se administra el Portal BI, paso a paso · Data Studio"
+  descripcion="Mira en un minuto cómo se administra el Portal BI: das de alta a una persona, le armas su vista, le asignas su tablero con IA y pones tu marca. Sin tocar código."
+  imagen="/og/portal-bi.png"
+  imagenAlt="Portal BI de Data Studio: Power BI para toda la empresa con una sola licencia"
+  inmersiva
+  datosEstructurados={[
+    migas([
+      { nombre: 'Inicio', url: `${SITIO.url}/` },
+      { nombre: 'Portal BI', url: `${SITIO.url}/portal-bi/` },
+      { nombre: 'Cómo funciona', url: `${SITIO.url}/portal-bi/como-funciona/` },
+      { nombre: 'Administrador', url: URL_PAGINA },
+    ]),
+  ]}
+>
+  <RecorridoMarco
+    nombre="Cómo se administra"
+    nombreExtra=" el Portal BI"
+    url="portal.tuempresa.com/admin"
+    escena="tablero"
+    inicio={INICIO}
+    pasos={PASOS}
+    cierre={CIERRE}
+    otro={{ href: '/portal-bi/como-funciona/#ver', texto: 'Ver cómo lo vive tu equipo' }}
+  >
+    <RecorridoAdmin />
+  </RecorridoMarco>
+
+  <script>
+    import '../../../scripts/recorrido-admin';
+  </script>
+</Base>

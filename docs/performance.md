@@ -39,6 +39,17 @@ La portada llegó a 98 (Speed Index 3,8 s por un fundido de toda la escena y "fo
 - DOM de ~900 nodos: la medida invisible de la narración repite los diez textos para que la ventana no cambie de tamaño entre un paso y otro. Lighthouse lo marca como diagnóstico; no afecta el puntaje.
 - El CLS se mide también con red lenta (`npm run recorrido`): con la red rápida de una prueba local el script llega antes del primer pintado y un salto real no aparece. Ver [aprendizajes.md](aprendizajes.md).
 
+### Recorrido del administrador (`/portal-bi/como-funciona/administrador/`, 12/10/2026, Chrome del sistema, `lighthouse@12.8`)
+
+| Medición | Rendimiento | Accesibilidad | Buenas prácticas | SEO | LCP | TBT | CLS | Speed Index |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Móvil | 100 | 100 | 100 | 100 | 1,4 s | 0 ms | 0 | 1,2 s |
+| Escritorio | 100 | 100 | 100 | 100 | 0,4 s | 0 ms | 0 | 0,4 s |
+
+- HTML + CSS en línea: 33,4 KB comprimido (dentro de los 40). Peso total transferido: 88 KiB.
+- DOM de ~1.600 nodos (el panel con sus seis secciones y los dos cuadros, más la medida invisible de la narración). Lighthouse lo marca como diagnóstico; no afecta el puntaje.
+- Partir `recorrido.css` dejó a cada página con su pantalla: el recorrido de tu equipo siguió en 26,2 KB comprimido.
+
 ## Decisiones que sostienen el resultado
 
 1. **Cero JS de framework**: Astro estático; los scripts son módulos pequeños por componente.

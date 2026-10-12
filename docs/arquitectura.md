@@ -34,7 +34,7 @@
 ├── scripts/
 │   ├── generar-recursos.mjs     Favicons, íconos de app e imágenes OG desde el logo vectorial
 │   ├── qa.mjs                   QA visual y técnico en 6 anchos (necesita `npm run preview`)
-│   ├── probar-recorrido.mjs     Banco del recorrido animado: estados, teclado, duración de los pasos, CLS con red lenta (`npm run recorrido`)
+│   ├── probar-recorrido.mjs     Banco de los dos recorridos: estados, teclado, duración de los pasos, CLS con red lenta (`npm run recorrido`)
 │   ├── grabar-anuncio.mjs       Graba el anuncio a MP4 cuadro por cuadro con Chrome + ffmpeg; sirve dist/ por su cuenta (`npm run anuncio:video`)
 │   ├── probar-anuncio.mjs       Banco del anuncio: tomas en su ventana, cuadros deterministas, escala, página (`npm run anuncio:probar`)
 │   ├── capturas-scroll.mjs      Capturas del viewport en varias posiciones de scroll, con movimiento (portada → telón)
@@ -47,18 +47,22 @@
 │   │   ├── Migas.astro          Migas de pan de las subpáginas (con BarrasMarca)
 │   │   ├── BarrasMarca.astro    Las 4 barras del logo en miniatura, con la del producto encendida
 │   │   ├── inicio/              Portada (sticky), Soluciones (telón + gráfico), Vitrinas, Manifiesto
-│   │   ├── portal/              Maquetas del Portal BI (Ventana, MaquetaPortal, MaquetaChat) y Calculadora;
-│   │   │                        RecorridoPantalla.astro + recorrido.css: la pantalla del recorrido animado (1280 × 760)
+│   │   ├── portal/              Maquetas del Portal BI (Ventana, MaquetaPortal, MaquetaChat, MaquetaAdmin) y Calculadora;
+│   │   │                        los recorridos animados: RecorridoMarco.astro (el marco de la página, común),
+│   │   │                        RecorridoPantalla.astro (tu equipo) y RecorridoAdmin.astro (el administrador), 1280 × 760;
+│   │   │                        recorrido.css (lo común), recorrido-pantalla.css y recorrido-admin.css (cada pantalla)
 │   │   ├── anuncio/             Anuncio.astro + anuncio.css: el anuncio de 46 s para redes (nueve tomas, cuatro formatos)
 │   │   ├── social/              MaquetaTablero (variantes completa, compacta y publicaciones)
 │   │   ├── tienda/              Catalogo (tienda de ejemplo, variantes completa y compacta)
 │   │   └── consultoria/         Flujo (recorrido de los datos) y Consolidado (héroe: planillas → reporte)
 │   ├── data/sitio.ts            ★ Fuente única de verdad: contacto, WhatsApp, navegación, soluciones, precio de licencia
 │   ├── data/logo.ts             Trazos del logo (ícono, barras, wordmark): los usan Logo.astro y el anuncio
+│   ├── data/admin.ts            El menú del panel de administración (orden, nombres e íconos): MaquetaAdmin y el recorrido
 │   ├── layouts/Base.astro       <head> (SEO, OG, JSON-LD, fuentes), encabezado, pie (`inmersiva`: sin encabezado ni pie)
-│   ├── pages/                   index, portal-bi, portal-bi/como-funciona, social-metrics-bi, tienda-ecommerce, consultoria, 404
+│   ├── pages/                   index, portal-bi, portal-bi/como-funciona (y /administrador), social-metrics-bi, tienda-ecommerce, consultoria, 404
 │   ├── scripts/                 formato.ts (miles, cálculo de ahorro), esquemas.ts (JSON-LD), revelar.ts,
-│   │                            recorrido.ts (guion, reloj, cámara y cursor del recorrido animado),
+│   │                            recorrido-motor.ts (reloj, cámara, cursor, narración y controles de los recorridos),
+│   │                            recorrido.ts y recorrido-admin.ts (el guion de cada recorrido),
 │   │                            anuncio.ts (línea de tiempo del anuncio: reproducir, pausar, ir a un instante exacto)
 │   └── styles/                  tokens.css (diseño), global.css (base y utilidades), producto.css (clases prod-* de las subpáginas)
 ├── astro.config.mjs             Sitio, fuentes, CSP, sitemap
@@ -72,6 +76,7 @@
 | `/` | `src/pages/index.astro` | Portada de marca (sticky) → Soluciones: gráfico de 4 barras = 4 soluciones (telón) → Vitrinas por producto → Manifiesto. Solo distribuye: sin WhatsApp |
 | `/portal-bi/` | `src/pages/portal-bi.astro` | Producto completo: maquetas del portal y del chat con IA, compra de código + guía, instalación, calculadora de ahorro, requisitos, límites y preguntas |
 | `/portal-bi/como-funciona/` | `src/pages/portal-bi/como-funciona.astro` | Recorrido animado de un minuto: la pantalla del portal (`RecorridoPantalla`) con cámara, cursor y narración por pasos. Sin encabezado ni pie (`Base` con `inmersiva`). Con `#ver` arranca solo (ADR-015) |
+| `/portal-bi/como-funciona/administrador/` | `src/pages/portal-bi/como-funciona/administrador.astro` | Recorrido animado del administrador (72 s): el panel (`RecorridoAdmin`) con el mismo motor y el mismo marco. Se llega desde la sección del panel en `/portal-bi/` y desde el cierre del otro recorrido; con `#ver` arranca solo (ADR-017) |
 | `/portal-bi/anuncio/` | `src/pages/portal-bi/anuncio.astro` | **Oculta** (noindex, fuera del sitemap, sin enlaces): el anuncio de 46 s para redes en 9:16, 4:5, 1:1 y 16:9, con las descargas en MP4 del release `anuncio-portal-bi` de GitHub (ADR-016) |
 | `/social-metrics-bi/` | `src/pages/social-metrics-bi.astro` | Métricas de redes en Power BI: vista de publicaciones, recorrido de los datos, tablero completo, acceso, implementación, tratamiento de datos y preguntas |
 | `/tienda-ecommerce/` | `src/pages/tienda-ecommerce.astro` | Código de tienda online + guía, pago único, pedidos por WhatsApp |
