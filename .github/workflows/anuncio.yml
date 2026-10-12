@@ -1,0 +1,76 @@
+# Graba el anuncio del Portal BI a MP4 y lo publica como archivos del release
+# `anuncio-portal-bi`. Los videos NO viven en el repositorio: la página oculta
+# /portal-bi/anuncio/ enlaza a esos archivos, y se descargan al hacer clic (ADR-016).
+#
+# Corre en Windows a propósito: las maquetas de Power BI y del chat usan Segoe UI, que en
+# Linux no existe; ahí la letra cae a otra fuente y el video sale distinto de la página.
+#
+# Cada acción está fijada a un commit SHA, igual que en deploy.yml.
+name: Grabar el anuncio
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/components/anuncio/**'
+      - 'src/scripts/anuncio.ts'
+      - 'src/pages/portal-bi/anuncio.astro'
+      - 'src/data/**'
+      - 'src/styles/**'
+      - 'src/layouts/Base.astro'
+      - 'scripts/grabar-anuncio.mjs'
+      - '.github/workflows/anuncio.yml'
+  workflow_dispatch:
+
+# Escribir el contenido solo para crear el release y subirle los archivos.
+permissions:
+  contents: write
+
+# Si llega otro cambio mientras graba, esta grabación ya no sirve: se cancela.
+concurrency:
+  group: anuncio
+  cancel-in-progress: true
+
+jobs:
+  grabar:
+    runs-on: windows-2025
+    timeout-minutes: 60
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Preparar Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Instalar dependencias exactas del lockfile
+        run: npm ci --no-audit --no-fund
+
+      - name: Compilar
+        run: npm run build
+
+      - name: Instalar ffmpeg
+        run: choco install ffmpeg --no-progress -y
+
+      # Sirve dist/ por su cuenta y sale con error si la página falla o si un MP4 no tiene
+      # todos sus cuadros o el color BT.709: en ese caso no se publica nada.
+      - name: Grabar los cuatro formatos
+        run: npm run anuncio:video -- --salida videos-anuncio
+
+      - name: Publicar en el release anuncio-portal-bi
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          if ! gh release view anuncio-portal-bi >/dev/null 2>&1; then
+            gh release create anuncio-portal-bi --target "$GITHUB_SHA" \
+              --title "Anuncio del Portal BI" --notes "Se reemplaza solo."
+          fi
+          gh release upload anuncio-portal-bi videos-anuncio/* --clobber
+          gh release edit anuncio-portal-bi --notes "Videos del anuncio de datastudio.es/portal-bi/anuncio/ (MP4, 60 cps, BT.709) y su portada por formato. Grabados del commit $GITHUB_SHA. Se vuelven a grabar solos cada vez que cambia el anuncio."
+          ls -la videos-anuncio

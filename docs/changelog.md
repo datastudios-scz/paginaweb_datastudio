@@ -1,5 +1,15 @@
 # Bitácora de cambios
 
+## 11/10/2026 · El anuncio, más lento; los videos, fuera del repositorio
+
+- **De 30 a 46 segundos**, a pedido del dueño ("está muy rápido, no da tiempo de leer"). Cada titular queda entre 3 y 4,5 s a la vista. La pregunta del gancho se lee 3,2 s. Cada persona de "cada uno ve lo suyo" tiene un segundo (antes 0,6). El chat deja la respuesta con su gráfico 2,4 s antes de irse. Cada razón de la ráfaga dura un segundo y medio (antes 0,8), y la última —«Nunca más una licencia por persona», el remate— 2,2. Los cortes siguen cayendo en la grilla de 120 BPM.
+- **Los MP4 ya no están en el repositorio ni en el sitio.** Los graba la Action «Grabar el anuncio» (`.github/workflows/anuncio.yml`) cada vez que cambia el anuncio, y los sube al release `anuncio-portal-bi` de GitHub. Los botones de la página enlazan ahí y el clic baja el archivo. La Action corre en Windows porque las maquetas usan Segoe UI, que en Linux no existe.
+- Los MP4 de 30 s se borraron de `public/`. Siguen en la historia de git (`446168c`): sacarlos de ahí exige reescribir la historia con `push --force`, que este repositorio no permite.
+- `npm run anuncio:video` ya no necesita `npm run preview` en otra terminal: sirve `dist/` por su cuenta. Deja los videos en `videos-anuncio/` (ignorada por git) y lee cada MP4 con ffprobe para confirmar que tiene todos los cuadros y el color BT.709. Si algo falla, sale con error, y así la Action no publica un video roto. Además graba 2,3 veces más rápido, porque le pide el cuadro a Chrome con su compresión PNG rápida (los mismos píxeles, medido). En esta laptop, el 9:16 se graba en 4 min 15 s (antes habrían sido unos 10).
+- **Arreglo: con "reducir movimiento" el anuncio salía vacío**, solo con el fondo, desde la primera versión. Había dos causas a la vez. La regla global de movimiento reducido acortaba toda animación a 0,01 ms, así que al llevar el reloj a cualquier instante cada toma ya había terminado y quedaba oculta. Y el cuadro elegido (27,5 s) caía antes de que el cierre estuviera armado. Ahora el lienzo lleva `data-movimiento-propio`, que lo saca de la regla global, y el cuadro quieto es el cierre entero (45 s).
+- Banco: `npm run anuncio:probar` con los tiempos nuevos. Agrega el cuadro quieto de movimiento reducido (qué toma se ve y que el cierre esté armado), que la duración coincida en sus tres lugares y que los botones bajen del release. Saboteado de dos formas, sacando la exclusión y adelantando el cuadro: las dos dan rojo.
+- QA 48/48 sin problemas; banco del recorrido sin problemas.
+
 ## 11/10/2026 · Anuncio del Portal BI para redes (página oculta)
 
 - **`/portal-bi/anuncio/`**, sin enlaces, sin indexar y fuera del sitemap: un anuncio de 30 segundos para vender el Portal BI en redes, en cuatro formatos (9:16 Reels/TikTok/historias, 4:5 y 1:1 feed, 16:9 YouTube/LinkedIn). Se ve en la página, se graba en pantalla completa o se descargan los MP4.

@@ -346,9 +346,12 @@ a {
     scroll-behavior: auto;
   }
 
-  *,
-  *::before,
-  *::after {
+  /* Lo marcado con data-movimiento-propio queda afuera: maneja su propio movimiento reducido.
+     El anuncio no se reproduce y queda quieto en un cuadro que elige yendo a ese instante; con
+     0,01 ms todas sus animaciones ya habían terminado y el cuadro salía vacío. */
+  *:not([data-movimiento-propio], [data-movimiento-propio] *),
+  *:not([data-movimiento-propio], [data-movimiento-propio] *)::before,
+  *:not([data-movimiento-propio], [data-movimiento-propio] *)::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;

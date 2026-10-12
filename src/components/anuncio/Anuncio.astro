@@ -1,6 +1,8 @@
 ---
 /**
- * El anuncio del Portal BI para redes sociales (/portal-bi/anuncio/): 30 segundos, nueve tomas.
+ * El anuncio del Portal BI para redes sociales (/portal-bi/anuncio/): 46 segundos, nueve tomas.
+ * Primero fue de 30 s y el dueño lo vio rápido ("no da tiempo de leer"): cada titular queda
+ * ahora entre 3 y 4,5 s a la vista.
  *
  * Todo el movimiento es CSS (@keyframes con su retardo contado desde el segundo 0) y el script
  * (src/scripts/anuncio.ts) lo maneja como una línea de tiempo: puede reproducir, pausar o ir a
@@ -70,8 +72,8 @@ const TOP5 = [
 const PREGUNTA = '¿Qué sucursal vendió más en septiembre?';
 ---
 
-<div class="an-lienzo" data-a="lienzo" data-formato="9x16" aria-hidden="true">
-  <!-- El reloj: una animación lineal de 30 s que el script lee para saber en qué segundo va -->
+<div class="an-lienzo" data-a="lienzo" data-formato="9x16" data-movimiento-propio aria-hidden="true">
+  <!-- El reloj: una animación lineal de 46 s que el script lee para saber en qué segundo va -->
   <i class="an-reloj" data-a="reloj"></i>
 
   <!-- Fondo vivo de las tomas oscuras: dos luces que respiran -->
@@ -218,10 +220,10 @@ const PREGUNTA = '¿Qué sucursal vendió más en septiembre?';
               <span class="an-reporte__filtro">Año <b>2026</b></span>
             </div>
             <div class="an-reporte__kpis">
-              <div class="an-kpi"><span class="an-kpi__v" data-a="kpi" data-desde="0" data-hasta="5216100" data-en="13" data-dur="0.9">5.216.100</span><span class="an-kpi__t">Ventas (US$)</span></div>
-              <div class="an-kpi"><span class="an-kpi__v an-kpi__v--sube" data-a="kpi" data-desde="0" data-hasta="7.9" data-en="13.05" data-dur="0.9" data-signo="+" data-sufijo=" %">+7,9 %</span><span class="an-kpi__t">contra 2025</span></div>
-              <div class="an-kpi"><span class="an-kpi__v" data-a="kpi" data-desde="0" data-hasta="48297" data-en="13.1" data-dur="0.9">48.297</span><span class="an-kpi__t">Tickets</span></div>
-              <div class="an-kpi"><span class="an-kpi__v" data-a="kpi" data-desde="0" data-hasta="108" data-en="13.15" data-dur="0.9">108</span><span class="an-kpi__t">Ticket promedio</span></div>
+              <div class="an-kpi"><span class="an-kpi__v" data-a="kpi" data-desde="0" data-hasta="5216100" data-en="19.8" data-dur="1">5.216.100</span><span class="an-kpi__t">Ventas (US$)</span></div>
+              <div class="an-kpi"><span class="an-kpi__v an-kpi__v--sube" data-a="kpi" data-desde="0" data-hasta="7.9" data-en="19.85" data-dur="1" data-signo="+" data-sufijo=" %">+7,9 %</span><span class="an-kpi__t">contra 2025</span></div>
+              <div class="an-kpi"><span class="an-kpi__v" data-a="kpi" data-desde="0" data-hasta="48297" data-en="19.9" data-dur="1">48.297</span><span class="an-kpi__t">Tickets</span></div>
+              <div class="an-kpi"><span class="an-kpi__v" data-a="kpi" data-desde="0" data-hasta="108" data-en="19.95" data-dur="1">108</span><span class="an-kpi__t">Ticket promedio</span></div>
             </div>
             <div class="an-reporte__visuales">
               <div class="an-vis">
@@ -282,7 +284,7 @@ const PREGUNTA = '¿Qué sucursal vendió más en septiembre?';
             </div>
           </div>
           <div class="an-chat__campo">
-            <span class="an-chat__input"><span data-a="tipeo" data-texto={PREGUNTA} data-en="16.25" data-fin="17.55"></span><i class="an-chat__caret"></i></span>
+            <span class="an-chat__input"><span data-a="tipeo" data-texto={PREGUNTA} data-en="24.9" data-fin="26.7"></span><i class="an-chat__caret"></i></span>
             <span class="an-chat__enviar"><svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7" /></svg></span>
           </div>
         </div>

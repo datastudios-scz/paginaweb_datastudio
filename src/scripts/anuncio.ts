@@ -13,7 +13,7 @@
 
 import { PRECIO_LICENCIA_USD } from '../data/sitio';
 
-const DURACION = 30000;
+const DURACION = 46000;
 const FORMATOS = ['9x16', '4x5', '1x1', '16x9'] as const;
 type Formato = (typeof FORMATOS)[number];
 
@@ -25,13 +25,13 @@ const VERDE_CLARO = '#4dcfc1';
 /* Tiempos del lienzo (s): los mil asientos se llenan, colapsan en una licencia y la licencia
    vuelve a abrirse en mil personas. Tienen que coincidir con las tomas 1 y 2 de anuncio.css. */
 const LLENA_DESDE = -0.6;
-const LLENA_HASTA = 2.4;
-const COLAPSA_DESDE = 4.0;
+const LLENA_HASTA = 3.0;
+const COLAPSA_DESDE = 6.0;
 const COLAPSA_DUR = 0.46;
-const ABRE_DESDE = 5.15;
-const ABRE_HASTA = 6.05;
-const APAGA_DESDE = 6.3;
-const APAGA_HASTA = 6.55;
+const ABRE_DESDE = 7.15;
+const ABRE_HASTA = 8.05;
+const APAGA_DESDE = 9.85;
+const APAGA_HASTA = 10.1;
 
 declare global {
   interface Window {
@@ -122,7 +122,7 @@ function iniciar(raiz: HTMLElement) {
   function dibujar(ms: number) {
     const s = ms / 1000;
     personas.textContent = miles(cuantosHay(s));
-    costo.textContent = miles(PERSONAS * PRECIO_LICENCIA_USD * sale((s - 2.42) / 0.63));
+    costo.textContent = miles(PERSONAS * PRECIO_LICENCIA_USD * sale((s - 3.5) / 0.75));
     for (const k of kpis) {
       const hasta = Number(k.dataset.hasta);
       const v = hasta * sale((s - Number(k.dataset.en)) / Number(k.dataset.dur));
@@ -253,7 +253,7 @@ function iniciar(raiz: HTMLElement) {
     /* 1 · Los asientos se llenan (y la toma se acerca despacio: la presión sube);
        2 · colapsan hacia la licencia */
     if (s < COLAPSA_DESDE + COLAPSA_DUR + 0.2 && sprite) {
-      const acerca = 1 + 0.04 * sale(s / 4);
+      const acerca = 1 + 0.04 * sale(s / 6);
       const zx = zona.x + zona.w / 2;
       const zy = zona.y + zona.h / 2;
       for (let i = 0; i < PERSONAS; i++) {
@@ -400,7 +400,8 @@ function iniciar(raiz: HTMLElement) {
     /* En la página se reproduce solo (es un video); grabando o con movimiento reducido, no */
     if (!grabando && !reducido) jugar();
     else {
-      ir(grabando ? 0 : 27500);
+      /* Con movimiento reducido queda quieto en el cierre ya armado: logo, fichas, botón y URL */
+      ir(grabando ? 0 : 45000);
       raiz.dataset.pausa = '';
       rotular();
     }

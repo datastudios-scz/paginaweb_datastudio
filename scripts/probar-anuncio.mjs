@@ -104,16 +104,23 @@ const tomaVisible = (p) =>
   );
 
 const ESPERADO = [
-  [0.5, 'an-s1'],
-  [5.5, 'an-s2'],
-  [8.0, 'an-s3'],
-  [11.0, 'an-s4'],
-  [14.0, 'an-s5'],
-  [18.0, 'an-s6'],
-  [21.5, 'an-s7'],
-  [24.0, 'an-s8'],
-  [29.0, 'an-s9'],
+  [1.0, 'an-s1'],
+  [8.5, 'an-s2'],
+  [12.5, 'an-s3'],
+  [17.0, 'an-s4'],
+  [22.0, 'an-s5'],
+  [28.5, 'an-s6'],
+  [33.5, 'an-s7'],
+  [38.0, 'an-s8'],
+  [44.0, 'an-s9'],
 ];
+
+/* Instantes que se prueban dos veces (tienen que dar el mismo cuadro): el chat a mitad de
+   dibujar el gráfico, la licencia abriéndose en la espiral y los asientos llenándose. */
+const CHAT = 28.6;
+const ESPIRAL = 7.7;
+const ASIENTOS = 2.5;
+const coma = (s) => String(s).replace('.', ',');
 
 console.log('Modo grabación, por formato');
 for (const [formato, [w, h]] of Object.entries(FORMATOS)) {
@@ -124,32 +131,32 @@ for (const [formato, [w, h]] of Object.entries(FORMATOS)) {
     ok(vis.length === 1 && vis[0] === toma, `${formato} · ${s} s: se ve ${vis.join(', ') || 'nada'} (debe ser ${toma})`);
   }
   /* Determinismo: el mismo instante, dos veces, con un salto en el medio */
-  await ir(p, 19.3);
+  await ir(p, CHAT);
   const a = await p.screenshot();
-  await ir(p, 5.7);
-  await ir(p, 19.3);
+  await ir(p, ESPIRAL);
+  await ir(p, CHAT);
   const b = await p.screenshot();
   const ab = await iguales(a, b);
-  ok(ab.ok, `${formato}: ir a 19,3 s dos veces da el mismo cuadro (${ab.distintos} píxeles distintos, máx. ${ab.maximo})`);
-  await ir(p, 5.7);
+  ok(ab.ok, `${formato}: ir a ${coma(CHAT)} s dos veces da el mismo cuadro (${ab.distintos} píxeles distintos, máx. ${ab.maximo})`);
+  await ir(p, ESPIRAL);
   const c = await p.screenshot();
-  await ir(p, 27.0);
-  await ir(p, 5.7);
+  await ir(p, 43.0);
+  await ir(p, ESPIRAL);
   const d = await p.screenshot();
   const cd = await iguales(c, d);
-  ok(cd.ok, `${formato}: el lienzo de los mil asientos también, a 5,7 s (${cd.distintos} píxeles distintos)`);
-  /* El lienzo tiene dos fases: los asientos (hasta ~4,6 s) y la espiral (desde 5,15 s). A
-     los 5,7 s solo se ve la espiral: los asientos se prueban aparte, a los 3 s. */
-  await ir(p, 3.0);
+  ok(cd.ok, `${formato}: la espiral de las mil personas también, a ${coma(ESPIRAL)} s (${cd.distintos} píxeles distintos)`);
+  /* El lienzo tiene dos fases: los asientos (hasta ~6,7 s) y la espiral (desde 7,15 s). En la
+     espiral ya no queda ningún asiento: se prueban aparte, mientras se llenan. */
+  await ir(p, ASIENTOS);
   const e = await p.screenshot();
-  await ir(p, 12.0);
-  await ir(p, 3.0);
+  await ir(p, 18.0);
+  await ir(p, ASIENTOS);
   const f2 = await p.screenshot();
   const ef = await iguales(e, f2);
-  ok(ef.ok, `${formato}: los mil asientos, a 3 s, también (${ef.distintos} píxeles distintos)`);
+  ok(ef.ok, `${formato}: los mil asientos, a ${coma(ASIENTOS)} s, también (${ef.distintos} píxeles distintos)`);
   /* Y la comparación sabe decir que NO: dos instantes distintos tienen que dar distinto */
   const ac = await iguales(a, c);
-  ok(!ac.ok, `${formato}: 19,3 s y 5,7 s se distinguen (${ac.distintos} píxeles distintos)`);
+  ok(!ac.ok, `${formato}: ${coma(CHAT)} s y ${coma(ESPIRAL)} s se distinguen (${ac.distintos} píxeles distintos)`);
   ok(p.errores.length === 0, `${formato}: sin errores ni CSP${p.errores.length ? ` (${p.errores.join(' | ')})` : ''}`);
   await p.context().close();
 }
@@ -157,16 +164,57 @@ for (const [formato, [w, h]] of Object.entries(FORMATOS)) {
 console.log('Detalles que ya se rompieron una vez');
 {
   const p = await abrir({ viewport: { width: 1080, height: 1920 } }, `${URL}?render=1&formato=9x16`);
-  await ir(p, 11.0);
+  await ir(p, 17.0);
   const aro = await p.evaluate(() => Number(getComputedStyle(document.querySelector('.an-toque')).opacity));
-  ok(aro === 0, `el aro del toque no se ve antes de tocar (opacidad ${aro} a los 11 s)`);
-  await ir(p, 3.6);
+  ok(aro === 0, `el aro del toque no se ve antes de tocar (opacidad ${aro} a los 17 s)`);
+  await ir(p, 4.5);
   const lineas = await p.evaluate(() => {
     const m = document.querySelector('.an-monto__n');
     const r = m.getBoundingClientRect();
     return Math.round(r.height / parseFloat(getComputedStyle(m).lineHeight || getComputedStyle(m).fontSize));
   });
   ok(lineas <= 1, `la cifra del gancho entra en una línea (${lineas})`);
+  await p.context().close();
+}
+
+/* Con movimiento reducido no se reproduce: queda un cuadro quieto, y ese cuadro tiene que ser el
+   cierre YA ARMADO. Estuvo roto desde la primera versión, por dos cosas a la vez: la regla global
+   de movimiento reducido (global.css) acortaba toda animación a 0,01 ms, así que al ir a cualquier
+   instante todas habían terminado y cada toma quedaba oculta (cuadro vacío); y el instante elegido
+   (27,5 s) caía antes de que el cierre estuviera armado. El botón y las fichas entran con escala,
+   no con opacidad: se mide su escala (ancho dibujado / ancho de caja), porque su opacidad es 1
+   siempre y no probaría nada. Y el título se mide con DOMMatrix: Chrome informa la identidad como
+   `matrix(1, 0, 0, 1, 0, 0)` y no como `none`, así que comparar el texto daba rojo con el título
+   en su lugar.
+   Lo primero es QUÉ TOMA se ve: con la regla global encima, cada elemento del cierre termina en
+   su estado final (escala 1, opacidad 1) y el cuadro igual sale vacío, porque la toma entera
+   quedó oculta. Medir solo los elementos daba verde con el defecto puesto (saboteado). */
+console.log('Con movimiento reducido');
+{
+  const p = await abrir({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' }, URL);
+  const vis = await tomaVisible(p);
+  ok(vis.length === 1 && vis[0] === 'an-s9', `se ve el cierre (se ve ${vis.join(', ') || 'nada'})`);
+  const quieto = await p.evaluate(() => {
+    const escala = (s) => {
+      const el = document.querySelector(s);
+      return Math.round((el.getBoundingClientRect().width / el.offsetWidth) * 100) / 100;
+    };
+    const ultima = [...document.querySelectorAll('.an-s9-titulo .an-p > span')].at(-1);
+    const t = getComputedStyle(ultima).transform;
+    return {
+      pausa: document.querySelector('[data-a="raiz"]').hasAttribute('data-pausa'),
+      boton: escala('.an-cta'),
+      ficha: escala('.an-fichas li:last-child'),
+      url: Number(getComputedStyle(document.querySelector('.an-url')).opacity),
+      titulo: t === 'none' || new DOMMatrixReadOnly(t).isIdentity,
+      tituloTexto: t,
+    };
+  });
+  ok(quieto.pausa, 'no se reproduce solo');
+  ok(quieto.boton === 1 && quieto.ficha === 1, `el cierre está armado: botón y última ficha a escala ${quieto.boton} y ${quieto.ficha} (deben ser 1)`);
+  ok(quieto.url === 1, `la URL se ve (opacidad ${quieto.url})`);
+  ok(quieto.titulo, `el título terminó de subir (${quieto.tituloTexto})`);
+  ok(p.errores.length === 0, `sin errores ni CSP${p.errores.length ? ` (${p.errores.join(' | ')})` : ''}`);
   await p.context().close();
 }
 
@@ -180,6 +228,24 @@ console.log('La página');
   });
   const esperada = (118 * medidas.ancho) / 1080;
   ok(Math.abs(medidas.letra - esperada) < 1, `la letra escala con el lienzo: ${medidas.letra.toFixed(1)} px en ${medidas.ancho} px de ancho (debe ser ${esperada.toFixed(1)})`);
+  /* La duración vive en tres lugares (el reloj de anuncio.css, DURACION de anuncio.ts y el título
+     de la página) y al alargar el anuncio hubo que cambiar los tres: si uno queda atrás, el
+     video se corta o el reloj se adelanta, sin ningún error */
+  const dur = await p.evaluate(() => ({
+    script: window.__anuncio.duracion,
+    reloj: Number(document.querySelector('[data-a="reloj"]').getAnimations()[0].effect.getTiming().duration),
+    titulo: document.querySelector('.an-barra__nombre').textContent.trim(),
+  }));
+  ok(
+    dur.script === dur.reloj && dur.titulo.endsWith(`${dur.script / 1000} s`),
+    `la duración coincide: script ${dur.script} ms, reloj ${dur.reloj} ms, título «${dur.titulo}»`,
+  );
+  /* Los videos se descargan del release de GitHub, no del sitio (ADR-016) */
+  const enlaces = await p.evaluate(() => [...document.querySelectorAll('.an-descarga')].map((a) => a.href));
+  ok(
+    enlaces.length === 4 && enlaces.every((h) => /^https:\/\/github\.com\/[^/]+\/[^/]+\/releases\/download\/anuncio-portal-bi\/portal-bi-anuncio-(9x16|4x5|1x1|16x9)\.mp4$/.test(h)),
+    `los cuatro botones bajan el MP4 del release (${enlaces.length} enlaces)`,
+  );
   const reloj = () => p.evaluate(() => document.querySelector('[data-a="reloj"]').getAnimations()[0].currentTime);
   await p.waitForTimeout(400);
   const t1 = await reloj();

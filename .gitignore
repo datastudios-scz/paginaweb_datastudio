@@ -22,3 +22,6 @@ desktop.ini
 
 # Salidas temporales de QA (capturas, reportes Lighthouse)
 qa/
+
+# Videos del anuncio grabados en local (npm run anuncio:video): no se versionan, se publican en un release
+/videos-anuncio/

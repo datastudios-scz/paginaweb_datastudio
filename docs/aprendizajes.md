@@ -4,6 +4,24 @@ Cada entrada: **síntoma → causa → solución → cómo evitarlo**.
 
 ## Anuncio del Portal BI (11/10/2026)
 
+### La regla global de «reducir movimiento» vacía lo que se maneja por tiempo
+- **Síntoma**: con movimiento reducido, el anuncio quedaba quieto en un cuadro con solo el fondo, sin ninguna toma. Medido en el sitio publicado, desde la primera versión.
+- **Causa**: `global.css` acorta TODA animación a 0,01 ms con `!important`. El anuncio no se reproduce ahí: lleva su reloj a un instante (`currentTime`) y queda quieto. Con duraciones de 0,01 ms, en cualquier instante todas ya terminaron, y cada toma queda en su estado final, que es oculta. Encima, el instante elegido (27,5 s) caía antes de que el cierre estuviera armado.
+- **Solución**: el lienzo lleva `data-movimiento-propio` y la regla global lo excluye (`*:not([data-movimiento-propio], [data-movimiento-propio] *)`). El cuadro quieto pasó a los 45 s, con el cierre entero.
+- **Evitarlo**: un componente que maneja su propio movimiento reducido tiene que salir de la regla global, y probarse con `reducedMotion: 'reduce'`.
+
+### Medir los elementos no es medir lo que se ve
+- **Síntoma**: la primera prueba del cuadro quieto medía la escala del botón, la opacidad de la URL y la posición del título. Con la regla global puesta de nuevo (sabotaje), dio verde.
+- **Causa**: cada elemento terminaba en su estado final, perfecto, dentro de una toma oculta. La prueba miraba las piezas y el defecto estaba en el contenedor.
+- **Solución**: preguntar primero QUÉ TOMA se ve (la misma función que usa el resto del banco), y recién después si el cierre está armado. Detalle de paso: Chrome informa la transformación identidad como `matrix(1, 0, 0, 1, 0, 0)`, no como `none`. Comparar el texto daba rojo con el título en su lugar, y por eso se compara con `DOMMatrix.isIdentity`.
+
+### Un video en `public/` pesa aunque la página no lo cargue
+- Los MP4 solo estaban enlazados: no hacían más lenta la página. Pero viajaban en el repositorio (~35 MB por cada regeneración, para siempre en la historia) y en cada despliegue de Pages. Un archivo grande que cambia se publica fuera del sitio: acá, como archivo de un release que graba una Action.
+- Borrarlos después no los saca de la historia. Eso exige reescribirla con `push --force`, que este repositorio no permite.
+
+### La foto de Playwright comprime el PNG a fondo, y eso es lo que tarda
+- `page.screenshot` de un cuadro de 1080 × 1920: 4,5 cuadros por segundo. `Page.captureScreenshot` por CDP con `optimizeForSpeed: true`: 10,3 por segundo, con los mismos píxeles (0 bytes distintos al decodificar). El PNG pesa casi el doble, pero va directo a ffmpeg y no se guarda.
+
 ### Una variable CSS sin registrar resuelve el `var()` donde se DECLARA, no donde se usa
 - **Síntoma**: en la página del anuncio los textos salían enormes (el titular, 118 px en un lienzo de 453); en el video de 1080 px se veía perfecto.
 - **Causa**: `--h1: calc(118 * var(--u))` estaba en el lienzo, y `--u` (registrada con `@property`, se calcula con `cqmin`) recién vale en los HIJOS del lienzo. Una variable sin registrar sustituye sus `var()` en el elemento donde se declara: ahí `--u` tenía su valor inicial, 1px, y `--h1` quedó fija en `118px` para todos. En el video el lienzo mide 1080 y `--u` vale justo 1px: salía bien por casualidad.

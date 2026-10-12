@@ -399,7 +399,7 @@
   position: absolute;
   width: 0;
   height: 0;
-  animation: an-reloj 30s linear both;
+  animation: an-reloj 46s linear both;
 }
 
 /* El fondo oscuro: dos luces que se mueven despacio (las tomas claras lo tapan) */
@@ -418,7 +418,7 @@
   height: 130cqmax;
   border-radius: 50%;
   background: radial-gradient(closest-side, rgb(3 122 112 / 0.38), transparent 72%);
-  animation: an-deriva 30s var(--suave) both;
+  animation: an-deriva 46s var(--suave) both;
 }
 
 .an-fondo i:first-child {
@@ -565,12 +565,12 @@
   color: rgb(255 255 255 / 0.92);
   animation:
     an-entra 0.5s var(--sale) -0.4s both,
-    an-tinta 1ms step-end 9.7s forwards,
-    an-blanca 1ms step-end 15.5s forwards,
-    an-tinta 1ms step-end 23.55s forwards,
-    an-blanca 1ms step-end 24.35s forwards,
-    an-tinta 1ms step-end 25.15s forwards,
-    an-sale 0.3s var(--entra) 26s forwards;
+    an-tinta 1ms step-end 15s forwards,
+    an-blanca 1ms step-end 24s forwards,
+    an-tinta 1ms step-end 36.5s forwards,
+    an-blanca 1ms step-end 38s forwards,
+    an-tinta 1ms step-end 39.5s forwards,
+    an-sale 0.3s var(--entra) 41.1s forwards;
 }
 
 .an-firma svg {
@@ -582,10 +582,10 @@
   fill: #fff;
 }
 
-/* ═══ 1 · GANCHO (0 – 4,6 s) ═════════════════════════════════════════════════════════ */
+/* ═══ 1 · GANCHO (0 – 6,6 s) ═════════════════════════════════════════════════════════ */
 .an-s1 {
   --a: 0s;
-  --z: 4.6s;
+  --z: 6.6s;
 }
 
 .an-s1 .an-texto {
@@ -602,8 +602,8 @@
   --o: -0.75s;
   transform-origin: 0 50%;
   animation:
-    an-acerca 2.4s var(--sale) -0.3s both,
-    an-sale 0.32s var(--entra) 2.15s forwards;
+    an-acerca 3.4s var(--sale) -0.3s both,
+    an-sale 0.32s var(--entra) 3.2s forwards;
 }
 
 .an-lienzo[data-formato='9x16'] .an-s1-pregunta {
@@ -614,11 +614,11 @@
   display: grid;
   align-content: start;
   gap: calc(10 * var(--u));
-  animation: an-sale 0.3s var(--entra) 3.95s forwards;
+  animation: an-sale 0.3s var(--entra) 5.9s forwards;
 }
 
 .an-s1-sin {
-  animation: an-entra 0.45s var(--sale) 2.3s both;
+  animation: an-entra 0.45s var(--sale) 3.35s both;
 }
 
 .an-monto {
@@ -632,11 +632,11 @@
   letter-spacing: -0.04em;
   color: var(--pbi);
   font-variant-numeric: tabular-nums;
-  animation: an-entra 0.5s var(--sale) 2.42s both;
+  animation: an-entra 0.5s var(--sale) 3.5s both;
 }
 
 .an-monto__n {
-  animation: an-atenua 0.35s ease 3.45s forwards;
+  animation: an-atenua 0.35s ease 5s forwards;
 }
 
 /* La tacha: el monto que NO se paga, en rojo (regla del dueño, PRODUCT.md) */
@@ -653,11 +653,11 @@
   transform: scaleX(0);
   transform-origin: 0 50%;
   rotate: -4deg;
-  animation: an-tacha 0.3s var(--suave) 3.2s both;
+  animation: an-tacha 0.3s var(--suave) 4.7s both;
 }
 
 .an-s1-mes {
-  animation: an-entra 0.45s var(--sale) 2.55s both;
+  animation: an-entra 0.45s var(--sale) 3.65s both;
 }
 
 .an-s1-visual {
@@ -678,7 +678,7 @@
   color: var(--sa);
   animation:
     an-entra 0.45s var(--sale) -0.2s both,
-    an-sale 0.3s var(--entra) 3.9s forwards;
+    an-sale 0.3s var(--entra) 5.9s forwards;
 }
 
 .an-contador span {
@@ -691,14 +691,14 @@
   bottom: 12%;
 }
 
-/* ═══ 2 · GIRO (4 – 7,1 s) ═══════════════════════════════════════════════════════════ */
+/* ═══ 2 · GIRO (6 – 10,7 s) ══════════════════════════════════════════════════════════ */
 .an-s2 {
-  --a: 4s;
-  --z: 7.1s;
+  --a: 6s;
+  --z: 10.7s;
 }
 
 .an-s2 .an-texto {
-  animation: an-sale 0.3s var(--entra) calc(var(--a) + 2.4s) forwards;
+  animation: an-sale 0.3s var(--entra) calc(var(--a) + 3.9s) forwards;
 }
 
 .an-s2-con {
@@ -734,7 +734,7 @@
     an-pop 0.5s var(--resorte) calc(var(--a) + 0.48s) both,
     an-a-verde 0.35s var(--suave) calc(var(--a) + 0.95s) both,
     an-latido 0.5s var(--suave) calc(var(--a) + 0.95s) both,
-    an-sale 0.3s var(--entra) calc(var(--a) + 2.4s) forwards;
+    an-sale 0.3s var(--entra) calc(var(--a) + 3.9s) forwards;
 }
 
 .an-licencia__pbi,
@@ -791,15 +791,15 @@
 }
 
 .an-barras--1 {
-  --a: 6.55s;
-  --z: 7.45s;
+  --a: 10.1s;
+  --z: 11s;
   --c1: var(--ve);
   --c2: var(--vc);
 }
 
 .an-barras--2 {
-  --a: 26.05s;
-  --z: 26.95s;
+  --a: 41.15s;
+  --z: 42.05s;
   --c1: var(--ab);
   --c2: var(--vc);
 }
@@ -823,10 +823,10 @@
 
 .an-barras i:nth-child(4) { --d: 0.12s; }
 
-/* ═══ 3 · TU MARCA (6,9 – 10,3 s) ═════════════════════════════════════════════════════ */
+/* ═══ 3 · TU MARCA (10,5 – 15,2 s) ════════════════════════════════════════════════════ */
 .an-s3 {
-  --a: 6.9s;
-  --z: 9.95s;
+  --a: 10.5s;
+  --z: 15.2s;
   background: #037a70;
 }
 
@@ -838,16 +838,16 @@
 
 .an-s3-fondo--b {
   background: radial-gradient(90% 70% at 50% 70%, #1f3157, #14213d 70%);
-  animation: an-aparece 0.12s linear calc(var(--a) + 1s) both;
+  animation: an-aparece 0.12s linear calc(var(--a) + 1.4s) both;
 }
 
 .an-s3-fondo--c {
   background: radial-gradient(90% 70% at 50% 70%, #26845a, #1d6b47 70%);
-  animation: an-aparece 0.12s linear calc(var(--a) + 1.9s) both;
+  animation: an-aparece 0.12s linear calc(var(--a) + 2.8s) both;
 }
 
 .an-s3 .an-texto {
-  animation: an-sale 0.3s var(--entra) calc(var(--a) + 2.75s) forwards;
+  animation: an-sale 0.3s var(--entra) calc(var(--a) + 4.3s) forwards;
 }
 
 .an-s3-titulo {
@@ -880,7 +880,7 @@
   aspect-ratio: 600 / 700;
   animation:
     an-ui-entra 0.6s var(--sale) calc(var(--a) + 0.15s) both,
-    an-ui-sale 0.32s var(--entra) calc(var(--a) + 2.75s) forwards;
+    an-ui-sale 0.32s var(--entra) calc(var(--a) + 4.3s) forwards;
 }
 
 .an-login .an-ui__in {
@@ -892,10 +892,10 @@
   width: 100%;
   height: 100%;
   animation:
-    an-giro-a 0.14s var(--entra) calc(var(--a) + 0.86s),
-    an-giro-b 0.17s var(--sale) calc(var(--a) + 1s),
-    an-giro-a 0.14s var(--entra) calc(var(--a) + 1.76s),
-    an-giro-b 0.17s var(--sale) calc(var(--a) + 1.9s);
+    an-giro-a 0.14s var(--entra) calc(var(--a) + 1.26s),
+    an-giro-b 0.17s var(--sale) calc(var(--a) + 1.4s),
+    an-giro-a 0.14s var(--entra) calc(var(--a) + 2.66s),
+    an-giro-b 0.17s var(--sale) calc(var(--a) + 2.8s);
 }
 
 .an-login__tarjeta {
@@ -929,8 +929,8 @@
   background: rgb(0 57 78 / 0.16);
   animation:
     an-gira 6s linear calc(var(--a) - 2s) infinite,
-    an-ola-b 1ms step-end calc(var(--a) + 1s) forwards,
-    an-ola-c 1ms step-end calc(var(--a) + 1.9s) forwards;
+    an-ola-b 1ms step-end calc(var(--a) + 1.4s) forwards,
+    an-ola-c 1ms step-end calc(var(--a) + 2.8s) forwards;
 }
 
 .an-login__ola--2 {
@@ -939,8 +939,8 @@
   background: rgb(77 207 193 / 0.26);
   animation:
     an-gira 7s linear calc(var(--a) - 3s) infinite,
-    an-ola2-b 1ms step-end calc(var(--a) + 1s) forwards,
-    an-ola2-c 1ms step-end calc(var(--a) + 1.9s) forwards;
+    an-ola2-b 1ms step-end calc(var(--a) + 1.4s) forwards,
+    an-ola2-c 1ms step-end calc(var(--a) + 2.8s) forwards;
 }
 
 .an-login__marca {
@@ -962,7 +962,7 @@
 .an-login__marca--a {
   color: #037a70;
   fill: #037a70;
-  animation: an-oculta 1ms step-end calc(var(--a) + 1s) forwards;
+  animation: an-oculta 1ms step-end calc(var(--a) + 1.4s) forwards;
 }
 
 .an-login__marca--b,
@@ -977,14 +977,14 @@
   color: #14213d;
   fill: #14213d;
   animation:
-    an-muestra 1ms step-end calc(var(--a) + 1s) forwards,
-    an-oculta 1ms step-end calc(var(--a) + 1.9s) forwards;
+    an-muestra 1ms step-end calc(var(--a) + 1.4s) forwards,
+    an-oculta 1ms step-end calc(var(--a) + 2.8s) forwards;
 }
 
 .an-login__marca--c {
   color: #1d6b47;
   fill: #1d6b47;
-  animation: an-muestra 1ms step-end calc(var(--a) + 1.9s) forwards;
+  animation: an-muestra 1ms step-end calc(var(--a) + 2.8s) forwards;
 }
 
 .an-login__marca--b .an-login__marca-in {
@@ -1035,11 +1035,11 @@
   text-transform: uppercase;
   color: #fff;
   animation:
-    an-boton-b 1ms step-end calc(var(--a) + 1s) forwards,
-    an-boton-c 1ms step-end calc(var(--a) + 1.9s) forwards;
+    an-boton-b 1ms step-end calc(var(--a) + 1.4s) forwards,
+    an-boton-c 1ms step-end calc(var(--a) + 2.8s) forwards;
 }
 
-/* ═══ 4 · CADA UNO VE LO SUYO (10 – 13,3 s) ═══════════════════════════════════════════ */
+/* ═══ 4 · CADA UNO VE LO SUYO (15 – 19,75 s) ══════════════════════════════════════════ */
 .an-s4,
 .an-s5 {
   background:
@@ -1049,8 +1049,8 @@
 }
 
 .an-s4 {
-  --a: 9.7s;
-  --z: 12.95s;
+  --a: 15s;
+  --z: 19.75s;
   animation:
     an-ventana calc(var(--z) - var(--a)) step-end var(--a) forwards,
     an-iris 0.45s var(--sale) var(--a) both;
@@ -1122,7 +1122,7 @@
 }
 
 .an-portal > .an-ui__in {
-  animation: an-inclina 3.4s var(--suave) var(--a) both;
+  animation: an-inclina 4.8s var(--suave) var(--a) both;
 }
 
 .an-portal__cuerpo {
@@ -1266,22 +1266,22 @@
 .an-tarjeta--2 {
   animation:
     an-pop 0.45s var(--resorte) calc(var(--a) + 0.35s + var(--td, 0s)) both,
-    an-apaga 0.2s ease calc(var(--a) + 2.3s) forwards;
+    an-apaga 0.2s ease calc(var(--a) + 3.3s) forwards;
 }
 
 .an-tarjeta--3,
 .an-tarjeta--4 {
   animation:
     an-pop 0.45s var(--resorte) calc(var(--a) + 0.35s + var(--td, 0s)) both,
-    an-apaga 0.2s ease calc(var(--a) + 1.7s) forwards;
+    an-apaga 0.2s ease calc(var(--a) + 2.3s) forwards;
 }
 
 .an-tarjeta--5,
 .an-tarjeta--6 {
   animation:
     an-pop 0.45s var(--resorte) calc(var(--a) + 0.35s + var(--td, 0s)) both,
-    an-apaga 0.2s ease calc(var(--a) + 1.7s) forwards,
-    an-prende 0.2s ease calc(var(--a) + 2.3s) forwards;
+    an-apaga 0.2s ease calc(var(--a) + 2.3s) forwards,
+    an-prende 0.2s ease calc(var(--a) + 3.3s) forwards;
 }
 
 .an-personas {
@@ -1323,22 +1323,22 @@
 
 .an-persona--1 {
   animation:
-    an-pop 0.45s var(--resorte) calc(var(--a) + 0.7s) both,
-    an-chip-si 0.2s ease calc(var(--a) + 1.1s) forwards,
-    an-chip-no 0.2s ease calc(var(--a) + 1.7s) forwards;
+    an-pop 0.45s var(--resorte) calc(var(--a) + 0.8s) both,
+    an-chip-si 0.2s ease calc(var(--a) + 1.3s) forwards,
+    an-chip-no 0.2s ease calc(var(--a) + 2.3s) forwards;
 }
 
 .an-persona--2 {
   animation:
-    an-pop 0.45s var(--resorte) calc(var(--a) + 0.82s) both,
-    an-chip-si 0.2s ease calc(var(--a) + 1.7s) forwards,
-    an-chip-no 0.2s ease calc(var(--a) + 2.3s) forwards;
+    an-pop 0.45s var(--resorte) calc(var(--a) + 0.92s) both,
+    an-chip-si 0.2s ease calc(var(--a) + 2.3s) forwards,
+    an-chip-no 0.2s ease calc(var(--a) + 3.3s) forwards;
 }
 
 .an-persona--3 {
   animation:
-    an-pop 0.45s var(--resorte) calc(var(--a) + 0.94s) both,
-    an-chip-si 0.2s ease calc(var(--a) + 2.3s) forwards;
+    an-pop 0.45s var(--resorte) calc(var(--a) + 1.04s) both,
+    an-chip-si 0.2s ease calc(var(--a) + 3.3s) forwards;
 }
 
 /* El toque que abre el tablero (y la toma siguiente es el reporte) */
@@ -1353,7 +1353,7 @@
   border-radius: 50%;
   background: rgb(3 122 112 / 0.16);
   opacity: 0;
-  animation: an-toque 0.5s ease-out calc(var(--a) + 2.8s) forwards;
+  animation: an-toque 0.5s ease-out calc(var(--a) + 4.3s) forwards;
 }
 
 /* La luz que cruza cada maqueta cuando entra: da volumen sin agregar nada */
@@ -1379,10 +1379,10 @@
   --br: 0.15s;
 }
 
-/* ═══ 5 · POWER BI ADENTRO (13 – 16,3 s) ═════════════════════════════════════════════ */
+/* ═══ 5 · POWER BI ADENTRO (19,5 – 24,25 s) ══════════════════════════════════════════ */
 .an-s5 {
-  --a: 12.7s;
-  --z: 15.75s;
+  --a: 19.5s;
+  --z: 24.25s;
 }
 
 .an-s5-titulo {
@@ -1397,11 +1397,11 @@
 .an-reporte {
   animation:
     an-cambia 0.35s var(--sale) var(--a) both,
-    an-ui-sale 0.32s var(--entra) calc(var(--a) + 2.75s) forwards;
+    an-ui-sale 0.32s var(--entra) calc(var(--a) + 4.4s) forwards;
 }
 
 .an-reporte > .an-ui__in {
-  animation: an-inclina-2 3.3s var(--suave) var(--a) both;
+  animation: an-inclina-2 4.75s var(--suave) var(--a) both;
 }
 
 .an-reporte__cuerpo {
@@ -1549,10 +1549,10 @@
   animation: an-traza 0.9s var(--suave) calc(var(--a) + 0.6s) both;
 }
 
-/* ═══ 6 · IA (16 – 21,8 s) ═══════════════════════════════════════════════════════════ */
+/* ═══ 6 · IA (24 – 31,75 s) ══════════════════════════════════════════════════════════ */
 .an-s6 {
-  --a: 15.5s;
-  --z: 20.75s;
+  --a: 24s;
+  --z: 31.75s;
 }
 
 .an-s6::before {
@@ -1600,7 +1600,7 @@
   aspect-ratio: 720 / 960;
   animation:
     an-ui-entra 0.6s var(--sale) calc(var(--a) + 0.1s) both,
-    an-ui-sale 0.32s var(--entra) calc(var(--a) + 4.9s) forwards;
+    an-ui-sale 0.32s var(--entra) calc(var(--a) + 7.4s) forwards;
 }
 
 .an-chat > .an-ui__in {
@@ -1672,7 +1672,7 @@
   font-size: calc(30 * var(--m));
   line-height: 1.35;
   color: #fff;
-  animation: an-burbuja 0.35s var(--sale) calc(var(--a) + 2.2s) both;
+  animation: an-burbuja 0.35s var(--sale) calc(var(--a) + 2.85s) both;
 }
 
 .an-chat__pasos {
@@ -1686,7 +1686,7 @@
   gap: calc(14 * var(--m));
   font-size: calc(23 * var(--m));
   color: #4b5563;
-  animation: an-entra 0.25s var(--sale) calc(var(--a) + 2.4s + var(--pd, 0s)) both;
+  animation: an-entra 0.25s var(--sale) calc(var(--a) + 3.05s + var(--pd, 0s)) both;
 }
 
 .an-chat__paso i {
@@ -1694,17 +1694,17 @@
   height: calc(24 * var(--m));
   border: calc(3 * var(--m)) solid #c7d2fe;
   border-radius: 50%;
-  animation: an-paso-ok 0.2s ease calc(var(--a) + 2.55s + var(--pd, 0s)) forwards;
+  animation: an-paso-ok 0.2s ease calc(var(--a) + 3.25s + var(--pd, 0s)) forwards;
 }
 
-.an-chat__paso--2 { --pd: 0.2s; }
-.an-chat__paso--3 { --pd: 0.4s; }
+.an-chat__paso--2 { --pd: 0.3s; }
+.an-chat__paso--3 { --pd: 0.6s; }
 
 .an-chat__resp {
   font-size: calc(29 * var(--m));
   line-height: 1.45;
   color: #374151;
-  animation: an-entra 0.4s var(--sale) calc(var(--a) + 3.15s) both;
+  animation: an-entra 0.4s var(--sale) calc(var(--a) + 4.1s) both;
 }
 
 .an-chat__resp b {
@@ -1718,7 +1718,7 @@
   border: calc(1.5 * var(--m)) solid #e5e7eb;
   border-radius: calc(16 * var(--m));
   background: #fff;
-  animation: an-entra 0.35s var(--sale) calc(var(--a) + 3.3s) both;
+  animation: an-entra 0.35s var(--sale) calc(var(--a) + 4.25s) both;
 }
 
 .an-chat__fila {
@@ -1745,7 +1745,7 @@
   border-radius: 0 calc(6 * var(--m)) calc(6 * var(--m)) 0;
   background: linear-gradient(90deg, #4f46e5, #6d5df6);
   transform-origin: 0 50%;
-  animation: an-crece-x 0.6s var(--sale) calc(var(--a) + 3.4s + var(--fd, 0s)) both;
+  animation: an-crece-x 0.6s var(--sale) calc(var(--a) + 4.35s + var(--fd, 0s)) both;
 }
 
 .an-chat__v {
@@ -1753,7 +1753,7 @@
   font-size: calc(20 * var(--m));
   font-weight: 500;
   color: #111827;
-  animation: an-aparece 0.3s ease calc(var(--a) + 3.7s + var(--fd, 0s)) both;
+  animation: an-aparece 0.3s ease calc(var(--a) + 4.65s + var(--fd, 0s)) both;
 }
 
 .an-chat__fila--2 { --fd: 0.07s; }
@@ -1808,7 +1808,7 @@
   flex: none;
   border-radius: 50%;
   background: #4f46e5;
-  animation: an-pulsa 0.3s ease calc(var(--a) + 2.1s) both;
+  animation: an-pulsa 0.3s ease calc(var(--a) + 2.8s) both;
 }
 
 .an-chat__enviar svg {
@@ -1821,10 +1821,10 @@
   stroke-linejoin: round;
 }
 
-/* ═══ 7 · EN EL CELULAR (21,5 – 24,3 s) ═════════════════════════════════════════════ */
+/* ═══ 7 · EN EL CELULAR (31,5 – 35,25 s) ════════════════════════════════════════════ */
 .an-s7 {
-  --a: 20.5s;
-  --z: 23s;
+  --a: 31.5s;
+  --z: 35.25s;
   background: radial-gradient(90% 70% at 50% 75%, #0a8f83, #037a70 55%, #00534c);
 }
 
@@ -1853,7 +1853,7 @@
   aspect-ratio: 420 / 860;
   animation:
     an-cel-entra 0.7s var(--sale) calc(var(--a) + 0.1s) both,
-    an-ui-sale 0.32s var(--entra) calc(var(--a) + 2.25s) forwards;
+    an-ui-sale 0.32s var(--entra) calc(var(--a) + 3.35s) forwards;
 }
 
 .an-celular > .an-ui__in {
@@ -1863,7 +1863,7 @@
   box-shadow:
     inset 0 0 0 calc(3 * var(--m)) #2a3439,
     0 calc(70 * var(--m)) calc(120 * var(--m)) rgb(0 0 0 / 0.5);
-  animation: an-cel-deriva 2.6s var(--suave) var(--a) both;
+  animation: an-cel-deriva 3.7s var(--suave) var(--a) both;
 }
 
 .an-celular__pantalla {
@@ -1908,7 +1908,7 @@
   display: grid;
   gap: calc(16 * var(--m));
   padding: calc(24 * var(--m)) calc(22 * var(--m));
-  animation: an-desliza 1.8s var(--suave) calc(var(--a) + 0.7s) both;
+  animation: an-desliza 2.2s var(--suave) calc(var(--a) + 0.9s) both;
 }
 
 .an-celular__hola {
@@ -1943,10 +1943,10 @@
   font-size: calc(13 * var(--m));
 }
 
-/* ═══ 8 · RÁFAGA (24 – 26,95 s): cuatro cortes, uno por tiempo y medio ═══════════════ */
+/* ═══ 8 · RÁFAGA (35 – 41,7 s): cuatro cortes, el último más largo ══════════════════════ */
 .an-s8 {
-  --a: 22.75s;
-  --z: 26.4s;
+  --a: 35s;
+  --z: 41.7s;
 }
 
 .an-corte {
@@ -1971,26 +1971,26 @@
 
 .an-corte--1 {
   --c: 0s;
-  --cz: 0.8s;
+  --cz: 1.5s;
   background: radial-gradient(80% 60% at 30% 40%, #003b49, var(--ab) 70%);
 }
 
 .an-corte--2 {
-  --c: 0.8s;
-  --cz: 1.6s;
+  --c: 1.5s;
+  --cz: 3s;
   background: var(--sa);
   color: var(--ab);
 }
 
 .an-corte--3 {
-  --c: 1.6s;
-  --cz: 2.4s;
+  --c: 3s;
+  --cz: 4.5s;
   background: var(--pe);
 }
 
 .an-corte--4 {
-  --c: 2.4s;
-  --cz: 3.7s;
+  --c: 4.5s;
+  --cz: 6.7s;
   background: var(--vc);
   color: var(--ab);
 }
@@ -2032,10 +2032,10 @@
   max-width: calc(1300 * var(--u));
 }
 
-/* ═══ 9 · CIERRE (26,9 s – fin) ═══════════════════════════════════════════════════════ */
+/* ═══ 9 · CIERRE (41,5 s – fin) ═══════════════════════════════════════════════════════ */
 .an-s9 {
-  --a: 26.4s;
-  --z: 31s;
+  --a: 41.5s;
+  --z: 47s;
   background: radial-gradient(90% 65% at 50% 40%, #0a8f83, #037a70 50%, #005a52);
 }
 

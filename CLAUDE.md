@@ -6,7 +6,7 @@ Astro 7 estático, publicado en GitHub Pages desde `main` con GitHub Actions. Es
 
 1. **Documentar en `/docs`**. Antes de trabajar, leer `docs/README.md` y `docs/aprendizajes.md`. Después de cada cambio, actualizar lo que corresponda (aprendizajes, decisiones, seguridad, performance, changelog).
 2. **Usar skills especializadas** para cada tarea (tabla en `docs/skills.md`): diseño, copy, SEO, rendimiento, accesibilidad, seguridad.
-3. **Push al repo después de cada cambio** (`main` se publica sola). Antes: `npm run build`, `npm run preview` + `npm run qa` (y `npm run recorrido` si se tocó el recorrido animado del Portal BI; si se tocó el anuncio, `npm run anuncio:probar` y `npm run anuncio:video` para regenerar los MP4).
+3. **Push al repo después de cada cambio** (`main` se publica sola). Antes: `npm run build`, `npm run preview` + `npm run qa` (y `npm run recorrido` si se tocó el recorrido animado del Portal BI; si se tocó el anuncio, `npm run anuncio:probar`; los MP4 los vuelve a grabar sola la Action «Grabar el anuncio» y quedan en el release `anuncio-portal-bi`, nunca en el repositorio).
 
 ## No romper nunca
 

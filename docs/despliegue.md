@@ -8,6 +8,13 @@
 
 Ver ejecuciones: pestaña **Actions** del repo o `gh run list --repo datastudios-scz/paginaweb_datastudio`.
 
+## Los videos del anuncio
+
+La Action «Grabar el anuncio» (`.github/workflows/anuncio.yml`) corre sola cuando un push a `main` toca el anuncio (sus componentes, sus datos, los estilos o el grabador). Compila, instala ffmpeg, graba los cuatro formatos con `npm run anuncio:video` y los sube al release `anuncio-portal-bi`, reemplazando los anteriores. Corre en Windows: las maquetas usan Segoe UI.
+
+- **Regrabar a mano**: Actions → "Grabar el anuncio" → *Run workflow*.
+- **Si falla**: el grabador sale con error cuando la página da errores o un MP4 no tiene todos sus cuadros o el color BT.709, y en ese caso no se sube nada. Los videos anteriores siguen en el release.
+
 ## Configuración de GitHub Pages
 
 | Ajuste | Valor |
