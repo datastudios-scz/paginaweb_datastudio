@@ -2,6 +2,20 @@
 
 Cada entrada: **síntoma → causa → solución → cómo evitarlo**.
 
+## El lema del Portal BI (14/10/2026)
+
+### Cambiar el texto que se ve al cargar puede hacer saltar la página
+- **Síntoma**: el banco de los recorridos dio CLS 0,0133 (el tope es 0,01) en 1440 × 790 con red lenta, en `/portal-bi/como-funciona/`. Con la frase vieja, medida en la misma corrida, daba 0,0004. Solo cambió una frase de la portada del recorrido.
+- **Causa**: mientras llega Poppins, el texto se dibuja con la fuente de respaldo, que es más angosta. La frase nueva cortaba sus renglones en otros lugares con cada fuente, y al llegar Poppins una palabra bajó dos renglones (53 px). La vieja, por casualidad, cortaba en el mismo lugar con las dos. Se vio midiendo el salto con sus fuentes (`LayoutShift.sources`). Medir el alto de la caja con una y otra fuente no lo mostraba, porque la caja no cambiaba.
+- **Solución**: se midieron tres frases nuevas, más la vieja como control, en los cinco tamaños del banco, compilando cada una. Dos de las nuevas no saltaban, igual que la vieja, y se eligió la que dice «conversar con tus datos».
+- **Evitarlo**: todo texto que se ve al cargar un recorrido (la portada) pasa por `npm run recorrido`, aunque el cambio sea de redacción.
+
+### `npm run recursos` llevaba tres días roto y nadie lo había corrido
+- **Síntoma**: al regenerar la imagen para compartir, el script se cayó al arrancar (`Cannot read properties of null`).
+- **Causa**: leía los trazos del logo de `Logo.astro` con una expresión regular. El 11/10 los trazos se mudaron a `src/data/logo.ts`, y la expresión dejó de encontrar nada. Como el script solo se corre cuando cambian las imágenes, nadie se enteró.
+- **Solución**: los lee de `logo.ts`, y si no los encuentra lo dice con nombre propio. Al correrlo, las cuatro imágenes y los íconos que no se tocaron salieron idénticos byte por byte. Eso prueba que leer de un lado o del otro da el mismo logo.
+- **Evitarlo**: cuando algo se muda de archivo, buscar quién lo leía como texto (`grep` del nombre viejo en `scripts/`), no solo quién lo importa.
+
 ## La IA al costado del tablero, en el anuncio (12/10/2026)
 
 ### Dos animaciones de la misma propiedad en cadena: la de después no puede llevar `both`

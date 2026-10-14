@@ -11,6 +11,9 @@
  * Una sola cifra de dinero en toda la página, en la calculadora; el resto habla de beneficios.
  * Cifras sin confirmar, una mención cada una: "+1.000 personas" (franja) y "dos horas como
  * máximo" (#instalar). Estilos genéricos en src/styles/producto.css (prod-*); aquí solo lo propio.
+ * El lema (ADR-018): «Y ahora, tus datos hablan.» va debajo del titular, como segunda voz; el gancho
+ * sigue siendo el ahorro. La sección del chat lo baja a la acción («Conversa con tus datos») y a la
+ * prueba (la consulta a la vista).
  */
 import Base from '../layouts/Base.astro';
 import Icono from '../components/Icono.astro';
@@ -166,9 +169,9 @@ const SERVICIO = {
 
 <Base
   titulo="Portal BI | Power BI para toda la empresa con una sola licencia · Data Studio"
-  descripcion="Portal con tu marca para abrir Power BI a toda tu empresa con una sola licencia y chat con IA. Impleméntalo tú o contrata la implementación."
+  descripcion="Power BI para toda tu empresa con una sola licencia y tu marca. Y ahora tus datos hablan: un chat con IA al lado del tablero. Impleméntalo tú o contrátalo."
   imagen="/og/portal-bi.png"
-  imagenAlt="Portal BI de Data Studio: Power BI para toda la empresa con una sola licencia"
+  imagenAlt="Portal BI de Data Studio: Power BI para toda la empresa con una sola licencia. Y ahora, tus datos hablan."
   datosEstructurados={[
     migas([
       { nombre: 'Inicio', url: `${SITIO.url}/` },
@@ -185,12 +188,14 @@ const SERVICIO = {
 
       <div class="prod-heroe__rejilla">
         <div class="prod-heroe__texto">
-          <h1 id="pb-titulo" class="prod-heroe__titulo">
+          <h1 id="pb-titulo" class="prod-heroe__titulo pb-titulo">
             Power BI para toda tu empresa. <span class="prod-acento">Nunca más una licencia por persona.</span>
           </h1>
+          <!-- El lema (ADR-018): el plus, como segunda voz del titular. El gancho sigue siendo el ahorro -->
+          <p class="pb-lema">Y ahora, tus datos hablan.</p>
           <p class="prod-heroe__bajada">
-            Cada persona entra a tu portal con su usuario y encuentra sus tableros, con tu marca y sin cuenta de
-            Power BI. Lo implementas tú o lo implementamos por ti.
+            Cada persona entra con su usuario y encuentra sus tableros, con tu marca y sin cuenta de Power BI. Y al
+            lado del tablero, le pregunta a la IA lo que el reporte no muestra.
           </p>
           <!-- Sin cifras aquí: el único monto de la página vive en la calculadora (pedido del dueño). -->
           <div class="prod-ancla pb-ancla">
@@ -392,11 +397,12 @@ const SERVICIO = {
     <div class="contenedor">
       <header class="prod-cabecera">
         <h2 id="chat-titulo" class="titulo-seccion">
-          Pregunta en español. <span class="prod-acento">Mira la consulta.</span>
+          Conversa con tus datos. <span class="prod-acento">Y mira de dónde sale cada número.</span>
         </h2>
         <p class="entrada">
-          Al lado del tablero hay un chat que conoce tu modelo: sus tablas, sus columnas y sus medidas. Escribes
-          como se lo pedirías a un analista, y responde con los datos reales, no con un resumen inventado.
+          Al lado del tablero hay un chat que conoce tu modelo: sus tablas, sus columnas y sus medidas. Le escribes
+          en español, como se lo pedirías a un analista, y te responde con los datos reales, no con un resumen
+          inventado.
         </p>
       </header>
 
@@ -676,6 +682,23 @@ const SERVICIO = {
 
   .pb-heroe__visual {
     min-width: 0;
+  }
+
+  /* El titular, un punto más chico que en las otras páginas de producto (tope 56 px): así entra
+     el lema debajo y los botones quedan más arriba que antes (medido en ADR-018) */
+  .pb-titulo {
+    font-size: clamp(2.375rem, 1.4rem + 3vw, 3.5rem);
+  }
+
+  /* El lema: la segunda voz del titular, pegada a él y antes de la bajada */
+  .pb-lema {
+    margin-top: calc(var(--space-4) - var(--space-5));
+    font-size: var(--text-2xl);
+    font-weight: var(--peso-semi);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    color: var(--texto);
+    text-wrap: balance;
   }
 
   /* Acción principal + la otra vía (contratar la implementación) como enlace de texto */

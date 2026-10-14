@@ -57,7 +57,8 @@
 │   │   ├── tienda/              Catalogo (tienda de ejemplo, variantes completa y compacta)
 │   │   └── consultoria/         Flujo (recorrido de los datos) y Consolidado (héroe: planillas → reporte)
 │   ├── data/sitio.ts            ★ Fuente única de verdad: contacto, WhatsApp, navegación, soluciones, precio de licencia
-│   ├── data/logo.ts             Trazos del logo (ícono, barras, wordmark): los usan Logo.astro y el anuncio
+│   ├── data/logo.ts             Trazos del logo (ícono, barras, wordmark): los usan Logo.astro, el anuncio
+│   │                            y scripts/generar-recursos.mjs (favicons, íconos e imágenes para compartir)
 │   ├── data/admin.ts            El menú del panel de administración (orden, nombres e íconos): MaquetaAdmin y el recorrido
 │   ├── layouts/Base.astro       <head> (SEO, OG, JSON-LD, fuentes), encabezado, pie (`inmersiva`: sin encabezado ni pie)
 │   ├── pages/                   index, portal-bi, portal-bi/como-funciona (y /administrador), social-metrics-bi, tienda-ecommerce, consultoria, 404

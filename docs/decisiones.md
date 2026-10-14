@@ -2,6 +2,28 @@
 
 Formato: contexto → decisión → consecuencias. Las decisiones nuevas van arriba.
 
+## ADR-018 · El lema del Portal BI: «Y ahora, tus datos hablan.» (14/10/2026)
+
+- **Contexto**: el dueño pidió que la portada, los recorridos y el anuncio tomaran algo de «Haz que tus datos hablen», «Ahora tus datos hablan» o «Conversa con tus datos», y que se eligiera con criterio de neuromarketing, para que sea el plus del servicio. El gancho de la página ya era el ahorro («Nunca más una licencia por persona»), y el chat con IA al costado del tablero es lo que el producto tiene de distinto.
+- **Decisión**: el lema es **«Y ahora, tus datos hablan.»**. Va con dos frases que cumplen otras funciones: la acción, **«Conversa con tus datos»**, y la prueba, **«Pregúntale lo que el tablero no muestra»**.
+- **Por qué esa y no las otras**:
+  - «Haz que tus datos hablen» le pasa el trabajo al lector: el cerebro registra el esfuerzo como un costo. Además es una frase muy gastada entre consultoras de BI, y no se distingue.
+  - «Conversa con tus datos» es clara, pero es la descripción de la categoría: es lo que dice cualquier herramienta de chat con datos. Sirve para explicar y para invitar, no para diferenciarse.
+  - «Ahora» es una señal de novedad, y lo nuevo se atiende primero. También supone un antes (los datos callados) sin tener que decirlo.
+  - El presente dice que ya pasó: es un hecho, no una promesa, y no le pide esfuerzo a nadie.
+  - Que los datos hablen los convierte en alguien. Una voz se recuerda mejor que una abstracción.
+  - «Tus» ata la frase a lo propio, y lo propio se recuerda mejor.
+  - Son cinco palabras con el ritmo de un octosílabo, el verso más natural del español: se dice fácil y se repite.
+  - La «Y» inicial la vuelve literalmente un plus: se lee después del ahorro, como «y además».
+- **Dónde va y cómo**:
+  - En la portada, debajo del titular, como segunda voz. El gancho sigue siendo el ahorro, que es lo que decide la compra.
+  - Para que entrara, el titular de esta página bajó de 64 a 56 px de tope. Medido: los botones de compra quedaron más arriba que antes (829 px contra 875 en 1440 × 900 y en 1280 × 800), y en el teléfono siguen a la vista.
+  - La sección del chat baja el lema a la acción y a la prueba: «Conversa con tus datos. Y mira de dónde sale cada número.».
+  - En el anuncio aparece dos veces, porque la repetición fija la frase: la toma 6 lo presenta y el cierre lo firma.
+  - En los recorridos, nombra el paso del chat.
+  - La imagen para compartir lo lleva debajo del titular, porque es lo que se ve cuando se pasa el enlace por WhatsApp.
+- **Consecuencias**: el lema es una afirmación sobre el producto. Se sostiene mientras el chat consulte el modelo y responda con sus datos (contenido.md). Fuera de `/portal-bi/` (inicio, menú) no se cambió nada.
+
 ## ADR-017 · El recorrido del administrador: otro guion sobre el mismo motor (12/10/2026)
 
 - **Contexto**: después del recorrido de tu equipo (ADR-015) el dueño pidió «la parte de Administrador», reusando formatos e ideas.

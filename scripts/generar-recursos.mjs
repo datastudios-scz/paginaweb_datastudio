@@ -17,10 +17,17 @@ const RAIZ = join(dirname(fileURLToPath(import.meta.url)), '..');
 const PUBLICO = join(RAIZ, 'public');
 const C = { abismo: '#001720', petroleo: '#00394e', verde: '#037a70', salvia: '#ced9bd', verdeClaro: '#4dcfc1' };
 
-// ── Geometría del logo: se lee del componente para tener una sola fuente de verdad ──
-const logo = readFileSync(join(RAIZ, 'src/components/Logo.astro'), 'utf8');
-const ICONO = logo.match(/const ICONO =\s*'([^']+)'/)[1];
-const WORDMARK = logo.match(/const WORDMARK =\s*'([^']+)'/)[1];
+// ── Geometría del logo: se lee de src/data/logo.ts, la única fuente de verdad ──
+// (Antes se leía de Logo.astro; cuando los trazos se mudaron a logo.ts, el 11/10/2026, este
+// script quedó sin encontrarlos y `npm run recursos` fallaba al arrancar.)
+const logo = readFileSync(join(RAIZ, 'src/data/logo.ts'), 'utf8');
+const trazo = (nombre) => {
+  const m = logo.match(new RegExp(`export const ${nombre} =\\s*'([^']+)'`));
+  if (!m) throw new Error(`No encontré ${nombre} en src/data/logo.ts`);
+  return m[1];
+};
+const ICONO = trazo('LOGO_ICONO');
+const WORDMARK = trazo('LOGO_WORDMARK');
 
 // Favicon pequeño: solo las cuatro barras (a 16 px el monitor completo no se lee).
 const faviconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="${C.abismo}"/><g fill="#fff"><rect x="11.25" y="30" width="7" height="18"/><rect x="22.75" y="24" width="7" height="24"/><rect x="34.25" y="18" width="7" height="30"/><rect x="45.75" y="30" width="7" height="18"/></g></svg>`;
@@ -65,7 +72,7 @@ const fuente = (archivo) =>
   `data:font/woff2;base64,${readFileSync(join(RAIZ, 'src/assets/fuentes', archivo)).toString('base64')}`;
 const lockup = `<svg viewBox="0 0 5481 560" height="34" fill="#fff"><g transform="scale(0.29551)"><path fill-rule="evenodd" d="${ICONO}"/></g><g transform="translate(748.4 76.5)"><path d="${WORDMARK}"/></g></svg>`;
 
-const plantillaOG = ({ rotulo, titulo, acento, barrasEtiquetas }) => `<!doctype html><html><head><meta charset="utf-8"><style>
+const plantillaOG = ({ rotulo, titulo, acento, lema, barrasEtiquetas }) => `<!doctype html><html><head><meta charset="utf-8"><style>
 @font-face{font-family:Poppins;font-weight:600;src:url(${fuente('poppins-latin-600-normal.woff2')})}
 @font-face{font-family:Poppins;font-weight:500;src:url(${fuente('poppins-latin-500-normal.woff2')})}
 @font-face{font-family:'DM Mono';font-weight:500;src:url(${fuente('dm-mono-latin-500-normal.woff2')})}
@@ -77,6 +84,7 @@ body{width:1200px;height:630px;overflow:hidden;font-family:Poppins;color:#fff;
 .rotulo{font-family:'DM Mono';font-size:18px;letter-spacing:.14em;text-transform:uppercase;color:${C.verdeClaro};margin-top:44px}
 h1{font-weight:600;font-size:62px;line-height:1.05;letter-spacing:-.035em;margin-top:18px;text-wrap:balance}
 h1 span{color:${C.verdeClaro}}
+.lema{font-weight:600;font-size:36px;line-height:1.15;letter-spacing:-.02em;margin-top:22px}
 .pie{font-family:'DM Mono';font-size:18px;color:#a6ae9a;letter-spacing:.06em}
 .graf{align-self:end;display:grid;grid-template-columns:repeat(4,1fr);gap:18px;height:420px;align-items:end;
  border-bottom:2px solid rgba(206,217,189,.35);padding-bottom:0;position:relative}
@@ -85,7 +93,7 @@ h1 span{color:${C.verdeClaro}}
 .b3{background:${C.verde};border-top-color:#fff}.b3 span{color:#fff}
 .h60{height:60.2%}.h80{height:79.6%}.h100{height:100%}
 </style></head><body>
-<div class="izq"><div>${lockup}<p class="rotulo">${rotulo}</p><h1>${titulo}${acento ? ` <span>${acento}</span>` : ''}</h1></div>
+<div class="izq"><div>${lockup}<p class="rotulo">${rotulo}</p><h1>${titulo}${acento ? ` <span>${acento}</span>` : ''}</h1>${lema ? `<p class="lema">${lema}</p>` : ''}</div>
 <p class="pie">datastudio.es · Implementación remota en cualquier país</p></div>
 <div class="graf">
 <div class="b h60"><span>${barrasEtiquetas[0]}</span></div><div class="b h80"><span>${barrasEtiquetas[1]}</span></div>
@@ -130,7 +138,7 @@ async function main() {
   const barras = ['Consultoría', 'Social Metrics', 'Portal BI', 'E‑commerce'];
   const imagenes = [
     { archivo: 'inicio.png', rotulo: 'Innovación, analítica &amp; marketing', titulo: 'Datos que toda tu empresa puede usar.' },
-    { archivo: 'portal-bi.png', rotulo: 'Portal BI', titulo: 'Power BI para toda la empresa.', acento: 'Una sola licencia.' },
+    { archivo: 'portal-bi.png', rotulo: 'Portal BI', titulo: 'Power BI para toda la empresa.', acento: 'Una sola licencia.', lema: 'Y ahora, tus datos hablan.' },
     { archivo: 'social-metrics-bi.png', rotulo: 'Social Metrics BI', titulo: 'Tus redes sociales,', acento: 'en un solo tablero.' },
     { archivo: 'tienda-ecommerce.png', rotulo: 'Tienda e-commerce', titulo: 'Tu tienda online, con código propio.', acento: 'Pago único.' },
     { archivo: 'consultoria.png', rotulo: 'Consultoría de datos', titulo: 'Ordenamos tus datos', acento: 'para que puedas usarlos.' },

@@ -2534,6 +2534,15 @@
   max-width: calc(900 * var(--u));
 }
 
+/* El lema (ADR-018), pegado al titular. En blanco: la salvia de los subtítulos no se lee sobre
+   el verde (3,55:1, ver marca.md) */
+.an-s9-lema {
+  margin-top: calc(-20 * var(--u));
+  font-weight: 600;
+  color: #fff;
+  animation: an-entra 0.45s var(--sale) calc(var(--a) + 1.3s) both;
+}
+
 .an-fichas {
   display: flex;
   flex-wrap: wrap;

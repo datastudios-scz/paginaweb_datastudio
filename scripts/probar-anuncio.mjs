@@ -312,6 +312,8 @@ console.log('Con movimiento reducido');
       boton: escala('.an-cta'),
       ficha: escala('.an-fichas li:last-child'),
       url: Number(getComputedStyle(document.querySelector('.an-url')).opacity),
+      lema: Number(getComputedStyle(document.querySelector('.an-s9-lema')).opacity),
+      lemaTexto: document.querySelector('.an-s9-lema').textContent.trim(),
       titulo: t === 'none' || new DOMMatrixReadOnly(t).isIdentity,
       tituloTexto: t,
     };
@@ -319,6 +321,8 @@ console.log('Con movimiento reducido');
   ok(quieto.pausa, 'no se reproduce solo');
   ok(quieto.boton === 1 && quieto.ficha === 1, `el cierre está armado: botón y última ficha a escala ${quieto.boton} y ${quieto.ficha} (deben ser 1)`);
   ok(quieto.url === 1, `la URL se ve (opacidad ${quieto.url})`);
+  /* El lema del producto firma el cierre (ADR-018) */
+  ok(quieto.lema === 1, `el lema se ve: «${quieto.lemaTexto}» (opacidad ${quieto.lema})`);
   ok(quieto.titulo, `el título terminó de subir (${quieto.tituloTexto})`);
   ok(p.errores.length === 0, `sin errores ni CSP${p.errores.length ? ` (${p.errores.join(' | ')})` : ''}`);
   await p.context().close();

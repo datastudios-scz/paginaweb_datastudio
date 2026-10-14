@@ -44,7 +44,7 @@ Hex exactos del manual (no se modifican). Los derivados se calcularon en OKLCH m
 
 - Lema "INNOVACIÓN, ANALÍTICA & MARKETING": Poppins en mayúsculas con tracking amplio, como en el logo.
 - Titulares siempre rectos (sin itálica). El énfasis va con color (`--acento`), no con cursiva.
-- Escala fluida en `tokens.css` (`--text-xs` … `--text-display`). El titular del hero tiene un tope de 72 px para caber en dos líneas en escritorio.
+- Escala fluida en `tokens.css` (`--text-xs` … `--text-display`). El titular del hero tiene un tope de 72 px para caber en dos líneas en escritorio. En `/portal-bi/` el tope es de 56 px, porque debajo va el lema (ADR-018).
 - Las fuentes son woff2 con subconjunto latino (incluye á é í ó ú ñ ü ¿ ¡ – —). **No incluyen flechas ni ✓**: se usan íconos SVG.
 
 ## Logo
@@ -70,3 +70,4 @@ Hex exactos del manual (no se modifican). Los derivados se calcularon en OKLCH m
 - Español con **tuteo** ("Escríbenos", "Pide una demo"). Registro cercano y concreto.
 - Nombrar lo que la persona controla y reconoce; nada de jerga vacía ("soluciones innovadoras de vanguardia").
 - Sin cifras, clientes ni testimonios inventados (ver [contenido.md](contenido.md)).
+- **El lema del Portal BI** es «Y ahora, tus datos hablan.», y suelto, sin lo anterior, es «Ahora tus datos hablan.». Lo acompañan dos frases, cada una con su función: la acción, «Conversa con tus datos», y la prueba, «Pregúntale lo que el tablero no muestra». Cada pieza nueva del Portal BI las usa así, sin variantes («Haz que tus datos hablen» le pasa el trabajo al lector). Ver ADR-018.

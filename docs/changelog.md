@@ -1,5 +1,29 @@
 # Bitácora de cambios
 
+## 14/10/2026 · El lema del Portal BI: «Y ahora, tus datos hablan.»
+
+- **Pedido del dueño**: que la portada, los recorridos, el anuncio y la demo tomen algo de «Haz que tus datos hablen», «Ahora tus datos hablan» o «Conversa con tus datos», elegido con criterio de neuromarketing, para que sea el plus del servicio.
+- **La frase elegida es «Y ahora, tus datos hablan.»** El porqué está en ADR-018. Forma un sistema de tres frases, una por función:
+  - el **lema** es «Y ahora, tus datos hablan.»;
+  - la **acción** es «Conversa con tus datos»;
+  - la **prueba** es «Pregúntale lo que el tablero no muestra».
+- **Portada de `/portal-bi/`**:
+  - El titular sigue siendo el gancho del ahorro («Nunca más una licencia por persona»). El lema va debajo, como segunda voz, y la bajada explica las dos promesas.
+  - El titular bajó de 64 a 56 px de tope. Con eso pasa de 5 a 4 renglones en escritorio, y los botones de compra terminan más arriba que antes aunque se sumó una línea: en 1440 × 900 y en 1280 × 800, de 875 a 829 px. En el teléfono siguen a la vista (822 px de 844).
+  - La sección del chat pasó de «Pregunta en español. Mira la consulta.» a «Conversa con tus datos. Y mira de dónde sale cada número.». El «en español» se mudó a la entrada.
+  - La descripción para buscadores y redes nombra el lema (155 caracteres). La imagen para compartir lo suma debajo del titular, con la misma jerarquía que la portada.
+- **Recorridos**:
+  - En el de tu equipo, el paso del chat se llama «Y ahora, tus datos hablan.», y la portada dice «Del ingreso a conversar con tus datos…».
+  - En el del administrador, el paso de la IA es «Tus datos hablan donde tú decides.».
+- **Anuncio**:
+  - La toma 6 presenta el lema como titular («Y ahora, tus datos hablan.» y «A un clic, al lado de tu tablero.»).
+  - El cierre lo firma debajo de «Power BI para toda tu empresa.». Va en blanco, porque la salvia no se lee sobre el verde.
+  - La Action vuelve a grabar los cuatro videos.
+- **Arreglo de paso**: `npm run recursos` estaba roto desde el 11/10. Buscaba los trazos del logo en `Logo.astro` y se habían mudado a `src/data/logo.ts`. Ahora los lee de ahí y, si no los encuentra, lo dice. Al regenerar, solo cambió `og/portal-bi.png`: las otras cuatro imágenes y los íconos salieron idénticos byte por byte.
+- **Banco**: el del anuncio comprueba que el lema se vea en el cuadro quieto del cierre. Saboteado atrasando su entrada: da rojo.
+  - El de los recorridos encontró un salto de diseño. La primera versión de la portada del recorrido daba CLS 0,0133 con red lenta en 1440 × 790 (ver aprendizajes). Se midieron tres frases nuevas, más la vieja como control, en los cinco tamaños, y se eligió una que no salta.
+  - QA, anuncio y recorridos sin problemas.
+
 ## 12/10/2026 · El anuncio: la IA al costado del tablero (55 s)
 
 - **Pedido del dueño**: el chat con IA se veía como otra pantalla, y la gracia del producto es que vive al lado del tablero. Es un botón al costado; un clic lo despliega y ahí se conversa con los datos del modelo. «Es la bomba», así que lleva diseño propio, aunque el anuncio se alargue un poco, y tiene que resolver dos preguntas difíciles.
