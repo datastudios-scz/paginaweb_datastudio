@@ -72,6 +72,13 @@ const fuente = (archivo) =>
   `data:font/woff2;base64,${readFileSync(join(RAIZ, 'src/assets/fuentes', archivo)).toString('base64')}`;
 const lockup = `<svg viewBox="0 0 5481 560" height="34" fill="#fff"><g transform="scale(0.29551)"><path fill-rule="evenodd" d="${ICONO}"/></g><g transform="translate(748.4 76.5)"><path d="${WORDMARK}"/></g></svg>`;
 
+/* El lema del Portal BI (ADR-018), como en Lema.astro: el «+», «HABLAN» y el chip de IA con sus
+   estrellitas (acá quietas: es una imagen). Clases con nombre propio: «b» ya es una barra del gráfico */
+const CHISPA = 'M12 0C12.7 6.7 17.3 11.3 24 12 17.3 12.7 12.7 17.3 12 24 11.3 17.3 6.7 12.7 0 12 6.7 11.3 11.3 6.7 12 0Z';
+const LEMA_OG =
+  `<span class="mas">+</span>Y ahora tus datos HABLAN<span class="chip"><svg viewBox="0 0 24 24"><path d="${CHISPA}"/></svg>IA` +
+  `<svg class="chispa-a" viewBox="0 0 24 24"><path d="${CHISPA}"/></svg><svg class="chispa-b" viewBox="0 0 24 24"><path d="${CHISPA}"/></svg></span>`;
+
 const plantillaOG = ({ rotulo, titulo, acento, lema, barrasEtiquetas }) => `<!doctype html><html><head><meta charset="utf-8"><style>
 @font-face{font-family:Poppins;font-weight:600;src:url(${fuente('poppins-latin-600-normal.woff2')})}
 @font-face{font-family:Poppins;font-weight:500;src:url(${fuente('poppins-latin-500-normal.woff2')})}
@@ -84,7 +91,12 @@ body{width:1200px;height:630px;overflow:hidden;font-family:Poppins;color:#fff;
 .rotulo{font-family:'DM Mono';font-size:18px;letter-spacing:.14em;text-transform:uppercase;color:${C.verdeClaro};margin-top:44px}
 h1{font-weight:600;font-size:62px;line-height:1.05;letter-spacing:-.035em;margin-top:18px;text-wrap:balance}
 h1 span{color:${C.verdeClaro}}
-.lema{font-weight:600;font-size:36px;line-height:1.15;letter-spacing:-.02em;margin-top:22px}
+.lema{font-weight:600;font-size:36px;line-height:1.15;letter-spacing:-.02em;margin-top:22px;white-space:nowrap}
+.lema .mas{display:inline-block;margin-right:.2em;font-size:1.3em;font-weight:600;line-height:.7;color:${C.verdeClaro};text-shadow:0 0 .4em rgba(77,207,193,.65);vertical-align:-.04em}
+.lema .chip{position:relative;top:-.95em;display:inline-flex;align-items:center;gap:.3em;margin-left:.4em;padding:.36em .7em .34em .55em;border-radius:999px;background:linear-gradient(135deg,#4f46e5,#8b5cf6);box-shadow:inset 0 0 0 1px rgba(255,255,255,.25),0 .3em 1.2em rgba(99,102,241,.55);font-size:.46em;font-weight:600;letter-spacing:.08em;line-height:1}
+.lema .chip svg{width:1.2em;height:1.2em;fill:#fff}
+.lema .chip .chispa-a{position:absolute;top:-.85em;right:-.55em;width:1.15em;height:1.15em;fill:#c4b5fd}
+.lema .chip .chispa-b{position:absolute;right:-.75em;bottom:-.45em;width:.8em;height:.8em;fill:#a5f3fc}
 .pie{font-family:'DM Mono';font-size:18px;color:#a6ae9a;letter-spacing:.06em}
 .graf{align-self:end;display:grid;grid-template-columns:repeat(4,1fr);gap:18px;height:420px;align-items:end;
  border-bottom:2px solid rgba(206,217,189,.35);padding-bottom:0;position:relative}
@@ -138,7 +150,7 @@ async function main() {
   const barras = ['Consultoría', 'Social Metrics', 'Portal BI', 'E‑commerce'];
   const imagenes = [
     { archivo: 'inicio.png', rotulo: 'Innovación, analítica &amp; marketing', titulo: 'Datos que toda tu empresa puede usar.' },
-    { archivo: 'portal-bi.png', rotulo: 'Portal BI', titulo: 'Power BI para toda la empresa.', acento: 'Una sola licencia.', lema: 'Y ahora, tus datos hablan.' },
+    { archivo: 'portal-bi.png', rotulo: 'Portal BI', titulo: 'Power BI para toda la empresa.', acento: 'Una sola licencia.', lema: LEMA_OG },
     { archivo: 'social-metrics-bi.png', rotulo: 'Social Metrics BI', titulo: 'Tus redes sociales,', acento: 'en un solo tablero.' },
     { archivo: 'tienda-ecommerce.png', rotulo: 'Tienda e-commerce', titulo: 'Tu tienda online, con código propio.', acento: 'Pago único.' },
     { archivo: 'consultoria.png', rotulo: 'Consultoría de datos', titulo: 'Ordenamos tus datos', acento: 'para que puedas usarlos.' },

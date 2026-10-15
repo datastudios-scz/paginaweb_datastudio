@@ -11,7 +11,7 @@
  * Una sola cifra de dinero en toda la página, en la calculadora; el resto habla de beneficios.
  * Cifras sin confirmar, una mención cada una: "+1.000 personas" (franja) y "dos horas como
  * máximo" (#instalar). Estilos genéricos en src/styles/producto.css (prod-*); aquí solo lo propio.
- * El lema (ADR-018): «Y ahora, tus datos hablan.» va debajo del titular, como segunda voz; el gancho
+ * El lema (ADR-018): «+ Y ahora tus datos HABLAN» con su chip de IA (Lema.astro) va debajo del titular, como segunda voz; el gancho
  * sigue siendo el ahorro. La sección del chat lo baja a la acción («Conversa con tus datos») y a la
  * prueba (la consulta a la vista).
  */
@@ -25,6 +25,7 @@ import MaquetaLogin from '../components/portal/MaquetaLogin.astro';
 import MaquetaChatMovil from '../components/portal/MaquetaChatMovil.astro';
 import MaquetaTelefono from '../components/portal/MaquetaTelefono.astro';
 import MaquetaAdmin from '../components/portal/MaquetaAdmin.astro';
+import Lema from '../components/portal/Lema.astro';
 import Calculadora from '../components/portal/Calculadora.astro';
 import Preguntas, { type Pregunta } from '../components/Preguntas.astro';
 import { MENSAJES, CONTACTO, SITIO, enlaceWhatsApp } from '../data/sitio';
@@ -171,7 +172,7 @@ const SERVICIO = {
   titulo="Portal BI | Power BI para toda la empresa con una sola licencia · Data Studio"
   descripcion="Power BI para toda tu empresa con una sola licencia y tu marca. Y ahora tus datos hablan: un chat con IA al lado del tablero. Impleméntalo tú o contrátalo."
   imagen="/og/portal-bi.png"
-  imagenAlt="Portal BI de Data Studio: Power BI para toda la empresa con una sola licencia. Y ahora, tus datos hablan."
+  imagenAlt="Portal BI de Data Studio: Power BI para toda la empresa con una sola licencia. Y ahora tus datos hablan, con IA."
   datosEstructurados={[
     migas([
       { nombre: 'Inicio', url: `${SITIO.url}/` },
@@ -192,7 +193,7 @@ const SERVICIO = {
             Power BI para toda tu empresa. <span class="prod-acento">Nunca más una licencia por persona.</span>
           </h1>
           <!-- El lema (ADR-018): el plus, como segunda voz del titular. El gancho sigue siendo el ahorro -->
-          <p class="pb-lema">Y ahora, tus datos hablan.</p>
+          <p class="pb-lema"><Lema /></p>
           <p class="prod-heroe__bajada">
             Cada persona entra con su usuario y encuentra sus tableros, con tu marca y sin cuenta de Power BI. Y al
             lado del tablero, le pregunta a la IA lo que el reporte no muestra.
@@ -693,7 +694,8 @@ const SERVICIO = {
   /* El lema: la segunda voz del titular, pegada a él y antes de la bajada */
   .pb-lema {
     margin-top: calc(var(--space-4) - var(--space-5));
-    font-size: var(--text-2xl);
+    /* Un punto menos que --text-2xl en el teléfono: con el «+» y el chip entra en un renglón */
+    font-size: clamp(1.25rem, 1rem + 1.1vw, 2rem);
     font-weight: var(--peso-semi);
     line-height: 1.15;
     letter-spacing: -0.02em;

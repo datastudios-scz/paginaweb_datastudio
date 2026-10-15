@@ -2,7 +2,7 @@
 
 Formato: contexto → decisión → consecuencias. Las decisiones nuevas van arriba.
 
-## ADR-018 · El lema del Portal BI: «Y ahora, tus datos hablan.» (14/10/2026)
+## ADR-018 · El lema del Portal BI: «+ Y ahora tus datos HABLAN» (14/10/2026, revisado el 15/10)
 
 - **Contexto**: el dueño pidió que la portada, los recorridos y el anuncio tomaran algo de «Haz que tus datos hablen», «Ahora tus datos hablan» o «Conversa con tus datos», y que se eligiera con criterio de neuromarketing, para que sea el plus del servicio. El gancho de la página ya era el ahorro («Nunca más una licencia por persona»), y el chat con IA al costado del tablero es lo que el producto tiene de distinto.
 - **Decisión**: el lema es **«Y ahora, tus datos hablan.»**. Va con dos frases que cumplen otras funciones: la acción, **«Conversa con tus datos»**, y la prueba, **«Pregúntale lo que el tablero no muestra»**.
@@ -22,6 +22,12 @@ Formato: contexto → decisión → consecuencias. Las decisiones nuevas van arr
   - En el anuncio aparece dos veces, porque la repetición fija la frase: la toma 6 lo presenta y el cierre lo firma.
   - En los recorridos, nombra el paso del chat.
   - La imagen para compartir lo lleva debajo del titular, porque es lo que se ve cuando se pasa el enlace por WhatsApp.
+- **Revisión del dueño (15/10/2026)**: la frase sola no sonaba a plus ni decía que hay IA. Ahora es **«+ Y ahora tus datos HABLAN»**, sin la coma, con un chip «IA» en la esquina y estrellitas que titilan.
+  - El «+» vuelve literal el plus.
+  - Las mayúsculas cargan el peso en el verbo, que es la promesa.
+  - El chip nombra la IA sin alargar la frase. Lleva el índigo de la IA del producto (el del chat de las maquetas), no el verde de la marca.
+  - Es un solo componente (`Lema.astro`) para la portada y los recorridos. El anuncio y la imagen para compartir llevan su versión, con las mismas formas.
+  - En el texto plano (descripción, texto alternativo) va «Y ahora tus datos hablan», sin mayúsculas: en un buscador, las mayúsculas gritan.
 - **Consecuencias**: el lema es una afirmación sobre el producto. Se sostiene mientras el chat consulte el modelo y responda con sus datos (contenido.md). Fuera de `/portal-bi/` (inicio, menú) no se cambió nada.
 
 ## ADR-017 · El recorrido del administrador: otro guion sobre el mismo motor (12/10/2026)

@@ -590,6 +590,11 @@ html:not(.js) .rc-medida {
   display: inline-block;
 }
 
+/* En bloque para que pueda moverse al entrar (un inline no se traslada) */
+.rc-narracion__t > .lema {
+  display: inline-block;
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .rc-narracion.es-entrando .rc-p > span {
     animation: rc-palabra 0.85s var(--ease-out) both;
@@ -603,6 +608,15 @@ html:not(.js) .rc-medida {
 
   .rc-narracion.es-entrando .rc-narracion__n {
     animation: rc-detalle 0.5s var(--ease-out) both;
+  }
+
+  /* El lema entra entero (el chip y sus estrellitas se cortarían en una ranura) */
+  .rc-narracion.es-entrando .rc-narracion__t > .lema {
+    animation: rc-lema 0.85s var(--ease-out) 0.1s both;
+  }
+
+  .rc-narracion.es-saliendo .rc-narracion__t > .lema {
+    animation: rc-sale 0.22s var(--ease-in) both;
   }
 
   .rc-narracion.es-saliendo .rc-p > span,
@@ -989,6 +1003,10 @@ html:not(.js) .rc-medida {
 }
 @keyframes rc-palabrita {
   from { opacity: 0; transform: translateY(0.45em); filter: blur(3px); }
+  to { opacity: 1; transform: none; filter: none; }
+}
+@keyframes rc-lema {
+  from { opacity: 0; transform: translateY(0.5em); filter: blur(6px); }
   to { opacity: 1; transform: none; filter: none; }
 }
 @keyframes rc-velo { from { opacity: 0; } }

@@ -2,6 +2,20 @@
 
 Cada entrada: **síntoma → causa → solución → cómo evitarlo**.
 
+## El lema con su chip de IA (15/10/2026)
+
+### Un peso de la fuente que no se precarga hace saltar el texto
+- **Síntoma**: el banco de los recorridos dio CLS 0,0101 en el teléfono, en el del administrador. Antes daba 0,0002. La banda de la narración se achicaba 23 px a los 650 ms, y la pantalla de arriba se corría.
+- **Causa**: el «+» y el «IA» del chip iban en peso 700, y ese archivo de Poppins no se precarga. En el primer cuadro, el paso del lema medía dos renglones, porque «HABLAN» con su chip no entraba con la fuente de respaldo. Cuando llegó el 700 midió uno. La caja de la narración toma el alto del texto más alto, así que se achicó.
+- **Cómo se encontró**: simular la fuente de respaldo con `system-ui` no lo mostraba, porque Astro arma una de respaldo con métricas ajustadas. Medir antes y después del `DOMContentLoaded` tampoco, porque ya estaba resuelto. Lo mostró una traza cuadro a cuadro desde el primero, con cada alto y la cantidad de fuentes cargadas: el alto cambió justo cuando las fuentes pasaron de 4 a 7.
+- **Solución**: el «+» y el chip van en 600, que ya se usa en los titulares. Con eso el paso mide lo mismo desde el primer cuadro.
+- **Evitarlo**: en lo que se ve al cargar, y en la medida de la narración, nada en un peso que la página no use antes.
+
+### Una clase corta en una plantilla compartida toma un estilo ajeno
+- **Síntoma**: en la imagen para compartir, la estrellita de abajo del chip salió dentro de un cuadrado con borde verde.
+- **Causa**: tenía la clase «b», que en esa plantilla ya era una barra del gráfico (fondo petróleo, borde superior verde claro).
+- **Solución y regla**: en una plantilla con estilos propios, las clases nuevas llevan nombre propio (`chispa-a`, `chispa-b`), no una letra.
+
 ## El lema del Portal BI (14/10/2026)
 
 ### Cambiar el texto que se ve al cargar puede hacer saltar la página

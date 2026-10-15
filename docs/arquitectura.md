@@ -48,6 +48,7 @@
 │   │   ├── BarrasMarca.astro    Las 4 barras del logo en miniatura, con la del producto encendida
 │   │   ├── inicio/              Portada (sticky), Soluciones (telón + gráfico), Vitrinas, Manifiesto
 │   │   ├── portal/              Maquetas del Portal BI (Ventana, MaquetaPortal, MaquetaChat, MaquetaAdmin) y Calculadora;
+│   │   │                        Lema.astro: el lema «+ Y ahora tus datos HABLAN» con su chip de IA (portada y recorridos);
 │   │   │                        los recorridos animados: RecorridoMarco.astro (el marco de la página, común),
 │   │   │                        RecorridoPantalla.astro (tu equipo) y RecorridoAdmin.astro (el administrador), 1280 × 760;
 │   │   │                        recorrido.css (lo común), recorrido-pantalla.css y recorrido-admin.css (cada pantalla)

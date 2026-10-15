@@ -51,6 +51,17 @@ const TARJETAS = [
 /* El ícono de la IA del portal (la lengüeta y el chat) */
 const DESTELLO = 'M12 2l1.9 5.6L19.5 9l-5.6 1.9L12 16.5l-1.9-5.6L4.5 9l5.6-1.4z';
 
+/* El lema (ADR-018): el «+», las palabras que suben desde su ranura (como todo titular) y el
+   chip de IA en la esquina de «HABLAN», con sus estrellitas. Lo usan la toma 6 y el cierre */
+const CHISPA = 'M12 0C12.7 6.7 17.3 11.3 24 12 17.3 12.7 12.7 17.3 12 24 11.3 17.3 6.7 12.7 0 12 6.7 11.3 11.3 6.7 12 0Z';
+const chispa = (donde: string) =>
+  `<svg class="an-chip-ia__chispa an-chip-ia__chispa--${donde}" viewBox="0 0 24 24"><path d="${CHISPA}" /></svg>`;
+const LEMA =
+  '<span class="an-lema__mas">+</span>' +
+  ['Y', 'ahora', 'tus', 'datos'].map((w, k) => `<span class="an-p w${k}"><span>${w}</span></span>`).join(' ') +
+  ' <span class="an-lema__fin"><span class="an-p w4 an-lema__hablan"><span>hablan</span></span>' +
+  `<span class="an-chip-ia">${chispa('adentro')}IA${chispa('arriba')}${chispa('abajo')}</span></span>`;
+
 /* El chat al costado del tablero: dos preguntas que el tablero no contesta solo.
    Datos de ejemplo, cuadrados con los del reporte (ADR-013): las siete sucursales crecen, en
    promedio ponderado, el +7,9 % del indicador; Aeropuerto vende 822.300 (6.969 tickets de
@@ -228,7 +239,7 @@ const CONSULTAS = ['ventas de 2025 y 2026', 'tickets de cada año', 'ticket prom
   <section class="an-escena an-s6">
     <i class="an-s6-luz"></i>
     <div class="an-texto an-s6-texto">
-      <p class="an-h1 an-s6-titulo" set:html={titular('Y ahora, tus datos hablan.')} />
+      <p class="an-h1 an-s6-titulo an-lema" set:html={LEMA} />
       <p class="an-h3 an-s6-sub">A un clic, al lado de tu tablero.</p>
     </div>
     <div class="an-texto an-s6-final">
@@ -379,7 +390,7 @@ const CONSULTAS = ['ventas de 2025 y 2026', 'tickets de cada año', 'ticket prom
       </div>
       <p class="an-h1 an-s9-titulo" set:html={titular('Power BI para toda tu empresa.')} />
       <!-- El lema (ADR-018): lo presenta la toma 6 y lo firma el cierre -->
-      <p class="an-h3 an-s9-lema">Y ahora, tus datos hablan.</p>
+      <p class="an-h3 an-s9-lema an-lema" set:html={LEMA} />
       <ul class="an-fichas">
         <li>1 licencia</li>
         <li>Con tu marca</li>

@@ -313,7 +313,16 @@ console.log('Con movimiento reducido');
       ficha: escala('.an-fichas li:last-child'),
       url: Number(getComputedStyle(document.querySelector('.an-url')).opacity),
       lema: Number(getComputedStyle(document.querySelector('.an-s9-lema')).opacity),
-      lemaTexto: document.querySelector('.an-s9-lema').textContent.trim(),
+      lemaTexto: document.querySelector('.an-s9-lema').innerText.replace(/\s+/g, ' ').trim(),
+      /* Por la matriz: el ancho contra offsetWidth (entero) daba 0,99 por redondeo */
+      chip: (() => {
+        const t = getComputedStyle(document.querySelector('.an-s9-lema .an-chip-ia')).transform;
+        return t === 'none' || new DOMMatrixReadOnly(t).isIdentity ? 1 : t;
+      })(),
+      hablan: (() => {
+        const t = getComputedStyle(document.querySelector('.an-s9-lema .an-lema__hablan > span')).transform;
+        return t === 'none' || new DOMMatrixReadOnly(t).isIdentity;
+      })(),
       titulo: t === 'none' || new DOMMatrixReadOnly(t).isIdentity,
       tituloTexto: t,
     };
@@ -322,7 +331,8 @@ console.log('Con movimiento reducido');
   ok(quieto.boton === 1 && quieto.ficha === 1, `el cierre está armado: botón y última ficha a escala ${quieto.boton} y ${quieto.ficha} (deben ser 1)`);
   ok(quieto.url === 1, `la URL se ve (opacidad ${quieto.url})`);
   /* El lema del producto firma el cierre (ADR-018) */
-  ok(quieto.lema === 1, `el lema se ve: «${quieto.lemaTexto}» (opacidad ${quieto.lema})`);
+  ok(quieto.lema === 1 && quieto.chip === 1 && quieto.hablan,
+    `el lema se ve entero: «${quieto.lemaTexto}» (opacidad ${quieto.lema}, chip de IA a escala ${quieto.chip}, «HABLAN» ${quieto.hablan ? 'arriba' : 'sin subir'})`);
   ok(quieto.titulo, `el título terminó de subir (${quieto.tituloTexto})`);
   ok(p.errores.length === 0, `sin errores ni CSP${p.errores.length ? ` (${p.errores.join(' | ')})` : ''}`);
   await p.context().close();

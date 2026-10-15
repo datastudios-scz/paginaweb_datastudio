@@ -10,16 +10,22 @@
  * lectores de pantalla mientras la región en vivo cuenta cada paso. Lo anima
  * src/scripts/recorrido-motor.ts con el guion de cada página.
  *
+ * Un paso con `lema: true` no se narra palabra por palabra: su titular es el lema del producto
+ * (Lema.astro, con el «+» y el chip de IA), y el motor clona ese marcado del guion.
+ *
  * id="ver": desde el botón que enlaza el recorrido (#ver) arranca solo, y la portada ni llega a
  * pintarse (#ver:target en recorrido.css). Sin script en línea: la CSP de Astro no le calcula
  * el hash a un is:inline, y lo bloquearía.
  */
 import Icono from '../Icono.astro';
+import Lema from './Lema.astro';
 import { MENSAJES, enlaceWhatsApp } from '../../data/sitio';
 
 interface Texto {
   titulo: string;
   detalle: string;
+  /** El titular es el lema del producto (ADR-018): el texto queda para lectores y para el guion */
+  lema?: boolean;
 }
 
 interface Props {
@@ -137,7 +143,7 @@ const palabras = (t: string) => t.split(' ').map((w) => `<span class="rc-d">${es
         {TEXTOS.map((t) => (
           <div class="rc-narracion">
             <p class="rc-narracion__n">{t.n}</p>
-            <p class="rc-narracion__t" set:html={ranuras(t.titulo)} />
+            {t.lema ? <p class="rc-narracion__t"><Lema /></p> : <p class="rc-narracion__t" set:html={ranuras(t.titulo)} />}
             <p class="rc-narracion__d" set:html={palabras(t.detalle)} />
           </div>
         ))}
@@ -154,7 +160,11 @@ const palabras = (t: string) => t.split(' ').map((w) => `<span class="rc-d">${es
       <ol class="rc-guion" data-r="guion">
         {pasos.map((p) => (
           <li>
-            <strong>{p.titulo}</strong>
+            {p.lema ? (
+              <strong data-titulo={p.titulo}><Lema /></strong>
+            ) : (
+              <strong>{p.titulo}</strong>
+            )}
             <span>{p.detalle}</span>
           </li>
         ))}

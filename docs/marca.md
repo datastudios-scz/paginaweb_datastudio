@@ -70,4 +70,10 @@ Hex exactos del manual (no se modifican). Los derivados se calcularon en OKLCH m
 - Español con **tuteo** ("Escríbenos", "Pide una demo"). Registro cercano y concreto.
 - Nombrar lo que la persona controla y reconoce; nada de jerga vacía ("soluciones innovadoras de vanguardia").
 - Sin cifras, clientes ni testimonios inventados (ver [contenido.md](contenido.md)).
-- **El lema del Portal BI** es «Y ahora, tus datos hablan.», y suelto, sin lo anterior, es «Ahora tus datos hablan.». Lo acompañan dos frases, cada una con su función: la acción, «Conversa con tus datos», y la prueba, «Pregúntale lo que el tablero no muestra». Cada pieza nueva del Portal BI las usa así, sin variantes («Haz que tus datos hablen» le pasa el trabajo al lector). Ver ADR-018.
+- **El lema del Portal BI** es «+ Y ahora tus datos HABLAN», con el chip «IA» en la esquina. Va siempre como `Lema.astro`, o con las mismas formas donde no se puede usar el componente:
+  - el «+» en verde claro con brillo, y en blanco sobre el verde;
+  - «HABLAN» en mayúsculas por CSS;
+  - el chip en el índigo de la IA, con tres estrellitas que titilan;
+  - nada en peso 700, porque no se precarga.
+  - En texto plano es «Y ahora tus datos hablan».
+- Lo acompañan dos frases, cada una con su función: la acción, «Conversa con tus datos», y la prueba, «Pregúntale lo que el tablero no muestra». Cada pieza nueva del Portal BI las usa así, sin variantes («Haz que tus datos hablen» le pasa el trabajo al lector). Ver ADR-018.

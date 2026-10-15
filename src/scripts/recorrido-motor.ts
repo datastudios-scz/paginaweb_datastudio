@@ -23,7 +23,8 @@
 
 export type Region = { x: number; y: number; w: number; h: number };
 export type Destino = Element | Region | (() => Region);
-type Texto = { n: string; titulo: string; detalle: string };
+/** `lema`: el marcado del lema (Lema.astro) que se clona en vez de narrar palabra por palabra */
+type Texto = { n: string; titulo: string; detalle: string; lema?: Element | null };
 
 /** Lo que el motor le presta al guion. */
 export interface Herramientas {
@@ -91,11 +92,16 @@ function iniciar(raiz: HTMLElement, { duraciones: DURACION, guion, alRedibujar, 
   const molde = P.innerHTML;
   const escenaInicial = P.dataset.escena ?? '';
   const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const leer = (el: Element, n: string): Texto => ({
-    n,
-    titulo: el.querySelector('strong')?.textContent ?? '',
-    detalle: el.querySelector('span')?.textContent ?? '',
-  });
+  /* El detalle es el <span> hijo directo: el titular con lema tiene spans adentro */
+  const leer = (el: Element, n: string): Texto => {
+    const fuerte = el.querySelector<HTMLElement>('strong');
+    return {
+      n,
+      titulo: fuerte?.dataset.titulo ?? fuerte?.textContent ?? '',
+      detalle: el.querySelector(':scope > span')?.textContent ?? '',
+      lema: fuerte?.querySelector('.lema'),
+    };
+  };
   const items = [...$('guion').querySelectorAll('li')];
   const pasos = items.map((li, i) => leer(li, `${dos(i + 1)} / ${dos(items.length)}`));
   const cierre = leer($('cierre'), $('cierre').dataset.n ?? '');
@@ -406,7 +412,8 @@ function iniciar(raiz: HTMLElement, { duraciones: DURACION, guion, alRedibujar, 
     const poner = () => {
       caja.classList.remove('es-saliendo', 'es-entrando');
       $('numero').textContent = t.n;
-      $('titular').replaceChildren(...trozar(t.titulo, true));
+      if (t.lema) $('titular').replaceChildren(t.lema.cloneNode(true));
+      else $('titular').replaceChildren(...trozar(t.titulo, true));
       const detalle = $('detalle');
       detalle.replaceChildren(...trozar(t.detalle, false));
       detalle.style.setProperty('--base', `${260 + t.titulo.split(' ').length * 55}ms`);

@@ -1,5 +1,27 @@
 # Bitácora de cambios
 
+## 15/10/2026 · El lema con su «+» y su chip de IA
+
+- **Pedido del dueño**: «Y ahora tus datos hablan» solo no sonaba a plus ni decía que hay IA. Ahora lleva un «+» que llama la atención, «Y ahora tus datos HABLAN» y, en su esquina, un chip «IA» con estrellitas que titilan.
+- **Un solo componente, `Lema.astro`**, para la portada y los dos recorridos. Todo va en em, así que toma el tamaño del texto donde se pone. Sus partes:
+  - el «+» en el verde de acento, más grande y con brillo;
+  - «HABLAN» en mayúsculas por CSS (el lector de pantalla lee la palabra, no las letras);
+  - el chip en el índigo de la IA del producto, con tres estrellitas: la de adentro late, y las dos de afuera titilan.
+  - Con «reducir movimiento» las estrellitas quedan quietas y visibles. Un lector de pantalla lee «Y ahora tus datos hablan, con IA».
+- **Recorridos**: el paso del lema (el 5 en el de tu equipo, el 6 en el del administrador) ya no se narra palabra por palabra.
+  - El motor clona el marcado del lema que está en el guion y lo hace entrar entero, porque una ranura le cortaba el chip y las estrellitas.
+  - El administrador usa el mismo lema; su «donde tú decides» pasó al detalle.
+  - El detalle de cada paso se lee del `<span>` hijo directo. El primer `<span>` del paso ahora estaría dentro del lema.
+- **Anuncio**: la toma 6 y el cierre llevan su versión del lema. Las palabras suben de su ranura como todo titular, el «+» entra girando y el chip aparece de golpe, con las estrellitas contadas desde la toma.
+  - En el cierre, el lema es más grande que un subtítulo, con tope para que entre en un renglón en 9:16.
+  - «HABLAN» y su chip no se separan al cortar el renglón: en 9:16 el chip se había caído solo al renglón de abajo, encima de «datos». Lo mismo en la web.
+- **Imagen para compartir**: el mismo lema, con las estrellitas quietas.
+- **Medido y arreglado en el camino**:
+  - El peso 700 de Poppins no se precarga. En el recorrido del administrador llegaba tarde y el lema pasaba de dos renglones a uno: CLS 0,0101 en el teléfono. El «+» y el chip van en 600 (ver aprendizajes).
+  - En la imagen para compartir, una estrellita con la clase «b» tomó el estilo de las barras del gráfico, que ya usaba ese nombre.
+- **Banco del anuncio**: el lema del cierre tiene que verse entero en el cuadro quieto: opacidad, chip a escala 1 y «HABLAN» arriba. El chip se mide por su matriz, porque contra `offsetWidth`, que es entero, daba 0,99. Saboteado atrasando el chip: da rojo.
+- QA, anuncio y recorridos sin problemas. Los botones de compra siguen donde estaban (829 px en 1440 × 900 y 818 en el teléfono).
+
 ## 14/10/2026 · El lema del Portal BI: «Y ahora, tus datos hablan.»
 
 - **Pedido del dueño**: que la portada, los recorridos, el anuncio y la demo tomen algo de «Haz que tus datos hablen», «Ahora tus datos hablan» o «Conversa con tus datos», elegido con criterio de neuromarketing, para que sea el plus del servicio.
