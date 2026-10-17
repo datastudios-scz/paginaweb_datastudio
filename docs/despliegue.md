@@ -31,7 +31,11 @@ Consultar: `gh api repos/datastudios-scz/paginaweb_datastudio/pages`
 El dominio `datastudio.es` se compró en Hostinger y su DNS apunta a GitHub Pages:
 
 - `A` de `datastudio.es` → 185.199.108.153 / .109.153 / .110.153 / .111.153 (y los `AAAA` 2606:50c0:8000–8003::153)
-- `www.datastudio.es` → alias a GitHub Pages
+- `CNAME` de `www` → **`datastudios-scz.github.io`** (no `datastudio.es`). Así GitHub incluye `www` en el certificado y redirige `www.datastudio.es` → `https://datastudio.es`.
+
+**Ojo (17/10/2026):** el `www` apuntaba a `datastudio.es`. La raíz funcionaba con HTTPS, pero el certificado de GitHub solo cubría `datastudio.es`, y quien entraba por `www.datastudio.es` veía el aviso "Este sitio no admite una conexión segura". Se corrige en Hostinger (hPanel → Dominios → datastudio.es → DNS): editar el `CNAME` `www` para que apunte a `datastudios-scz.github.io`. GitHub emite el certificado de `www` solo, en minutos u horas.
+
+Comprobar: `curl -I https://www.datastudio.es/` debe responder 301 hacia `https://datastudio.es/` sin error de certificado.
 
 No hace falta tocar nada en Hostinger para publicar. Si algún día se cambia de hosting, se cambian estos registros.
 
