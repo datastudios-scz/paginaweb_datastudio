@@ -2,6 +2,35 @@
 
 Cada entrada: **síntoma → causa → solución → cómo evitarlo**.
 
+## El gancho nuevo del anuncio (17/10/2026)
+
+### Girar una capa mientras cambia de escala hace que el cuadro dependa del camino
+- **Síntoma**: el remolino del gancho, con las cartas girando entre 40 y 70° mientras se achicaban, dio 15.000 píxeles distintos en el mismo instante según desde dónde se llegaba. A simple vista las dos fotos eran iguales: cambiaba el suavizado de los bordes del texto.
+- **Causa**: Chrome elige la escala a la que rasteriza una capa según lo que pasó antes, y con la capa girada no la recalcula. Sin el giro, el mismo banco daba 0. `will-change: transform` no lo arregla.
+- **Solución**:
+  - el remolino es un desvío de costado (una capa más, solo con translate), no un giro;
+  - las cartas, que flotan inclinadas, se enderezan antes de achicarse;
+  - la ventana se abre con un iris (`clip-path`) en vez de crecer con escala;
+  - el acercamiento lento de la ventana es un desplazamiento;
+  - las tarjetas de adentro entran subiendo, sin escala.
+- **Cómo se encontró**: el banco mira pocos instantes. Una prueba de estrés encontró lo que el banco no veía: 14 instantes del gancho, cada uno desde tres historias, en los cuatro formatos. Lo que encontró:
+  - el acercamiento de la ventana (1.085 píxeles en 4:5);
+  - el estallido de la ventana con las tarjetas rebotando adentro.
+  - Con lo que la prueba no podía ver de una sola vez: Chrome arrastra la rasterización entre saltos, así que un instante limpio con dos historias puede no serlo con cinco.
+  - La prueba vive en el scratchpad de la sesión: repetirla cuando se toque el gancho.
+- **Evitarlo**: en una toma que se graba cuadro a cuadro, nada con giro puede cambiar de escala, ni adentro ni encima de otra escala animada. Si hace falta girar, que sea con la escala quieta.
+
+### Una regla de una sola clase pierde contra otra igual que está más abajo en el archivo
+- **Síntoma**: una prueba nueva del banco dio rojo en 9:16: las caras de la toma de la licencia bajaban a 1.532 px, debajo del 79 % donde van los botones de Reels.
+- **Causa**: la ventana del gancho subía con `top: var(--cv)` en `.an-s2-ventana`. Pero `.an-ui { top: 50% }` está más abajo en `anuncio.css` y, con la misma especificidad, ganaba: la ventana nunca se movió.
+- **Solución**: `.an-s2-visual > .an-s2-ventana`.
+- **Evitarlo**: las reglas genéricas de las maquetas (`.an-ui`, `.an-ventana`) están en la toma 3. Lo que una toma anterior quiera cambiarles va con dos clases.
+
+### Sabotear el CSS compilado rompe la CSP, no la prueba
+- **Síntoma**: para ver que las pruebas nuevas podían fallar, se editó el CSS dentro de `dist/`. Fallaron todas, pero por otra razón.
+- **Causa**: el CSS va en línea y la CSP lo autoriza por su hash. Al cambiarlo, el hash ya no coincide y el navegador lo bloquea entero. El script también va en línea, así que buscarlo en `dist/_astro/` no encontró nada que sabotear.
+- **Solución**: sabotear el código fuente con una copia de respaldo, compilar, correr el banco y restaurar. Dio exactamente las rojas esperadas: el aviso de la licencia tapado en 9:16 y la succión desviada en los cuatro formatos.
+
 ## El lema con su chip de IA (15/10/2026)
 
 ### Un peso de la fuente que no se precarga hace saltar el texto

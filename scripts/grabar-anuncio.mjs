@@ -13,7 +13,7 @@
  *
  * Deja en videos-anuncio/ (fuera de git: los videos NO van en el repositorio):
  *   portal-bi-anuncio-<formato>.mp4   el video
- *   portal-bi-portada-<formato>.jpg   el cuadro del segundo 1, para elegirlo como portada
+ *   portal-bi-portada-<formato>.jpg   el gancho armado (2,45 s), para elegirlo como portada
  * Los que se descargan desde la página los graba .github/workflows/anuncio.yml con este mismo
  * script y los sube al release `anuncio-portal-bi` de GitHub.
  *
@@ -133,8 +133,9 @@ for (const formato of pedidos) {
     return Buffer.from(data, 'base64');
   };
 
-  /* La portada: el gancho, con la pregunta y los asientos ya a la vista */
-  await ir(1000);
+  /* La portada: el gancho armado (el pedido y los siete reportes a la vista, antes de que el
+     globo vuelva a vibrar a los 2,55 s y el portal se lo trague todo a los 2,9 s). ADR-019 */
+  await ir(2450);
   writeFileSync(`${SALIDA}/portal-bi-portada-${formato}.jpg`, await pagina.screenshot({ type: 'jpeg', quality: 92 }));
 
   const destino = `${SALIDA}/portal-bi-anuncio-${formato}.mp4`;

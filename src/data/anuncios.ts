@@ -46,8 +46,8 @@ export const ANUNCIOS: Anuncio[] = [
     producto: 'Portal BI',
     titulo: 'Power BI para toda tu empresa, con una sola licencia',
     descripcion:
-      'El dolor de pagar una licencia por persona, el portal con tu marca, la IA al costado del tablero que conversa con tus datos y el cierre con el WhatsApp.',
-    fecha: '2026-10-15',
+      'Arranca con «¿Me pasas el reporte?» y los reportes regados que el portal se traga: todos los tableros en un solo lugar, una licencia para mil personas, tu marca, la IA al costado del tablero y el cierre con el WhatsApp.',
+    fecha: '2026-10-17',
     duracion: '55 s',
     pagina: '/portal-bi/anuncio/',
     descargas: FORMATOS.map((f) => ({ formato: f.nombre, uso: f.uso, px: f.px, href: videoPortalBi(f.id) })),

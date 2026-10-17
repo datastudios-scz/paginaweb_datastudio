@@ -11,10 +11,12 @@
  *    maquetas del portal usan --m = 1/ancho-de-diseño de la propia maqueta.
  *  · Sin transiciones: una transición corre en tiempo real y no se puede llevar a un instante.
  *
- * Neuromarketing, en concreto: el primer cuadro ya dice el dolor (sirve de miniatura); el
- * número es real (US$ 14 por persona, lista de Microsoft) y el monto que no se paga va
- * tachado en rojo con palabras (PRODUCT.md); una idea por toma; cortes cada ~3 s sobre un
- * pulso de 120 BPM (medio segundo), para que la música que se le ponga calce.
+ * Neuromarketing, en concreto (ADR-019): el primer cuadro ya es el gancho y sirve de
+ * miniatura; el gancho es una escena que el público vive («¿Me pasas el reporte?» y los
+ * reportes regados), no una cifra que haya que interpretar; del caos al orden en 3 s; lo que se
+ * pagaría sin el portal va tachado en rojo (PRODUCT.md); una idea por toma, todo dicho en
+ * pantalla (casi todo se mira sin sonido); cortes sobre un pulso de 120 BPM (medio segundo),
+ * para que la música que se le ponga calce.
  */
 
 @property --u {
@@ -282,6 +284,8 @@
   --entra: cubic-bezier(0.7, 0, 0.84, 0);
   --suave: cubic-bezier(0.65, 0, 0.35, 1);
   --resorte: cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* La succión del gancho: acelera hasta el final, sin quedarse quieta al principio */
+  --chupa: cubic-bezier(0.45, 0, 0.8, 0.15);
   position: relative;
   overflow: hidden;
   container-type: size;
@@ -296,6 +300,9 @@
 /* --u se calcula en los hijos del lienzo (las unidades cq miran al contenedor de arriba) */
 .an-lienzo > * {
   --u: calc(100cqmin / 1080);
+  /* Las cartas del gancho: un 20 % más grandes que la letra chica del resto (en un teléfono,
+     28 px de un video de 1080 son unos 10 pt); en 1:1, que tiene la zona más baja, un poco menos */
+  --c: calc(1.2 * var(--u));
 }
 
 .an-lienzo p {
@@ -362,6 +369,7 @@
 }
 
 .an-lienzo[data-formato='1x1'] > * {
+  --c: calc(0.92 * var(--u));
   --h1: calc(80 * var(--u));
   --h2: calc(56 * var(--u));
   --h3: calc(36 * var(--u));
@@ -431,14 +439,6 @@
   bottom: -60cqmax;
   background: radial-gradient(closest-side, rgb(0 57 78 / 0.9), transparent 72%);
   animation-direction: reverse;
-}
-
-.an-canvas {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  width: 100%;
-  height: 100%;
 }
 
 /* ── Cada toma: oculta fuera de su ventana ───────────────────────────────────────── */
@@ -582,205 +582,716 @@
   fill: #fff;
 }
 
-/* ═══ 1 · GANCHO (0 – 6,6 s) ═════════════════════════════════════════════════════════ */
+/* ═══ 1 · GANCHO (0 – 3,5 s): «¿Me pasas el reporte?» y los reportes sueltos ═══════════════
+   ADR-019. El primer cuadro ya es el gancho y sirve de miniatura: una escena que el público
+   vive todos los días (el pedido por chat, el Excel «FINAL_v3», el «RE: RE: RE:», el aviso de
+   que falta una licencia de Power BI Pro), no una cifra que haya que interpretar. Cada medio
+   segundo llega algo más, y a los 2,9 s el portal se lo traga todo: del caos al orden. */
 .an-s1 {
   --a: 0s;
-  --z: 6.6s;
+  --z: 3.5s;
+  /* Por encima de la toma 2: lo que vuela pasa sobre el portal chico y se hunde en su centro */
+  z-index: 3;
 }
 
-.an-s1 .an-texto {
+/* El pedido: quién lo manda, el globo y los mensajes sin leer que se juntan. Se acerca despacio
+   (la presión sube) y al final el portal se lo traga, como a los reportes */
+.an-s1-chat {
+  align-self: flex-start;
   display: grid;
-  align-content: var(--tx-j);
-}
-
-.an-s1 .an-texto > * {
-  grid-area: 1 / 1;
-}
-
-/* El primer cuadro ya muestra la pregunta entera: es la miniatura del video */
-.an-s1-pregunta {
-  --o: -0.75s;
-  transform-origin: 0 50%;
+  justify-items: start;
+  gap: calc(16 * var(--u));
+  max-width: 100%;
   animation:
-    an-acerca 3.4s var(--sale) -0.3s both,
-    an-sale 0.32s var(--entra) 3.2s forwards;
+    an-acerca 3.1s var(--sale) -0.2s both,
+    an-traga 0.5s var(--chupa) calc(var(--a) + 2.95s) forwards;
 }
 
-.an-lienzo[data-formato='9x16'] .an-s1-pregunta {
-  max-width: calc(760 * var(--u));
-}
-
-.an-s1-costo {
-  display: grid;
-  align-content: start;
-  gap: calc(10 * var(--u));
-  animation: an-sale 0.3s var(--entra) 5.9s forwards;
-}
-
-.an-s1-sin {
-  animation: an-entra 0.45s var(--sale) 3.35s both;
-}
-
-.an-monto {
-  position: relative;
-  justify-self: start;
-  font-family: var(--font-datos);
-  font-size: min(calc(var(--h1) * 1.42), var(--monto-max, calc(160 * var(--u))));
-  white-space: nowrap;
-  font-weight: 500;
-  line-height: 1;
-  letter-spacing: -0.04em;
-  color: var(--pbi);
-  font-variant-numeric: tabular-nums;
-  animation: an-entra 0.5s var(--sale) 3.5s both;
-}
-
-.an-monto__n {
-  animation: an-atenua 0.35s ease 5s forwards;
-}
-
-/* La tacha: el monto que NO se paga, en rojo (regla del dueño, PRODUCT.md) */
-.an-tacha {
-  position: absolute;
-  left: -2%;
-  right: -2%;
-  top: 50%;
-  height: calc(16 * var(--u));
-  margin-top: calc(-8 * var(--u));
-  border-radius: calc(8 * var(--u));
-  background: var(--tacha);
-  box-shadow: 0 0 calc(30 * var(--u)) rgb(255 111 97 / 0.55);
-  transform: scaleX(0);
-  transform-origin: 0 50%;
-  rotate: -4deg;
-  animation: an-tacha 0.3s var(--suave) 4.7s both;
-}
-
-.an-s1-mes {
-  animation: an-entra 0.45s var(--sale) 3.65s both;
-}
-
-.an-s1-visual {
+.an-s1-de {
   display: flex;
-  flex-direction: column;
-  gap: calc(22 * var(--u));
-}
-
-.an-asientos {
-  flex: 1;
-}
-
-.an-contador {
-  font-family: var(--font-datos);
-  font-size: calc(30 * var(--u));
-  font-weight: 500;
-  letter-spacing: -0.01em;
+  align-items: center;
+  gap: calc(14 * var(--u));
+  font-size: calc(34 * var(--u));
+  font-weight: 600;
   color: var(--sa);
-  animation:
-    an-entra 0.45s var(--sale) -0.2s both,
-    an-sale 0.3s var(--entra) 5.9s forwards;
 }
 
-.an-contador span {
+.an-s1-de i {
+  display: grid;
+  place-items: center;
+  width: calc(54 * var(--u));
+  height: calc(54 * var(--u));
+  border-radius: 50%;
+  background: var(--sa);
+  font-size: calc(26 * var(--u));
+  font-style: normal;
+  color: var(--ab);
+}
+
+/* El globo: blanco sobre el fondo oscuro, el contraste más alto del anuncio. Vibra como el
+   teléfono cada vez que llega algo más */
+.an-s1-globo {
+  position: relative;
+  padding: 0.26em 0.42em 0.3em;
+  border-radius: 0.4em 0.4em 0.4em 0.1em;
+  background: #fff;
+  box-shadow: 0 calc(30 * var(--u)) calc(70 * var(--u)) rgb(0 0 0 / 0.45);
+  font-size: var(--h1);
+  transform-origin: 8% 100%;
+  animation:
+    an-zumba 0.32s var(--suave) 0.75s,
+    an-zumba 0.32s var(--suave) 1.75s,
+    an-zumba 0.32s var(--suave) 2.55s;
+}
+
+.an-s1-pregunta {
+  color: var(--ab);
+}
+
+.an-lienzo[data-formato='1x1'] .an-s1-pregunta {
+  max-width: 7.6em;
+}
+
+/* Los mensajes sin leer: el número sube mientras llegan los reportes (lo escribe el script) */
+.an-s1-aviso {
+  position: absolute;
+  top: calc(-26 * var(--u));
+  right: calc(-22 * var(--u));
+  display: grid;
+  place-items: center;
+  min-width: calc(76 * var(--u));
+  height: calc(76 * var(--u));
+  padding: 0 calc(16 * var(--u));
+  border-radius: calc(38 * var(--u));
+  background: var(--tacha);
+  box-shadow: 0 0 0 calc(8 * var(--u)) var(--ab);
+  font-size: calc(38 * var(--u));
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.02em;
   color: #fff;
   font-variant-numeric: tabular-nums;
 }
 
-.an-lienzo[data-formato='16x9'] .an-s1-visual {
-  top: 12%;
-  bottom: 12%;
+/* Los reportes sueltos, en cuatro capas porque son cuatro movimientos (y ninguna regla mezcla
+   transform con translate o scale: el minificador borraría uno, ver aprendizajes):
+   · la pieza es un punto en (--x, --y) % de la zona de abajo. El portal se la traga hacia
+     --hx/--hy, que mide el script: la distancia exacta al centro de la ventana de la toma 2,
+     en cada formato. --tt: cuándo (primero las de cerca, se ve como una implosión);
+   · el arco la desvía de costado mientras viaja (el remolino);
+   · la que flota centra la carta en ese punto y la deja a la deriva;
+   · la carta entra de golpe, con resorte, en su segundo --en. */
+.an-s1-pieza {
+  position: absolute;
+  left: calc(var(--x) * 1%);
+  top: calc(var(--y) * 1%);
+  width: 0;
+  height: 0;
+  animation: an-traga 0.5s var(--chupa) calc(var(--a) + 2.85s + var(--tt, 0s)) forwards;
 }
 
-/* ═══ 2 · GIRO (6 – 10,7 s) ══════════════════════════════════════════════════════════ */
+.an-s1-arco {
+  position: absolute;
+  left: 0;
+  top: 0;
+  animation: an-arco 0.5s var(--suave) calc(var(--a) + 2.85s + var(--tt, 0s)) both;
+}
+
+.an-s1-flota {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: max-content;
+  animation: an-flota 3.65s var(--suave) -0.8s both;
+}
+
+.an-s1-carta {
+  display: flex;
+  align-items: center;
+  gap: calc(18 * var(--c));
+  padding: calc(16 * var(--c)) calc(28 * var(--c)) calc(16 * var(--c)) calc(16 * var(--c));
+  border-radius: calc(22 * var(--c));
+  background: #fff;
+  box-shadow:
+    0 calc(26 * var(--c)) calc(56 * var(--c)) rgb(0 0 0 / 0.42),
+    0 calc(4 * var(--c)) calc(12 * var(--c)) rgb(0 0 0 / 0.22);
+  font-size: calc(28 * var(--c));
+  line-height: 1.25;
+  color: #111827;
+  animation: an-pop 0.42s var(--resorte) calc(var(--a) + var(--en, 0s)) both;
+}
+
+.an-s1-carta__txt {
+  display: grid;
+  gap: calc(4 * var(--c));
+}
+
+.an-s1-carta__txt b {
+  font-weight: 600;
+  text-wrap: balance;
+}
+
+.an-s1-carta__txt em {
+  font-size: calc(21 * var(--c));
+  font-style: normal;
+  color: #5b6964;
+}
+
+/* El adjunto: el ícono de su tipo (genérico: la planilla, el PDF, el archivo de Power BI
+   Desktop) y el nombre como lo escribe la computadora */
+.an-s1-doc {
+  position: relative;
+  display: grid;
+  place-items: end center;
+  flex: none;
+  width: calc(54 * var(--c));
+  height: calc(66 * var(--c));
+  padding-bottom: calc(9 * var(--c));
+  border-radius: calc(8 * var(--c)) calc(18 * var(--c)) calc(8 * var(--c)) calc(8 * var(--c));
+  background: var(--doc, #1d6b47);
+  font-family: var(--font-datos);
+  font-size: calc(13 * var(--c));
+  letter-spacing: 0.04em;
+  color: #fff;
+}
+
+/* La esquina doblada */
+.an-s1-doc::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: calc(18 * var(--c));
+  height: calc(18 * var(--c));
+  border-radius: 0 calc(18 * var(--c)) 0 calc(6 * var(--c));
+  background: rgb(255 255 255 / 0.42);
+}
+
+.an-s1-doc--pdf {
+  --doc: #b42318;
+}
+
+.an-s1-doc--pbix {
+  --doc: var(--pbi);
+  color: var(--ab);
+}
+
+.an-s1-archivo b {
+  font-family: var(--font-datos);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+/* El correo que ya nadie sabe en qué vuelta va */
+.an-s1-ico {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: calc(60 * var(--c));
+  height: calc(60 * var(--c));
+  border-radius: 50%;
+  background: var(--pe);
+}
+
+.an-s1-ico svg {
+  width: 52%;
+  height: 52%;
+  fill: none;
+  stroke: #fff;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Otro mensaje: quién lo manda y qué pide */
+.an-s1-msj {
+  display: grid;
+  gap: calc(2 * var(--c));
+  padding: calc(14 * var(--c)) calc(28 * var(--c)) calc(16 * var(--c));
+  border-radius: calc(28 * var(--c)) calc(28 * var(--c)) calc(28 * var(--c)) calc(8 * var(--c));
+  font-weight: 500;
+}
+
+.an-s1-msj__de {
+  font-size: calc(21 * var(--c));
+  font-weight: 600;
+  color: var(--ve);
+}
+
+/* El aviso de Power BI cuando alguien sin licencia abre un tablero: el dolor que el portal
+   resuelve, con la pantalla que el público ya conoce. El borde amarillo lo hace ver primero */
+.an-s1-bloqueo {
+  gap: calc(22 * var(--c));
+  padding-right: calc(32 * var(--c));
+  box-shadow:
+    0 0 0 calc(4 * var(--c)) var(--pbi),
+    0 calc(26 * var(--c)) calc(56 * var(--c)) rgb(0 0 0 / 0.42);
+}
+
+.an-s1-bloqueo .an-s1-carta__txt {
+  max-width: calc(410 * var(--c));
+}
+
+.an-s1-candado {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: calc(72 * var(--c));
+  height: calc(72 * var(--c));
+  border-radius: calc(16 * var(--c));
+  background: var(--pbi);
+}
+
+.an-s1-candado > svg {
+  width: 54%;
+  height: 54%;
+  fill: var(--ab);
+}
+
+.an-s1-candado i {
+  position: absolute;
+  right: calc(-12 * var(--c));
+  bottom: calc(-12 * var(--c));
+  display: grid;
+  place-items: center;
+  width: calc(38 * var(--c));
+  height: calc(38 * var(--c));
+  border-radius: 50%;
+  background: var(--ab);
+  box-shadow: 0 0 0 calc(4 * var(--c)) #fff;
+}
+
+.an-s1-candado i svg {
+  width: 60%;
+  height: 60%;
+  fill: none;
+  stroke: #fff;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Dónde cae cada una (en % de la zona de abajo) y cómo flota. Las del primer cuadro (--en
+   negativo) son los archivos, repartidos de arriba a abajo para que la miniatura se vea llena;
+   después llega la gente, una por pulso: «¿cuál es la buena?», el aviso de la licencia y la
+   queja. Por defecto van en una cascada en zigzag; en 1:1 la zona es más baja */
+.an-s1-pieza--a {
+  --x: 29;
+  --y: -2;
+  --r: -4deg;
+  --fx: calc(20 * var(--u));
+  --fy: calc(-12 * var(--u));
+  --fr: 2deg;
+  --en: -1s;
+  --tt: 0.09s;
+}
+
+.an-s1-pieza--b {
+  --x: 68;
+  --y: 11;
+  --r: 3.5deg;
+  --fx: calc(-18 * var(--u));
+  --fy: calc(14 * var(--u));
+  --fr: -1.5deg;
+  --en: 0.5s;
+  --tt: 0.06s;
+}
+
+.an-s1-pieza--c {
+  --x: 30;
+  --y: 24;
+  --r: -2.5deg;
+  --fx: calc(16 * var(--u));
+  --fy: calc(16 * var(--u));
+  --fr: 1.5deg;
+  --en: 1s;
+  --tt: 0.04s;
+}
+
+.an-s1-pieza--d {
+  --x: 29;
+  --y: 61;
+  --r: 4.5deg;
+  --fx: calc(18 * var(--u));
+  --fy: calc(-10 * var(--u));
+  --fr: -2deg;
+  --en: -0.8s;
+  --tt: 0.03s;
+}
+
+.an-s1-pieza--e {
+  --x: 60;
+  --y: 45;
+  --r: 2deg;
+  --fx: calc(-14 * var(--u));
+  --fy: calc(-14 * var(--u));
+  --fr: -1.5deg;
+  --en: 1.5s;
+  --tt: 0s;
+}
+
+.an-s1-pieza--f {
+  --x: 67;
+  --y: 74;
+  --r: -3.5deg;
+  --fx: calc(-16 * var(--u));
+  --fy: calc(12 * var(--u));
+  --fr: 1.5deg;
+  --en: 2s;
+  --tt: 0.06s;
+}
+
+.an-s1-pieza--g {
+  --x: 33;
+  --y: 91;
+  --r: -2deg;
+  --fx: calc(20 * var(--u));
+  --fy: calc(-14 * var(--u));
+  --fr: 1.5deg;
+  --en: -0.6s;
+  --tt: 0.09s;
+}
+
+/* Los otros formatos: la misma cascada, acomodada a su zona */
+.an-lienzo[data-formato='4x5'] .an-s1-pieza--a {
+  --x: 30;
+  --y: 8;
+}
+
+.an-lienzo[data-formato='4x5'] .an-s1-pieza--b {
+  --x: 68;
+  --y: 20;
+}
+
+.an-lienzo[data-formato='4x5'] .an-s1-pieza--c {
+  --x: 30;
+  --y: 32;
+}
+
+.an-lienzo[data-formato='4x5'] .an-s1-pieza--e {
+  --x: 60;
+  --y: 54;
+}
+
+.an-lienzo[data-formato='4x5'] .an-s1-pieza--d {
+  --x: 29;
+  --y: 68;
+}
+
+.an-lienzo[data-formato='4x5'] .an-s1-pieza--f {
+  --x: 70;
+  --y: 79;
+}
+
+.an-lienzo[data-formato='4x5'] .an-s1-pieza--g {
+  --x: 30;
+  --y: 95;
+}
+
+.an-lienzo[data-formato='1x1'] .an-s1-pieza--a {
+  --x: 27;
+  --y: 9;
+}
+
+.an-lienzo[data-formato='1x1'] .an-s1-pieza--b {
+  --x: 72;
+  --y: 20;
+}
+
+.an-lienzo[data-formato='1x1'] .an-s1-pieza--c {
+  --x: 25;
+  --y: 33;
+}
+
+.an-lienzo[data-formato='1x1'] .an-s1-pieza--e {
+  --x: 72;
+  --y: 52;
+}
+
+.an-lienzo[data-formato='1x1'] .an-s1-pieza--d {
+  --x: 27;
+  --y: 70;
+}
+
+.an-lienzo[data-formato='1x1'] .an-s1-pieza--f {
+  --x: 74;
+  --y: 80;
+}
+
+.an-lienzo[data-formato='1x1'] .an-s1-pieza--g {
+  --x: 28;
+  --y: 94;
+}
+
+.an-lienzo[data-formato='16x9'] .an-s1-pieza--a {
+  --x: 30;
+  --y: 4;
+}
+
+.an-lienzo[data-formato='16x9'] .an-s1-pieza--b {
+  --x: 66;
+  --y: 16;
+}
+
+.an-lienzo[data-formato='16x9'] .an-s1-pieza--c {
+  --x: 31;
+  --y: 29;
+}
+
+.an-lienzo[data-formato='16x9'] .an-s1-pieza--e {
+  --x: 60;
+  --y: 47;
+}
+
+.an-lienzo[data-formato='16x9'] .an-s1-pieza--d {
+  --x: 29;
+  --y: 63;
+}
+
+.an-lienzo[data-formato='16x9'] .an-s1-pieza--f {
+  --x: 67;
+  --y: 76;
+}
+
+.an-lienzo[data-formato='16x9'] .an-s1-pieza--g {
+  --x: 34;
+  --y: 90;
+}
+
+/* ═══ 2 · EL PORTAL (2,8 – 10,7 s): todo en un solo lugar, y una licencia para mil ═════════
+   Lo que se tragó la toma 1 sale ordenado (la recompensa del caos) y la misma ventana se queda
+   para la cuenta que importa. Los dos titulares comparten lugar: uno sale, el otro entra. */
 .an-s2 {
-  --a: 6s;
+  --a: 2.8s;
   --z: 10.7s;
 }
 
 .an-s2 .an-texto {
-  animation: an-sale 0.3s var(--entra) calc(var(--a) + 3.9s) forwards;
+  display: grid;
+  align-content: var(--tx-j);
+  animation: an-sale 0.3s var(--entra) calc(var(--a) + 7.25s) forwards;
 }
 
-.an-s2-con {
-  animation: an-entra 0.4s var(--sale) calc(var(--a) + 0.7s) both;
+.an-s2 .an-texto > * {
+  grid-area: 1 / 1;
+}
+
+.an-s2-todos {
+  --o: 0.9s;
+  animation: an-sale 0.3s var(--entra) calc(var(--a) + 3.45s) forwards;
+}
+
+.an-s2-lic {
+  display: grid;
+  align-content: start;
+  justify-items: start;
+  gap: calc(10 * var(--u));
+}
+
+.an-s2-para {
+  animation: an-entra 0.45s var(--sale) calc(var(--a) + 3.65s) both;
+}
+
+/* Las mil licencias que harían falta sin el portal: tachadas en rojo (la regla de los montos
+   que no son el precio, PRODUCT.md). Es una cuenta de licencias, no un monto: se lee como el
+   precio viejo de una etiqueta, sin hacer ninguna cuenta */
+.an-s2-no {
+  position: relative;
+  animation: an-entra 0.45s var(--sale) calc(var(--a) + 3.9s) both;
+}
+
+.an-s2-no span {
+  animation: an-atenua 0.35s ease calc(var(--a) + 4.6s) forwards;
+}
+
+.an-s2-tacha {
+  position: absolute;
+  left: -3%;
+  right: -3%;
+  top: 54%;
+  height: calc(14 * var(--u));
+  margin-top: calc(-7 * var(--u));
+  border-radius: calc(7 * var(--u));
+  background: var(--tacha);
+  box-shadow: 0 0 calc(26 * var(--u)) rgb(255 111 97 / 0.55);
+  transform-origin: 0 50%;
+  animation: an-tacha 0.3s var(--suave) calc(var(--a) + 4.3s) both;
 }
 
 .an-s2-una {
-  --o: 0.85s;
-}
-
-.an-s2-mil {
-  --o: 1.3s;
+  --o: 4.6s;
   color: var(--vc);
 }
 
+/* La altura del centro de la ventana, en % de la zona. En 9:16 va más arriba: las caras se
+   apoyan en su borde de abajo, y no pueden bajar del 79 % (los botones de Reels y TikTok) */
+.an-s1-visual,
 .an-s2-visual {
-  display: grid;
-  place-items: center;
+  --cv: 50%;
 }
 
-.an-licencia {
-  position: relative;
-  display: grid;
-  place-items: center;
-  width: calc(270 * var(--u));
-  aspect-ratio: 1;
-  border-radius: calc(54 * var(--u));
-  background: var(--pbi);
-  box-shadow:
-    0 calc(30 * var(--u)) calc(80 * var(--u)) rgb(0 0 0 / 0.45),
-    inset 0 calc(-10 * var(--u)) 0 rgb(0 0 0 / 0.12);
-  animation:
-    an-pop 0.5s var(--resorte) calc(var(--a) + 0.48s) both,
-    an-a-verde 0.35s var(--suave) calc(var(--a) + 0.95s) both,
-    an-latido 0.5s var(--suave) calc(var(--a) + 0.95s) both,
-    an-sale 0.3s var(--entra) calc(var(--a) + 3.9s) forwards;
+.an-lienzo[data-formato='9x16'] .an-s1-visual,
+.an-lienzo[data-formato='9x16'] .an-s2-visual {
+  --cv: 46%;
 }
 
-.an-licencia__pbi,
-.an-licencia__ok {
-  grid-area: 1 / 1;
-  width: 54%;
-  height: 54%;
-}
-
-.an-licencia__pbi {
-  fill: var(--ab);
-  animation: an-desaparece 0.2s ease calc(var(--a) + 0.95s) forwards;
-}
-
-.an-licencia__ok {
-  fill: none;
-  stroke: #fff;
-  stroke-width: 5.5;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-dasharray: 1;
-  animation: an-traza 0.4s var(--sale) calc(var(--a) + 1.05s) both;
-}
-
-/* El destello del impacto, cuando los mil se juntan en uno */
-.an-destello {
+/* El centro de la ventana: hacia ahí viaja todo lo de la toma 1 (lo mide el script) */
+.an-s2-centro {
   position: absolute;
-  z-index: 1;
   left: 50%;
-  top: var(--de-t, 62%);
-  width: 120cqmin;
-  aspect-ratio: 1;
-  margin: -60cqmin 0 0 -60cqmin;
-  border-radius: 50%;
-  background: radial-gradient(closest-side, rgb(255 255 255 / 0.95), rgb(77 207 193 / 0.5) 45%, transparent 72%);
-  opacity: 0;
-  animation: an-destello 0.6s ease-out calc(var(--a) + 0.46s) both;
+  top: var(--cv);
+  width: 0;
+  height: 0;
 }
 
-.an-lienzo[data-formato='9x16'] .an-destello { --de-t: 60%; }
-.an-lienzo[data-formato='4x5'] .an-destello { --de-t: 66%; }
-.an-lienzo[data-formato='1x1'] .an-destello { --de-t: 65%; }
+/* La luz que chupa mientras el portal, todavía chico, se traga los reportes */
+.an-s2-halo {
+  position: absolute;
+  left: 50%;
+  top: var(--cv);
+  width: calc(900 * var(--u));
+  aspect-ratio: 1;
+  margin: calc(-450 * var(--u)) 0 0 calc(-450 * var(--u));
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(77 207 193 / 0.55), rgb(3 122 112 / 0.25) 50%, transparent 72%);
+  opacity: 0;
+  animation:
+    an-halo 0.45s var(--suave) calc(var(--a) + 0.2s) forwards,
+    an-desaparece 0.3s ease calc(var(--a) + 0.7s) forwards;
+}
 
-.an-lienzo[data-formato='16x9'] .an-destello {
-  --de-t: 50%;
-  left: 71%;
+/* El destello cuando todo entró y la ventana se abre, detrás de ella */
+.an-s2-destello {
+  position: absolute;
+  left: 50%;
+  top: var(--cv);
+  width: calc(1300 * var(--u));
+  aspect-ratio: 1;
+  margin: calc(-650 * var(--u)) 0 0 calc(-650 * var(--u));
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(255 255 255 / 0.9), rgb(77 207 193 / 0.45) 45%, transparent 72%);
+  opacity: 0;
+  animation: an-destello 0.7s ease-out calc(var(--a) + 0.65s) forwards;
+}
+
+/* El portal: primero un círculo chico de luz (lo que se traga los reportes) y después se abre
+   como un iris hasta mostrar la ventana entera. Con clip-path y no con escala: la ventana queda
+   siempre a escala 1, y una escala animada sobre una capa con texto se rasteriza distinto según
+   desde qué instante se llega (la prueba de estrés lo vio en 4:5 y 1:1). Sale sin escala, por
+   lo mismo */
+.an-s2-ventana {
+  animation: an-s2-sale 0.32s var(--entra) calc(var(--a) + 7.25s) forwards;
+}
+
+/* A la altura --cv. Con dos clases: .an-ui (top: 50 %) está más abajo en el archivo y, con una
+   sola, le ganaba. El banco lo encontró: en 9:16 las caras bajaban del 79 % */
+.an-s2-visual > .an-s2-ventana {
+  top: var(--cv);
+}
+
+.an-s2-ventana > .an-ui__in {
+  --br: 1.15s;
+  animation:
+    an-s2-asoma 0.3s var(--resorte) calc(var(--a) + 0.2s) both,
+    an-s2-abre 0.6s var(--suave) calc(var(--a) + 0.65s) forwards,
+    an-empuja 6s var(--suave) calc(var(--a) + 1.15s) both;
+}
+
+/* Las tarjetas suben y aparecen mientras el iris termina de abrirse. Sin escala, por lo mismo
+   que la ventana */
+.an-s2 .an-tarjeta {
+  animation: an-entra 0.45s var(--sale) calc(var(--a) + 0.85s + var(--td, 0s)) both;
+}
+
+.an-s2-t--2 { --td: 0.05s; }
+.an-s2-t--3 { --td: 0.1s; }
+.an-s2-t--4 { --td: 0.15s; }
+.an-s2-t--5 { --td: 0.2s; }
+.an-s2-t--6 { --td: 0.25s; }
+
+/* La licencia, una sola, pegada en la esquina de la ventana. Escala suelta (an-pop-s): esta
+   regla ya usa translate y rotate */
+.an-s2-sello {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  right: calc(26 * var(--u));
+  display: flex;
+  align-items: center;
+  gap: calc(14 * var(--u));
+  padding: calc(14 * var(--u)) calc(30 * var(--u)) calc(14 * var(--u)) calc(20 * var(--u));
+  border-radius: calc(20 * var(--u));
+  background: var(--pbi);
+  box-shadow: 0 calc(20 * var(--u)) calc(44 * var(--u)) rgb(0 0 0 / 0.4);
+  font-size: calc(40 * var(--u));
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--ab);
+  translate: 0 -50%;
+  rotate: 4deg;
+  animation: an-pop-s 0.5s var(--resorte) calc(var(--a) + 4.65s) both;
+}
+
+.an-s2-sello svg {
+  width: calc(44 * var(--u));
+  height: calc(44 * var(--u));
+  fill: var(--ab);
+}
+
+/* Las mil personas: cuatro caras y el resto en un número que corre. Se apoyan en el borde de
+   abajo de la ventana (mitad adentro, mitad afuera), sin tapar las tarjetas */
+.an-s2-gente {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  padding: calc(12 * var(--u)) calc(14 * var(--u)) calc(12 * var(--u)) calc(34 * var(--u));
+  border-radius: calc(60 * var(--u));
+  background: #fff;
+  box-shadow: 0 calc(24 * var(--u)) calc(56 * var(--u)) rgb(0 23 32 / 0.35);
+  translate: -50% 50%;
+  animation: an-pop-s 0.5s var(--resorte) calc(var(--a) + 5.05s) both;
+}
+
+.an-lienzo[data-formato='1x1'] .an-s2-ventana {
+  width: min(100cqw, 92cqh * 960 / 640);
+}
+
+.an-s2-cara {
+  display: grid;
+  place-items: center;
+  width: calc(84 * var(--u));
+  height: calc(84 * var(--u));
+  margin-left: calc(-22 * var(--u));
+  border-radius: 50%;
+  background: var(--cara, var(--sa));
+  box-shadow: 0 0 0 calc(6 * var(--u)) #fff;
+  font-size: calc(36 * var(--u));
+  font-weight: 600;
+  color: var(--ab);
+  animation: an-pop 0.42s var(--resorte) calc(var(--a) + 5.15s + var(--cd, 0s)) both;
+}
+
+.an-s2-cara--1 { --cara: var(--vc); }
+.an-s2-cara--2 { --cara: var(--sa); --cd: 0.08s; }
+.an-s2-cara--3 { --cara: var(--ve); --cd: 0.16s; color: #fff; }
+.an-s2-cara--4 { --cara: var(--pe); --cd: 0.24s; color: #fff; }
+
+.an-s2-mas {
+  min-width: calc(4ch + 52 * var(--u));
+  margin-left: calc(16 * var(--u));
+  padding: calc(14 * var(--u)) calc(26 * var(--u));
+  border-radius: calc(44 * var(--u));
+  background: var(--ab);
+  font-family: var(--font-datos);
+  font-size: calc(40 * var(--u));
+  font-weight: 500;
+  text-align: center;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
 }
 
 /* ── La cortina de las cuatro barras del logo ─────────────────────────────────────── */
@@ -2758,29 +3269,79 @@
   100% { transform: scale(1); }
 }
 
-@keyframes an-latido {
-  0% { scale: 1; }
-  40% { scale: 1.12; }
-  100% { scale: 1; }
-}
-
-@keyframes an-a-verde {
-  from { background-color: var(--pbi); }
-  to {
-    background-color: var(--ve);
-    box-shadow:
-      0 calc(30 * var(--u)) calc(80 * var(--u)) rgb(0 0 0 / 0.45),
-      0 0 calc(120 * var(--u)) rgb(77 207 193 / 0.7),
-      inset 0 calc(-10 * var(--u)) 0 rgb(0 0 0 / 0.15);
-  }
-}
-
 @keyframes an-destello {
   0% { opacity: 0.95; transform: scale(0.15); }
   100% { opacity: 0; transform: scale(1.4); }
 }
 
 @keyframes an-tacha { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+/* El gancho: el globo vibra, las cartas flotan, el portal se las traga e irrumpe */
+@keyframes an-zumba {
+  0%, 100% { rotate: 0deg; }
+  25% { rotate: -2.6deg; }
+  50% { rotate: 2.2deg; }
+  75% { rotate: -1.2deg; }
+}
+
+/* A la deriva hasta los 2,5 s (pasada la portada) y después se enderezan, justo antes de que el
+   portal se las trague: el orden que llega. Y así se achican sin giro, que es lo que Chrome
+   rasteriza siempre igual (una capa girada que cambia de escala sale distinta según desde qué
+   instante se llegó) */
+@keyframes an-flota {
+  from { transform: translate(-50%, -50%) rotate(var(--r, 0deg)); }
+  90% { transform: translate(calc(-50% + var(--fx, 0px)), calc(-50% + var(--fy, 0px))) rotate(calc(var(--r, 0deg) + var(--fr, 0deg))); }
+  to { transform: translate(-50%, -50%) rotate(0deg); }
+}
+
+/* Un amague hacia afuera y adentro, cada vez más rápido */
+@keyframes an-traga {
+  22% { translate: calc(var(--hx, 0px) * -0.05) calc(var(--hy, 0px) * -0.05); scale: 1.04; }
+  82% { opacity: 1; }
+  to { translate: var(--hx, 0px) var(--hy, 0px); scale: 0.05; opacity: 0; }
+}
+
+/* La curva del remolino: mientras la pieza viaja, se desvía de costado (perpendicular a su
+   camino, siempre hacia el mismo lado) y vuelve. Sin esto, todo achicándose a la vez parecía la
+   cámara alejándose. NO se hace con rotate: girar una capa mientras cambia de escala hace que
+   Chrome la rasterice distinto según desde qué instante se llegó (el banco lo vio: 15.000
+   píxeles), y con solo translate da el mismo cuadro siempre */
+@keyframes an-arco {
+  62% { transform: translate(calc(var(--hy, 0px) * -0.2), calc(var(--hx, 0px) * 0.2)); }
+  to { transform: none; }
+}
+
+@keyframes an-s2-asoma {
+  from { clip-path: circle(0% at 50% 50%); }
+  to { clip-path: circle(9% at 50% 50%); }
+}
+
+@keyframes an-s2-abre {
+  from { clip-path: circle(9% at 50% 50%); }
+  to { clip-path: circle(100% at 50% 50%); }
+}
+
+@keyframes an-s2-sale {
+  from { opacity: 1; transform: none; }
+  to { opacity: 0; transform: translateY(calc(-60 * var(--u))); }
+}
+
+@keyframes an-halo {
+  from { opacity: 0; transform: scale(0.4); }
+  to { opacity: 1; transform: none; }
+}
+
+/* La ventana sube despacio mientras se lee: vida sin escala. Con scale (un acercamiento), el
+   texto de las tarjetas se rasterizaba distinto según desde qué instante se llegaba (la prueba
+   de estrés lo vio en 4:5: 1.085 píxeles), la misma trampa de la cámara de la toma 6 */
+@keyframes an-empuja { to { transform: translateY(calc(-18 * var(--u))); } }
+
+/* an-pop con la escala suelta, para lo que ya usa translate o rotate en su regla */
+@keyframes an-pop-s {
+  0% { scale: 0; }
+  62% { scale: 1.1; }
+  100% { scale: 1; }
+}
 @keyframes an-traza { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
 @keyframes an-crece-x { from { transform: scaleX(0); } to { transform: none; } }
 @keyframes an-crece-y { from { transform: scaleY(0); } to { transform: none; } }

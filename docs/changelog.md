@@ -1,5 +1,23 @@
 # Bitácora de cambios
 
+## 17/10/2026 · El gancho nuevo del anuncio del Portal BI
+
+- **Pedido del dueño**: el gancho de los mil asientos de licencias no se entendía. Hacía falta un gancho que atrape en los primeros 10 s, con neuromarketing de verdad, y que muestre la centralización de los tableros. Estudio y decisión en ADR-019.
+- **Los primeros 10 s, en tres tiempos**. De la toma 3 en adelante no cambia nada:
+  - **Reconocimiento**: «¿Me pasas el reporte?» en un globo de chat enorme, con los mensajes sin leer subiendo de 3 a 27. Alrededor caen los reportes regados: el Excel «FINAL_v3», el PDF «(2)», el .pbix «FINAL», el «RE: RE: RE:», «¿Cuál es la versión buena?», el aviso de licencia de Power BI Pro y «No me abre el tablero».
+  - **Orden**: un portal de luz se los traga en remolino, se abre como un iris y muestra el portal: «Todos tus tableros, en un solo lugar.»
+  - **Sorpresa**: «Para 1.000 personas:», «1.000 licencias» tachado, «1 licencia.», con el sello «1 licencia de Power BI» y cuatro caras con «+996».
+- **El primer cuadro es la miniatura**, y la portada que graba la Action pasó al segundo 2,45, con el gancho armado.
+- **Motor**: sin el lienzo de los asientos. El script mide cuánto viaja cada pieza hasta la ventana, en cada formato. El portal dibujado pasó a un componente, `AnuncioPortal.astro`, que comparten el gancho y la toma 4. La toma 4 se ve igual.
+- **Formatos**: las piezas tienen su lugar en cada formato. En 1:1 el pedido va en dos renglones, porque el contador le tapaba el «?», y la ventana va un poco más baja para que las caras no se salgan del cuadro.
+- **Banco** (`npm run anuncio:probar`): cinco pruebas nuevas por formato, saboteadas para ver que fallan. Se encontró un defecto real: en 9:16 las caras bajaban del 79 %, porque una regla genérica le ganaba a la del gancho.
+- **Prueba de estrés**: 14 instantes del gancho, cada uno desde tres historias, en los cuatro formatos. Encontró cuadros que cambiaban según la historia, y se corrigieron:
+  - el giro del remolino pasó a ser una curva;
+  - el acercamiento de la ventana pasó a ser un desplazamiento;
+  - la apertura de la ventana pasó a ser un iris.
+  - Detalle en aprendizajes.
+- Banco y QA sin problemas.
+
 ## 17/10/2026 · Dos páginas ocultas: /anuncios/ y /propuestas/
 
 - **Pedido del dueño**: tener a mano, escribiendo la dirección, todos los anuncios ordenados y las propuestas a socios, sin buscarlos ni bajar diapositivas. Ninguna de las dos se ve navegando el sitio.

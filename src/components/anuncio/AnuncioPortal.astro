@@ -1,0 +1,44 @@
+---
+/**
+ * El portal por dentro, como lo dibuja el anuncio: el menú y las tarjetas de los tableros. Lo
+ * usan el gancho (toma 2: todos los tableros en un solo lugar) y la toma 4 (quién ve qué), así
+ * que es UNA copia del producto: si el portal cambia, se cambia acá (ADR-014).
+ *
+ * `tarjeta`: la clase de cada tarjeta, numerada desde 1 (`an-tarjeta--` da `an-tarjeta--1`…),
+ * porque cada toma las anima a su manera. `ia`: si las que tienen chat con IA llevan su chip.
+ */
+import { TARJETAS, PBI, VARITA } from './datos';
+
+interface Props {
+  tarjeta: string;
+  ia?: boolean;
+}
+
+const { tarjeta, ia = false } = Astro.props;
+---
+
+<div class="an-portal__cuerpo">
+  <div class="an-portal__menu">
+    <span class="an-portal__logo"><svg viewBox="0 0 28 28"><rect x="3" y="14" width="5" height="11" rx="1.2" /><rect x="11.5" y="8" width="5" height="17" rx="1.2" /><rect x="20" y="3" width="5" height="22" rx="1.2" /></svg>Portal BI</span>
+    <span class="an-portal__seccion">Tableros</span>
+    <span class="an-portal__item an-portal__item--si">Comercial</span>
+    <span class="an-portal__item">Operaciones</span>
+    <span class="an-portal__item">Recursos Humanos</span>
+    <span class="an-portal__seccion">Modelos</span>
+    <span class="an-portal__item">Ventas 2026</span>
+  </div>
+  <div class="an-portal__contenido">
+    <span class="an-portal__migas">Comercial</span>
+    <div class="an-portal__tarjetas">
+      {TARJETAS.map((t, i) => (
+        <div class={`an-tarjeta ${tarjeta}${i + 1}`}>
+          {ia && t.ia && (
+            <span class="an-tarjeta__ia"><svg viewBox="0 0 24 24"><path d={VARITA} /></svg>IA</span>
+          )}
+          <svg class="an-tarjeta__pbi" viewBox="0 0 41.5 41.5"><path d={PBI} /></svg>
+          <span class="an-tarjeta__t">{t.titulo}</span>
+        </div>
+      ))}
+    </div>
+  </div>
+</div>

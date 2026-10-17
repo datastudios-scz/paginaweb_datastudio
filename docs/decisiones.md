@@ -2,6 +2,47 @@
 
 Formato: contexto → decisión → consecuencias. Las decisiones nuevas van arriba.
 
+## ADR-019 · El gancho del anuncio: «¿Me pasas el reporte?» en vez de los mil asientos (17/10/2026)
+
+- **Contexto**: al dueño no le convenció el gancho, los primeros 10 s del anuncio: «trata de mostrar mil cuentas de Power BI, no se comprende bien, no hay neuromarketing ahí». Pidió un gancho atractivo para los primeros 10 segundos, que además mostrara la centralización de los tableros.
+- **Qué se averiguó**. Lo que dicen las plataformas sobre los primeros segundos. Los números que solo repiten blogs de agencias se tomaron como orientación, no como dato:
+  - En el teléfono, una pieza recibe 1,7 s de atención en promedio, y la marca ya se recuerda a los 0,25 s (Facebook IQ, 2017). Según la misma fuente, el 47 % del valor de un video se entrega en los primeros 3 s y el 74 % en los primeros 10.
+  - Meta lo llama «la audición de 3 segundos»: abrir con algo que llame la atención, no con un título quieto ni con el logo, y diseñar para verlo sin sonido.
+  - Las herramientas de anuncios de TikTok miden cuánta gente se queda después del primer cuadro, y ponen la meta de atención en 2 s.
+  - En LinkedIn, donde están gerencia y TI, la marca temprana pero dentro de la acción mejora el clic. El 17 % que repiten varios blogs no se encontró en una fuente de LinkedIn.
+- **Por qué el gancho viejo no funcionaba**:
+  - Empezaba con una pregunta de licencias («¿Pagas Power BI por cada persona?»), que hay que pensar.
+  - Los mil íconos, en el teléfono, eran ruido, y el contador en letra de datos no se leía.
+  - El monto tachado pedía hacer una cuenta.
+  - Seguía una espiral de puntos.
+  - El producto no aparecía hasta el segundo 11, y la centralización no aparecía.
+- **Decisión**: tres tiempos en los mismos 10 s. De la toma 3 en adelante no cambia nada.
+  1. **Reconocimiento (0 – 2,9 s)**: el primer cuadro es la miniatura y ya es el gancho. Un globo de chat enorme de Gerencia, «¿Me pasas el reporte?», con un contador de mensajes sin leer que sube de 3 a 27. Alrededor, los reportes regados: `ventas_FINAL_v3.xlsx`, `cierre_marzo (2).pdf`, `tablero_final_FINAL.pbix`, «RE: RE: RE: Reporte semanal», «¿Cuál es la versión buena?», el aviso «Necesitas una licencia de Power BI Pro» y «No me abre el tablero». Llega uno cada medio segundo, y el globo vibra como el teléfono.
+  2. **Orden (2,9 – 6,3 s)**: un portal de luz se lo traga todo en remolino, se abre como un iris y muestra el portal con los tableros: «Todos tus tableros, en un solo lugar.»
+  3. **Sorpresa (6,4 – 10 s)**: sobre la misma ventana, «Para 1.000 personas:», «1.000 licencias» tachado y «1 licencia.». La ventana lleva el sello «1 licencia de Power BI» y cuatro caras con «+996».
+- **Principios aplicados**:
+  - *Interrupción de patrón*: un mensaje de chat parece una notificación, no un anuncio.
+  - *Autorrelevancia*: una escena que el público vive todos los días, con el humor de «FINAL_v3».
+  - *Brecha de curiosidad*: el caos aparece sin decir quién lo resuelve.
+  - *Del caos al orden*: la recompensa es ver que todo entra en un solo lugar.
+  - *Fluidez*: una idea por tiempo, y todo dicho en pantalla, para verlo sin sonido.
+  - *Aversión a la pérdida sin aritmética*: las mil licencias tachadas se leen como el precio viejo de una etiqueta.
+  - *Marca dentro de la acción*: la firma «Portal BI» desde el primer cuadro, y el portal a los 3,5 s.
+  - *Ritmo*: los cortes caen sobre el pulso de 120 BPM.
+- **Lo que se descartó**:
+  - El monto en dólares en el gancho: pide leer «sin el portal pagarías», la cifra y la tacha, y después hacer la cuenta. Quien multiplica por su propio número de usuarios se convence más que con el nuestro, y la calculadora de `/portal-bi/` hace esa cuenta.
+  - Alejar la cámara hasta mostrar mil pantallas: volvían a ser puntos.
+- **Consecuencias**:
+  - El anuncio ya no usa un lienzo de dibujo. El script mide, en cada formato, cuánto viaja cada pieza hasta el centro de la ventana (`--hx`, `--hy`).
+  - La portada (la foto que se ofrece como miniatura) pasó del segundo 1 al 2,45, con el gancho armado.
+  - El portal dibujado es un componente, `AnuncioPortal.astro`, que comparten el gancho y la toma 4.
+  - El banco suma cinco pruebas por formato:
+    - el primer cuadro ya es el gancho;
+    - la portada no tapa el pedido ni lo que hay que leer;
+    - el portal se traga todo hasta el centro exacto de su ventana;
+    - las dos tomas de la ventana entran en el cuadro (en 9:16, sobre el 79 %).
+  - Para que el mismo instante dé siempre el mismo cuadro, en el gancho nada gira mientras cambia de escala (ver aprendizajes).
+
 ## ADR-018 · El lema del Portal BI: «+ Y ahora tus datos HABLAN» (14/10/2026, revisado el 15/10)
 
 - **Contexto**: el dueño pidió que la portada, los recorridos y el anuncio tomaran algo de «Haz que tus datos hablen», «Ahora tus datos hablan» o «Conversa con tus datos», y que se eligiera con criterio de neuromarketing, para que sea el plus del servicio. El gancho de la página ya era el ahorro («Nunca más una licencia por persona»), y el chat con IA al costado del tablero es lo que el producto tiene de distinto.
@@ -47,6 +88,7 @@ Formato: contexto → decisión → consecuencias. Las decisiones nuevas van arr
 - **Calidad y peso**: 60 cps y CRF 18 (unos 10 MB por formato cuando duraba 46 s). Las redes recodifican todo lo que se sube: un original más pesado no se ve mejor allá, solo pesa más acá. El flujo es máster sin pérdida (`--crf 0`, en una carpeta temporal) → MP4 de entrega; cambiar el peso no obliga a grabar de nuevo.
 - **Entrega (cambiado el 11/10, a pedido del dueño)**: los MP4 NO viven en el repositorio ni en el sitio. Los graba la Action «Grabar el anuncio» (`.github/workflows/anuncio.yml`, en Windows por Segoe UI) cada vez que cambia el anuncio y los publica como archivos del release `anuncio-portal-bi`. La página enlaza ahí, y GitHub los sirve como descarga. Antes vivían en `public/`: la página no los cargaba (solo los enlazaba), pero cada regeneración sumaba ~35 MB a la historia de git y viajaban en cada despliegue.
 - **Revisión del dueño (12/10/2026)**: el chat con IA se vendía como otra pantalla. El pedido fue mostrarlo como es en el producto, un botón al costado del tablero que se despliega, y que resolviera dos preguntas difíciles, «aunque se alargue un poquito». La toma 6 pasó de unos 5 a 16,75 s y el anuncio de 46 a 55 s. Acá el reporte queda a la vista a propósito, porque lo que se vende es que la IA vive al lado del tablero. Es otra decisión que la sección del chat de `/portal-bi/` (ADR-014), que va sin el reporte. La cámara de esa toma es un `transform` de la ventana, y cuánto se acerca en cada formato está medido: el banco comprueba que no pise la firma, que no tape el subtítulo y que en 9:16 no baje del 79 %.
+- **Revisión del gancho (17/10/2026)**: los mil asientos del lienzo se reemplazaron por una escena de reportes regados que el portal se traga. Ver ADR-019.
 - **Consecuencias**: el video tarda lo que tarde la Action en estar al día después de un cambio. Con movimiento reducido el anuncio no se reproduce y queda quieto en el cierre armado: el lienzo lleva `data-movimiento-propio` para que la regla global no le acorte las animaciones. Toda animación nueva tiene que ser un `@keyframes` con retardo absoluto: una `transition` corre en tiempo real y no se puede llevar a un instante. El motor guarda todas las animaciones que vio, no solo las que devuelve `getAnimations()`, que deja afuera a las que terminaron sin relleno (ver aprendizajes).
 
 ## ADR-015 · El recorrido del Portal BI es el portal dibujado y una cámara, no un video (09/10/2026)

@@ -4,7 +4,9 @@
  * Primero fue de 30 s y el dueño lo vio rápido ("no da tiempo de leer"): cada titular queda
  * ahora entre 3 y 4,5 s a la vista. Después pidió que el chat con IA se viera como es —al
  * costado del tablero, con su botón— y con dos preguntas difíciles: es «la bomba» del
- * producto, y la toma 6 creció de 8 a 16,5 s.
+ * producto, y la toma 6 creció de 8 a 16,5 s. El 17/10 cambió el gancho (los primeros 10 s,
+ * ADR-019): ya no son mil asientos de licencias, que no se entendían, sino una escena que el
+ * público vive —«¿Me pasas el reporte?» y los reportes regados— que el portal se traga entera.
  *
  * Todo el movimiento es CSS (@keyframes con su retardo contado desde el segundo 0) y el script
  * (src/scripts/anuncio.ts) lo maneja como una línea de tiempo: puede reproducir, pausar o ir a
@@ -20,12 +22,13 @@
  * datos del reporte y del chat son de ejemplo (los mismos de las maquetas).
  */
 import AnuncioReporte from './AnuncioReporte.astro';
-import { CONTACTO, PRECIO_LICENCIA_USD } from '../../data/sitio';
+import AnuncioPortal from './AnuncioPortal.astro';
+import { TARJETAS, PBI, VARITA } from './datos';
+import { CONTACTO } from '../../data/sitio';
 import { LOGO_BARRAS, LOGO_WORDMARK } from '../../data/logo';
 import { miles } from '../../scripts/formato';
 
 const PERSONAS = 1000;
-const COSTO = miles(PERSONAS * PRECIO_LICENCIA_USD);
 
 /* Un titular partido en palabras con ranura: la animación las sube de a una (w0, w1…). */
 const esc = (t: string) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -35,18 +38,29 @@ const titular = (texto: string) =>
     .map((w, k) => `<span class="an-p w${k}"><span>${esc(w)}</span></span>`)
     .join(' ');
 
-/* Las barras amarillas de Power BI (las de las tarjetas del portal) */
-const PBI = 'M27.6 0h8.3a2.7 2.7 0 0 1 2.7 2.7v36.1a2.7 2.7 0 0 1-2.7 2.7h-8.3a2.7 2.7 0 0 1-2.7-2.7V2.7A2.7 2.7 0 0 1 27.6 0Zm-12.4 11.5h8.3a2.7 2.7 0 0 1 2.7 2.7v24.6a2.7 2.7 0 0 1-2.7 2.7h-8.3a2.7 2.7 0 0 1-2.7-2.7V14.2a2.7 2.7 0 0 1 2.7-2.7ZM2.7 23h8.3a2.7 2.7 0 0 1 2.7 2.7v13.1a2.7 2.7 0 0 1-2.7 2.7H2.7A2.7 2.7 0 0 1 0 38.8V25.7A2.7 2.7 0 0 1 2.7 23Z';
-const VARITA = 'M7.5 5.6 10 7 8.6 4.5 10 2 7.5 3.4 5 2l1.4 2.5L5 7zm12 9.8L17 14l1.4 2.5L17 19l2.5-1.4L22 19l-1.4-2.5L22 14zM22 2l-2.5 1.4L17 2l1.4 2.5L17 7l2.5-1.4L22 7l-1.4-2.5zm-7.63 5.29a1 1 0 0 0-1.41 0L1.29 18.96a1 1 0 0 0 0 1.41l2.34 2.34a1 1 0 0 0 1.41 0L16.7 11.05a1 1 0 0 0 0-1.41zm-1.03 5.49-2.12-2.12 2.44-2.44 2.12 2.12z';
-
-const TARJETAS = [
-  { titulo: 'Ventas por sucursal', ia: true },
-  { titulo: 'Cumplimiento de metas', ia: true },
-  { titulo: 'Cartera y cobranzas', ia: false },
-  { titulo: 'Margen por línea', ia: false },
-  { titulo: 'Pedidos en curso', ia: false },
-  { titulo: 'Indicadores públicos', ia: false },
+/* El gancho (ADR-019): lo que le llega suelto a cualquiera que pide reportes. Los archivos ya
+   están en el primer cuadro (la miniatura); la gente cae después, una por pulso. El orden de la
+   lista es el de encima/debajo: los mensajes y el aviso de la licencia van arriba de los
+   archivos, porque son lo que hay que leer. Nombres de archivo de ejemplo, como los de verdad:
+   «FINAL_v3», «(2)». */
+type Pieza =
+  | { id: string; tipo: 'archivo'; ext: 'xls' | 'pdf' | 'pbix'; nombre: string; meta: string }
+  | { id: string; tipo: 'correo'; asunto: string; meta: string }
+  | { id: string; tipo: 'mensaje'; de: string; texto: string }
+  | { id: string; tipo: 'bloqueo' };
+const PIEZAS: Pieza[] = [
+  { id: 'a', tipo: 'archivo', ext: 'xls', nombre: 'ventas_FINAL_v3.xlsx', meta: 'Adjunto · 2,4 MB' },
+  { id: 'd', tipo: 'archivo', ext: 'pdf', nombre: 'cierre_marzo (2).pdf', meta: 'Adjunto · 880 KB' },
+  { id: 'g', tipo: 'archivo', ext: 'pbix', nombre: 'tablero_final_FINAL.pbix', meta: 'Power BI Desktop · 38 MB' },
+  { id: 'b', tipo: 'correo', asunto: 'RE: RE: RE: Reporte semanal', meta: 'Finanzas · 7:48' },
+  { id: 'c', tipo: 'mensaje', de: 'Ventas', texto: '¿Cuál es la versión buena?' },
+  { id: 'e', tipo: 'bloqueo' },
+  { id: 'f', tipo: 'mensaje', de: 'Operaciones', texto: 'No me abre el tablero' },
 ];
+const EXT = { xls: 'XLS', pdf: 'PDF', pbix: 'PBIX' };
+
+/* Las mil personas de la toma 2: cuatro caras y el resto en un número, como en cualquier app */
+const CARAS = ['G', 'V', 'O', 'M'];
 
 /* El ícono de la IA del portal (la lengüeta y el chat) */
 const DESTELLO = 'M12 2l1.9 5.6L19.5 9l-5.6 1.9L12 16.5l-1.9-5.6L4.5 9l5.6-1.4z';
@@ -90,40 +104,84 @@ const CONSULTAS = ['ventas de 2025 y 2026', 'tickets de cada año', 'ticket prom
   <!-- Fondo vivo de las tomas oscuras: dos luces que respiran -->
   <div class="an-fondo"><i></i><i></i></div>
 
-  <!-- Los mil asientos (y el anillo de las mil personas): los dibuja el script -->
-  <canvas class="an-canvas" data-a="canvas"></canvas>
-
-  <!-- ═══ 1 · GANCHO: el dolor exacto, con el contador corriendo ═══ -->
+  <!-- ═══ 1 · GANCHO: «¿Me pasas el reporte?» y todo lo que llega suelto ═══
+       El primer cuadro ya es el gancho (la miniatura): el pedido de siempre, con sus mensajes
+       sin leer, y los reportes regados alrededor. Cada medio segundo llega otro. A los 2,9 s
+       el portal se los traga a todos, también el pedido (data-a="absorbe": el script mide
+       cuánto viaja cada uno hasta el centro de la ventana). -->
   <section class="an-escena an-s1">
     <div class="an-texto">
-      <p class="an-h1 an-s1-pregunta" set:html={titular('¿Pagas Power BI por cada persona?')} />
-      <div class="an-s1-costo">
-        <p class="an-h3 an-s1-sin">Sin el portal pagarías</p>
-        <p class="an-monto">
-          <span class="an-monto__n">US$ <span data-a="costo">{COSTO}</span></span>
-          <i class="an-tacha"></i>
-        </p>
-        <p class="an-h3 an-s1-mes">al mes, por {miles(PERSONAS)} personas.</p>
+      <div class="an-s1-chat" data-a="absorbe">
+        <p class="an-s1-de"><i>G</i>Gerencia</p>
+        <div class="an-s1-globo">
+          <p class="an-h1 an-s1-pregunta">¿Me pasas el reporte?</p>
+          <span class="an-s1-aviso"><span data-a="kpi" data-desde="3" data-hasta="27" data-en="0.2" data-dur="2.6">27</span></span>
+        </div>
       </div>
     </div>
     <div class="an-visual an-s1-visual">
-      <div class="an-asientos" data-a="asientos"></div>
-      <p class="an-contador"><span data-a="personas">{miles(PERSONAS)}</span> personas, una licencia cada una</p>
+      {PIEZAS.map((p) => (
+        <div class={`an-s1-pieza an-s1-pieza--${p.id}`} data-a="absorbe">
+          <div class="an-s1-arco"><div class="an-s1-flota">
+            {p.tipo === 'archivo' && (
+              <div class="an-s1-carta an-s1-archivo">
+                <span class={`an-s1-doc an-s1-doc--${p.ext}`}>{EXT[p.ext]}</span>
+                <span class="an-s1-carta__txt"><b>{p.nombre}</b><em>{p.meta}</em></span>
+              </div>
+            )}
+            {p.tipo === 'correo' && (
+              <div class="an-s1-carta">
+                <span class="an-s1-ico"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5" /><path d="m3.5 7 8.5 6 8.5-6" /></svg></span>
+                <span class="an-s1-carta__txt"><b>{p.asunto}</b><em>{p.meta}</em></span>
+              </div>
+            )}
+            {p.tipo === 'mensaje' && (
+              <div class="an-s1-carta an-s1-msj">
+                <span class="an-s1-msj__de">{p.de}</span>
+                <span>{p.texto}</span>
+              </div>
+            )}
+            {p.tipo === 'bloqueo' && (
+              <div class="an-s1-carta an-s1-bloqueo">
+                <span class="an-s1-candado">
+                  <svg viewBox="0 0 41.5 41.5"><path d={PBI} /></svg>
+                  <i><svg viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2" /><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" /></svg></i>
+                </span>
+                <span class="an-s1-carta__txt"><b>Necesitas una licencia de Power BI Pro</b><em>para ver este reporte</em></span>
+              </div>
+            )}
+          </div></div>
+        </div>
+      ))}
     </div>
   </section>
 
-  <!-- ═══ 2 · GIRO: los mil colapsan en una sola licencia ═══ -->
+  <!-- ═══ 2 · EL PORTAL: todo en un solo lugar, y una licencia para mil ═══
+       Lo que se tragó la toma 1 sale ordenado: el portal con los tableros. Después, sobre la
+       misma ventana, la cuenta que importa: mil personas, una licencia. -->
   <section class="an-escena an-s2">
-    <i class="an-destello"></i>
     <div class="an-texto">
-      <p class="an-h3 an-s2-con">Con Portal BI</p>
-      <p class="an-h1 an-s2-una" set:html={titular('1 licencia.')} />
-      <p class="an-h1 an-s2-mil" set:html={titular(`${miles(PERSONAS)} personas.`)} />
+      <p class="an-h1 an-s2-todos" set:html={titular('Todos tus tableros, en un solo lugar.')} />
+      <div class="an-s2-lic">
+        <p class="an-h3 an-s2-para">Para {miles(PERSONAS)} personas:</p>
+        <p class="an-h2 an-s2-no"><span>{miles(PERSONAS)} licencias</span><i class="an-s2-tacha"></i></p>
+        <p class="an-h1 an-s2-una" set:html={titular('1 licencia.')} />
+      </div>
     </div>
-    <div class="an-visual an-s2-visual" data-a="licencia">
-      <div class="an-licencia">
-        <svg class="an-licencia__pbi" viewBox="0 0 41.5 41.5"><path d={PBI} /></svg>
-        <svg class="an-licencia__ok" viewBox="0 0 48 48"><path d="M11 25.5 20 34l17-19" pathLength="1" /></svg>
+    <div class="an-visual an-s2-visual">
+      <i class="an-s2-halo"></i>
+      <i class="an-s2-destello"></i>
+      <i class="an-s2-centro" data-a="destino"></i>
+      <div class="an-ui an-ventana an-s2-ventana">
+        <div class="an-ui__in">
+          <div class="an-ventana__barra"><i></i><i></i><i></i><span>portal.tuempresa.com/tableros</span><em>Datos de ejemplo</em></div>
+          <AnuncioPortal tarjeta="an-s2-t--" />
+        </div>
+        <span class="an-s2-sello"><svg viewBox="0 0 41.5 41.5"><path d={PBI} /></svg>1 licencia de Power BI</span>
+        <div class="an-s2-gente">
+          {CARAS.map((c, i) => <span class={`an-s2-cara an-s2-cara--${i + 1}`}>{c}</span>)}
+          <b class="an-s2-mas"><span data-a="kpi" data-signo="+" data-desde="0" data-hasta={String(PERSONAS - CARAS.length)} data-en="8.1" data-dur="0.8">+{PERSONAS - CARAS.length}</span></b>
+        </div>
       </div>
     </div>
   </section>
@@ -179,31 +237,7 @@ const CONSULTAS = ['ventas de 2025 y 2026', 'tickets de cada año', 'ticket prom
       <div class="an-ui an-ventana an-portal">
         <div class="an-ui__in">
           <div class="an-ventana__barra"><i></i><i></i><i></i><span>portal.tuempresa.com/tableros</span><em>Datos de ejemplo</em></div>
-          <div class="an-portal__cuerpo">
-            <div class="an-portal__menu">
-              <span class="an-portal__logo"><svg viewBox="0 0 28 28"><rect x="3" y="14" width="5" height="11" rx="1.2" /><rect x="11.5" y="8" width="5" height="17" rx="1.2" /><rect x="20" y="3" width="5" height="22" rx="1.2" /></svg>Portal BI</span>
-              <span class="an-portal__seccion">Tableros</span>
-              <span class="an-portal__item an-portal__item--si">Comercial</span>
-              <span class="an-portal__item">Operaciones</span>
-              <span class="an-portal__item">Recursos Humanos</span>
-              <span class="an-portal__seccion">Modelos</span>
-              <span class="an-portal__item">Ventas 2026</span>
-            </div>
-            <div class="an-portal__contenido">
-              <span class="an-portal__migas">Comercial</span>
-              <div class="an-portal__tarjetas">
-                {TARJETAS.map((t, i) => (
-                  <div class={`an-tarjeta an-tarjeta--${i + 1}`}>
-                    {t.ia && (
-                      <span class="an-tarjeta__ia"><svg viewBox="0 0 24 24"><path d={VARITA} /></svg>IA</span>
-                    )}
-                    <svg class="an-tarjeta__pbi" viewBox="0 0 41.5 41.5"><path d={PBI} /></svg>
-                    <span class="an-tarjeta__t">{t.titulo}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+          <AnuncioPortal tarjeta="an-tarjeta--" ia />
           <i class="an-toque"></i>
         </div>
       </div>

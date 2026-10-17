@@ -10,6 +10,9 @@
  *    puñado de píxeles (medido: 33 píxeles, máximo 3 de 765, en el ícono del chat a escala
  *    0,736). Eso es invisible; un error de la línea de tiempo cambia miles.
  *  · Cada toma aparece en su ventana y no fuera de ella.
+ *  · El gancho (ADR-019), en cada formato: el primer cuadro ya es el gancho (es la miniatura);
+ *    en la portada nada tapa el pedido ni lo que hay que leer; el portal se traga todo hasta el
+ *    centro exacto de su ventana; y las tomas de la ventana entran en el cuadro.
  *  · La letra escala con el lienzo: en la vista achicada de la página el titular mide lo que
  *    le toca. Se rompió una vez: --h1 quedó fijo en 118 px y el video lo tapaba (aprendizajes).
  *  · El aro del toque no se ve antes de tocar (fill-mode `both` lo mostraba toda la toma).
@@ -140,10 +143,12 @@ const ESPERADO = [
 ];
 
 /* Instantes que se prueban dos veces (tienen que dar el mismo cuadro): el chat a mitad de
-   dibujar el gráfico, la licencia abriéndose en la espiral y los asientos llenándose. */
+   dibujar el gráfico, y en el gancho las caras entrando con su número corriendo, los reportes
+   cayendo y flotando, y el portal a mitad de tragárselos. */
 const CHAT = 30.9;
-const ESPIRAL = 7.7;
-const ASIENTOS = 2.5;
+const LICENCIA = 8.3;
+const CAOS = 2.2;
+const SUCCION = 3.25;
 const coma = (s) => String(s).replace('.', ',');
 
 console.log('Modo grabación, por formato');
@@ -157,30 +162,155 @@ for (const [formato, [w, h]] of Object.entries(FORMATOS)) {
   /* Determinismo: el mismo instante, dos veces, con un salto en el medio */
   await ir(p, CHAT);
   const a = await p.screenshot();
-  await ir(p, ESPIRAL);
+  await ir(p, LICENCIA);
   await ir(p, CHAT);
   const b = await p.screenshot();
   const ab = await iguales(a, b);
   ok(ab.ok, `${formato}: ir a ${coma(CHAT)} s dos veces da el mismo cuadro (${ab.distintos} píxeles distintos en mancha, ${ab.todos} en total, máx. ${ab.maximo})`);
-  await ir(p, ESPIRAL);
+  await ir(p, LICENCIA);
   const c = await p.screenshot();
   await ir(p, 52.0);
-  await ir(p, ESPIRAL);
+  await ir(p, LICENCIA);
   const d = await p.screenshot();
   const cd = await iguales(c, d);
-  ok(cd.ok, `${formato}: la espiral de las mil personas también, a ${coma(ESPIRAL)} s (${cd.distintos} píxeles distintos en mancha, ${cd.todos} en total)`);
-  /* El lienzo tiene dos fases: los asientos (hasta ~6,7 s) y la espiral (desde 7,15 s). En la
-     espiral ya no queda ningún asiento: se prueban aparte, mientras se llenan. */
-  await ir(p, ASIENTOS);
+  ok(cd.ok, `${formato}: las mil personas entrando también, a ${coma(LICENCIA)} s (${cd.distintos} píxeles distintos en mancha, ${cd.todos} en total)`);
+  /* El gancho tiene tres fases que no se parecen: los reportes cayendo y flotando, el portal
+     tragándoselos y la ventana. Cada una se prueba aparte, viniendo de otro lado */
+  await ir(p, CAOS);
   const e = await p.screenshot();
   await ir(p, 18.0);
-  await ir(p, ASIENTOS);
+  await ir(p, CAOS);
   const f2 = await p.screenshot();
   const ef = await iguales(e, f2);
-  ok(ef.ok, `${formato}: los mil asientos, a ${coma(ASIENTOS)} s, también (${ef.distintos} píxeles distintos en mancha, ${ef.todos} en total)`);
+  ok(ef.ok, `${formato}: los reportes cayendo, a ${coma(CAOS)} s, también (${ef.distintos} píxeles distintos en mancha, ${ef.todos} en total)`);
+  await ir(p, SUCCION);
+  const g = await p.screenshot();
+  await ir(p, 40.0);
+  await ir(p, SUCCION);
+  const h2 = await p.screenshot();
+  const gh = await iguales(g, h2);
+  ok(gh.ok, `${formato}: el portal tragándoselos, a ${coma(SUCCION)} s, también (${gh.distintos} píxeles distintos en mancha, ${gh.todos} en total)`);
   /* Y la comparación sabe decir que NO: dos instantes distintos tienen que dar distinto */
   const ac = await iguales(a, c);
-  ok(!ac.ok, `${formato}: ${coma(CHAT)} s y ${coma(ESPIRAL)} s se distinguen (${ac.distintos} píxeles distintos)`);
+  ok(!ac.ok, `${formato}: ${coma(CHAT)} s y ${coma(LICENCIA)} s se distinguen (${ac.distintos} píxeles distintos)`);
+
+  /* ── El gancho (ADR-019) ──
+     El primer cuadro es la miniatura del video: tiene que traer el pedido entero, adentro del
+     cuadro, y ya algunos reportes a la vista. La escala de cada carta se lee de su matriz (la
+     de la carta, que solo escala: el giro es de la capa de afuera) */
+  const fondo = formato === '9x16' ? h * 0.79 : h;
+  await ir(p, 0);
+  const primero = await p.evaluate(() => {
+    const g = document.querySelector('.an-s1-globo').getBoundingClientRect();
+    const enteras = [...document.querySelectorAll('.an-s1-carta')].filter((c) => {
+      const t = getComputedStyle(c).transform;
+      return t === 'none' || Math.abs(new DOMMatrixReadOnly(t).a - 1) < 0.01;
+    }).length;
+    return {
+      texto: document.querySelector('.an-s1-pregunta').textContent.trim(),
+      opacidad: Number(getComputedStyle(document.querySelector('.an-s1-chat')).opacity),
+      dentro: g.left >= 0 && g.top >= 0 && g.right <= innerWidth && g.bottom <= innerHeight,
+      aviso: document.querySelector('.an-s1-aviso').textContent.trim(),
+      enteras,
+    };
+  });
+  ok(primero.texto === '¿Me pasas el reporte?' && primero.opacidad === 1 && primero.dentro && primero.enteras >= 3 && primero.aviso === '3',
+    `${formato}: el primer cuadro ya es el gancho («${primero.texto}»${primero.dentro ? '' : ', SE SALE DEL CUADRO'}, ${primero.enteras} reportes a la vista, ${primero.aviso} sin leer)`);
+
+  /* La portada (la foto que se ofrece como miniatura): los siete reportes enteros y adentro, y
+     nada tapa el pedido ni lo que hay que leer (los dos mensajes y el aviso de la licencia).
+     Las cajas de lo girado son un poco más grandes que lo que se ve: se tolera un 3 % */
+  await ir(p, 2.45);
+  const portada = await p.evaluate((piso) => {
+    const r = (sel) => document.querySelector(sel).getBoundingClientRect();
+    const globo = r('.an-s1-globo');
+    const cartas = [...document.querySelectorAll('.an-s1-pieza')].map((pz) => {
+      const c = pz.querySelector('.an-s1-carta');
+      return { id: pz.className.match(/an-s1-pieza--(\w)/)[1], r: c.getBoundingClientRect(), escala: new DOMMatrixReadOnly(getComputedStyle(c).transform).a };
+    });
+    const cruce = (a, b) =>
+      Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left)) * Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
+    const leer = { c: '.an-s1-pieza--c .an-s1-msj > span:last-child', e: '.an-s1-pieza--e .an-s1-carta__txt', f: '.an-s1-pieza--f .an-s1-msj > span:last-child' };
+    const orden = cartas.map((c) => c.id);
+    const tapados = [];
+    for (const [id, sel] of Object.entries(leer)) {
+      const t = r(sel);
+      for (const otra of cartas.slice(orden.indexOf(id) + 1)) {
+        const parte = cruce(t, otra.r) / (t.width * t.height);
+        if (parte > 0.03) tapados.push(`${id} bajo ${otra.id} (${Math.round(parte * 100)} %)`);
+      }
+    }
+    return {
+      enteras: cartas.filter((c) => Math.abs(c.escala - 1) < 0.01).length,
+      fuera: cartas.filter((c) => c.r.left < 0 || c.r.top < 0 || c.r.right > innerWidth || c.r.bottom > piso).map((c) => c.id),
+      sobreGlobo: cartas.filter((c) => cruce(c.r, globo) > 0).map((c) => c.id),
+      tapados,
+      aviso: document.querySelector('.an-s1-aviso').textContent.trim(),
+    };
+  }, fondo);
+  ok(portada.enteras === 7 && !portada.fuera.length && !portada.sobreGlobo.length && !portada.tapados.length && portada.aviso === '27',
+    `${formato}: la portada trae los ${portada.enteras} reportes adentro${formato === '9x16' ? ' y sobre el 79 %' : ''}, sin pisar el pedido ni lo que hay que leer (${portada.aviso} sin leer` +
+      `${portada.fuera.length ? `; afuera: ${portada.fuera.join(', ')}` : ''}${portada.sobreGlobo.length ? `; sobre el globo: ${portada.sobreGlobo.join(', ')}` : ''}${portada.tapados.length ? `; tapado: ${portada.tapados.join(', ')}` : ''})`);
+
+  /* El portal se traga todo hasta el centro EXACTO de su ventana: lo que viaja lo mide el
+     script (--hx, --hy) y depende del formato y del largo de cada texto. A los 3,47 s ya
+     terminó todo, y la toma 1 se sigue viendo hasta los 3,5 */
+  await ir(p, 3.47);
+  const tragado = await p.evaluate(() => {
+    const centro = (el) => {
+      const q = el.getBoundingClientRect();
+      return { x: (q.left + q.right) / 2, y: (q.top + q.bottom) / 2 };
+    };
+    const d = centro(document.querySelector('.an-s2-centro'));
+    const piezas = [...document.querySelectorAll('[data-a="absorbe"]')];
+    return {
+      cuantas: piezas.length,
+      lejos: Math.max(...piezas.map((el) => { const c = centro(el); return Math.hypot(c.x - d.x, c.y - d.y); })),
+      opacidad: Math.max(...piezas.map((el) => Number(getComputedStyle(el).opacity))),
+    };
+  });
+  ok(tragado.cuantas === 8 && tragado.lejos < 4 && tragado.opacidad < 0.01,
+    `${formato}: el portal se traga las ${tragado.cuantas} piezas hasta el centro de su ventana (la más lejana queda a ${tragado.lejos.toFixed(1)} px, opacidad ${tragado.opacidad})`);
+
+  /* La toma de los tableros: el titular no pisa la ventana, y la ventana entra en el cuadro */
+  await ir(p, 5.0);
+  const tableros = await p.evaluate(() => {
+    const rg = document.createRange();
+    rg.selectNodeContents(document.querySelector('.an-s2-todos'));
+    const t = rg.getBoundingClientRect();
+    const v = document.querySelector('.an-s2-ventana .an-ui__in').getBoundingClientRect();
+    return {
+      aire: Math.round(Math.max(v.top - t.bottom, v.left - t.right)),
+      dentro: v.left >= 0 && v.top >= 0 && v.right <= innerWidth && v.bottom <= innerHeight,
+    };
+  });
+  ok(tableros.aire >= 16 && tableros.dentro,
+    `${formato}: «Todos tus tableros» no pisa la ventana (aire: ${tableros.aire} px)${tableros.dentro ? '' : ' · LA VENTANA SE SALE DEL CUADRO'}`);
+
+  /* La de la licencia: el sello y las caras entran (en 9:16, sobre el 79 %), el sello no pisa
+     el texto, la tacha cruza «1.000 licencias» de punta a punta y el número llegó a +996 */
+  await ir(p, 9.0);
+  const licencia = await p.evaluate((piso) => {
+    const r = (sel) => document.querySelector(sel).getBoundingClientRect();
+    const dentro = (b) => b.left >= 0 && b.top >= 0 && b.right <= innerWidth && b.bottom <= piso;
+    const sello = r('.an-s2-sello');
+    const gente = r('.an-s2-gente');
+    const rg = document.createRange();
+    rg.selectNodeContents(document.querySelector('.an-s2-lic'));
+    const texto = rg.getBoundingClientRect();
+    const no = r('.an-s2-no span');
+    const tacha = r('.an-s2-tacha');
+    return {
+      sello: dentro(sello),
+      gente: dentro(gente),
+      abajo: Math.round(gente.bottom),
+      aire: Math.round(Math.max(sello.top - texto.bottom, sello.left - texto.right)),
+      tacha: tacha.left <= no.left && tacha.right >= no.right,
+      mas: document.querySelector('.an-s2-mas').textContent.trim(),
+    };
+  }, fondo);
+  ok(licencia.sello && licencia.gente && licencia.aire >= 8 && licencia.tacha && licencia.mas === '+996',
+    `${formato}: la licencia entra entera (sello ${licencia.sello ? 'adentro' : 'AFUERA'}, caras hasta ${licencia.abajo} de ${Math.round(fondo)} px, aire con el texto ${licencia.aire} px, tacha ${licencia.tacha ? 'de punta a punta' : 'CORTA'}, ${licencia.mas})`);
   /* El encuadre de la toma 6, que se rompió en tres formatos distintos: la mirada a la lengüeta
      tapaba el subtítulo (1:1 y 16:9), la cámara adentro le pasaba por encima a la firma (1:1) y
      en 9:16 dejaba el campo de la pregunta debajo del 79 %, donde van los botones de Reels */
@@ -255,13 +385,6 @@ console.log('Detalles que ya se rompieron una vez');
   await ir(p, 33.7);
   const q2 = await p.evaluate(() => [...document.querySelectorAll('.an-s6 [data-a="tipeo"]')].map((t) => t.textContent.length));
   ok(q1[0] > 10 && q1[1] === 0 && q2[0] === 0 && q2[1] > 5, `las dos preguntas se tipean por turno (${q1.join('/')} → ${q2.join('/')} letras)`);
-  await ir(p, 4.5);
-  const lineas = await p.evaluate(() => {
-    const m = document.querySelector('.an-monto__n');
-    const r = m.getBoundingClientRect();
-    return Math.round(r.height / parseFloat(getComputedStyle(m).lineHeight || getComputedStyle(m).fontSize));
-  });
-  ok(lineas <= 1, `la cifra del gancho entra en una línea (${lineas})`);
   await p.context().close();
 }
 
@@ -270,15 +393,14 @@ console.log('El CSS que sobrevive al minificador');
   /* Lightning CSS (el minificador de Vite) trata transform y las propiedades sueltas (translate,
      rotate, scale) como una sola: en una regla que tiene las dos, borra la suelta o la funde en el
      transform estático, que la animación después reemplaza entero. La lengüeta del chat perdió así
-     su translate. La tacha de la toma 1 perdió su giro de −4° desde la primera versión y sale
-     derecha: se deja (es la que se aprobó en los videos), pero queda anotada acá. */
+     su translate, y la tacha del gancho viejo su giro de −4°. Esa tacha se fue con el gancho
+     (ADR-019) y con ella la única excepción que había. */
   const css = readFileSync(new globalThis.URL('../src/components/anuncio/anuncio.css', import.meta.url), 'utf8');
-  const CONOCIDAS = new Set(['.an-tacha']);
   const mezclas = [];
   for (const [, sel, cuerpo] of css.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
     const props = new Set([...cuerpo.matchAll(/^\s*(translate|rotate|scale|transform)\s*:/gm)].map((m) => m[1]));
     const nombre = sel.trim().split('\n').pop().trim();
-    if (props.has('transform') && props.size > 1 && !CONOCIDAS.has(nombre)) mezclas.push(nombre);
+    if (props.has('transform') && props.size > 1) mezclas.push(nombre);
   }
   ok(mezclas.length === 0, `ninguna regla mezcla transform con translate, rotate o scale${mezclas.length ? ` (${mezclas.join(', ')})` : ''}`);
 }

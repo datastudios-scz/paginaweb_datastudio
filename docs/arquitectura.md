@@ -53,7 +53,9 @@
 │   │   │                        RecorridoPantalla.astro (tu equipo) y RecorridoAdmin.astro (el administrador), 1280 × 760;
 │   │   │                        recorrido.css (lo común), recorrido-pantalla.css y recorrido-admin.css (cada pantalla)
 │   │   ├── anuncio/             Anuncio.astro + anuncio.css: el anuncio de 55 s para redes (nueve tomas, cuatro formatos);
-│   │   │                        AnuncioReporte.astro: el cuerpo del reporte, que comparten la toma 5 y la 6
+│   │   │                        AnuncioReporte.astro: el cuerpo del reporte, que comparten la toma 5 y la 6;
+│   │   │                        AnuncioPortal.astro: el portal por dentro (menú y tableros), del gancho y la toma 4;
+│   │   │                        datos.ts: las tarjetas de ejemplo y los trazos de sus íconos
 │   │   ├── social/              MaquetaTablero (variantes completa, compacta y publicaciones)
 │   │   ├── tienda/              Catalogo (tienda de ejemplo, variantes completa y compacta)
 │   │   └── consultoria/         Flujo (recorrido de los datos) y Consolidado (héroe: planillas → reporte)
