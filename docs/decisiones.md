@@ -69,7 +69,7 @@ Formato: contexto → decisión → consecuencias. Las decisiones nuevas van arr
   - El chip nombra la IA sin alargar la frase. Lleva el índigo de la IA del producto (el del chat de las maquetas), no el verde de la marca.
   - Es un solo componente (`Lema.astro`) para la portada y los recorridos. El anuncio y la imagen para compartir llevan su versión, con las mismas formas.
   - En el texto plano (descripción, texto alternativo) va «Y ahora tus datos hablan», sin mayúsculas: en un buscador, las mayúsculas gritan.
-- **Consecuencias**: el lema es una afirmación sobre el producto. Se sostiene mientras el chat consulte el modelo y responda con sus datos (contenido.md). Fuera de `/portal-bi/` (inicio, menú) no se cambió nada.
+- **Consecuencias**: el lema es una afirmación sobre el producto. Se sostiene mientras el chat consulte el modelo y responda con sus datos (contenido.md). Fuera de `/portal-bi/` no se cambió nada, hasta que el 17/10 el dueño pidió que también lo lleve la vitrina del Portal BI del inicio: va debajo de la promesa, igual que en la portada del producto.
 
 ## ADR-017 · El recorrido del administrador: otro guion sobre el mismo motor (12/10/2026)
 

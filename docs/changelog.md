@@ -1,5 +1,12 @@
 # Bitácora de cambios
 
+## 17/10/2026 · El lema también en el inicio
+
+- **Pedido del dueño**: en el inicio, la vitrina del Portal BI no decía «+ Y ahora tus datos HABLAN» con su chip de IA.
+- Ahora va debajo de la promesa («Power BI para toda tu empresa. Nunca más una licencia por persona.»), como en la portada de `/portal-bi/`. Es el mismo componente (`Lema.astro`), al mismo tamaño y en blanco.
+- En escritorio ocupa dos renglones, y en el teléfono uno. A 320 px vuelven a ser dos, con «HABLAN» y su chip siempre juntos.
+- QA sin problemas.
+
 ## 17/10/2026 · El gancho nuevo del anuncio del Portal BI
 
 - **Pedido del dueño**: el gancho de los mil asientos de licencias no se entendía. Hacía falta un gancho que atrape en los primeros 10 s, con neuromarketing de verdad, y que muestre la centralización de los tableros. Estudio y decisión en ADR-019.

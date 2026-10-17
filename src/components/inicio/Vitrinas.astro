@@ -7,8 +7,11 @@
  * completa, los montos y los botones de contacto viven en cada subpágina).
  * Cada vitrina tiene su propio campo de color para que se lea como un producto distinto.
  * Rótulos de los botones: que quepan en una línea a 320 px (unos 270 px con el ícono).
+ * La del Portal BI lleva su lema (ADR-018) debajo de la promesa, como en /portal-bi/: la
+ * promesa sigue siendo el ahorro, y el lema es el plus (la IA).
  */
 import Icono from '../Icono.astro';
+import Lema from '../portal/Lema.astro';
 import Ventana from '../portal/Ventana.astro';
 import MaquetaPortal from '../portal/MaquetaPortal.astro';
 import MaquetaTablero from '../social/MaquetaTablero.astro';
@@ -92,6 +95,7 @@ const VITRINAS = [
           </h2>
         </div>
         <p class="vitrina__frase">{v.frase}</p>
+        {v.id === 'portal-bi' && <p class="vitrina__lema"><Lema /></p>}
         <ul class="lista-check vitrina__puntos">
           {v.puntos.map((p) => (
             <li><Icono nombre="check" /><span>{p}</span></li>
@@ -180,6 +184,18 @@ const VITRINAS = [
     line-height: 1.2;
     letter-spacing: -0.02em;
     color: var(--acento);
+    text-wrap: balance;
+  }
+
+  /* El lema, pegado a la promesa (con menos aire que el resto) y en blanco: la promesa va en
+     acento, y el lema trae su propio color en el «+» y el chip. El tamaño es el de /portal-bi/ */
+  .vitrina__lema {
+    margin-top: calc(var(--space-3) - var(--space-5));
+    font-size: clamp(1.25rem, 1rem + 1.1vw, 2rem);
+    font-weight: var(--peso-semi);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    color: var(--texto);
     text-wrap: balance;
   }
 
