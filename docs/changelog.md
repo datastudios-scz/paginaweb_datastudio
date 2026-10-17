@@ -1,5 +1,23 @@
 # Bitácora de cambios
 
+## 17/10/2026 · Dos páginas ocultas: /anuncios/ y /propuestas/
+
+- **Pedido del dueño**: tener a mano, escribiendo la dirección, todos los anuncios ordenados y las propuestas a socios, sin buscarlos ni bajar diapositivas. Ninguna de las dos se ve navegando el sitio.
+- **`/anuncios/`**: los anuncios para redes, el más nuevo primero. Cada uno lleva su botón «Ver y grabar» y sus MP4 por formato. Hoy está el del Portal BI. Se suman en `src/data/anuncios.ts`.
+- **`/propuestas/`**: las propuestas a socios y clientes, la más nueva primero, cada una con su botón. Puede ser una página del sitio (`src/pages/propuestas/<nombre>.astro`, que queda oculta sola), un PDF en `public/propuestas/` o una presentación externa. Hoy está vacía y lo dice. Se suman en `src/data/propuestas.ts`.
+- **Una sola lista de páginas ocultas**, `src/data/ocultas.mjs`, la usan:
+  - el filtro del sitemap (`astro.config.mjs`), que antes tenía la ruta del anuncio escrita a mano;
+  - el QA.
+- Las páginas comparten un marco (`PaginaOculta.astro`): sin indexar, con un aviso de que no se llega navegando, y una lista de filas con regla fina (`src/styles/ocultas.css`).
+- Los formatos y las direcciones del release del anuncio pasaron a `src/data/anuncios.ts`. La página del anuncio y `/anuncios/` leen de ahí, y el anuncio se ve igual.
+- Ícono nuevo, `descargar`.
+- **QA**: las dos páginas se revisan en los seis anchos. Al final, el QA comprueba que las ocultas sigan ocultas:
+  - ninguna está en el sitemap;
+  - todas llevan `noindex`;
+  - ninguna página pública las enlaza.
+  - Saboteado con el filtro viejo del sitemap y un enlace en la 404: dio las dos rojas esperadas.
+- QA y banco del anuncio sin problemas.
+
 ## 15/10/2026 · El lema con su «+» y su chip de IA
 
 - **Pedido del dueño**: «Y ahora tus datos hablan» solo no sonaba a plus ni decía que hay IA. Ahora lleva un «+» que llama la atención, «Y ahora tus datos HABLAN» y, en su esquina, un chip «IA» con estrellitas que titilan.

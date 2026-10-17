@@ -1,0 +1,184 @@
+/* Las páginas ocultas (/anuncios/, /propuestas/): un índice de filas con regla fina, como el
+   resto del sitio se lee como un informe. Global a propósito (prefijo oc-): lo usan el marco
+   PaginaOculta.astro y las filas que pone cada página. */
+
+.oc {
+  min-height: 80vh;
+}
+
+.oc__contenedor {
+  display: grid;
+  gap: var(--space-7);
+}
+
+.oc__cabecera {
+  display: grid;
+  gap: var(--space-4);
+  max-width: 48rem;
+}
+
+/* Recordatorio para quien la abre: no se llega navegando */
+.oc__aviso {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  justify-self: start;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radio-pill);
+  box-shadow: inset 0 0 0 1px var(--linea-fuerte);
+  font-family: var(--font-datos);
+  font-size: var(--text-xs);
+  line-height: 1.5;
+  color: var(--texto-2);
+}
+
+.oc__aviso svg {
+  width: 0.95rem;
+  height: 0.95rem;
+  flex: none;
+  color: var(--acento);
+}
+
+.oc-lista {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--linea);
+}
+
+.oc-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-5) var(--space-6);
+  align-items: start;
+  padding-block: var(--space-6);
+  border-bottom: 1px solid var(--linea);
+  scroll-margin-top: 6rem;
+}
+
+.oc-item__cuerpo {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+/* Producto, fecha y duración: datos, en la tipografía de datos y separados por aire */
+.oc-item__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-4);
+  font-family: var(--font-datos);
+  font-size: var(--text-xs);
+  line-height: 1.5;
+  color: var(--texto-2);
+}
+
+.oc-item__producto {
+  color: var(--acento);
+}
+
+.oc-item__titulo {
+  font-size: var(--text-xl);
+  font-weight: var(--peso-semi);
+  line-height: 1.25;
+  letter-spacing: var(--tracking-titulo);
+  text-wrap: balance;
+}
+
+.oc-item__texto {
+  max-width: 62ch;
+  line-height: 1.6;
+  color: var(--texto-2);
+  text-wrap: pretty;
+}
+
+.oc-item__acciones {
+  display: flex;
+}
+
+/* Las descargas por formato: debajo, a todo el ancho de la fila */
+.oc-descargas {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.oc-descarga {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-1) var(--space-3);
+  min-height: 3.5rem;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radio-md);
+  background: var(--superficie);
+  box-shadow: inset 0 0 0 1px var(--linea);
+  color: var(--texto);
+  text-decoration: none;
+  transition: box-shadow var(--dur-2) var(--ease-out);
+}
+
+.oc-descarga:hover {
+  box-shadow: inset 0 0 0 1.5px var(--acento);
+}
+
+.oc-descarga svg {
+  grid-row: span 2;
+  width: 1.25rem;
+  height: 1.25rem;
+  color: var(--acento);
+}
+
+.oc-descarga__formato {
+  font-weight: var(--peso-semi);
+}
+
+.oc-descarga__uso {
+  font-size: var(--text-sm);
+  line-height: 1.4;
+  color: var(--texto-2);
+}
+
+/* Una medida no se parte: «1080 ×» en un renglón y «1920» en otro no se lee */
+.oc-descarga__px {
+  white-space: nowrap;
+}
+
+/* Lo que se ve mientras la lista está vacía: qué va a aparecer y dónde se suma */
+.oc-vacio {
+  display: grid;
+  gap: var(--space-2);
+  max-width: 42rem;
+  padding: var(--space-6);
+  border-radius: var(--radio-lg);
+  box-shadow: inset 0 0 0 1px var(--linea);
+  color: var(--texto-2);
+  line-height: 1.6;
+}
+
+.oc-vacio__titulo {
+  font-size: var(--text-xl);
+  font-weight: var(--peso-semi);
+  color: var(--texto);
+}
+
+.oc-vacio code {
+  font-family: var(--font-datos);
+  font-size: 0.9em;
+  color: var(--acento);
+}
+
+@media (max-width: 40rem) {
+  .oc-item {
+    grid-template-columns: 1fr;
+  }
+
+  .oc-item__acciones .boton {
+    width: 100%;
+  }
+}

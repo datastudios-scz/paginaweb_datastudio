@@ -1,0 +1,67 @@
+---
+/**
+ * /propuestas/ — página OCULTA: las propuestas a socios y clientes, de la más nueva a la más
+ * vieja, cada una con su botón (una página del sitio, un PDF o una presentación externa).
+ * Los datos viven en src/data/propuestas.ts; para sumar una se agrega ahí. Las páginas propias
+ * de cada propuesta van en src/pages/propuestas/ y quedan ocultas solas.
+ */
+import PaginaOculta from '../../components/PaginaOculta.astro';
+import Icono from '../../components/Icono.astro';
+import { PROPUESTAS, type TipoPropuesta } from '../../data/propuestas';
+
+const fechaLarga = new Intl.DateTimeFormat('es', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+const LISTA = [...PROPUESTAS].sort((a, b) => b.fecha.localeCompare(a.fecha));
+
+/** Qué dice el botón y si abre en otra pestaña, según dónde vive la propuesta */
+const BOTON: Record<TipoPropuesta, { texto: string; tipo: string; afuera: boolean }> = {
+  pagina: { texto: 'Abrir la propuesta', tipo: 'Página', afuera: false },
+  pdf: { texto: 'Abrir el PDF', tipo: 'PDF', afuera: true },
+  presentacion: { texto: 'Abrir la presentación', tipo: 'Presentación', afuera: true },
+  enlace: { texto: 'Abrir', tipo: 'Enlace', afuera: true },
+};
+---
+
+<PaginaOculta
+  nombre="Propuestas"
+  entrada="Las propuestas a socios y clientes, la más nueva primero. Cada botón abre la suya, sin buscarla ni descargar diapositivas."
+>
+  {LISTA.length === 0 ? (
+    <div class="oc-vacio">
+      <p class="oc-vacio__titulo">Todavía no hay propuestas.</p>
+      <p>
+        Cada una aparece acá con su botón: una página del sitio, un PDF o una presentación. Se suman en
+        <code>src/data/propuestas.ts</code>, una entrada por propuesta.
+      </p>
+    </div>
+  ) : (
+    <ol class="oc-lista" role="list">
+      {LISTA.map((p) => {
+        const b = BOTON[p.tipo];
+        return (
+          <li class="oc-item" id={p.id}>
+            <div class="oc-item__cuerpo">
+              <p class="oc-item__meta">
+                <span class="oc-item__producto">Para {p.para}</span>
+                <time datetime={p.fecha}>{fechaLarga.format(new Date(`${p.fecha}T00:00:00Z`))}</time>
+                <span>{b.tipo}</span>
+              </p>
+              <h2 class="oc-item__titulo">{p.titulo}</h2>
+              {p.descripcion && <p class="oc-item__texto">{p.descripcion}</p>}
+            </div>
+            <div class="oc-item__acciones">
+              <a
+                class="boton boton--primario"
+                href={p.href}
+                target={b.afuera ? '_blank' : undefined}
+                rel={b.afuera ? 'noopener noreferrer' : undefined}
+              >
+                <span>{b.texto}</span>
+                <Icono nombre={b.afuera ? 'externo' : 'flecha'} />
+              </a>
+            </div>
+          </li>
+        );
+      })}
+    </ol>
+  )}
+</PaginaOculta>

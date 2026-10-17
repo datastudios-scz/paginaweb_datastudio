@@ -61,13 +61,17 @@
 │   ├── data/logo.ts             Trazos del logo (ícono, barras, wordmark): los usan Logo.astro, el anuncio
 │   │                            y scripts/generar-recursos.mjs (favicons, íconos e imágenes para compartir)
 │   ├── data/admin.ts            El menú del panel de administración (orden, nombres e íconos): MaquetaAdmin y el recorrido
+│   ├── data/ocultas.mjs         La lista de páginas ocultas: la leen el filtro del sitemap y scripts/qa.mjs
+│   ├── data/anuncios.ts         Los anuncios de /anuncios/, los formatos y los MP4 del release del Portal BI
+│   ├── data/propuestas.ts       Las propuestas de /propuestas/ (página, PDF o presentación)
 │   ├── layouts/Base.astro       <head> (SEO, OG, JSON-LD, fuentes), encabezado, pie (`inmersiva`: sin encabezado ni pie)
 │   ├── pages/                   index, portal-bi, portal-bi/como-funciona (y /administrador), social-metrics-bi, tienda-ecommerce, consultoria, 404
 │   ├── scripts/                 formato.ts (miles, cálculo de ahorro), esquemas.ts (JSON-LD), revelar.ts,
 │   │                            recorrido-motor.ts (reloj, cámara, cursor, narración y controles de los recorridos),
 │   │                            recorrido.ts y recorrido-admin.ts (el guion de cada recorrido),
 │   │                            anuncio.ts (línea de tiempo del anuncio: reproducir, pausar, ir a un instante exacto)
-│   └── styles/                  tokens.css (diseño), global.css (base y utilidades), producto.css (clases prod-* de las subpáginas)
+│   └── styles/                  tokens.css (diseño), global.css (base y utilidades), producto.css (clases prod-* de las subpáginas),
+│                                ocultas.css (clases oc-* de las páginas ocultas, con su marco PaginaOculta.astro)
 ├── astro.config.mjs             Sitio, fuentes, CSP, sitemap
 └── CLAUDE.md                    Reglas para agentes de IA que trabajen en el repo
 ```
@@ -80,6 +84,8 @@
 | `/portal-bi/` | `src/pages/portal-bi.astro` | Producto completo: maquetas del portal y del chat con IA, compra de código + guía, instalación, calculadora de ahorro, requisitos, límites y preguntas |
 | `/portal-bi/como-funciona/` | `src/pages/portal-bi/como-funciona.astro` | Recorrido animado de un minuto: la pantalla del portal (`RecorridoPantalla`) con cámara, cursor y narración por pasos. Sin encabezado ni pie (`Base` con `inmersiva`). Con `#ver` arranca solo (ADR-015) |
 | `/portal-bi/como-funciona/administrador/` | `src/pages/portal-bi/como-funciona/administrador.astro` | Recorrido animado del administrador (72 s): el panel (`RecorridoAdmin`) con el mismo motor y el mismo marco. Se llega desde la sección del panel en `/portal-bi/` y desde el cierre del otro recorrido; con `#ver` arranca solo (ADR-017) |
+| `/anuncios/` | `src/pages/anuncios/index.astro` | **Oculta**: los anuncios para redes, el más nuevo primero, con «Ver y grabar» y los MP4 (`src/data/anuncios.ts`) |
+| `/propuestas/` | `src/pages/propuestas/index.astro` | **Oculta**: las propuestas a socios y clientes, cada una con su botón (`src/data/propuestas.ts`). Las páginas propias van en `src/pages/propuestas/` y quedan ocultas solas |
 | `/portal-bi/anuncio/` | `src/pages/portal-bi/anuncio.astro` | **Oculta** (noindex, fuera del sitemap, sin enlaces): el anuncio de 55 s para redes en 9:16, 4:5, 1:1 y 16:9, con las descargas en MP4 del release `anuncio-portal-bi` de GitHub (ADR-016) |
 | `/social-metrics-bi/` | `src/pages/social-metrics-bi.astro` | Métricas de redes en Power BI: vista de publicaciones, recorrido de los datos, tablero completo, acceso, implementación, tratamiento de datos y preguntas |
 | `/tienda-ecommerce/` | `src/pages/tienda-ecommerce.astro` | Código de tienda online + guía, pago único, pedidos por WhatsApp |

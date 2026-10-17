@@ -1,0 +1,53 @@
+---
+/**
+ * /anuncios/ — página OCULTA: los anuncios para redes, del más nuevo al más viejo. Cada uno con
+ * su página (verlo, elegir el formato, grabarlo en pantalla completa) y sus MP4 listos.
+ * Los datos viven en src/data/anuncios.ts; para sumar uno se agrega ahí.
+ */
+import PaginaOculta from '../../components/PaginaOculta.astro';
+import Icono from '../../components/Icono.astro';
+import { ANUNCIOS } from '../../data/anuncios';
+
+const fechaLarga = new Intl.DateTimeFormat('es', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+const LISTA = [...ANUNCIOS].sort((a, b) => b.fecha.localeCompare(a.fecha));
+---
+
+<PaginaOculta
+  nombre="Anuncios"
+  entrada="Las piezas para redes, la más nueva primero. Cada una se ve en su página, se graba en pantalla completa o se baja en MP4."
+>
+  <ol class="oc-lista" role="list">
+    {LISTA.map((a) => (
+      <li class="oc-item" id={a.id}>
+        <div class="oc-item__cuerpo">
+          <p class="oc-item__meta">
+            <span class="oc-item__producto">{a.producto}</span>
+            <time datetime={a.fecha}>Versión del {fechaLarga.format(new Date(`${a.fecha}T00:00:00Z`))}</time>
+            <span>{a.duracion}</span>
+          </p>
+          <h2 class="oc-item__titulo">{a.titulo}</h2>
+          <p class="oc-item__texto">{a.descripcion}</p>
+        </div>
+        <div class="oc-item__acciones">
+          <a class="boton boton--primario" href={a.pagina}>
+            <Icono nombre="reproducir" />
+            <span>Ver y grabar</span>
+          </a>
+        </div>
+        {a.descargas && (
+          <ul class="oc-descargas" role="list" aria-label={`Descargar el anuncio de ${a.producto} en MP4`}>
+            {a.descargas.map((d) => (
+              <li>
+                <a class="oc-descarga" href={d.href} download>
+                  <Icono nombre="descargar" />
+                  <span class="oc-descarga__formato">MP4 {d.formato}</span>
+                  <span class="oc-descarga__uso">{d.uso}, <span class="oc-descarga__px">{d.px}</span></span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
+      </li>
+    ))}
+  </ol>
+</PaginaOculta>

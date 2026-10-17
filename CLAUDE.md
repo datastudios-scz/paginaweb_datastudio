@@ -16,6 +16,7 @@ Astro 7 estático, publicado en GitHub Pages desde `main` con GitHub Actions. Es
 ## Convenciones
 
 - Datos de negocio (contacto, WhatsApp, navegación, precio de licencia) solo en `src/data/sitio.ts`.
+- Páginas ocultas (`/anuncios/`, `/propuestas/`, `/portal-bi/anuncio/`): la lista está en `src/data/ocultas.mjs` y el QA comprueba que sigan ocultas. Nunca enlazarlas desde una página pública. Un anuncio nuevo se suma en `src/data/anuncios.ts`, y una propuesta en `src/data/propuestas.ts`.
 - Colores, tipografías y espaciado solo desde `src/styles/tokens.css`. Cada sección declara `data-tema`.
 - CSP estricta: **sin atributos `style="…"`**, sin `define:vars`, sin scripts/estilos externos.
 - Para estilizar el SVG de `<Icono>`/`<Logo>` desde otro componente: `.contenedor :global(svg)`.

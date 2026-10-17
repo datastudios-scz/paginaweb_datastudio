@@ -1,0 +1,32 @@
+---
+/**
+ * El marco de las páginas ocultas (/anuncios/, /propuestas/): sin indexar (Base con
+ * indexar={false}), con el aviso de que no se llega navegando, el título, la entrada y la lista
+ * que pone cada página en el slot. Que además estén fuera del sitemap y sin enlaces lo cuida
+ * src/data/ocultas.mjs, y lo comprueba scripts/qa.mjs.
+ */
+import Base from '../layouts/Base.astro';
+import Icono from './Icono.astro';
+import '../styles/ocultas.css';
+
+interface Props {
+  /** El título de la pestaña y el H1. */
+  nombre: string;
+  entrada: string;
+}
+
+const { nombre, entrada } = Astro.props;
+---
+
+<Base titulo={`${nombre} · Data Studio`} descripcion={entrada} indexar={false}>
+  <section class="seccion oc" data-tema="oscuro" aria-labelledby="oc-titulo">
+    <div class="contenedor oc__contenedor">
+      <header class="oc__cabecera">
+        <p class="oc__aviso"><Icono nombre="candado" />Página oculta: no está en el menú ni en los buscadores</p>
+        <h1 id="oc-titulo" class="titulo-seccion">{nombre}</h1>
+        <p class="entrada">{entrada}</p>
+      </header>
+      <slot />
+    </div>
+  </section>
+</Base>

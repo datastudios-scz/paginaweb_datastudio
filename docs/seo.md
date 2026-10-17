@@ -17,7 +17,12 @@ Todo se define desde `Base.astro` (props `titulo`, `descripcion`, `imagen`). Val
 - `sitemap-index.xml` (integración `@astrojs/sitemap`) con `/`, `/portal-bi/`, `/privacidad/` y `/terminos/`. Excluye la 404 y `/oauth/tiktok/` (que además tiene `noindex`).
 - `robots.txt` permite todo y apunta al sitemap.
 - **Recorridos**: `/portal-bi/como-funciona/` y `/portal-bi/como-funciona/administrador/` se indexan y están en el sitemap, con sus migas en JSON-LD (Inicio › Portal BI › Cómo funciona › Administrador). Se enlazan entre sí desde el cierre de cada uno.
-- **Páginas ocultas**: `/portal-bi/anuncio/` (la herramienta del anuncio para redes) lleva `noindex, nofollow` (`Base` con `indexar={false}`) y el filtro de `sitemap()` en `astro.config.mjs` la deja afuera. No se la nombra en `robots.txt`: un `Disallow` la anunciaría.
+- **Páginas ocultas**: `/anuncios/`, `/propuestas/` (y todo lo que cuelgue de ellas) y `/portal-bi/anuncio/`. La lista vive en `src/data/ocultas.mjs`.
+  - Llevan `noindex, nofollow` (`Base` con `indexar={false}`; las dos primeras, mediante `PaginaOculta.astro`).
+  - El filtro de `sitemap()` en `astro.config.mjs` las deja afuera, leyendo esa lista.
+  - No se nombran en `robots.txt`: un `Disallow` las anunciaría.
+  - `npm run qa` comprueba que sigan fuera del sitemap, con `noindex` y sin enlaces desde ninguna página pública.
+  - Oculta no es privada: quien tiene la dirección la abre. Un PDF en `public/` tampoco puede llevar `noindex` (GitHub Pages no deja poner cabeceras). Nada confidencial va ahí.
 - Encabezados jerárquicos: un solo `h1` por página, `h2` por sección.
 - Enlaces internos descriptivos (sin "clic aquí"); el Portal BI enlaza desde el menú, el hero, su sección y el pie.
 

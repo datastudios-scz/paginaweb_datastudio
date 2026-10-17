@@ -5,14 +5,17 @@
  *
  * Por cada página y ancho (320 → 1440 px): captura de página completa en qa/, detecta scroll
  * horizontal y elementos que se salen del viewport, y registra errores de consola y
- * violaciones de la CSP. Sale con código 1 si encuentra problemas.
+ * violaciones de la CSP. Al final comprueba que las páginas ocultas (src/data/ocultas.mjs) sigan
+ * ocultas: fuera del sitemap, con noindex y sin un solo enlace desde una página pública.
+ * Sale con código 1 si encuentra problemas.
  * Usa Edge o Chrome del sistema (playwright-core no descarga navegadores).
  */
 import { mkdirSync, existsSync } from 'node:fs';
 import { chromium } from 'playwright-core';
+import { PAGINAS_OCULTAS, esOculta } from '../src/data/ocultas.mjs';
 
 const BASE = process.argv[2] ?? 'http://localhost:4321';
-const PAGINAS = ['/', '/portal-bi/', '/portal-bi/como-funciona/', '/portal-bi/como-funciona/administrador/', '/portal-bi/anuncio/', '/social-metrics-bi/', '/tienda-ecommerce/', '/consultoria/', '/no-existe-esta-pagina/'];
+const PAGINAS = ['/', '/portal-bi/', '/portal-bi/como-funciona/', '/portal-bi/como-funciona/administrador/', '/portal-bi/anuncio/', '/social-metrics-bi/', '/tienda-ecommerce/', '/consultoria/', '/anuncios/', '/propuestas/', '/no-existe-esta-pagina/'];
 const ANCHOS = [1440, 1024, 768, 414, 375, 320];
 
 const ejecutable = [
@@ -102,6 +105,51 @@ for (const ruta of PAGINAS) {
     console.log(`${fallas.length ? '✗' : '✓'} ${ruta} @${ancho}px${fallas.length ? ' → ' + fallas.join(' · ') : ''}`);
     await contexto.close();
   }
+}
+
+/* Las páginas ocultas siguen ocultas. Todo se pide desde el navegador (fetch en la página), no
+   desde Node: en una red que inspecciona HTTPS, Node no confía en el certificado y Chrome sí. */
+{
+  console.log('\nPáginas ocultas');
+  const contexto = await navegador.newContext();
+  const p = await contexto.newPage();
+  await p.goto(BASE + '/', { waitUntil: 'domcontentloaded' });
+  const texto = (u) => p.evaluate(async (x) => {
+    const r = await fetch(x);
+    return r.ok ? r.text() : '';
+  }, u);
+  const locs = (xml) => [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
+  const comprobar = (ok, txt) => {
+    console.log(`${ok ? '✓' : '✗'} ${txt}`);
+    if (!ok) problemas++;
+  };
+
+  /* El sitemap trae direcciones absolutas del sitio publicado: se piden por su ruta, a esta base */
+  const urls = [];
+  for (const mapa of locs(await texto('/sitemap-index.xml'))) urls.push(...locs(await texto(new URL(mapa).pathname)));
+  const enSitemap = urls.filter(esOculta);
+  comprobar(urls.length > 0 && enSitemap.length === 0,
+    `ninguna está en el sitemap (${urls.length} direcciones${enSitemap.length ? `; se colaron: ${enSitemap.join(', ')}` : ''})`);
+
+  for (const ruta of PAGINAS_OCULTAS) {
+    await p.goto(BASE + ruta, { waitUntil: 'domcontentloaded' });
+    const robots = await p.evaluate(() => document.querySelector('meta[name="robots"]')?.content ?? '');
+    comprobar(/noindex/.test(robots), `${ruta} no se indexa (robots: «${robots}»)`);
+  }
+
+  /* Enlaces a otros sitios (y mailto/tel) no cuentan: solo los que llevan a una página oculta */
+  const enlaces = [];
+  for (const ruta of PAGINAS.filter((r) => !esOculta(r))) {
+    await p.goto(BASE + ruta, { waitUntil: 'domcontentloaded' });
+    const hrefs = await p.evaluate(() => [...document.querySelectorAll('a[href]')].map((a) => a.getAttribute('href')));
+    for (const h of hrefs) {
+      if (/^(mailto:|tel:|#)/.test(h)) continue;
+      if (/^https?:\/\//.test(h) && !h.startsWith('https://datastudio.es')) continue;
+      if (esOculta(h)) enlaces.push(`${ruta} → ${h}`);
+    }
+  }
+  comprobar(enlaces.length === 0, `ninguna página pública las enlaza${enlaces.length ? ` (${enlaces.join(', ')})` : ''}`);
+  await contexto.close();
 }
 
 await navegador.close();
