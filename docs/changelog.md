@@ -1,5 +1,24 @@
 # Bitácora de cambios
 
+## 17/10/2026 · La propuesta del Portal BI para Ribentek
+
+- **Pedido del dueño**: la primera propuesta de `/propuestas/`, para su socio Ribentek. Tiene que mostrar el Portal BI con movimiento, contado como una historia, para que lo revendan a sus clientes. Decisión y criterios en ADR-020.
+- **`/propuestas/portal-bi-ribentek/`**: 12 láminas a pantalla completa, con una ruta fija abajo (paradas, contador y botones). Se avanza con los botones, el teclado o deslizando, y la dirección cambia a la lámina que se ve.
+- Reusa las maquetas del portal y el lema. Tiene cinco piezas propias:
+  - los reportes regados, que el portal se traga y se abre como un iris;
+  - el tablero que cambia según quién lo abre;
+  - el panel de administración, resumido;
+  - el modelo de trabajo, con flechas que corren;
+  - la calculadora del margen de Ribentek, con avisos si el precio no le conviene al cliente.
+- El trato que definió el dueño: Ribentek vende y cobra, Data Studio se encarga de todo lo técnico y le cobra US$ 60 al mes por cliente, y cada cliente paga su propia IA.
+- `/propuestas/` ya la lista, con su botón.
+- **Comprobado**:
+  - las 12 láminas entran enteras en 1440 × 900, 1536 × 864 y 1280 × 720;
+  - el teclado, la dirección y la calculadora;
+  - que con «reducir movimiento» no quede nada oculto;
+  - el QA en los seis anchos;
+  - sin errores ni violaciones de la CSP.
+
 ## 17/10/2026 · El lema también en el inicio
 
 - **Pedido del dueño**: en el inicio, la vitrina del Portal BI no decía «+ Y ahora tus datos HABLAN» con su chip de IA.

@@ -1,0 +1,63 @@
+---
+/**
+ * Lámina 7 de la propuesta a Ribentek (ADR-020): el panel con el que el cliente administra su
+ * portal, contado por lo que le resuelve: las personas, sus tableros, quién tiene IA, la marca
+ * y quién entró. Es un resumen dibujado del panel real (/admin del portal), sin la pantalla de
+ * asignación con sus enlaces e identificadores: el dueño pidió mostrar el producto, no cómo
+ * está hecho por dentro.
+ * Al entrar, se suma una persona más y lo dice: sin una licencia nueva.
+ * Usuarios de ejemplo, los mismos de las demás maquetas (ADR-013).
+ */
+import Ventana from '../portal/Ventana.astro';
+
+const PERSONAS = [
+  { inicial: 'G', usuario: 'gerencia', tableros: 9, ia: true },
+  { inicial: 'M', usuario: 'mariana.s', tableros: 6, ia: true },
+  { inicial: 'L', usuario: 'l.vargas', tableros: 2, ia: false },
+  { inicial: 'O', usuario: 'operaciones', tableros: 3, ia: true },
+];
+const MENU = ['Personas', 'Tableros', 'Modelos', 'Marca', 'Ingresos'];
+---
+
+<Ventana url="portal.tucliente.com/admin" ejemplo descripcion="Resumen del panel de administración del Portal BI: la lista de personas con sus tableros y quién tiene chat con IA, una persona nueva que se suma sin licencia, los colores de la marca y los ingresos del día.">
+  <div class="pr-pa">
+    <div class="pr-pa__menu">
+      <span class="pr-pa__logo"><svg viewBox="0 0 28 28"><rect x="3" y="14" width="5" height="11" rx="1.2" /><rect x="11.5" y="8" width="5" height="17" rx="1.2" /><rect x="20" y="3" width="5" height="22" rx="1.2" /></svg>Portal BI</span>
+      {MENU.map((m, i) => <span class:list={['pr-pa__item', { 'pr-pa__item--si': i === 0 }]}>{m}</span>)}
+    </div>
+    <div class="pr-pa__cuerpo">
+      <div class="pr-pa__cab">
+        <b>Personas</b>
+        <span class="pr-pa__agregar">+ Agregar persona</span>
+      </div>
+      <ul class="pr-pa__lista" role="list">
+        {PERSONAS.map((p) => (
+          <li class="pr-pa__fila">
+            <i>{p.inicial}</i>
+            <span class="pr-pa__usuario">{p.usuario}</span>
+            <span class="pr-pa__n">{p.tableros} tableros</span>
+            {p.ia ? <span class="pr-pa__ia">IA</span> : <span></span>}
+            <span class="pr-pa__si" aria-hidden="true"></span>
+          </li>
+        ))}
+        <li class="pr-pa__fila pr-pa__fila--nueva">
+          <i>R</i>
+          <span class="pr-pa__usuario">r.quiroga</span>
+          <span class="pr-pa__n">4 tableros</span>
+          <span class="pr-pa__nueva">Nueva · sin licencia</span>
+          <span class="pr-pa__si" aria-hidden="true"></span>
+        </li>
+      </ul>
+      <div class="pr-pa__pie">
+        <div class="pr-pa__tarjeta">
+          <span>Marca</span>
+          <span class="pr-pa__colores"><i class="pr-pa__c1"></i><i class="pr-pa__c2"></i><i class="pr-pa__c3"></i></span>
+        </div>
+        <div class="pr-pa__tarjeta">
+          <span>Ingresos hoy</span>
+          <b>128</b>
+        </div>
+      </div>
+    </div>
+  </div>
+</Ventana>

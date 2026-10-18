@@ -1,0 +1,83 @@
+---
+/**
+ * Lámina 10 de la propuesta a Ribentek (ADR-020): la calculadora del margen. Ribentek mueve sus
+ * números (personas del cliente, lo que le cobra y cuántos clientes) y ve, a la vez, lo que
+ * ahorra su cliente y lo que le queda a Ribentek. Una cifra que uno mismo calculó pesa más que
+ * una que le dijeron (la «dotación» de la página del producto).
+ *
+ * Reglas del sitio: lo que el cliente pagaría en licencias sin el portal NO es un precio, y va
+ * tachado y dicho con palabras (PRODUCT.md). La licencia se calcula a precio de lista de Power
+ * BI Pro (PRECIO_LICENCIA_USD). Los valores iniciales son de ejemplo y se dicen así.
+ * El script (src/scripts/propuesta.ts) recalcula; lo que se dibuja acá ya es el resultado de los
+ * valores iniciales, para que nada salte al cargar.
+ */
+import { PRECIO_LICENCIA_USD } from '../../data/sitio';
+import { dolares, miles } from '../../scripts/formato';
+
+interface Props {
+  costo: number;
+}
+
+const { costo } = Astro.props;
+
+const INICIAL = { personas: 150, precio: 400, clientes: 5 };
+const licencias = INICIAL.personas * PRECIO_LICENCIA_USD;
+const ahorro = licencias - INICIAL.precio;
+const margen = INICIAL.precio - costo;
+---
+
+<div class="pr-margen" data-p="margen" data-licencia={PRECIO_LICENCIA_USD} data-costo={costo}>
+  <div class="pr-controles pr-a d2">
+    <div class="pr-control">
+      <label for="pr-m-personas">
+        <span>Personas de tu cliente que miran tableros</span>
+        <output for="pr-m-personas" data-salida="personas">{miles(INICIAL.personas)}</output>
+      </label>
+      <input id="pr-m-personas" type="range" min="20" max="1500" step="10" value={INICIAL.personas} data-entrada="personas" />
+    </div>
+    <div class="pr-control">
+      <label for="pr-m-precio">
+        <span>Lo que le cobras al mes</span>
+        <output for="pr-m-precio" data-salida="precio">{dolares(INICIAL.precio)}</output>
+      </label>
+      <input id="pr-m-precio" type="range" min="100" max="2000" step="10" value={INICIAL.precio} data-entrada="precio" />
+    </div>
+    <div class="pr-control">
+      <label for="pr-m-clientes">
+        <span>Clientes con el portal</span>
+        <output for="pr-m-clientes" data-salida="clientes">{INICIAL.clientes}</output>
+      </label>
+      <input id="pr-m-clientes" type="range" min="1" max="40" step="1" value={INICIAL.clientes} data-entrada="clientes" />
+    </div>
+    <p class="pr-ejemplo">Números de ejemplo: muévelos con los de tu cliente.</p>
+  </div>
+
+  <div class="pr-resultado" aria-live="polite">
+    <div class="pr-res pr-a d3">
+      <p class="pr-res__quien">Tu cliente</p>
+      <p class="pr-res__linea">
+        <span>Sin el portal pagaría en licencias, al mes</span>
+        <s class="monto-no" data-salida="licencias">{dolares(licencias)}</s>
+      </p>
+      <p class="pr-res__linea">
+        <span>Con el portal te paga a ti</span>
+        <span class="dato" data-salida="cobro">{dolares(INICIAL.precio)}</span>
+      </p>
+      <p class="pr-res__grande">Ahorra <span data-salida="ahorro">{dolares(ahorro)}</span> al mes</p>
+      <p class="pr-res__aviso" data-salida="aviso-cliente" hidden>Con ese precio, tu cliente pagaría más que con las licencias: bájalo.</p>
+    </div>
+    <div class="pr-res pr-res--tuyo pr-a d4">
+      <p class="pr-res__quien">Tú, Ribentek</p>
+      <p class="pr-res__linea">
+        <span>Nuestro costo, por cliente</span>
+        <span class="dato">{dolares(costo)} al mes</span>
+      </p>
+      <p class="pr-res__grande">Te quedan <span data-salida="margen">{dolares(margen)}</span> al mes</p>
+      <p class="pr-res__anual">
+        Con <b data-salida="n">{INICIAL.clientes}</b> clientes: <b data-salida="mes">{dolares(margen * INICIAL.clientes)}</b> al mes,
+        <b data-salida="anio">{dolares(margen * INICIAL.clientes * 12)}</b> al año.
+      </p>
+      <p class="pr-res__aviso" data-salida="aviso-socio" hidden>Con ese precio no cubres nuestro costo: súbelo.</p>
+    </div>
+  </div>
+</div>

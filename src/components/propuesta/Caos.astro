@@ -1,0 +1,78 @@
+---
+/**
+ * Los reportes regados de la propuesta a Ribentek (ADR-020): los mismos del gancho del anuncio
+ * (ADR-019), que el público reconoce de su día a día.
+ *  - modo `flota` (lámina 2): el pedido de siempre arriba y los reportes que caen uno tras otro
+ *    y se quedan flotando.
+ *  - modo `traga` (lámina 3): los mismos vuelan al centro del portal, que se abre como un iris.
+ * Dibujo: queda oculto para los lectores de pantalla; lo cuenta el texto de cada lámina.
+ * Estilos en src/styles/propuesta.css (pr-caos, pr-carta…).
+ */
+import { PBI } from '../anuncio/datos';
+
+interface Props {
+  modo: 'flota' | 'traga';
+}
+
+const { modo } = Astro.props;
+
+type Pieza =
+  | { id: string; tipo: 'archivo'; ext: 'xls' | 'pdf' | 'pbix'; nombre: string; meta: string }
+  | { id: string; tipo: 'correo'; asunto: string; meta: string }
+  | { id: string; tipo: 'mensaje'; de: string; texto: string }
+  | { id: string; tipo: 'bloqueo' };
+
+/* El orden es el de encima/debajo: los mensajes y el aviso de la licencia, arriba de los archivos */
+const PIEZAS: Pieza[] = [
+  { id: 'a', tipo: 'archivo', ext: 'xls', nombre: 'ventas_FINAL_v3.xlsx', meta: 'Adjunto · 2,4 MB' },
+  { id: 'd', tipo: 'archivo', ext: 'pdf', nombre: 'cierre_marzo (2).pdf', meta: 'Adjunto · 880 KB' },
+  { id: 'g', tipo: 'archivo', ext: 'pbix', nombre: 'tablero_final_FINAL.pbix', meta: 'Power BI Desktop · 38 MB' },
+  { id: 'b', tipo: 'correo', asunto: 'RE: RE: RE: Reporte semanal', meta: 'Finanzas · 7:48' },
+  { id: 'c', tipo: 'mensaje', de: 'Ventas', texto: '¿Cuál es la versión buena?' },
+  { id: 'e', tipo: 'bloqueo' },
+  { id: 'f', tipo: 'mensaje', de: 'Operaciones', texto: 'No me abre el tablero' },
+];
+const EXT = { xls: 'XLS', pdf: 'PDF', pbix: 'PBIX' };
+---
+
+<div class:list={['pr-caos', `pr-caos--${modo}`]} aria-hidden="true">
+  {modo === 'flota' && (
+    <div class="pr-globo">
+      <span class="pr-globo__de"><i>G</i>Gerencia</span>
+      <span class="pr-globo__t">¿Me pasas el reporte?<span class="pr-globo__aviso">27</span></span>
+    </div>
+  )}
+  {PIEZAS.map((p) => (
+    <div class={`pr-caos__pieza pr-caos__pieza--${p.id}`}>
+      <div class="pr-caos__flota">
+        {p.tipo === 'archivo' && (
+          <div class="pr-carta pr-carta--archivo">
+            <span class={`pr-doc pr-doc--${p.ext}`}>{EXT[p.ext]}</span>
+            <span class="pr-carta__txt"><b>{p.nombre}</b><em>{p.meta}</em></span>
+          </div>
+        )}
+        {p.tipo === 'correo' && (
+          <div class="pr-carta">
+            <span class="pr-ico"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5" /><path d="m3.5 7 8.5 6 8.5-6" /></svg></span>
+            <span class="pr-carta__txt"><b>{p.asunto}</b><em>{p.meta}</em></span>
+          </div>
+        )}
+        {p.tipo === 'mensaje' && (
+          <div class="pr-carta pr-carta--msj">
+            <span class="pr-carta__de">{p.de}</span>
+            <span>{p.texto}</span>
+          </div>
+        )}
+        {p.tipo === 'bloqueo' && (
+          <div class="pr-carta pr-carta--bloqueo">
+            <span class="pr-candado">
+              <svg viewBox="0 0 41.5 41.5"><path d={PBI} /></svg>
+              <i><svg viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2" /><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" /></svg></i>
+            </span>
+            <span class="pr-carta__txt"><b>Necesitas una licencia de Power BI Pro</b><em>para ver este reporte</em></span>
+          </div>
+        )}
+      </div>
+    </div>
+  ))}
+</div>

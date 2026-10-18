@@ -1,0 +1,2095 @@
+/*
+ * La propuesta del Portal BI para Ribentek (/propuestas/portal-bi-ribentek/). ADR-020.
+ *
+ * Un recorrido en láminas a pantalla completa, contado como una historia: cada lámina dice una
+ * idea y la prueba al lado, con las maquetas del portal (las mismas de /portal-bi/). Abajo va
+ * la ruta: dónde estás y cuánto falta.
+ *
+ * Global a propósito, con el prefijo pr-: la usan la página y sus componentes.
+ * Movimiento: cada lámina se arma una vez, cuando entra (.pr-vista, la pone el script). Con
+ * «reducir movimiento» todo queda quieto y visible. Ninguna regla mezcla transform con
+ * translate, rotate o scale: el minificador borraría una (docs/aprendizajes.md).
+ */
+
+/* ── El recorrido ───────────────────────────────────────────────────────────────────── */
+.pr {
+  --pr-barra: 4.5rem;
+  --pr-pbi: #f2c811;
+  --pr-ia: #4f46e5;
+  --pr-ia-2: #8b5cf6;
+  background: var(--color-abismo);
+}
+
+.pr-deck {
+  /* Es la caja que se desplaza: las láminas miden su lugar contra ella (offsetTop) */
+  position: relative;
+  height: 100svh;
+  height: 100dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-snap-type: y mandatory;
+}
+
+/* En el teléfono, o en una pantalla baja, una lámina puede ser más alta que la pantalla: se
+   deja leer entera en vez de saltar a la siguiente */
+@media (max-width: 48rem), (max-height: 50rem) {
+  .pr-deck {
+    scroll-snap-type: y proximity;
+  }
+}
+
+/* En las laptops de pantalla baja todo se achica un poco, para que cada lámina entre entera */
+@media (min-width: 64rem) and (max-height: 52rem) {
+  .pr-lamina > .contenedor {
+    zoom: 0.88;
+  }
+}
+
+@media (min-width: 64rem) and (max-height: 46rem) {
+  .pr-lamina > .contenedor {
+    zoom: 0.78;
+  }
+}
+
+/* La maqueta del chat es alta: en escritorio va un poco más chica */
+@media (min-width: 64rem) {
+  .pr-chico {
+    zoom: 0.86;
+  }
+}
+
+.pr-lamina {
+  position: relative;
+  display: grid;
+  align-content: center;
+  min-height: 100svh;
+  min-height: 100dvh;
+  padding-block: clamp(2.5rem, 1.5rem + 3vw, 4rem) calc(var(--pr-barra) + clamp(1.5rem, 0.5rem + 2vw, 2.5rem));
+  overflow: hidden;
+  scroll-snap-align: start;
+  background: var(--fondo);
+  color: var(--texto);
+}
+
+.pr-rejilla {
+  display: grid;
+  gap: var(--space-7);
+  align-items: center;
+}
+
+@media (min-width: 64rem) {
+  .pr-rejilla {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: var(--space-8);
+  }
+
+  .pr-rejilla--ancha {
+    grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+  }
+
+  .pr-rejilla--pareja {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+
+/* Las láminas de una sola columna: el título arriba y lo demás debajo, a todo el ancho */
+.pr-columna {
+  display: grid;
+  gap: var(--space-6);
+  align-content: center;
+}
+
+.pr-texto {
+  display: grid;
+  gap: var(--space-5);
+  align-content: start;
+  min-width: 0;
+}
+
+.pr-visual {
+  position: relative;
+  min-width: 0;
+}
+
+/* La parada de la ruta en la que estás: el número en la tipografía de datos, como en la ruta de
+   abajo. Es una secuencia de verdad (una historia en orden), por eso lleva número */
+.pr-parada {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  justify-self: start;
+  font-family: var(--font-datos);
+  font-size: var(--text-sm);
+  line-height: 1.3;
+  color: var(--acento);
+}
+
+.pr-parada b {
+  display: grid;
+  place-items: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  flex: none;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1.5px currentColor;
+  font-weight: var(--peso-medio);
+}
+
+.pr-titulo {
+  font-size: clamp(1.9rem, 1.1rem + 2.6vw, 3.25rem);
+  font-weight: var(--peso-semi);
+  line-height: 1.05;
+  letter-spacing: var(--tracking-display);
+  text-wrap: balance;
+}
+
+.pr-titulo--grande {
+  font-size: clamp(2.25rem, 1.2rem + 3.2vw, 3.9rem);
+}
+
+/* El lema como título (la lámina de la IA): un punto menos, para que entre en dos renglones */
+.pr-titulo--lema {
+  font-size: clamp(1.8rem, 1rem + 2.2vw, 2.9rem);
+}
+
+.pr-acento {
+  color: var(--acento);
+}
+
+.pr-entrada {
+  max-width: 36rem;
+  font-size: var(--text-lg);
+  line-height: 1.6;
+  color: var(--texto-2);
+  text-wrap: pretty;
+}
+
+.pr-entrada strong {
+  color: var(--texto);
+  font-weight: var(--peso-semi);
+}
+
+.pr-nota {
+  max-width: 36rem;
+  font-size: var(--text-sm);
+  line-height: 1.55;
+  color: var(--texto-3);
+}
+
+.pr-lema {
+  font-size: clamp(1.35rem, 1rem + 1.4vw, 2.25rem);
+  font-weight: var(--peso-semi);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--texto);
+}
+
+.pr-puntos li {
+  max-width: 34rem;
+  line-height: 1.55;
+}
+
+.pr-puntos strong {
+  color: var(--texto);
+  font-weight: var(--peso-semi);
+}
+
+/* Lo que hay que tocar para seguir: el botón de la portada y los de las últimas láminas */
+.pr-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-5);
+}
+
+.pr-pista {
+  font-size: var(--text-sm);
+  color: var(--texto-3);
+}
+
+.pr-pista kbd {
+  padding: 0.1em 0.45em;
+  border-radius: var(--radio-sm);
+  box-shadow: inset 0 0 0 1px var(--linea-fuerte);
+  font-family: var(--font-datos);
+  font-size: 0.85em;
+}
+
+/* Rótulo de lo que es de ejemplo (ADR-013): en la esquina de lo que muestra cifras */
+.pr-ejemplo {
+  font-family: var(--font-datos);
+  font-size: var(--text-xs);
+  letter-spacing: 0.02em;
+  color: var(--texto-3);
+}
+
+/* ── La ruta de abajo: dónde estás, cuánto falta, y para ir y volver ──────────────────── */
+.pr-ruta {
+  position: fixed;
+  z-index: 20;
+  inset-inline: 0;
+  bottom: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-5);
+  height: var(--pr-barra);
+  padding: 0 var(--gutter) env(safe-area-inset-bottom, 0px);
+  background: rgb(0 23 32 / 0.86);
+  box-shadow: inset 0 1px 0 rgb(206 217 189 / 0.14);
+  backdrop-filter: blur(14px) saturate(1.2);
+  color: var(--color-blanco);
+}
+
+.pr-ruta__marca {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: var(--peso-semi);
+  color: var(--color-salvia);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.pr-ruta__marca svg {
+  width: 1.4rem;
+  height: 1.4rem;
+  color: var(--color-verde-claro);
+}
+
+.pr-ruta__marca:hover {
+  color: var(--color-blanco);
+}
+
+/* Las paradas: puntos sobre una línea; la línea se llena hasta donde vas */
+.pr-ruta__paradas {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pr-ruta__paradas::before,
+.pr-ruta__paradas::after {
+  content: '';
+  position: absolute;
+  left: 0.65rem;
+  right: 0.65rem;
+  top: 50%;
+  height: 2px;
+  margin-top: -1px;
+  border-radius: 1px;
+  background: rgb(206 217 189 / 0.22);
+}
+
+.pr-ruta__paradas::after {
+  right: auto;
+  width: calc((100% - 1.3rem) * var(--avance, 0));
+  background: var(--color-verde-claro);
+  transition: width var(--dur-3) var(--ease-out);
+}
+
+.pr-ruta__paradas li {
+  position: relative;
+  z-index: 1;
+}
+
+.pr-ruta__parada {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 1.3rem;
+  height: 2.75rem;
+  color: var(--color-salvia);
+  text-decoration: none;
+}
+
+.pr-ruta__parada i {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 50%;
+  background: var(--color-abismo);
+  box-shadow: inset 0 0 0 2px rgb(206 217 189 / 0.5);
+  transition:
+    background-color var(--dur-2) var(--ease-out),
+    box-shadow var(--dur-2) var(--ease-out);
+}
+
+.pr-ruta__parada.es-pasada i {
+  background: var(--color-verde-claro);
+  box-shadow: none;
+}
+
+.pr-ruta__parada[aria-current='step'] i {
+  width: 0.95rem;
+  height: 0.95rem;
+  background: var(--color-verde-claro);
+  box-shadow: 0 0 0 4px rgb(77 207 193 / 0.25);
+}
+
+/* El nombre de la parada, al pasar o enfocar */
+.pr-ruta__parada span {
+  position: absolute;
+  bottom: calc(100% + 0.35rem);
+  left: 50%;
+  translate: -50% 0;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radio-pill);
+  background: var(--color-abismo-2);
+  box-shadow: inset 0 0 0 1px rgb(206 217 189 / 0.2);
+  font-size: var(--text-xs);
+  white-space: nowrap;
+  color: var(--color-blanco);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-1) var(--ease-out);
+}
+
+.pr-ruta__paradas li:first-child .pr-ruta__parada span {
+  left: 0;
+  translate: 0 0;
+}
+
+.pr-ruta__paradas li:last-child .pr-ruta__parada span {
+  left: auto;
+  right: 0;
+  translate: 0 0;
+}
+
+.pr-ruta__parada:hover span,
+.pr-ruta__parada:focus-visible span {
+  opacity: 1;
+}
+
+.pr-ruta__control {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.pr-ruta__cuenta {
+  min-width: 4.5ch;
+  margin-right: var(--space-2);
+  font-family: var(--font-datos);
+  font-size: var(--text-sm);
+  text-align: right;
+  color: var(--color-salvia);
+  font-variant-numeric: tabular-nums;
+}
+
+.pr-ruta__cuenta b {
+  font-weight: var(--peso-medio);
+  color: var(--color-blanco);
+}
+
+.pr-ruta__boton {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(206 217 189 / 0.1);
+  color: var(--color-blanco);
+  cursor: pointer;
+  transition: background-color var(--dur-2) var(--ease-out);
+}
+
+.pr-ruta__boton svg {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+
+.pr-ruta__boton:hover {
+  background: rgb(206 217 189 / 0.2);
+}
+
+.pr-ruta__boton--sig {
+  background: var(--color-verde);
+}
+
+.pr-ruta__boton--sig:hover {
+  background: var(--color-verde-claro);
+  color: var(--color-abismo);
+}
+
+.pr-ruta__boton:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.pr-ruta a:focus-visible,
+.pr-ruta button:focus-visible {
+  outline: 2px solid var(--color-verde-claro);
+  outline-offset: 2px;
+}
+
+/* En el teléfono: sin la marca ni los nombres; la ruta queda como una barra de avance */
+@media (max-width: 48rem) {
+  .pr-ruta {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--space-4);
+  }
+
+  .pr-ruta__marca {
+    display: none;
+  }
+
+  .pr-ruta__parada {
+    width: 0.75rem;
+  }
+
+  .pr-ruta__parada i {
+    width: 0.5rem;
+    height: 0.5rem;
+  }
+
+  .pr-ruta__parada[aria-current='step'] i {
+    width: 0.7rem;
+    height: 0.7rem;
+  }
+
+  .pr-ruta__paradas::before,
+  .pr-ruta__paradas::after {
+    left: 0.375rem;
+    right: 0.375rem;
+  }
+
+  .pr-ruta__paradas::after {
+    right: auto;
+    width: calc((100% - 0.75rem) * var(--avance, 0));
+  }
+
+  .pr-ruta__parada span {
+    display: none;
+  }
+}
+
+/* ── El armado de cada lámina al entrar ──────────────────────────────────────────────────── */
+.d1 { --d: 1; }
+.d2 { --d: 2; }
+.d3 { --d: 3; }
+.d4 { --d: 4; }
+.d5 { --d: 5; }
+.d6 { --d: 6; }
+.d7 { --d: 7; }
+.d8 { --d: 8; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .js .pr-lamina:not(.pr-vista) .pr-a {
+    opacity: 0;
+  }
+
+  .pr-vista .pr-a {
+    animation: pr-entra 0.75s var(--ease-out) calc(0.1s + var(--d, 0) * 0.09s) both;
+  }
+
+  .pr-vista .pr-a--sube {
+    animation-name: pr-sube;
+    animation-duration: 0.95s;
+  }
+}
+
+@keyframes pr-entra {
+  from {
+    opacity: 0;
+    translate: 0 1.25rem;
+  }
+
+  to {
+    opacity: 1;
+    translate: none;
+  }
+}
+
+@keyframes pr-sube {
+  from {
+    opacity: 0;
+    translate: 0 3rem;
+    scale: 0.97;
+  }
+
+  to {
+    opacity: 1;
+    translate: none;
+    scale: 1;
+  }
+}
+
+/* ── 1 · Portada ─────────────────────────────────────────────────────────────────────── */
+.pr-portada {
+  background:
+    radial-gradient(70% 60% at 85% 40%, rgb(3 122 112 / 0.32), transparent 70%),
+    radial-gradient(60% 50% at 10% 100%, rgb(0 57 78 / 0.9), transparent 70%),
+    var(--fondo);
+}
+
+.pr-firma {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--texto-2);
+}
+
+.pr-firma__logo {
+  width: 9.5rem;
+  height: auto;
+  color: var(--texto);
+}
+
+.pr-firma__x {
+  font-family: var(--font-datos);
+  color: var(--texto-3);
+}
+
+.pr-firma__socio {
+  font-size: var(--text-lg);
+  font-weight: var(--peso-semi);
+  letter-spacing: -0.01em;
+  color: var(--texto);
+}
+
+.pr-firma__fecha {
+  flex-basis: 100%;
+  font-family: var(--font-datos);
+  font-size: var(--text-xs);
+  color: var(--texto-3);
+}
+
+/* La ventana del portal, con la luz que la despega del fondo */
+.pr-brilla {
+  position: relative;
+}
+
+.pr-brilla::before {
+  content: '';
+  position: absolute;
+  inset: -12% -8%;
+  z-index: -1;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(77 207 193 / 0.28), transparent 75%);
+}
+
+/* ── 2 · El problema: los reportes regados ──────────────────────────────────────────────── */
+.pr-caos {
+  position: relative;
+  aspect-ratio: 5 / 4;
+  container-type: size;
+}
+
+/* En una columna angosta, más alta: el pedido de arriba no pisa los primeros reportes */
+@media (max-width: 63.99rem) {
+  .pr-caos--flota {
+    aspect-ratio: 4 / 5;
+  }
+}
+
+.pr-caos__pieza {
+  position: absolute;
+  left: calc(var(--x) * 1%);
+  top: calc(var(--y) * 1%);
+  width: 0;
+  height: 0;
+}
+
+.pr-caos__flota {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: max-content;
+  transform: translate(-50%, -50%) rotate(var(--r, 0deg));
+}
+
+.pr-carta {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.7rem 1.2rem 0.7rem 0.75rem;
+  border-radius: 1rem;
+  background: #fff;
+  box-shadow:
+    0 1.2rem 2.4rem rgb(0 0 0 / 0.38),
+    0 0.2rem 0.6rem rgb(0 0 0 / 0.2);
+  font-size: clamp(0.8rem, 0.55rem + 1.6cqw, 1.05rem);
+  line-height: 1.25;
+  color: #111827;
+}
+
+.pr-carta__txt {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.pr-carta__txt b {
+  font-weight: var(--peso-semi);
+  text-wrap: balance;
+}
+
+.pr-carta__txt em {
+  font-size: 0.78em;
+  font-style: normal;
+  color: #5b6964;
+}
+
+.pr-carta--archivo b {
+  font-family: var(--font-datos);
+  font-weight: var(--peso-medio);
+  letter-spacing: -0.02em;
+}
+
+.pr-doc {
+  position: relative;
+  display: grid;
+  place-items: end center;
+  flex: none;
+  width: 2.2em;
+  height: 2.7em;
+  padding-bottom: 0.35em;
+  border-radius: 0.3em 0.75em 0.3em 0.3em;
+  background: var(--doc, #1d6b47);
+  font-family: var(--font-datos);
+  font-size: 0.62em;
+  letter-spacing: 0.04em;
+  color: #fff;
+}
+
+.pr-doc::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0.75em;
+  height: 0.75em;
+  border-radius: 0 0.75em 0 0.25em;
+  background: rgb(255 255 255 / 0.42);
+}
+
+.pr-doc--pdf {
+  --doc: #b42318;
+}
+
+.pr-doc--pbix {
+  --doc: var(--pr-pbi);
+  color: var(--color-abismo);
+}
+
+.pr-ico {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 2.4em;
+  height: 2.4em;
+  border-radius: 50%;
+  background: var(--color-petroleo);
+}
+
+.pr-ico svg {
+  width: 52%;
+  height: 52%;
+  fill: none;
+  stroke: #fff;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.pr-carta--msj {
+  display: grid;
+  gap: 0.1rem;
+  padding: 0.6rem 1.15rem 0.7rem;
+  border-radius: 1.15rem 1.15rem 1.15rem 0.35rem;
+  font-weight: var(--peso-medio);
+}
+
+.pr-carta__de {
+  font-size: 0.78em;
+  font-weight: var(--peso-semi);
+  color: var(--color-verde);
+}
+
+.pr-carta--bloqueo {
+  gap: 1rem;
+  box-shadow:
+    0 0 0 0.2rem var(--pr-pbi),
+    0 1.2rem 2.4rem rgb(0 0 0 / 0.38);
+}
+
+.pr-carta--bloqueo .pr-carta__txt {
+  max-width: 17em;
+}
+
+.pr-candado {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 2.9em;
+  height: 2.9em;
+  border-radius: 0.65em;
+  background: var(--pr-pbi);
+}
+
+.pr-candado > svg {
+  width: 54%;
+  height: 54%;
+  fill: var(--color-abismo);
+}
+
+.pr-candado i {
+  position: absolute;
+  right: -0.45em;
+  bottom: -0.45em;
+  display: grid;
+  place-items: center;
+  width: 1.5em;
+  height: 1.5em;
+  border-radius: 50%;
+  background: var(--color-abismo);
+  box-shadow: 0 0 0 0.16em #fff;
+}
+
+.pr-candado i svg {
+  width: 60%;
+  height: 60%;
+  fill: none;
+  stroke: #fff;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* El pedido de siempre, arriba de todo */
+.pr-globo {
+  position: absolute;
+  left: 50%;
+  top: 1%;
+  z-index: 2;
+  display: grid;
+  gap: 0.4rem;
+  justify-items: start;
+  width: max-content;
+  max-width: 90%;
+  translate: -50% 0;
+}
+
+.pr-globo__de {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: clamp(0.8rem, 0.5rem + 1.5cqw, 1rem);
+  font-weight: var(--peso-semi);
+  color: var(--color-salvia);
+}
+
+.pr-globo__de i {
+  display: grid;
+  place-items: center;
+  width: 1.7em;
+  height: 1.7em;
+  border-radius: 50%;
+  background: var(--color-salvia);
+  font-style: normal;
+  font-size: 0.85em;
+  color: var(--color-abismo);
+}
+
+.pr-globo__t {
+  position: relative;
+  padding: 0.35em 0.6em 0.4em;
+  border-radius: 0.55em 0.55em 0.55em 0.15em;
+  background: #fff;
+  box-shadow: 0 1.4rem 3rem rgb(0 0 0 / 0.45);
+  font-size: clamp(1.5rem, 0.6rem + 5cqw, 2.6rem);
+  font-weight: var(--peso-semi);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  color: var(--color-abismo);
+}
+
+.pr-globo__aviso {
+  position: absolute;
+  top: -0.45em;
+  right: -0.4em;
+  display: grid;
+  place-items: center;
+  min-width: 1.45em;
+  height: 1.45em;
+  padding: 0 0.3em;
+  border-radius: 0.75em;
+  background: #ff6f61;
+  box-shadow: 0 0 0 0.16em var(--color-abismo);
+  font-size: 0.5em;
+  font-weight: var(--peso-semi);
+  line-height: 1;
+  color: #fff;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .js .pr-lamina:not(.pr-vista) .pr-caos--flota .pr-carta,
+  .js .pr-lamina:not(.pr-vista) .pr-globo {
+    opacity: 0;
+  }
+
+  .pr-vista .pr-caos--flota .pr-carta {
+    animation:
+      pr-cae 0.5s var(--resorte-pr, cubic-bezier(0.34, 1.56, 0.64, 1)) calc(0.35s + var(--en, 0s)) both,
+      pr-flota 5s ease-in-out calc(1s + var(--en, 0s)) infinite alternate;
+  }
+
+  .pr-vista .pr-globo {
+    animation: pr-cae 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both;
+  }
+}
+
+@keyframes pr-cae {
+  from {
+    opacity: 0;
+    scale: 0.4;
+  }
+
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+@keyframes pr-flota {
+  from {
+    translate: 0 0;
+  }
+
+  to {
+    translate: var(--fx, 0.4rem) var(--fy, -0.5rem);
+  }
+}
+
+/* Dónde cae cada una (en % de la zona) y cuándo */
+.pr-caos__pieza--a { --x: 27; --y: 34; --r: -4deg; --en: 0s; --fx: 0.5rem; --fy: -0.4rem; }
+.pr-caos__pieza--b { --x: 70; --y: 41; --r: 3deg; --en: 0.15s; --fx: -0.4rem; --fy: 0.5rem; }
+.pr-caos__pieza--c { --x: 28; --y: 51; --r: -2deg; --en: 0.3s; --fx: 0.4rem; --fy: 0.4rem; }
+.pr-caos__pieza--e { --x: 64; --y: 66; --r: 2deg; --en: 0.45s; --fx: -0.5rem; --fy: -0.4rem; }
+.pr-caos__pieza--d { --x: 25; --y: 75; --r: 4deg; --en: 0.6s; --fx: 0.4rem; --fy: -0.3rem; }
+.pr-caos__pieza--f { --x: 70; --y: 85; --r: -3deg; --en: 0.75s; --fx: -0.4rem; --fy: 0.3rem; }
+.pr-caos__pieza--g { --x: 36; --y: 94; --r: -1.5deg; --en: 0.9s; --fx: 0.5rem; --fy: -0.4rem; }
+
+/* ── 3 · La salida: el portal se los traga y se abre ───────────────────────────────────── */
+.pr-salida {
+  position: relative;
+}
+
+.pr-salida__ventana {
+  position: relative;
+  z-index: 1;
+}
+
+/* Cuándo vuela cada una: primero las de cerca del centro (se ve como una implosión) */
+.pr-caos--traga .pr-caos__pieza--e { --tt: 0s; }
+.pr-caos--traga .pr-caos__pieza--c { --tt: 0.04s; }
+.pr-caos--traga .pr-caos__pieza--b { --tt: 0.07s; }
+.pr-caos--traga .pr-caos__pieza--d { --tt: 0.09s; }
+.pr-caos--traga .pr-caos__pieza--f { --tt: 0.11s; }
+.pr-caos--traga .pr-caos__pieza--a { --tt: 0.13s; }
+.pr-caos--traga .pr-caos__pieza--g { --tt: 0.15s; }
+
+/* Las cartas que vuelan al centro del portal: la distancia en unidades del contenedor */
+.pr-caos--traga {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  aspect-ratio: auto;
+  pointer-events: none;
+}
+
+.pr-caos--traga .pr-carta {
+  font-size: clamp(0.7rem, 0.45rem + 1.3cqw, 0.95rem);
+  opacity: 0;
+}
+
+.pr-salida__login {
+  position: absolute;
+  z-index: 3;
+  right: -3%;
+  bottom: -10%;
+  width: 34%;
+  rotate: 3deg;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .pr-vista .pr-caos--traga .pr-carta {
+    animation: pr-hacia-el-centro 0.85s cubic-bezier(0.45, 0, 0.8, 0.15) calc(0.15s + var(--tt, 0s)) both;
+  }
+
+  .js .pr-lamina:not(.pr-vista) .pr-salida__ventana,
+  .js .pr-lamina:not(.pr-vista) .pr-salida__login {
+    opacity: 0;
+  }
+
+  .pr-vista .pr-salida__ventana {
+    animation: pr-iris 0.8s var(--ease-in-out) 0.85s both;
+  }
+
+  .pr-vista .pr-salida__login {
+    animation: pr-entra 0.7s var(--ease-out) 1.6s both;
+  }
+}
+
+@keyframes pr-hacia-el-centro {
+  0% {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1;
+  }
+
+  80% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    translate: calc((50 - var(--x)) * 1cqw) calc((50 - var(--y)) * 1cqh);
+    scale: 0.06;
+  }
+}
+
+@keyframes pr-iris {
+  from {
+    clip-path: circle(0% at 50% 50%);
+  }
+
+  to {
+    clip-path: circle(80% at 50% 50%);
+  }
+}
+
+/* En el teléfono, sin la pantalla de ingreso encima: no entra */
+@media (max-width: 40rem) {
+  .pr-salida__login {
+    display: none;
+  }
+}
+
+/* ── 4 · El ahorro ───────────────────────────────────────────────────────────────────── */
+.pr-cuenta {
+  display: grid;
+  gap: var(--space-5);
+  padding: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+  border-radius: var(--radio-lg);
+  background: var(--superficie);
+  box-shadow: var(--sombra-tarjeta);
+}
+
+.pr-cuenta__cab {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+  font-size: var(--text-md);
+  font-weight: var(--peso-semi);
+}
+
+.pr-fila {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-2) var(--space-4);
+  align-items: baseline;
+}
+
+.pr-fila__etq {
+  color: var(--texto-2);
+}
+
+.pr-fila__cifra {
+  font-family: var(--font-datos);
+  font-size: clamp(1.5rem, 1rem + 2vw, 2.4rem);
+  font-weight: var(--peso-medio);
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.pr-fila__cifra--una {
+  font-family: var(--font-texto);
+  font-weight: var(--peso-semi);
+  color: var(--acento);
+}
+
+.pr-pista-barra {
+  grid-column: 1 / -1;
+  height: 0.9rem;
+  border-radius: var(--radio-pill);
+  background: var(--linea);
+  overflow: hidden;
+}
+
+.pr-pista-barra i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  transform-origin: 0 50%;
+}
+
+.pr-pista-barra--caro i {
+  width: 100%;
+  background: var(--tachado, var(--color-alerta));
+  opacity: 0.85;
+}
+
+.pr-pista-barra--una i {
+  width: 1.5%;
+  min-width: 0.6rem;
+  background: var(--acento);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .pr-vista .pr-pista-barra--caro i {
+    animation: pr-crece 1.4s var(--ease-out) 0.6s both;
+  }
+}
+
+@keyframes pr-crece {
+  from {
+    transform: scaleX(0);
+  }
+
+  to {
+    transform: none;
+  }
+}
+
+.pr-cuenta__anual {
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--linea);
+  color: var(--texto-2);
+}
+
+.pr-cuenta__anual .monto-no {
+  font-family: var(--font-datos);
+  font-weight: var(--peso-medio);
+}
+
+/* ── 5 · La IA ───────────────────────────────────────────────────────────────────────── */
+.pr-pasos {
+  display: grid;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: paso;
+}
+
+.pr-pasos li {
+  display: grid;
+  grid-template-columns: 2.25rem minmax(0, 1fr);
+  gap: var(--space-4);
+  align-items: start;
+  max-width: 34rem;
+  line-height: 1.5;
+  color: var(--texto-2);
+}
+
+.pr-pasos li::before {
+  counter-increment: paso;
+  content: counter(paso);
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--pr-ia), var(--pr-ia-2));
+  font-family: var(--font-datos);
+  font-size: var(--text-sm);
+  color: #fff;
+}
+
+.pr-pasos strong {
+  color: var(--texto);
+  font-weight: var(--peso-semi);
+}
+
+/* Para Ribentek: la IA es de cada cliente, con el proveedor que ellos ya implementan */
+.pr-recuadro {
+  display: grid;
+  gap: var(--space-2);
+  max-width: 34rem;
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radio-md);
+  background: rgb(79 70 229 / 0.14);
+  box-shadow: inset 0 0 0 1px rgb(139 92 246 / 0.45);
+  font-size: var(--text-sm);
+  line-height: 1.55;
+  color: var(--texto-2);
+}
+
+.pr-recuadro strong {
+  color: var(--texto);
+  font-weight: var(--peso-semi);
+}
+
+/* ── 6 · Cada uno ve su parte ─────────────────────────────────────────────────────────── */
+.pr-vista-p {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.pr-quien {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.pr-quien button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 2.75rem;
+  padding: 0 var(--space-4) 0 var(--space-2);
+  border: 0;
+  border-radius: var(--radio-pill);
+  background: var(--superficie);
+  box-shadow: inset 0 0 0 1.5px var(--linea-fuerte);
+  font-size: var(--text-sm);
+  font-weight: var(--peso-semi);
+  color: var(--texto);
+  cursor: pointer;
+  transition:
+    background-color var(--dur-2) var(--ease-out),
+    color var(--dur-2) var(--ease-out),
+    box-shadow var(--dur-2) var(--ease-out);
+}
+
+.pr-quien button i {
+  display: grid;
+  place-items: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 50%;
+  background: var(--color-salvia);
+  font-style: normal;
+  font-size: var(--text-xs);
+  color: var(--color-abismo);
+}
+
+.pr-quien button[aria-pressed='true'] {
+  background: var(--color-verde);
+  box-shadow: none;
+  color: #fff;
+}
+
+.pr-quien button:focus-visible {
+  outline: 2px solid var(--foco);
+  outline-offset: 2px;
+}
+
+/* El tablero: el mismo para todos; cambia lo que cada uno ve */
+.pr-tab {
+  display: grid;
+  gap: var(--space-4);
+  padding: clamp(1rem, 0.6rem + 1.6vw, 1.75rem);
+  border-radius: var(--radio-lg);
+  background: #fff;
+  box-shadow: var(--sombra-tarjeta);
+  color: var(--color-abismo);
+}
+
+.pr-tab__cab {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+}
+
+.pr-tab__nombre {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: var(--peso-semi);
+}
+
+.pr-tab__nombre svg {
+  width: 1.3rem;
+  height: 1.3rem;
+  fill: var(--pr-pbi);
+}
+
+/* El filtro de esa persona: invisible para ella, a la vista acá para explicarlo */
+.pr-tab__filtro {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radio-pill);
+  background: #eef3e8;
+  font-family: var(--font-datos);
+  font-size: var(--text-xs);
+  color: var(--color-tinta-suave);
+}
+
+.pr-tab__filtro svg {
+  width: 0.95rem;
+  height: 0.95rem;
+}
+
+.pr-tab__kpi {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.pr-tab__kpi span {
+  font-size: var(--text-sm);
+  color: var(--color-tinta-suave);
+}
+
+.pr-tab__kpi b {
+  font-family: var(--font-datos);
+  font-size: clamp(1.6rem, 1.1rem + 2vw, 2.4rem);
+  font-weight: var(--peso-medio);
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+.pr-barras {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pr-barras li {
+  display: grid;
+  grid-template-columns: 7.5rem minmax(0, 1fr) 6.5rem;
+  gap: var(--space-3);
+  align-items: center;
+  font-size: var(--text-sm);
+}
+
+.pr-barras b {
+  font-family: var(--font-datos);
+  font-weight: var(--peso-medio);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.pr-barras i {
+  display: block;
+  height: 0.85rem;
+  width: var(--w, 50%);
+  border-radius: 0 4px 4px 0;
+  background: var(--color-verde);
+  transform-origin: 0 50%;
+}
+
+/* Lo de cada persona vive en el marcado; el botón elige cuál se ve. Cada pieza dice con qué
+   display vuelve (--se-ve): con «revert», el chip del filtro perdía su flex y el candado se iba
+   arriba del texto */
+.pr-tab [data-de] {
+  display: none;
+}
+
+.pr-vista-p[data-persona='gerencia'] .pr-tab [data-de='gerencia'],
+.pr-vista-p[data-persona='santa-cruz'] .pr-tab [data-de='santa-cruz'],
+.pr-vista-p[data-persona='la-paz'] .pr-tab [data-de='la-paz'] {
+  display: var(--se-ve, block);
+}
+
+.pr-tab__filtro {
+  --se-ve: inline-flex;
+}
+
+.pr-barras {
+  --se-ve: grid;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .pr-tab [data-de] i {
+    animation: pr-crece 0.7s var(--ease-out) both;
+  }
+
+  .pr-tab__kpi b {
+    animation: pr-entra 0.45s var(--ease-out) both;
+  }
+}
+
+/* Anchos de barra en pasos de 5 % (sin atributos style: CSP) */
+.pr-w-9 { --w: 45%; }
+.pr-w-11 { --w: 55%; }
+.pr-w-12 { --w: 60%; }
+.pr-w-14 { --w: 70%; }
+.pr-w-16 { --w: 80%; }
+.pr-w-18 { --w: 90%; }
+.pr-w-20 { --w: 100%; }
+
+@media (max-width: 30rem) {
+  .pr-barras li {
+    grid-template-columns: 5.5rem minmax(0, 1fr) 5.5rem;
+  }
+}
+
+/* ── 7 · El panel de administración (resumido) ─────────────────────────────────────────── */
+.pr-pa {
+  display: grid;
+  grid-template-columns: 9.5rem minmax(0, 1fr);
+  min-height: 22rem;
+  font-size: 0.82rem;
+  color: #1f2937;
+}
+
+.pr-pa__menu {
+  display: grid;
+  align-content: start;
+  gap: 0.3rem;
+  padding: 1rem 0.75rem;
+  background: #0f1720;
+  color: #cbd5e1;
+}
+
+.pr-pa__logo {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.6rem;
+  font-weight: var(--peso-semi);
+  color: #fff;
+}
+
+.pr-pa__logo svg {
+  width: 1.4rem;
+  height: 1.4rem;
+  padding: 0.2rem;
+  border-radius: 50%;
+  background: #fff;
+  fill: #037a70;
+}
+
+.pr-pa__item {
+  padding: 0.4rem 0.6rem;
+  border-radius: 0.5rem;
+}
+
+.pr-pa__item--si {
+  background: #037a70;
+  color: #fff;
+  font-weight: var(--peso-semi);
+}
+
+.pr-pa__cuerpo {
+  display: grid;
+  align-content: start;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: #f3f4f6;
+}
+
+.pr-pa__cab {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 1rem;
+}
+
+.pr-pa__agregar {
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  background: #037a70;
+  font-size: 0.75rem;
+  font-weight: var(--peso-semi);
+  color: #fff;
+}
+
+.pr-pa__lista {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pr-pa__fila {
+  display: grid;
+  grid-template-columns: 1.9rem minmax(0, 1fr) auto auto 2rem;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.6rem;
+  background: #fff;
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.06);
+}
+
+.pr-pa__fila i {
+  display: grid;
+  place-items: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 50%;
+  background: #ced9bd;
+  font-style: normal;
+  font-weight: var(--peso-semi);
+  color: #001720;
+}
+
+.pr-pa__usuario {
+  font-weight: var(--peso-semi);
+}
+
+.pr-pa__n {
+  font-family: var(--font-datos);
+  font-size: 0.75rem;
+  color: #5b6964;
+}
+
+.pr-pa__ia {
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: #eef2ff;
+  box-shadow: inset 0 0 0 1px #c7d2fe;
+  font-size: 0.7rem;
+  font-weight: var(--peso-semi);
+  color: #4338ca;
+}
+
+/* El interruptor de «activa», prendido */
+.pr-pa__si {
+  position: relative;
+  width: 2rem;
+  height: 1.15rem;
+  border-radius: 999px;
+  background: #037a70;
+}
+
+.pr-pa__si::after {
+  content: '';
+  position: absolute;
+  top: 0.15rem;
+  right: 0.15rem;
+  width: 0.85rem;
+  height: 0.85rem;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.pr-pa__fila--nueva {
+  box-shadow: inset 0 0 0 2px #4dcfc1;
+  background: #f0fdfa;
+}
+
+.pr-pa__nueva {
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: #037a70;
+  font-size: 0.7rem;
+  font-weight: var(--peso-semi);
+  white-space: nowrap;
+  color: #fff;
+}
+
+.pr-pa__pie {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.pr-pa__tarjeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 0.6rem;
+  background: #fff;
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.06);
+  color: #5b6964;
+}
+
+.pr-pa__tarjeta b {
+  font-family: var(--font-datos);
+  font-size: 1.1rem;
+  font-weight: var(--peso-medio);
+  color: #001720;
+}
+
+.pr-pa__colores {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.pr-pa__colores i {
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 50%;
+}
+
+.pr-pa__c1 { background: #1d6b47; }
+.pr-pa__c2 { background: #111111; }
+.pr-pa__c3 { background: #ced9bd; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .js .pr-lamina:not(.pr-vista) .pr-pa__fila--nueva {
+    opacity: 0;
+  }
+
+  .pr-vista .pr-pa__fila--nueva {
+    animation: pr-entra 0.6s var(--ease-out) 1.2s both;
+  }
+}
+
+@media (max-width: 30rem) {
+  .pr-pa {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pr-pa__menu {
+    display: none;
+  }
+
+  .pr-pa__fila {
+    grid-template-columns: 1.9rem minmax(0, 1fr) auto 2rem;
+  }
+
+  .pr-pa__n {
+    display: none;
+  }
+}
+
+/* ── 8 · Escala ──────────────────────────────────────────────────────────────────────── */
+.pr-cifras {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-5) var(--space-6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pr-cifras li {
+  display: grid;
+  gap: var(--space-1);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--linea-fuerte);
+}
+
+.pr-cifras b {
+  font-family: var(--font-datos);
+  font-size: clamp(2rem, 1.3rem + 2.8vw, 3.4rem);
+  font-weight: var(--peso-medio);
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: var(--acento);
+  font-variant-numeric: tabular-nums;
+}
+
+.pr-cifras span {
+  font-size: var(--text-sm);
+  line-height: 1.45;
+  color: var(--texto-2);
+}
+
+.pr-telefono {
+  width: min(20rem, 78%);
+  margin-inline: auto;
+}
+
+/* ── 9 · Cómo trabajamos juntos ───────────────────────────────────────────────────────── */
+.pr-modelo {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.pr-flujo {
+  display: grid;
+  gap: var(--space-3);
+  align-items: stretch;
+}
+
+@media (min-width: 64rem) {
+  .pr-flujo {
+    grid-template-columns: minmax(0, 1fr) 9rem minmax(0, 1fr) 9rem minmax(0, 1fr);
+    align-items: center;
+  }
+}
+
+.pr-nodo {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-5);
+  border-radius: var(--radio-lg);
+  background: #fff;
+  box-shadow: 0 1.5rem 3rem -1.5rem rgb(0 23 32 / 0.55);
+  color: var(--color-abismo);
+}
+
+.pr-nodo__quien {
+  font-size: var(--text-xl);
+  font-weight: var(--peso-semi);
+  letter-spacing: -0.02em;
+}
+
+.pr-nodo ul {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  color: var(--color-tinta-suave);
+}
+
+.pr-nodo li::before {
+  content: '·';
+  margin-right: 0.4em;
+  color: var(--color-verde);
+  font-weight: var(--peso-fuerte);
+}
+
+.pr-nodo--socio {
+  background: var(--color-abismo);
+  color: #fff;
+  box-shadow: 0 0 0 3px var(--color-verde-claro), 0 1.5rem 3rem -1.5rem rgb(0 23 32 / 0.6);
+}
+
+.pr-nodo--socio ul {
+  color: var(--color-salvia);
+}
+
+.pr-nodo--socio li::before {
+  color: var(--color-verde-claro);
+}
+
+/* La flecha: lo que va de uno al otro, con un trazo que corre en el sentido del flujo */
+.pr-flecha {
+  display: grid;
+  gap: var(--space-2);
+  justify-items: center;
+  padding: var(--space-2) 0;
+  text-align: center;
+}
+
+.pr-flecha span {
+  font-size: var(--text-sm);
+  font-weight: var(--peso-semi);
+  line-height: 1.3;
+}
+
+.pr-flecha i {
+  position: relative;
+  width: 3px;
+  height: 2.5rem;
+  border-radius: 2px;
+  background: repeating-linear-gradient(180deg, #fff 0 6px, transparent 6px 12px);
+  background-size: 100% 24px;
+}
+
+.pr-flecha i::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -2px;
+  width: 0.7rem;
+  height: 0.7rem;
+  margin-left: -0.35rem;
+  border-right: 3px solid #fff;
+  border-bottom: 3px solid #fff;
+  transform: rotate(45deg);
+}
+
+@media (min-width: 64rem) {
+  .pr-flecha i {
+    width: 100%;
+    height: 3px;
+    background: repeating-linear-gradient(90deg, #fff 0 6px, transparent 6px 12px);
+    background-size: 24px 100%;
+  }
+
+  .pr-flecha i::after {
+    left: auto;
+    right: -2px;
+    top: 50%;
+    bottom: auto;
+    margin: -0.35rem 0 0;
+    transform: rotate(-45deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .pr-vista .pr-flecha i {
+    animation: pr-corre-y 0.9s linear infinite;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) and (min-width: 64rem) {
+  .pr-vista .pr-flecha i {
+    animation-name: pr-corre-x;
+  }
+}
+
+@keyframes pr-corre-y {
+  to {
+    background-position: 0 24px;
+  }
+}
+
+@keyframes pr-corre-x {
+  to {
+    background-position: 24px 0;
+  }
+}
+
+/* Lo que pone el cliente, aparte: su licencia y su IA */
+.pr-pone {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 48rem) {
+  .pr-pone {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.pr-pone li {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radio-md);
+  background: rgb(0 23 32 / 0.18);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+
+.pr-pone b {
+  font-size: var(--text-md);
+  font-weight: var(--peso-semi);
+}
+
+/* ── 10 · Tu margen ──────────────────────────────────────────────────────────────────── */
+.pr-margen {
+  display: grid;
+  gap: var(--space-6);
+}
+
+@media (min-width: 64rem) {
+  .pr-margen {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    align-items: start;
+  }
+}
+
+.pr-controles {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border-radius: var(--radio-lg);
+  background: var(--superficie);
+  box-shadow: inset 0 0 0 1px var(--linea);
+}
+
+.pr-control {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.pr-control label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--texto-2);
+}
+
+.pr-control output {
+  font-family: var(--font-datos);
+  font-size: var(--text-xl);
+  font-weight: var(--peso-medio);
+  color: var(--texto);
+  font-variant-numeric: tabular-nums;
+}
+
+.pr-control input[type='range'] {
+  width: 100%;
+  min-height: 2.75rem;
+  accent-color: var(--color-verde-claro);
+  cursor: pointer;
+}
+
+.pr-resultado {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.pr-res {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radio-lg);
+  background: var(--superficie);
+  box-shadow: inset 0 0 0 1px var(--linea);
+}
+
+.pr-res__quien {
+  font-size: var(--text-sm);
+  font-weight: var(--peso-semi);
+  color: var(--texto-2);
+}
+
+.pr-res__linea {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-1) var(--space-4);
+  color: var(--texto-2);
+}
+
+.pr-res__linea .dato,
+.pr-res__linea s {
+  font-family: var(--font-datos);
+  font-weight: var(--peso-medio);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.pr-res__grande {
+  font-family: var(--font-datos);
+  font-size: clamp(1.45rem, 0.95rem + 1.5vw, 2.25rem);
+  font-weight: var(--peso-medio);
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+  color: var(--acento);
+  font-variant-numeric: tabular-nums;
+}
+
+.pr-res--tuyo {
+  background: linear-gradient(135deg, rgb(3 122 112 / 0.35), rgb(0 57 78 / 0.35));
+  box-shadow: inset 0 0 0 1.5px var(--color-verde-claro);
+}
+
+.pr-res__anual {
+  font-size: var(--text-md);
+  color: var(--texto);
+}
+
+.pr-res__anual b {
+  font-family: var(--font-datos);
+  font-weight: var(--peso-medio);
+  color: var(--acento);
+}
+
+/* Si el precio no deja margen, o deja al cliente sin ahorro, se dice en vez de mostrar un número raro */
+.pr-res__aviso {
+  font-size: var(--text-sm);
+  color: var(--tachado, var(--color-alerta));
+}
+
+.pr-res__aviso[hidden] {
+  display: none;
+}
+
+/* ── 11 · Cómo se lo cuentas a tu cliente ─────────────────────────────────────────────── */
+.pr-guion {
+  display: grid;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pr-guion li {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-5);
+  border-radius: 1.25rem 1.25rem 1.25rem 0.4rem;
+  background: var(--superficie);
+  box-shadow: var(--sombra-tarjeta);
+}
+
+.pr-guion span {
+  font-family: var(--font-datos);
+  font-size: var(--text-xs);
+  color: var(--acento);
+}
+
+.pr-guion q {
+  font-size: var(--text-lg);
+  font-weight: var(--peso-medio);
+  line-height: 1.45;
+  color: var(--texto);
+  quotes: '«' '»';
+}
+
+.pr-objeciones {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.pr-objeciones__t {
+  font-size: var(--text-md);
+  font-weight: var(--peso-semi);
+}
+
+.pr-objeciones details {
+  border-radius: var(--radio-md);
+  background: var(--superficie);
+  box-shadow: inset 0 0 0 1px var(--linea);
+}
+
+.pr-objeciones summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-height: 3rem;
+  padding: var(--space-3) var(--space-4);
+  font-weight: var(--peso-semi);
+  line-height: 1.35;
+  cursor: pointer;
+  list-style: none;
+}
+
+.pr-objeciones summary::-webkit-details-marker {
+  display: none;
+}
+
+.pr-objeciones summary svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  flex: none;
+  color: var(--acento);
+  transition: rotate var(--dur-2) var(--ease-out);
+}
+
+.pr-objeciones details[open] summary svg {
+  rotate: 180deg;
+}
+
+.pr-objeciones summary:focus-visible {
+  outline: 2px solid var(--foco);
+  outline-offset: 2px;
+  border-radius: var(--radio-md);
+}
+
+.pr-objeciones details p {
+  padding: 0 var(--space-4) var(--space-4);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  color: var(--texto-2);
+}
+
+/* ── 12 · Empezamos ──────────────────────────────────────────────────────────────────── */
+.pr-cierre {
+  background:
+    radial-gradient(60% 55% at 50% 0%, rgb(3 122 112 / 0.35), transparent 70%),
+    var(--fondo);
+}
+
+.pr-camino {
+  display: grid;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: camino;
+}
+
+@media (min-width: 64rem) {
+  .pr-camino {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-5);
+  }
+}
+
+.pr-camino li {
+  position: relative;
+  display: grid;
+  gap: var(--space-2);
+  align-content: start;
+  padding-top: var(--space-6);
+  font-size: var(--text-sm);
+  line-height: 1.55;
+  color: var(--texto-2);
+}
+
+.pr-camino li::before {
+  counter-increment: camino;
+  content: counter(camino);
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background: var(--color-verde);
+  font-family: var(--font-datos);
+  color: #fff;
+}
+
+.pr-camino li::after {
+  content: '';
+  position: absolute;
+  top: 1.1rem;
+  left: 2.75rem;
+  right: 0;
+  height: 2px;
+  background: var(--linea-fuerte);
+}
+
+.pr-camino li:last-child::after {
+  display: none;
+}
+
+.pr-camino b {
+  font-size: var(--text-md);
+  font-weight: var(--peso-semi);
+  color: var(--texto);
+}
+
+@media (max-width: 63.99rem) {
+  .pr-camino li::after {
+    display: none;
+  }
+}
+
+/* ── Impresión: una lámina por hoja, todo armado, sin la ruta ─────────────────────────── */
+@media print {
+  .pr-deck {
+    height: auto;
+    overflow: visible;
+  }
+
+  .pr-lamina {
+    min-height: auto;
+    padding-block: 2.5rem;
+    break-after: page;
+  }
+
+  .pr-ruta {
+    display: none;
+  }
+
+  .pr-a,
+  .pr-carta,
+  .pr-globo,
+  .pr-salida__ventana,
+  .pr-salida__login {
+    opacity: 1 !important;
+    animation: none !important;
+  }
+
+  .pr-caos--traga {
+    display: none;
+  }
+}

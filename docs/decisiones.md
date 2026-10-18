@@ -2,6 +2,50 @@
 
 Formato: contexto → decisión → consecuencias. Las decisiones nuevas van arriba.
 
+## ADR-020 · La propuesta a un socio es una página en láminas: la de Ribentek (17/10/2026)
+
+- **Contexto**: el dueño pidió la primera propuesta de `/propuestas/`, para **Ribentek**, una empresa de Santa Cruz que trabaja IA (Claude, Gemini), agentes, Odoo y software a medida, y que le revende servicios. El pedido:
+  - que la tomen y se la ofrezcan a sus clientes;
+  - elegante, con movimiento, paginada «como una ruta, una historia contada»;
+  - con más detalle que el anuncio: el ahorro de licencias, el orden de los tableros, la escala, que se administra solo, la IA y cómo se usa, los filtros por persona;
+  - solo lo bueno, y solo el producto terminado: nada de planillas ni de infraestructura;
+  - el trato: Data Studio se encarga de todo lo del Portal BI, Ribentek vende y cobra, Data Studio le cobra US$ 60 al mes por cliente, y cada cliente paga su propia IA;
+  - el discurso para que Ribentek venda: su cliente se ahorra cientos de licencias, paga una sola (la que ya tiene), y eso le deja a Ribentek un margen amplio.
+- **Decisión**: una página del sitio, `/propuestas/portal-bi-ribentek/`, oculta como todo `/propuestas/`. Son 12 láminas a pantalla completa, una idea cada una, con la prueba al lado. Abajo va una ruta fija con las paradas, el contador y los botones. Se avanza con los botones, con el teclado o deslizando. La dirección cambia a `#lámina`, así se puede mandar una puntual.
+- **La historia, en orden**:
+  1. La portada, con el beneficio de Ribentek primero: «Tus clientes pagan Power BI por persona. Véndeles la salida.»
+  2. Lo que viven sus clientes: la escena del gancho del anuncio (ADR-019).
+  3. La salida: el portal se traga los reportes, se abre como un iris, y entra la pantalla de ingreso con la marca del cliente.
+  4. El ahorro, con un ejemplo de 200 personas.
+  5. La IA: cómo se usa, en tres pasos, y que funciona con Claude y Gemini, que es lo que Ribentek ya domina.
+  6. Cada uno ve su parte: un tablero que cambia según quién lo abre, solo o tocándolo.
+  7. Lo administra solo.
+  8. Crece sin comprar licencias.
+  9. Cómo trabajamos juntos, con flechas que corren en el sentido del dinero.
+  10. Su margen: una calculadora con sus números, y la llamada justo ahí.
+  11. Cómo se lo cuentan a su cliente: tres frases y las preguntas que le van a hacer.
+  12. Por dónde empezamos.
+- **Neuromarketing aplicado**:
+  - *Lo que gana el lector, primero*: la portada habla del negocio de Ribentek, no del producto.
+  - *Pérdida para el cliente, ganancia para el socio*: las licencias que se pagarían van tachadas, y el margen va en grande.
+  - *La cifra propia*: la calculadora usa los números que Ribentek pone. Una cifra que uno calculó pesa más que una que le dijeron.
+  - *Llamada en el pico*: el botón de WhatsApp va debajo del margen, el momento de más motivación.
+  - *El final que se recuerda*: los cuatro pasos, el contacto y el lema.
+  - *Objeciones desarmadas*: las preguntas que les van a hacer, con su respuesta.
+  - *Progreso a la vista*: la ruta de abajo. Ver cuánto falta empuja a terminar.
+  - No se inventó prueba social (ADR-007).
+- **Lo que no se muestra, a propósito**:
+  - Nada de cómo está hecho por dentro.
+  - La maqueta del panel de administración del sitio se reemplazó por un resumen dibujado (`PanelAdmin.astro`). En la columna de la lámina, la del sitio apilaba el cuadro de asignación, con su enlace de inserción y los identificadores de reporte y workspace.
+  - Los filtros por persona se llaman «vista» y no seguridad, como en el sitio.
+  - Para el licenciamiento de cada caso, la fuente es el representante de Microsoft del cliente: la misma respuesta de la pregunta frecuente de `/portal-bi/`.
+- **Consecuencias**:
+  - **Oculta no es privada.** El costo para Ribentek (US$ 60) y su margen están a la vista de quien tenga la dirección. Es para Ribentek: no es para que se la reenvíen a sus clientes.
+  - Reusa las maquetas del sitio (portal, ingreso, chat, teléfono) y el lema. Si el portal cambia, cambian también acá.
+  - En las laptops de pantalla baja (menos de 52 rem de alto) el contenido se achica con `zoom`, para que cada lámina entre entera. Medido en 1440 × 900, 1536 × 864 y 1280 × 720.
+  - En el teléfono, una lámina puede ser más alta que la pantalla: el salto entre láminas se vuelve suave (`proximity`) y se lee entera.
+  - El QA la revisa en los seis anchos. Sus pruebas (teclado, dirección, calculadora, movimiento reducido) viven en el scratchpad de la sesión.
+
 ## ADR-019 · El gancho del anuncio: «¿Me pasas el reporte?» en vez de los mil asientos (17/10/2026)
 
 - **Contexto**: al dueño no le convenció el gancho, los primeros 10 s del anuncio: «trata de mostrar mil cuentas de Power BI, no se comprende bien, no hay neuromarketing ahí». Pidió un gancho atractivo para los primeros 10 segundos, que además mostrara la centralización de los tableros.

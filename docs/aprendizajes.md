@@ -2,6 +2,19 @@
 
 Cada entrada: **síntoma → causa → solución → cómo evitarlo**.
 
+## La propuesta a Ribentek (17/10/2026)
+
+### `display: revert` devuelve el display del navegador, no el de tu clase
+- **Síntoma**: en el tablero que cambia según la persona, el chip del filtro mostraba el candado arriba del texto.
+- **Causa**: lo de cada persona se esconde con `display: none` y se mostraba con `display: revert`. «Revert» vuelve al valor del navegador, que para un `span` es `inline`, y no al `inline-flex` de su clase.
+- **Solución**: cada pieza dice con qué display vuelve (`--se-ve: inline-flex`, `grid`…), y la regla que muestra usa `display: var(--se-ve, block)`.
+
+### Una maqueta que se acomoda a su ancho puede crecer, y mostrar otra cosa, al angostarla
+- **Síntoma**: al pasar la lámina del administrador a dos columnas iguales, la maqueta del panel creció a 1.240 px de alto. Además mostró el cuadro de asignación entero, con el enlace de inserción y los identificadores de reporte y workspace: lo que el dueño pidió no mostrar.
+- **Causa**: `MaquetaAdmin` superpone la ventana y el cuadro en anchos grandes, y los apila en los angostos. La columna de la lámina cayó en el lado angosto.
+- **Solución**: la propuesta lleva su propio resumen del panel (`PanelAdmin.astro`), hecho para lo que tiene que contar.
+- **Evitarlo**: al reusar una maqueta en otro contexto, mirarla en el ancho donde va a vivir, no en el de la página de donde viene.
+
 ## El gancho nuevo del anuncio (17/10/2026)
 
 ### Girar una capa mientras cambia de escala hace que el cuadro dependa del camino

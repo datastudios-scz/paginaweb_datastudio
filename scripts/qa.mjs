@@ -15,7 +15,7 @@ import { chromium } from 'playwright-core';
 import { PAGINAS_OCULTAS, esOculta } from '../src/data/ocultas.mjs';
 
 const BASE = process.argv[2] ?? 'http://localhost:4321';
-const PAGINAS = ['/', '/portal-bi/', '/portal-bi/como-funciona/', '/portal-bi/como-funciona/administrador/', '/portal-bi/anuncio/', '/social-metrics-bi/', '/tienda-ecommerce/', '/consultoria/', '/anuncios/', '/propuestas/', '/no-existe-esta-pagina/'];
+const PAGINAS = ['/', '/portal-bi/', '/portal-bi/como-funciona/', '/portal-bi/como-funciona/administrador/', '/portal-bi/anuncio/', '/social-metrics-bi/', '/tienda-ecommerce/', '/consultoria/', '/anuncios/', '/propuestas/', '/propuestas/portal-bi-ribentek/', '/no-existe-esta-pagina/'];
 const ANCHOS = [1440, 1024, 768, 414, 375, 320];
 
 const ejecutable = [

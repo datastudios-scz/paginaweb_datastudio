@@ -1,0 +1,445 @@
+---
+/**
+ * Propuesta a Ribentek: que revendan el Portal BI a sus clientes (17/10/2026). ADR-020.
+ * Página OCULTA: cuelga de /propuestas/ (noindex, fuera del sitemap, sin enlaces públicos).
+ *
+ * Es un recorrido en láminas, contado como una historia: lo que viven sus clientes, la salida,
+ * el ahorro, la IA, cada uno ve su parte, lo administra solo, crece sin licencias, cómo
+ * trabajamos juntos, el margen de Ribentek, cómo venderlo y por dónde empezar. Cada lámina dice
+ * una idea y la prueba con las maquetas del portal (las de /portal-bi/).
+ *
+ * Pedido del dueño: solo el producto terminado, nada de cómo está hecho por dentro; Data Studio
+ * se encarga de todo lo del Portal BI, Ribentek vende y cobra; Data Studio le cobra a Ribentek
+ * US$ 60 al mes por cliente, y cada cliente paga su propia IA.
+ * Reglas del sitio que aplican: lo que el cliente pagaría sin el portal va tachado y con
+ * palabras (PRODUCT.md); solo afirmaciones que el producto sostiene (docs/contenido.md y los
+ * docs del portal); datos de ejemplo rotulados (ADR-013); los filtros por persona son una
+ * «vista», no seguridad; para el licenciamiento de cada caso, la fuente es Microsoft.
+ */
+import Base from '../../layouts/Base.astro';
+import Icono from '../../components/Icono.astro';
+import Logo from '../../components/Logo.astro';
+import Lema from '../../components/portal/Lema.astro';
+import Ventana from '../../components/portal/Ventana.astro';
+import MaquetaPortal from '../../components/portal/MaquetaPortal.astro';
+import MaquetaLogin from '../../components/portal/MaquetaLogin.astro';
+import MaquetaChat from '../../components/portal/MaquetaChat.astro';
+import MaquetaTelefono from '../../components/portal/MaquetaTelefono.astro';
+import Caos from '../../components/propuesta/Caos.astro';
+import VistaPersonas from '../../components/propuesta/VistaPersonas.astro';
+import Modelo from '../../components/propuesta/Modelo.astro';
+import Margen from '../../components/propuesta/Margen.astro';
+import PanelAdmin from '../../components/propuesta/PanelAdmin.astro';
+import { CONTACTO, enlaceWhatsApp, PRECIO_LICENCIA_USD } from '../../data/sitio';
+import { dolares } from '../../scripts/formato';
+import '../../styles/propuesta.css';
+
+/** Lo que Data Studio le cobra a Ribentek, por cliente y por mes (lo definió el dueño). */
+const PRECIO_SOCIO = 60;
+
+/* El ejemplo de la lámina del ahorro: una empresa de 200 personas, a precio de lista */
+const PERSONAS_EJEMPLO = 200;
+const AL_MES = PERSONAS_EJEMPLO * PRECIO_LICENCIA_USD;
+
+const WHATSAPP = enlaceWhatsApp('Hola Sergio, soy de Ribentek. Vimos la propuesta del Portal BI y queremos empezar con nuestros clientes.');
+
+/* Las paradas de la ruta: el id es el ancla de cada lámina (sirve para mandar una puntual) */
+const LAMINAS = [
+  { id: 'portada', titulo: 'Portada' },
+  { id: 'problema', titulo: 'Lo que viven tus clientes' },
+  { id: 'salida', titulo: 'La salida' },
+  { id: 'ahorro', titulo: 'El ahorro' },
+  { id: 'ia', titulo: 'La IA' },
+  { id: 'vista', titulo: 'Cada uno, su parte' },
+  { id: 'admin', titulo: 'Lo administra solo' },
+  { id: 'escala', titulo: 'Crece sin licencias' },
+  { id: 'modelo', titulo: 'Cómo trabajamos' },
+  { id: 'margen', titulo: 'Tu margen' },
+  { id: 'venta', titulo: 'Cómo venderlo' },
+  { id: 'empezar', titulo: 'Empezamos' },
+];
+---
+
+<Base
+  titulo="Portal BI para Ribentek · Data Studio"
+  descripcion="Propuesta de Data Studio a Ribentek para vender el Portal BI: Power BI para toda la empresa de sus clientes con una sola licencia, con su marca y con IA."
+  imagen="/og/portal-bi.png"
+  inmersiva
+  indexar={false}
+>
+  <div class="pr" data-p="raiz">
+    <div class="pr-deck" data-p="deck">
+      <!-- ═══ Portada: el beneficio de Ribentek primero ═══ -->
+      <section class="pr-lamina pr-portada" id="portada" data-tema="oscuro" aria-labelledby="pr-t-portada">
+        <div class="contenedor pr-rejilla pr-rejilla--pareja">
+          <div class="pr-texto">
+            <p class="pr-firma pr-a d1">
+              <Logo class="pr-firma__logo" />
+              <span class="pr-firma__x" aria-hidden="true">×</span>
+              <span class="pr-firma__socio">Ribentek</span>
+              <span class="pr-firma__fecha">Propuesta de socio · octubre de 2026</span>
+            </p>
+            <h1 id="pr-t-portada" class="pr-titulo pr-titulo--grande pr-a d2">
+              Tus clientes pagan Power BI por persona. <span class="pr-acento">Véndeles la salida.</span>
+            </h1>
+            <p class="pr-lema pr-a d3"><Lema /></p>
+            <p class="pr-entrada pr-a d4">
+              <strong>Portal BI</strong>: toda la empresa de tu cliente ve sus tableros con una sola licencia, con su marca
+              y con IA. Tú lo vendes y lo cobras; nosotros lo instalamos y lo mantenemos.
+            </p>
+            <div class="pr-acciones pr-a d5">
+              <button type="button" class="boton boton--primario" data-p="avanzar">
+                <span>Empezar el recorrido</span>
+                <Icono nombre="flecha" />
+              </button>
+              <span class="pr-pista">o con las flechas <kbd>↓</kbd> <kbd>↑</kbd> del teclado</span>
+            </div>
+          </div>
+          <div class="pr-visual pr-brilla pr-a pr-a--sube d3">
+            <Ventana url="portal.tucliente.com/tableros" descripcion="Maqueta del Portal BI: el menú con los tableros por área y las tarjetas de los tableros de Power BI, dos con chat con IA.">
+              <MaquetaPortal />
+            </Ventana>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ 2 · El problema: la escena que el cliente reconoce (la del gancho del anuncio) ═══ -->
+      <section class="pr-lamina" id="problema" data-tema="oscuro" aria-labelledby="pr-t-problema">
+        <div class="contenedor pr-rejilla">
+          <div class="pr-texto">
+            <p class="pr-parada pr-a d1"><b>2</b>Lo que hoy viven tus clientes</p>
+            <h2 id="pr-t-problema" class="pr-titulo pr-a d2">«¿Me pasas el reporte?»</h2>
+            <p class="pr-entrada pr-a d3">
+              Así se reparten los reportes en muchas empresas: por correo y por WhatsApp, en versiones que nadie sabe
+              cuál es la buena.
+            </p>
+            <ul class="lista-check pr-puntos" role="list">
+              <li class="pr-a d4"><Icono nombre="cerrar" /><span>Para abrir un tablero de Power BI, cada persona necesita su licencia: <strong>US$ {PRECIO_LICENCIA_USD} al mes, cada una</strong>, todos los meses.</span></li>
+              <li class="pr-a d5"><Icono nombre="cerrar" /><span>Quien no la tiene se topa con el aviso de la licencia, y vuelve a pedir el Excel.</span></li>
+              <li class="pr-a d6"><Icono nombre="cerrar" /><span>Y alguien del equipo pasa los lunes exportando y reenviando reportes.</span></li>
+            </ul>
+            <p class="pr-nota pr-a d7">US$ {PRECIO_LICENCIA_USD}: precio de lista de Power BI Pro, por persona y por mes.</p>
+          </div>
+          <div class="pr-visual">
+            <Caos modo="flota" />
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ 3 · La salida: el portal se traga todo y se abre ═══ -->
+      <section class="pr-lamina" id="salida" data-tema="petroleo" aria-labelledby="pr-t-salida">
+        <div class="contenedor pr-rejilla">
+          <div class="pr-texto">
+            <p class="pr-parada pr-a d1"><b>3</b>La salida</p>
+            <h2 id="pr-t-salida" class="pr-titulo pr-a d2">
+              Todos sus tableros, en un solo portal. <span class="pr-acento">Con su marca.</span>
+            </h2>
+            <ul class="lista-check pr-puntos" role="list">
+              <li class="pr-a d3"><Icono nombre="check" /><span>Cada persona entra con su usuario o su correo, y ve <strong>solo los tableros que le asignaron</strong>.</span></li>
+              <li class="pr-a d4"><Icono nombre="check" /><span>Con el logo, los colores y el nombre de tu cliente, en su propia dirección web: el portal es suyo.</span></li>
+              <li class="pr-a d5"><Icono nombre="check" /><span>Power BI de verdad: los mismos reportes, con sus filtros y su interacción.</span></li>
+              <li class="pr-a d6"><Icono nombre="check" /><span>En la computadora y en el celular, sin instalar nada.</span></li>
+            </ul>
+          </div>
+          <div class="pr-visual">
+            <div class="pr-salida">
+              <div class="pr-salida__ventana">
+                <Ventana url="portal.tucliente.com/tableros" descripcion="Maqueta del Portal BI con los tableros de una empresa, uno al lado del otro.">
+                  <MaquetaPortal />
+                </Ventana>
+              </div>
+              <Caos modo="traga" />
+              <div class="pr-salida__login">
+                <Ventana url="bi.acme.com" marca="acme" variante="mini" descripcion="La pantalla de ingreso del mismo portal con la marca de ejemplo ACME: su nombre, su logo y sus colores.">
+                  <MaquetaLogin marca="acme" />
+                </Ventana>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ 4 · El ahorro: el argumento que vende solo ═══ -->
+      <section class="pr-lamina" id="ahorro" data-tema="claro" aria-labelledby="pr-t-ahorro">
+        <div class="contenedor pr-rejilla pr-rejilla--pareja">
+          <div class="pr-texto">
+            <p class="pr-parada pr-a d1"><b>4</b>El ahorro, que vende solo</p>
+            <h2 id="pr-t-ahorro" class="pr-titulo pr-a d2">
+              Una sola licencia. <span class="pr-acento">La que tu cliente ya tiene.</span>
+            </h2>
+            <p class="pr-entrada pr-a d3">
+              El portal entra a Power BI con la cuenta que publica los reportes. Todas las demás personas miran sus
+              tableros sin una licencia propia.
+            </p>
+            <p class="pr-entrada pr-a d4"><strong>Ese es tu argumento de venta:</strong> tu cliente ve el número y hace la cuenta solo.</p>
+          </div>
+          <div class="pr-visual">
+            <div class="pr-cuenta pr-a pr-a--sube d3">
+              <p class="pr-cuenta__cab"><span>Una empresa de {PERSONAS_EJEMPLO} personas</span><span class="pr-ejemplo">Ejemplo</span></p>
+              <div class="pr-fila">
+                <span class="pr-fila__etq">Sin el portal pagaría, cada mes</span>
+                <s class="monto-no pr-fila__cifra">{dolares(AL_MES)}</s>
+                <span class="pr-pista-barra pr-pista-barra--caro" aria-hidden="true"><i></i></span>
+              </div>
+              <div class="pr-fila">
+                <span class="pr-fila__etq">Con el portal</span>
+                <span class="pr-fila__cifra pr-fila__cifra--una">1 licencia</span>
+                <span class="pr-pista-barra pr-pista-barra--una" aria-hidden="true"><i></i></span>
+              </div>
+              <p class="pr-cuenta__anual">Al año, sin el portal pagaría <s class="monto-no">{dolares(AL_MES * 12)}</s> en licencias.</p>
+              <p class="pr-nota">
+                A precio de lista de Power BI Pro (US$ {PRECIO_LICENCIA_USD} por persona al mes), sin descuentos ni
+                impuestos. Compara solo licencias: el precio del portal lo pones tú (lámina 10).
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ 5 · La IA al costado del tablero ═══ -->
+      <section class="pr-lamina" id="ia" data-tema="oscuro" aria-labelledby="pr-t-ia">
+        <div class="contenedor pr-rejilla pr-rejilla--ancha">
+          <div class="pr-texto">
+            <p class="pr-parada pr-a d1"><b>5</b>La IA al costado del tablero</p>
+            <h2 id="pr-t-ia" class="pr-titulo pr-titulo--lema pr-a d2"><Lema /></h2>
+            <ol class="pr-pasos" role="list">
+              <li class="pr-a d3"><span>Al lado del tablero hay un botón, <strong>Chat IA</strong>. Se toca y se abre el chat.</span></li>
+              <li class="pr-a d4"><span>Se pregunta en español, como a un analista: <strong>«¿Qué sucursales crecieron más que el promedio?»</strong></span></li>
+              <li class="pr-a d5"><span>La IA consulta el modelo de Power BI y responde con <strong>los números reales</strong> y la consulta a la vista. Si se le pide, arma el gráfico.</span></li>
+            </ol>
+            <p class="pr-recuadro pr-a d6">
+              <span><strong>Hecho para ustedes:</strong> funciona con Claude, Gemini, OpenAI y otros proveedores. Cada cliente
+              usa su propia cuenta de IA y paga lo que consume, directo a su proveedor. Es lo que Ribentek ya domina.</span>
+            </p>
+          </div>
+          <div class="pr-visual pr-chico" data-revelar>
+            <Ventana
+              url="portal.tucliente.com/tableros/chat"
+              ejemplo
+              descripcion="Maqueta del chat con IA del Portal BI: una pregunta sobre ventas, los pasos de la consulta, el código que se ejecutó en Power BI, un mapa de calor y un gráfico de líneas con datos de ejemplo."
+            >
+              <MaquetaChat />
+            </Ventana>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ 6 · Cada uno ve su parte ═══ -->
+      <section class="pr-lamina" id="vista" data-tema="claro" aria-labelledby="pr-t-vista">
+        <div class="contenedor pr-rejilla pr-rejilla--pareja">
+          <div class="pr-texto">
+            <p class="pr-parada pr-a d1"><b>6</b>Cada uno, su parte</p>
+            <h2 id="pr-t-vista" class="pr-titulo pr-a d2">
+              Un tablero. <span class="pr-acento">Cada persona ve su parte.</span>
+            </h2>
+            <p class="pr-entrada pr-a d3">
+              Quien administra el portal recorre el modelo semántico de Power BI —tabla, columna, valor— y le pone a
+              cada persona su vista: su región, su sucursal, su cartera. El filtro va <strong>invisible y bloqueado</strong>, y
+              no hay que duplicar un solo reporte.
+            </p>
+            <ul class="lista-check pr-puntos" role="list">
+              <li class="pr-a d4"><Icono nombre="check" /><span>Y decide, por persona, si ve el panel de filtros y los marcadores, qué páginas del reporte no ve y si le aparece la opción de exportar.</span></li>
+            </ul>
+          </div>
+          <div class="pr-visual pr-a pr-a--sube d3">
+            <VistaPersonas />
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ 7 · Lo administra solo ═══ -->
+      <section class="pr-lamina" id="admin" data-tema="blanco" aria-labelledby="pr-t-admin">
+        <div class="contenedor pr-rejilla pr-rejilla--pareja">
+          <div class="pr-texto">
+            <p class="pr-parada pr-a d1"><b>7</b>Lo administra solo</p>
+            <h2 id="pr-t-admin" class="pr-titulo pr-a d2">
+              Tu cliente lo administra <span class="pr-acento">desde un panel.</span>
+            </h2>
+            <ul class="lista-check pr-puntos" role="list">
+              <li class="pr-a d3"><Icono nombre="check" /><span>Suma o quita a una persona en segundos, <strong>sin comprar licencias</strong>.</span></li>
+              <li class="pr-a d4"><Icono nombre="check" /><span>Asigna tableros y modelos, y decide quién tiene el chat con IA.</span></li>
+              <li class="pr-a d5"><Icono nombre="check" /><span>Cambia el logo, los colores y los textos, viendo cómo queda.</span></li>
+              <li class="pr-a d6"><Icono nombre="check" /><span>Ve quién entró y qué abrió, y le avisa si un tablero dejó de actualizarse.</span></li>
+            </ul>
+          </div>
+          <div class="pr-visual pr-a pr-a--sube d3">
+            <PanelAdmin />
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ 8 · Crece sin comprar licencias ═══ -->
+      <section class="pr-lamina" id="escala" data-tema="petroleo" aria-labelledby="pr-t-escala">
+        <div class="contenedor pr-rejilla">
+          <div class="pr-texto">
+            <p class="pr-parada pr-a d1"><b>8</b>Crece sin comprar licencias</p>
+            <h2 id="pr-t-escala" class="pr-titulo pr-a d2">
+              De 10 a más de 1.000 personas. <span class="pr-acento">La misma licencia.</span>
+            </h2>
+            <ul class="pr-cifras" role="list">
+              <li class="pr-a d3"><b>1</b><span>licencia de Power BI: la de la cuenta que publica</span></li>
+              <li class="pr-a d4"><b>+1.000</b><span>personas en un mismo portal</span></li>
+              <li class="pr-a d5"><b>0</b><span>licencias nuevas por cada persona que se suma</span></li>
+              <li class="pr-a d6"><b>1</b><span>portal por cliente: los datos de uno nunca se cruzan con los de otro</span></li>
+            </ul>
+            <p class="pr-nota pr-a d7">Y si tu cliente tiene más de una cuenta de Power BI, el mismo portal las reúne.</p>
+          </div>
+          <div class="pr-visual pr-a pr-a--sube d3">
+            <MaquetaTelefono class="pr-telefono" descripcion="Maqueta del Portal BI en un celular: la barra con el botón del menú y las tarjetas de los tableros, una por fila.">
+              <MaquetaPortal variante="telefono" />
+            </MaquetaTelefono>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ 9 · Cómo trabajamos juntos ═══ -->
+      <section class="pr-lamina" id="modelo" data-tema="verde" aria-labelledby="pr-t-modelo">
+        <div class="contenedor pr-columna">
+          <div class="pr-texto">
+            <p class="pr-parada pr-a d1"><b>9</b>Cómo trabajamos juntos</p>
+            <h2 id="pr-t-modelo" class="pr-titulo pr-a d2">Tú vendes y cobras. Nosotros nos encargamos de todo lo demás.</h2>
+          </div>
+          <Modelo costo={PRECIO_SOCIO} />
+        </div>
+      </section>
+
+      <!-- ═══ 10 · Tu margen: el pico de la propuesta, con su llamada ═══ -->
+      <section class="pr-lamina" id="margen" data-tema="oscuro" aria-labelledby="pr-t-margen">
+        <div class="contenedor pr-columna">
+          <div class="pr-texto">
+            <p class="pr-parada pr-a d1"><b>10</b>Tu margen</p>
+            <h2 id="pr-t-margen" class="pr-titulo pr-a d2">
+              Tú pones el precio. <span class="pr-acento">La diferencia es tuya, todos los meses.</span>
+            </h2>
+          </div>
+          <Margen costo={PRECIO_SOCIO} />
+          <div class="pr-acciones pr-a d5">
+            <a class="boton boton--primario" href={WHATSAPP} target="_blank" rel="noopener noreferrer">
+              <Icono nombre="whatsapp" />
+              <span>Quiero empezar con mis clientes</span>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ 11 · Cómo se lo cuentas a tu cliente ═══ -->
+      <section class="pr-lamina" id="venta" data-tema="claro" aria-labelledby="pr-t-venta">
+        <div class="contenedor pr-rejilla pr-rejilla--pareja">
+          <div class="pr-texto">
+            <p class="pr-parada pr-a d1"><b>11</b>Cómo se lo cuentas a tu cliente</p>
+            <h2 id="pr-t-venta" class="pr-titulo pr-a d2">
+              Tres frases <span class="pr-acento">para abrir la conversación.</span>
+            </h2>
+            <ol class="pr-guion" role="list">
+              <li class="pr-a d3"><span>Abre con su dolor</span><q>¿Cuántas personas de tu empresa miran tableros de Power BI? ¿Y cuántas licencias pagas por eso?</q></li>
+              <li class="pr-a d4"><span>Muéstrale la salida</span><q>Con Portal BI, todas ven sus tableros con la licencia que ya tienes. Con tu marca, desde el celular, y con una IA que les responde con tus datos.</q></li>
+              <li class="pr-a d5"><span>Cierra con algo corto</span><q>En 30 minutos te lo mostramos con tus propios tableros.</q></li>
+            </ol>
+          </div>
+          <div class="pr-visual pr-objeciones pr-a d4">
+            <p class="pr-objeciones__t">Lo que te van a preguntar</p>
+            <details>
+              <summary>¿Cómo hace para que mi equipo no necesite licencia?<Icono nombre="chevronAbajo" /></summary>
+              <p>
+                Usa la inserción que Power BI ofrece: el portal entra con la cuenta que publica, la que tiene la licencia
+                Pro, y muestra el reporte dentro del portal. Las personas no entran a Power BI: entran al portal. Para el
+                encuadre de licenciamiento de cada caso, la fuente es el representante de Microsoft del cliente; nosotros
+                le explicamos exactamente qué hace el portal.
+              </p>
+            </details>
+            <details>
+              <summary>¿Cada persona ve solo lo suyo?<Icono nombre="chevronAbajo" /></summary>
+              <p>
+                Cada persona entra con su usuario o su correo, y ve solo los tableros que le asignaron. Dentro de un
+                tablero, ve su parte: su región, su sucursal, su cartera.
+              </p>
+            </details>
+            <details>
+              <summary>¿Quién lo instala y lo mantiene?<Icono nombre="chevronAbajo" /></summary>
+              <p>
+                Data Studio: la instalación, la capacitación de quien lo administra, el soporte y las actualizaciones. Del
+                cliente solo hace falta que su área de sistemas dé unos permisos en Microsoft, una vez: le pasamos la
+                lista.
+              </p>
+            </details>
+            <details>
+              <summary>¿La IA cuesta aparte?<Icono nombre="chevronAbajo" /></summary>
+              <p>
+                Sí, y la paga cada empresa directo a su proveedor (Claude, Gemini, OpenAI…), por lo que usa. Se prende por
+                tablero: el portal funciona igual sin ella.
+              </p>
+            </details>
+            <details>
+              <summary>¿Y si mañana somos el doble?<Icono nombre="chevronAbajo" /></summary>
+              <p>Se suman personas desde el panel, sin comprar licencias. El portal está pensado para más de 1.000 personas.</p>
+            </details>
+            <details>
+              <summary>¿Qué cliente es el ideal?<Icono nombre="chevronAbajo" /></summary>
+              <p>
+                El que ya usa Power BI y tiene muchas personas mirando los mismos tableros: sucursales, regiones, áreas,
+                vendedores. Y sobre todo el que hoy reparte reportes por correo o por WhatsApp.
+              </p>
+            </details>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ 12 · Empezamos: el final que se recuerda ═══ -->
+      <section class="pr-lamina pr-cierre" id="empezar" data-tema="oscuro" aria-labelledby="pr-t-empezar">
+        <div class="contenedor pr-columna">
+          <div class="pr-texto">
+            <p class="pr-parada pr-a d1"><b>12</b>Empezamos</p>
+            <h2 id="pr-t-empezar" class="pr-titulo pr-titulo--grande pr-a d2">
+              El producto está listo. <span class="pr-acento">Falta que lo conozcan tus clientes.</span>
+            </h2>
+          </div>
+          <ol class="pr-camino" role="list">
+            <li class="pr-a d3"><b>Elegimos juntos</b><span>dos o tres clientes tuyos que ya usan Power BI.</span></li>
+            <li class="pr-a d4"><b>Les mostramos el portal</b><span>en 30 minutos, con sus propios tableros. Contigo en la llamada.</span></li>
+            <li class="pr-a d5"><b>Lo instalamos</b><span>con su marca, y capacitamos a quien lo va a administrar.</span></li>
+            <li class="pr-a d6"><b>Tú facturas cada mes</b><span>y nosotros te facturamos US$ {PRECIO_SOCIO} por cliente.</span></li>
+          </ol>
+          <div class="pr-acciones pr-a d7">
+            <a class="boton boton--primario" href={WHATSAPP} target="_blank" rel="noopener noreferrer">
+              <Icono nombre="whatsapp" />
+              <span>Escríbele a Sergio</span>
+            </a>
+            <span class="pr-pista">Sergio · Data Studio · {CONTACTO.telefonoVisible}</span>
+          </div>
+          <p class="pr-lema pr-a d8"><Lema /></p>
+        </div>
+      </section>
+    </div>
+
+    <!-- La ruta: dónde estás, cuánto falta, y para ir y volver -->
+    <nav class="pr-ruta" aria-label="Recorrido de la propuesta">
+      <a class="pr-ruta__marca" href="#portada" data-p="parada-marca">
+        <Logo variante="icono" decorativo />
+        <span>Data Studio × Ribentek</span>
+      </a>
+      <ol class="pr-ruta__paradas" data-p="paradas" role="list">
+        {LAMINAS.map((l, i) => (
+          <li>
+            <a class="pr-ruta__parada" href={`#${l.id}`} data-p="parada" aria-current={i === 0 ? 'step' : undefined}>
+              <i aria-hidden="true"></i>
+              <span>{i + 1}. {l.titulo}</span>
+            </a>
+          </li>
+        ))}
+      </ol>
+      <div class="pr-ruta__control">
+        <span class="pr-ruta__cuenta"><b data-p="actual">1</b> / {LAMINAS.length}</span>
+        <button type="button" class="pr-ruta__boton" data-p="anterior" aria-label="Lámina anterior" disabled>
+          <Icono nombre="anterior" />
+        </button>
+        <button type="button" class="pr-ruta__boton pr-ruta__boton--sig" data-p="siguiente" aria-label="Lámina siguiente">
+          <Icono nombre="siguiente" />
+        </button>
+      </div>
+    </nav>
+  </div>
+
+  <script>
+    import '../../scripts/propuesta';
+  </script>
+</Base>

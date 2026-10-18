@@ -30,4 +30,15 @@ export interface Propuesta {
   href: string;
 }
 
-export const PROPUESTAS: Propuesta[] = [];
+export const PROPUESTAS: Propuesta[] = [
+  {
+    id: 'portal-bi-ribentek',
+    titulo: 'Portal BI para Ribentek',
+    para: 'Ribentek',
+    fecha: '2026-10-17',
+    descripcion:
+      'Que Ribentek revenda el Portal BI a sus clientes: el ahorro de licencias, los tableros en un solo lugar, la IA al costado del tablero, cómo trabajamos juntos y su margen. Un recorrido en 12 láminas.',
+    tipo: 'pagina',
+    href: '/propuestas/portal-bi-ribentek/',
+  },
+];
