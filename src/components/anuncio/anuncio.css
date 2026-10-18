@@ -232,41 +232,231 @@
   color: var(--color-salvia);
 }
 
-/* La página del socio (/propuestas/portal-bi-ribentek/): solo el anuncio, sin el panel de
-   descargas; arriba, a quién va dirigido */
-.an-sala--sola {
+/* La página del socio (/propuestas/portal-bi-ribentek/): el título arriba, el anuncio solo
+   (sin el panel de descargas) y abajo las páginas, para avanzar o volver cuando quieran */
+/* La columna fija al ancho de la pantalla: algo que no entre se ve cortado ahí, en vez de
+   ensanchar la página entera (la barra de páginas lo hacía a 320 px) */
+.an--socio {
   grid-template-columns: minmax(0, 1fr);
-}
-
-.an-barra__firma {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  margin: 0;
-  font-size: var(--text-sm);
-  font-weight: var(--peso-semi);
-  color: var(--color-salvia);
-  white-space: nowrap;
-}
-
-.an-barra__firma svg {
-  width: 1.4rem;
-  height: 1.4rem;
-  color: var(--color-verde-claro);
-}
-
-/* El título queda para los lectores de pantalla: la firma ya dice para quién es */
-.an--socio .an-barra__nombre {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
+  grid-template-rows: auto minmax(0, 1fr) auto;
 }
 
 .an--socio .an-barra {
   justify-content: space-between;
+  flex-wrap: nowrap;
+}
+
+/* Con dos clases le gana a la fila del panel de descargas que .an-sala suma en pantallas
+   angostas (más abajo): acá no hay panel, y esa fila dejaba un hueco bajo el anuncio */
+.an-sala.an-sala--sola {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+}
+
+.an-barra__titulo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+  margin: 0;
+  font-size: clamp(1rem, 0.8rem + 0.7vw, 1.375rem);
+  font-weight: var(--peso-semi);
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: var(--color-blanco);
+  text-wrap: balance;
+}
+
+.an-barra__titulo svg {
+  width: 1.75rem;
+  height: 1.75rem;
+  flex: none;
+  color: var(--color-verde-claro);
+}
+
+.an-barra__acento {
+  color: var(--color-verde-claro);
+}
+
+/* Tocar la escena es seguir */
+.an--socio .an-lienzo {
+  cursor: pointer;
+}
+
+.an-paginas {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: 0.6rem var(--gutter) calc(0.6rem + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--color-linea-oscura);
+}
+
+.an-paginas__boton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.75rem;
+  padding: 0 1.1rem;
+  border: 0;
+  border-radius: var(--radio-pill);
+  background: rgb(206 217 189 / 0.1);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: var(--peso-semi);
+  color: var(--color-blanco);
+  cursor: pointer;
+}
+
+.an-paginas__boton svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.an-paginas__boton--sig {
+  background: var(--color-verde);
+}
+
+/* Solo con mouse: en una pantalla táctil el :hover se queda pegado después de tocar */
+@media (hover: hover) {
+  .an-paginas__boton:hover:not(:disabled) {
+    background: rgb(206 217 189 / 0.2);
+  }
+
+  .an-paginas__boton--sig:hover:not(:disabled) {
+    background: var(--color-verde-claro);
+    color: var(--color-abismo);
+  }
+}
+
+.an-paginas__boton:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.an-paginas__puntos {
+  display: flex;
+  gap: 0.2rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.an-paginas__punto {
+  display: grid;
+  place-items: center;
+  width: 1.3rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.an-paginas__punto i {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: rgb(206 217 189 / 0.3);
+}
+
+.an-paginas__punto.es-vista i {
+  background: rgb(77 207 193 / 0.55);
+}
+
+/* Entre «vista» y «actual»: el hover le gana a la primera y no a la segunda */
+@media (hover: hover) {
+  .an-paginas__punto:hover i {
+    background: rgb(206 217 189 / 0.7);
+  }
+}
+
+.an-paginas__punto[aria-current='step'] i {
+  width: 0.8rem;
+  height: 0.8rem;
+  background: var(--color-verde-claro);
+  box-shadow: 0 0 0 4px rgb(77 207 193 / 0.22);
+}
+
+.an-paginas__cuenta {
+  min-width: 5ch;
+  font-family: var(--font-datos);
+  font-size: var(--text-sm);
+  text-align: center;
+  color: var(--color-salvia);
+  font-variant-numeric: tabular-nums;
+}
+
+.an-paginas__cuenta b {
+  font-weight: var(--peso-medio);
+  color: var(--color-blanco);
+}
+
+.an-paginas__boton:focus-visible,
+.an-paginas__punto:focus-visible {
+  outline: 2px solid var(--color-verde-claro);
+  outline-offset: 2px;
+}
+
+/* En el teléfono no entran los diecisiete puntos: quedan los botones y el número, un poco más
+   juntos (a 320 px, con 16 px entre ellos, sumaban 322) */
+@media (max-width: 48rem) {
+  .an-paginas {
+    gap: var(--space-3);
+  }
+
+  .an-paginas__puntos {
+    display: none;
+  }
+}
+
+/* A pantalla completa va la página entera, con sus botones */
+.an--socio:fullscreen {
+  height: 100vh;
+}
+
+/* El teléfono acostado: lo que falta es altura y sobra ancho a los costados del 16:9. Las
+   páginas pasan a una columna a la derecha y el título baja a una línea más chica: el anuncio
+   crece de 414×233 a unos 570×320 en 844×390 */
+@media (orientation: landscape) and (max-height: 32rem) {
+  .an--socio {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .an--socio .an-barra {
+    grid-column: 1 / -1;
+    padding-block: 0.25rem;
+  }
+
+  .an-barra__titulo {
+    font-size: var(--text-sm);
+  }
+
+  .an--socio .an-sala {
+    padding-block: var(--space-2);
+  }
+
+  .an-paginas {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-3);
+    padding: var(--space-2) calc(var(--gutter) + env(safe-area-inset-right, 0px)) var(--space-2) 0;
+    border-top: 0;
+  }
+
+  .an-paginas__boton {
+    justify-content: center;
+  }
+
+  .an-paginas__puntos {
+    display: none;
+  }
 }
 
 @media (max-width: 52rem) {

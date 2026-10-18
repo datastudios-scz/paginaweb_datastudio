@@ -9,38 +9,59 @@
  * nosotros lo instalamos, lo dejamos funcionando y lo mantenemos; ellos venden y cobran; les
  * cobramos US$ 60 al mes por cliente; la IA la paga cada cliente.
  *
- * Revisión del dueño (18/10/2026): la primera versión eran doce láminas con texto, una
- * calculadora del margen y «te facturamos». Pidió sacar las cuentas («no son tontos»), lo de
- * facturar (no facturamos) y el texto, y mostrar el anuncio, que cuenta el recorrido entero.
- * Se reproduce solo y vuelve a empezar; el formato sigue a la pantalla (16:9 acostada, 9:16
- * parada). Oculta no es privada: el precio está a la vista de quien tenga la dirección.
+ * Revisiones del dueño:
+ *  - 18/10: la primera versión eran doce láminas con texto, una calculadora del margen y «te
+ *    facturamos». Pidió sacar las cuentas («no son tontos»), lo de facturar (no facturamos) y
+ *    el texto, y mostrar el anuncio, que cuenta el recorrido entero.
+ *  - 18/10, después: un título arriba, y que no corra todo de golpe. Va por páginas: cada una
+ *    se arma y se queda quieta, y ellos deciden cuándo seguir o volver (botones, flechas o tocar
+ *    la escena). PAGINAS dice en qué segundo termina cada una: cortes elegidos mirando el cuadro
+ *    final de cada una, que tiene que leerse entero.
+ * El formato sigue a la pantalla (16:9 acostada, 9:16 parada). Oculta no es privada: el precio
+ * está a la vista de quien tenga la dirección.
  */
 import Base from '../../layouts/Base.astro';
 import Icono from '../../components/Icono.astro';
 import Logo from '../../components/Logo.astro';
 import Anuncio from '../../components/anuncio/Anuncio.astro';
 import '../../components/anuncio/anuncio.css';
+
+/* Las páginas: en qué segundo de la versión para socios termina cada una, y su nombre */
+const PAGINAS = [
+  { hasta: 2.5, titulo: '¿Me pasas el reporte?' },
+  { hasta: 6.1, titulo: 'Todos tus tableros, en un solo lugar' },
+  { hasta: 9.9, titulo: 'Una licencia para mil personas' },
+  { hasta: 14.6, titulo: 'Con la marca de tu cliente' },
+  { hasta: 19.1, titulo: 'Cada persona ve solo sus tableros' },
+  { hasta: 23.8, titulo: 'Abre tu tablero' },
+  { hasta: 25.6, titulo: 'La IA, al lado del tablero' },
+  { hasta: 32.8, titulo: 'La primera pregunta' },
+  { hasta: 38.3, titulo: 'La segunda pregunta' },
+  { hasta: 40.3, titulo: 'Lo que el tablero no muestra' },
+  { hasta: 43.9, titulo: 'También desde el celular' },
+  { hasta: 45.35, titulo: 'Nosotros lo instalamos' },
+  { hasta: 46.85, titulo: 'Lo dejamos funcionando' },
+  { hasta: 48.35, titulo: 'Y lo mantenemos al día' },
+  { hasta: 50, titulo: 'Tú vendes y cobras' },
+  { hasta: 55.6, titulo: 'US$ 60 al mes, por cliente' },
+  { hasta: 61.9, titulo: 'Data Studio × Ribentek' },
+];
 ---
 
 <Base
   titulo="Portal BI para Ribentek · Data Studio"
-  descripcion="El Portal BI para que Ribentek lo revenda: Power BI para toda la empresa de sus clientes, con una sola licencia, su marca y un chat con IA. Nosotros lo instalamos y lo dejamos funcionando."
+  descripcion="Nuevo producto de Data Studio, listo para que Ribentek lo venda: Power BI para toda la empresa de sus clientes, con una sola licencia, su marca y un chat con IA."
   imagen="/og/portal-bi.png"
   inmersiva
   indexar={false}
 >
-  <div class="an an--socio" data-a="raiz" data-formato-auto>
+  <div class="an an--socio" data-a="raiz" data-formato-auto data-paginas={PAGINAS.map((p) => p.hasta).join(',')}>
     <header class="an-barra">
-      <p class="an-barra__firma">
+      <h1 class="an-barra__titulo">
         <Logo variante="icono" decorativo />
-        <span>Data Studio × Ribentek</span>
-      </p>
-      <h1 class="an-barra__nombre">Portal BI para Ribentek · 62 s</h1>
+        <span>Nuevo producto de Data Studio, <span class="an-barra__acento">listo para que Ribentek lo venda.</span></span>
+      </h1>
       <div class="an-controles">
-        <button type="button" class="an-control" data-a="pausa" aria-label="Pausar" title="Pausar (espacio)">
-          <span class="an-control__pausar"><Icono nombre="pausa" /></span>
-          <span class="an-control__seguir"><Icono nombre="reproducir" /></span>
-        </button>
         <button type="button" class="an-control" data-a="reiniciar" aria-label="Desde el principio" title="Desde el principio">
           <Icono nombre="reiniciar" />
         </button>
@@ -55,6 +76,27 @@ import '../../components/anuncio/anuncio.css';
         <Anuncio variante="socio" />
       </div>
     </div>
+
+    <nav class="an-paginas" aria-label="Páginas de la propuesta">
+      <button type="button" class="an-paginas__boton" data-a="anterior" disabled>
+        <Icono nombre="anterior" />
+        <span>Anterior</span>
+      </button>
+      <ol class="an-paginas__puntos" role="list">
+        {PAGINAS.map((p, i) => (
+          <li>
+            <button type="button" class="an-paginas__punto" data-a="pagina" aria-label={`Página ${i + 1}: ${p.titulo}`} title={p.titulo} aria-current={i === 0 ? 'step' : undefined}>
+              <i></i>
+            </button>
+          </li>
+        ))}
+      </ol>
+      <span class="an-paginas__cuenta"><b data-a="pagina-actual">1</b> / {PAGINAS.length}</span>
+      <button type="button" class="an-paginas__boton an-paginas__boton--sig" data-a="siguiente">
+        <span>Siguiente</span>
+        <Icono nombre="siguiente" />
+      </button>
+    </nav>
   </div>
 
   <script>

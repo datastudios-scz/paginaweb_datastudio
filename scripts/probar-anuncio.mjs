@@ -20,8 +20,10 @@
  *  · La toma 6 entra en cada formato: sin tapar el subtítulo ni la firma, y en 9:16 sobre el 79 %.
  *  · La página: se reproduce sola, pausa con espacio, cambia de formato sin dejar de reproducir.
  *  · La versión para socios (/propuestas/portal-bi-ribentek/, ADR-020): sus tomas a su tiempo,
- *    lo que dura, que no prometa facturar (no se factura), el formato según la pantalla y el
- *    cuadro quieto con movimiento reducido.
+ *    lo que dura, que no prometa facturar (no se factura), el título, el formato según la pantalla
+ *    y las páginas: cada una se arma y se queda quieta, nada avanza solo, y «Siguiente», volver,
+ *    los puntos, las flechas y tocar la escena hacen lo que dicen; el final de cada página es una
+ *    toma entera, y con movimiento reducido cada una aparece ya armada.
  *  · Cero errores de consola y cero violaciones de la CSP.
  * Sale con código 1 si algo falla. Usa Edge o Chrome del sistema, como qa.mjs.
  */
@@ -549,31 +551,149 @@ console.log('La versión para socios');
   const dice = await p.evaluate(() => ({
     script: window.__anuncio.duracion,
     reloj: Number(document.querySelector('[data-a="reloj"]').getAnimations()[0].effect.getTiming().duration),
-    titulo: document.querySelector('.an-barra__nombre').textContent.trim(),
+    titulo: document.querySelector('.an-barra__titulo').textContent.replace(/\s+/g, ' ').trim(),
     cortes: [...document.querySelectorAll('.an-corte .an-h1')].map((e) => e.textContent.replace(/\s+/g, ' ').trim()),
     precio: document.querySelector('.an-precio__n').textContent.replace(/\s+/g, ''),
     firma: document.querySelector('.an-url').textContent.trim(),
     factura: /factur/i.test(document.body.innerText + document.body.innerHTML),
     formato: document.querySelector('.an-lienzo').dataset.formato,
   }));
-  ok(dice.script === 62000 && dice.reloj === 62000 && dice.titulo.endsWith('62 s'),
-    `dura lo mismo para el script, el reloj y el título (${dice.script} ms, ${dice.reloj} ms, «${dice.titulo}»)`);
+  ok(dice.script === 62000 && dice.reloj === 62000, `dura lo mismo para el script y el reloj (${dice.script} ms, ${dice.reloj} ms)`);
+  ok(dice.titulo.startsWith('Nuevo producto de Data Studio') && dice.titulo.includes('Ribentek'),
+    `el título de arriba dice qué es y para quién («${dice.titulo}»)`);
   ok(dice.cortes.join(' | ') === 'Nosotros lo instalamos. | Lo dejamos funcionando. | Y lo mantenemos al día. | Tú vendes y cobras.',
     `la ráfaga cuenta lo que hacemos nosotros («${dice.cortes.join(' | ')}»)`);
   ok(dice.precio === 'US$60' && dice.firma === 'Data Studio × Ribentek', `el precio y la firma del socio (${dice.precio}, «${dice.firma}»)`);
   ok(!dice.factura, 'no dice «factura» en ninguna parte (no se factura)');
   ok(dice.formato === '16x9', `en una pantalla acostada elige 16:9 solo (${dice.formato})`);
+
+  /* Por páginas (el dueño, 18/10: «que ellos decidan cuándo avanzar de escena o volver»): cada
+     página se arma desde donde terminó la anterior y se queda quieta en su final */
+  const estado = (q) =>
+    q.evaluate(() => ({
+      t: Math.round(document.querySelector('[data-a="reloj"]').getAnimations()[0].currentTime),
+      quieta: document.querySelector('[data-a="raiz"]').hasAttribute('data-pausa'),
+      pagina: window.__anuncio.paginas.actual(),
+      cuenta: document.querySelector('[data-a="pagina-actual"]').textContent,
+      punto: [...document.querySelectorAll('[data-a="pagina"]')].findIndex((b) => b.getAttribute('aria-current') === 'step'),
+      sinAnterior: document.querySelector('[data-a="anterior"]').disabled,
+      sinSiguiente: document.querySelector('[data-a="siguiente"]').disabled,
+    }));
+  const cuadro = (q) => q.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
+  const paradas = await p.evaluate(() => document.querySelector('[data-a="raiz"]').dataset.paginas.split(',').map(Number));
+  const nPuntos = await p.evaluate(() => document.querySelectorAll('[data-a="pagina"]').length);
+  ok(paradas.length === nPuntos && paradas.every((s, k) => s > (paradas[k - 1] ?? 0)) && paradas.at(-1) * 1000 < dice.script,
+    `${paradas.length} páginas en orden, un punto por página y todas antes del final (${paradas.join(', ')})`);
+
+  await p.waitForTimeout(3300);
+  let e = await estado(p);
+  await p.waitForTimeout(800);
+  const rato = await estado(p);
+  ok(e.t === 2500 && e.quieta && rato.t === 2500 && e.pagina === 0 && e.sinAnterior && !e.sinSiguiente,
+    `la primera página se arma y se queda quieta en su final, sin seguir sola (${e.t} ms, y ${rato.t} ms un rato después)`);
+
+  await p.click('[data-a="siguiente"]');
+  await p.waitForTimeout(400);
+  const armando = await estado(p);
+  await p.waitForTimeout(3600);
+  e = await estado(p);
+  ok(!armando.quieta && armando.t > 2500 && armando.t < 6100 && e.t === 6100 && e.quieta && e.cuenta === '2' && e.punto === 1 && !e.sinAnterior,
+    `«Siguiente» arma la segunda página y se queda en su final (${armando.t} → ${e.t} ms, contador ${e.cuenta}, punto ${e.punto + 1})`);
+
+  await p.click('[data-a="siguiente"]');
+  await p.waitForTimeout(300);
+  await p.click('[data-a="siguiente"]');
+  e = await estado(p);
+  ok(e.t === 9900 && e.quieta && e.pagina === 2, `«Siguiente» con la página a medio armar la completa, no la salta (${e.t} ms, página ${e.pagina + 1})`);
+
+  /* El foco quedó en «Siguiente» después del clic: las flechas tienen que servir igual */
+  await p.keyboard.press('ArrowLeft');
+  await p.waitForTimeout(300);
+  const vuelve = await estado(p);
+  await p.waitForTimeout(3700);
+  e = await estado(p);
+  ok(!vuelve.quieta && vuelve.t >= 2500 && vuelve.t < 6100 && e.t === 6100 && e.pagina === 1,
+    `la flecha izquierda vuelve y arma de nuevo la página anterior, con el foco en un botón (${vuelve.t} → ${e.t} ms)`);
+
+  await p.click('.an-lienzo');
+  await p.waitForTimeout(4200);
+  e = await estado(p);
+  ok(e.t === 9900 && e.pagina === 2, `tocar la escena es seguir (${e.t} ms, página ${e.pagina + 1})`);
+
+  await p.click('[data-a="pagina"] >> nth=15');
+  await p.waitForTimeout(300);
+  e = await estado(p);
+  ok(e.pagina === 15 && e.t > 50000 && e.t < 55600 && e.cuenta === '16' && e.punto === 15,
+    `un punto abre su página desde el principio de ella (${e.t} ms, contador ${e.cuenta})`);
+
+  await p.keyboard.press('End');
+  await cuadro(p);
+  e = await estado(p);
+  const alFinal = await tomaVisible(p);
+  ok(e.t === 61900 && e.quieta && e.sinSiguiente && alFinal.join() === 'an-s9',
+    `Fin va al cierre armado y apaga «Siguiente» (${e.t} ms, ${alFinal.join(', ') || 'nada'})`);
+
+  await p.keyboard.press('Home');
+  await p.waitForTimeout(200);
+  e = await estado(p);
+  ok(e.pagina === 0 && e.t < 2500 && !e.quieta && e.sinAnterior, `Inicio vuelve a la primera y la arma (${e.t} ms)`);
+
+  /* El final de cada página es un cuadro para leer: una toma entera, nunca el cruce de dos. Los
+     cortes de PAGINAS se eligieron mirándolos; esto avisa si una toma se corre y deja uno a medias */
+  const TOMA_DE_PAGINA = ['an-s1', 'an-s2', 'an-s2', 'an-s3', 'an-s4', 'an-s5', 'an-s6', 'an-s6', 'an-s6', 'an-s6', 'an-s7', 'an-s8', 'an-s8', 'an-s8', 'an-s8', 'an-s10', 'an-s9'];
+  const cruces = [];
+  for (let k = 0; k < paradas.length; k++) {
+    await p.evaluate((k) => window.__anuncio.paginas.abrir(k, false), k);
+    await cuadro(p);
+    const vis = await tomaVisible(p);
+    if (vis.join() !== TOMA_DE_PAGINA[k]) cruces.push(`página ${k + 1} (${paradas[k]} s): ${vis.join(', ') || 'nada'}`);
+  }
+  ok(!cruces.length && paradas.length === TOMA_DE_PAGINA.length,
+    `cada página termina en su toma, entera${cruces.length ? ` (${cruces.join('; ')})` : ''}`);
   ok(p.errores.length === 0, `sin errores ni CSP${p.errores.length ? ` (${p.errores.join(' | ')})` : ''}`);
   await p.context().close();
-  const tel = await abrir({ viewport: { width: 390, height: 844 } }, SOCIO);
-  const ftel = await tel.evaluate(() => document.querySelector('.an-lienzo').dataset.formato);
-  ok(ftel === '9x16', `en un teléfono parado elige 9:16 (${ftel})`);
-  await tel.context().close();
-  /* Con movimiento reducido queda quieto en el cierre armado, un segundo antes del final */
+
+  /* El formato y la barra de páginas según cómo se tenga el teléfono. Acostado, las páginas van
+     a una columna al costado: abajo le quitaban al anuncio la altura que ahí es lo que falta */
+  for (const [w, h, esperado] of [[320, 568, '9x16'], [390, 844, '9x16'], [844, 390, '16x9']]) {
+    const tel = await abrir({ viewport: { width: w, height: h } }, SOCIO);
+    const m = await tel.evaluate(() => {
+      /* Por el borde de cada pieza, no por el scrollWidth del documento: el sitio recorta con
+         overflow-x: clip, y el documento mide lo que la pantalla aunque algo se salga. Medido así,
+         a 320 px se veía «320» con la barra ensanchando la página a 322 */
+      /* Los puntos escondidos en el teléfono miden 0 y quedan afuera */
+      const cajas = [...document.querySelectorAll('.an-barra, .an-sala, .an-paginas, .an-barra button, .an-paginas button')]
+        .map((el) => el.getBoundingClientRect())
+        .filter((c) => c.width > 0);
+      const sig = document.querySelector('[data-a="siguiente"]').getBoundingClientRect();
+      return {
+        formato: document.querySelector('.an-lienzo').dataset.formato,
+        izquierda: Math.round(Math.min(...cajas.map((c) => c.left))),
+        derecha: Math.round(Math.max(...cajas.map((c) => c.right))),
+        abajo: Math.round(sig.bottom),
+        alto: Math.round(document.querySelector('.an-lienzo').getBoundingClientRect().height),
+      };
+    });
+    ok(m.formato === esperado && m.izquierda >= 0 && m.derecha <= w && m.abajo <= h,
+      `${w}×${h}: elige ${esperado} y nada se sale de la pantalla (${m.formato}, de ${m.izquierda} a ${m.derecha} px, «Siguiente» hasta ${m.abajo})`);
+    if (w > h) ok(m.alto >= 300, `${w}×${h}: acostado, el anuncio usa la altura (${m.alto} px de alto)`);
+    await tel.context().close();
+  }
+
+  /* Con movimiento reducido cada página aparece ya armada, y nada se mueve */
   const quieto = await abrir({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' }, SOCIO);
-  const vis = await tomaVisible(quieto);
+  await cuadro(quieto);
+  const q1 = await estado(quieto);
+  const v1 = await tomaVisible(quieto);
+  await quieto.click('[data-a="siguiente"]');
+  const q2 = await estado(quieto);
+  await quieto.keyboard.press('End');
+  await cuadro(quieto);
+  const v3 = await tomaVisible(quieto);
   const firma = await quieto.evaluate(() => Number(getComputedStyle(document.querySelector('.an-url')).opacity));
-  ok(vis.length === 1 && vis[0] === 'an-s9' && firma === 1, `con movimiento reducido queda en el cierre (${vis.join(', ') || 'nada'}, firma con opacidad ${firma})`);
+  ok(q1.t === 2500 && q1.quieta && v1.join() === 'an-s1' && q2.t === 6100 && q2.quieta,
+    `con movimiento reducido cada página aparece ya armada (${q1.t} ms, y con «Siguiente» ${q2.t} ms al instante)`);
+  ok(v3.join() === 'an-s9' && firma === 1, `y Fin muestra el cierre con su firma (${v3.join(', ') || 'nada'}, opacidad ${firma})`);
   await quieto.context().close();
 }
 

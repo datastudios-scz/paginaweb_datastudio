@@ -2,6 +2,14 @@
 
 Cada entrada: **síntoma → causa → solución → cómo evitarlo**.
 
+## La propuesta por páginas (18/10/2026)
+
+### Con `overflow-x: clip` en el body, el ancho del documento no dice si algo se sale
+- **Síntoma**: a 320 px, mi medición daba `document.documentElement.scrollWidth` = 320, y el QA marcó el título, el anuncio y la barra de páginas de 0 a 322.
+- **Causa**: `global.css` pone `overflow-x: clip` en `html` y `body`. El documento recorta lo que sobra y mide lo mismo que la pantalla aunque algo se salga. Y la grilla de la página no tenía columnas propias: su única columna medía lo que su hijo más ancho, la barra de páginas, cuyos botones no bajaban de 322 px.
+- **Solución**: la columna es `minmax(0, 1fr)` (lo que no entre se corta ahí, no ensancha la página). En el teléfono, los botones van 4 px más juntos.
+- **Evitarlo**: en este sitio, «¿se sale algo?» se mide por el borde de cada pieza (`getBoundingClientRect`), como el QA, nunca por el `scrollWidth` del documento. La primera versión de la comprobación del banco medía por el documento, y no habría visto este caso: se corrigió y se validó deshaciendo el arreglo (rojo a 320 px).
+
 ## La propuesta a Ribentek (17/10/2026)
 
 ### `display: revert` devuelve el display del navegador, no el de tu clase

@@ -2,14 +2,25 @@
 
 Formato: contexto → decisión → consecuencias. Las decisiones nuevas van arriba.
 
-## ADR-020 · La propuesta a un socio es una página en láminas: la de Ribentek (17/10/2026, revisada el 18/10)
+## ADR-020 · La propuesta a un socio es el anuncio, por páginas: la de Ribentek (17/10/2026, revisada dos veces el 18/10)
 
-- **Revisión del dueño (18/10/2026): la propuesta es el anuncio.** Las láminas eran demasiado.
+- **Segunda revisión del dueño (18/10/2026): por páginas, y con título.** Sus palabras: «que no corra todo de golpe, que sea tal como está, está perfecto, pero cada cosa con su paginación para que ellos decidan cuándo avanzar de escena/página o volver». Y arriba, un título: «nuevo producto de DataStudio, listo para ser vendido por Ribentek».
+  - **El título**: «Nuevo producto de Data Studio, listo para que Ribentek lo venda.», con la segunda frase en el acento, como los titulares del sitio (`prod-acento`). Reemplaza a la firma chica y al título oculto «· 62 s».
+  - **El anuncio no cambió**: se corta en 17 páginas. `PAGINAS`, en la página, dice en qué segundo termina cada una y cómo se llama; llega al HTML como `data-paginas`.
+  - Cada página se arma desde donde terminó la anterior y se queda quieta en su final. Nada avanza solo.
+  - **Abajo**: «Anterior», un punto por página (su nombre aparece al pasar el mouse y lo leen los lectores de pantalla), el número y «Siguiente».
+  - También avanzan las flechas, el espacio, Enter y tocar la escena; Inicio y Fin van a la primera y a la última. Las flechas sirven aunque el foco haya quedado en un botón.
+  - «Siguiente» con la página a medio armar la completa en vez de saltarla, para que nadie se pierda una toma por apurarse.
+  - **Los cortes** se eligieron mirando el cuadro final de cada página, que tiene que leerse entero. El banco comprueba que cada final sea una sola toma, la que corresponde: si una toma se corre y deja un final a medias, avisa.
+  - Con movimiento reducido cada página aparece ya armada.
+  - **Teléfono acostado**: las páginas pasan a una columna al costado. Abajo le quitaban al anuncio la altura, que ahí es lo que falta: en 844×390 pasa de 414×233 a 571×321.
+  - El modo por páginas vive en el motor (`anuncio.ts`) y se prende solo con `data-paginas`. El anuncio público y la grabación del video siguen de corrido; grabando, el motor ignora las páginas.
+- **Primera revisión del dueño (18/10/2026): la propuesta es el anuncio.** Las láminas eran demasiado.
   - Pidió sacar lo de que Data Studio le factura a Ribentek: no se factura.
   - Pidió sacar los cálculos: «no son tontos, no necesitan eso».
   - Pidió sacar el texto, y que se viera el recorrido entero, del ingreso al tablero y al chat al costado, como en el anuncio.
   - Su frase: «todo eso de anuncios es perfecto también para ellos, úsalo el mismo».
-- **Cómo quedó**: `/propuestas/portal-bi-ribentek/` muestra el anuncio en su versión para socios (`<Anuncio variante="socio" />`), a pantalla completa. Se reproduce solo y vuelve a empezar. El formato sigue a la pantalla: 16:9 acostada y 9:16 parada.
+- **Cómo quedó**: `/propuestas/portal-bi-ribentek/` muestra el anuncio en su versión para socios (`<Anuncio variante="socio" />`), a pantalla completa. Se reproducía solo y volvía a empezar, hasta la segunda revisión (arriba). El formato sigue a la pantalla: 16:9 acostada y 9:16 parada.
   - Las tomas 1 a 7 son las mismas.
   - La ráfaga cuenta lo que hacemos nosotros: «Nosotros lo instalamos», «Lo dejamos funcionando», «Y lo mantenemos al día» y «Tú vendes y cobras». El código propio y el «lo instalas tú» son del otro camino de compra.
   - Una toma nueva, la 10, dice «A ti te cobramos US$ 60 al mes, por cliente», «Tu precio lo pones tú» y «La IA la paga cada cliente, a su proveedor».
@@ -18,10 +29,12 @@ Formato: contexto → decisión → consecuencias. Las decisiones nuevas van arr
 - Las láminas, sus piezas (`src/components/propuesta/`, `propuesta.css` y `propuesta.ts`) y la calculadora del margen se borraron. Lo que sigue abajo es la primera versión, por la historia.
 - El banco del anuncio suma la versión para socios:
   - cada toma a su tiempo;
-  - que dure lo mismo para el script, el reloj y el título;
+  - que dure lo mismo para el script y el reloj;
+  - el título de arriba;
   - que no diga «factura» en ninguna parte;
-  - que elija el formato según la pantalla;
-  - el cuadro quieto con movimiento reducido.
+  - que elija el formato según la pantalla, y que nada se salga de ella a 320, 390 y 844×390;
+  - las páginas: que cada una se arme y se quede quieta, que nada avance solo, que «Siguiente», volver, los puntos, las flechas, Inicio, Fin y tocar la escena hagan lo que dicen, y que cada final sea su toma entera;
+  - con movimiento reducido, cada página ya armada.
 
 **La primera versión (17/10):**
 

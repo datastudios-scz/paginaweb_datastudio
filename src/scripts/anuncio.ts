@@ -9,6 +9,9 @@
  * llama a `window.__anuncio.ir`). Y se mide lo que depende del formato: cuánto viaja cada pieza
  * del gancho hasta la ventana que se la traga.
  *
+ * Por páginas (data-paginas, la propuesta a un socio): cada página se reproduce y se queda quieta
+ * al terminar, y quien mira decide cuándo seguir o volver, como en una presentación.
+ *
  * CSP: nada de atributos style; las medidas y los textos se cambian por CSSOM/DOM.
  */
 
@@ -17,7 +20,13 @@ type Formato = (typeof FORMATOS)[number];
 
 declare global {
   interface Window {
-    __anuncio?: { ir: (ms: number) => void; duracion: number; listo: Promise<void>; formato: () => string };
+    __anuncio?: {
+      ir: (ms: number) => void;
+      duracion: number;
+      listo: Promise<void>;
+      formato: () => string;
+      paginas: { total: number; actual: () => number; siguiente: () => void; anterior: () => void; abrir: (k: number) => void };
+    };
   }
 }
 
@@ -84,6 +93,11 @@ function iniciar(raiz: HTMLElement) {
     const cuadro = () => {
       if (!jugando) return;
       t = tiempoReloj();
+      if (t >= hasta) {
+        /* Por páginas: llegó al final de la página y se queda ahí */
+        detenerEn(hasta);
+        return;
+      }
       if (t >= DURACION) {
         /* Como en las redes: vuelve a empezar solo */
         ir(0);
@@ -102,6 +116,76 @@ function iniciar(raiz: HTMLElement) {
     ir(tiempoReloj());
     raiz.dataset.pausa = '';
     rotular();
+  }
+
+  /* ── Por páginas (la propuesta a un socio) ───────────────────────────────────────
+     data-paginas dice en qué segundo termina cada página. La página se reproduce desde donde
+     terminó la anterior y se queda quieta en su final; «Siguiente» con una página a medio
+     armar la completa, y si ya estaba armada abre la próxima. Grabando no aplica: el video corre
+     de corrido. */
+  const paradas = (raiz.dataset.paginas ?? '')
+    .split(',')
+    .map((x) => Number(x) * 1000)
+    .filter((x) => x > 0);
+  const porPaginas = paradas.length > 0 && !grabando;
+  let pagina = 0;
+  let hasta = Infinity;
+
+  function detenerEn(ms: number) {
+    jugando = false;
+    cancelAnimationFrame(pedido);
+    ir(ms);
+    raiz.dataset.pausa = '';
+    rotular();
+    pintarPaginas();
+  }
+
+  function abrirPagina(k: number, animar = !reducido) {
+    pagina = acotar(k, 0, paradas.length - 1);
+    hasta = paradas[pagina];
+    jugando = false;
+    cancelAnimationFrame(pedido);
+    if (animar) {
+      ir(pagina === 0 ? 0 : paradas[pagina - 1]);
+      jugar();
+      pintarPaginas();
+    } else {
+      detenerEn(hasta);
+    }
+  }
+
+  function siguiente() {
+    if (jugando) detenerEn(hasta);
+    else if (pagina < paradas.length - 1) abrirPagina(pagina + 1);
+  }
+
+  function anterior() {
+    abrirPagina(pagina - 1);
+  }
+
+  const puntos = [...raiz.querySelectorAll<HTMLButtonElement>('[data-a="pagina"]')];
+  const cuentaPagina = raiz.querySelector<HTMLElement>('[data-a="pagina-actual"]');
+  const botonAnterior = raiz.querySelector<HTMLButtonElement>('[data-a="anterior"]');
+  const botonSiguiente = raiz.querySelector<HTMLButtonElement>('[data-a="siguiente"]');
+
+  function pintarPaginas() {
+    if (!porPaginas) return;
+    puntos.forEach((p, k) => {
+      if (k === pagina) p.setAttribute('aria-current', 'step');
+      else p.removeAttribute('aria-current');
+      p.classList.toggle('es-vista', k < pagina);
+    });
+    if (cuentaPagina) cuentaPagina.textContent = String(pagina + 1);
+    if (botonAnterior) botonAnterior.disabled = pagina === 0;
+    if (botonSiguiente) botonSiguiente.disabled = pagina === paradas.length - 1 && !jugando;
+  }
+
+  if (porPaginas) {
+    botonSiguiente?.addEventListener('click', siguiente);
+    botonAnterior?.addEventListener('click', anterior);
+    puntos.forEach((p, k) => p.addEventListener('click', () => abrirPagina(k)));
+    /* Tocar la escena es seguir, como en una presentación */
+    lienzo.addEventListener('click', siguiente);
   }
 
   /* ── Lo que se escribe según el tiempo ────────────────────────────────────────── */
@@ -208,18 +292,35 @@ function iniciar(raiz: HTMLElement) {
   }
   botonPausa?.addEventListener('click', () => (jugando ? pausar() : jugar()));
   botonReiniciar?.addEventListener('click', () => {
+    if (porPaginas) return abrirPagina(0);
     const seguia = jugando;
     pausar();
     ir(0);
     if (seguia || reducido) jugar();
   });
+  /* Por páginas va a pantalla completa la página entera, con sus botones; si no, solo el lienzo */
   botonCompleta?.addEventListener('click', () => {
     if (document.fullscreenElement) document.exitFullscreen();
-    else lienzo.requestFullscreen().catch(() => {});
+    else (porPaginas ? raiz : lienzo).requestFullscreen().catch(() => {});
   });
   if (botonCompleta && !document.fullscreenEnabled) botonCompleta.hidden = true;
   document.addEventListener('keydown', (e) => {
-    if ((e.target as HTMLElement).closest('button, a, input') || e.altKey || e.ctrlKey || e.metaKey) return;
+    if (e.altKey || e.ctrlKey || e.metaKey) return;
+    const enControl = (e.target as HTMLElement).closest('button, a, input');
+    if (porPaginas) {
+      /* Por páginas, las flechas sirven aunque el foco esté en un botón (después de un clic en
+         «Siguiente» sigue ahí); el espacio y Enter, no: en un botón lo aprietan */
+      const adelante = ['ArrowRight', 'ArrowDown', 'PageDown'].includes(e.key) || ((e.key === ' ' || e.key === 'Enter') && !enControl);
+      const atras = ['ArrowLeft', 'ArrowUp', 'PageUp'].includes(e.key);
+      if (adelante) siguiente();
+      else if (atras) anterior();
+      else if (e.key === 'Home') abrirPagina(0);
+      else if (e.key === 'End') abrirPagina(paradas.length - 1, false);
+      else return;
+      e.preventDefault();
+      return;
+    }
+    if (enControl) return;
     if (e.key === ' ') {
       e.preventDefault();
       if (jugando) pausar();
@@ -258,10 +359,21 @@ function iniciar(raiz: HTMLElement) {
       ),
   );
 
-  window.__anuncio = { ir, duracion: DURACION, listo, formato: () => lienzo.dataset.formato ?? '' };
+  window.__anuncio = {
+    ir,
+    duracion: DURACION,
+    listo,
+    formato: () => lienzo.dataset.formato ?? '',
+    paginas: { total: porPaginas ? paradas.length : 0, actual: () => pagina, siguiente, anterior, abrir: abrirPagina },
+  };
 
   listo.then(() => {
     raiz.dataset.listo = '';
+    /* Por páginas arranca la primera (con movimiento reducido, ya armada) */
+    if (porPaginas) {
+      abrirPagina(0);
+      return;
+    }
     /* En la página se reproduce solo (es un video); grabando o con movimiento reducido, no */
     if (!grabando && !reducido) jugar();
     else {

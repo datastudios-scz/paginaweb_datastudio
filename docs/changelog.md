@@ -1,5 +1,22 @@
 # Bitácora de cambios
 
+## 18/10/2026 · La propuesta a Ribentek va por páginas, con título arriba
+
+- **Pedido del dueño**: un título arriba («nuevo producto de DataStudio, listo para ser vendido por Ribentek») y que no corra todo de golpe. Lo demás queda como está: cada cosa con su página, y ellos deciden cuándo avanzar o volver.
+- **El título**: «Nuevo producto de Data Studio, listo para que Ribentek lo venda.»
+- **Las páginas**: el mismo anuncio, cortado en 17. Cada página se arma y se queda quieta en su final.
+  - Abajo van «Anterior», un punto por página, el número y «Siguiente».
+  - También mueven las flechas, el espacio, Enter, Inicio, Fin y tocar la escena.
+  - «Siguiente» con la página a medio armar la completa.
+  - Con el teléfono acostado, las páginas pasan al costado y el anuncio crece.
+  - Detalle en ADR-020.
+- **Motor** (`anuncio.ts`): modo por páginas, que se prende con `data-paginas`. El anuncio público y el video no cambian.
+- **Arreglos de paso**:
+  - En el teléfono, un hueco vacío bajo el anuncio: la fila del panel de descargas, que esta página no tiene.
+  - El color de «pasar el mouse» se quedaba pegado al tocar.
+  - A 320 px, la barra de páginas ensanchaba la página 2 px. Lo encontró el QA (ver aprendizajes).
+- Banco del anuncio (138 comprobaciones, las nuevas validadas con sabotaje) y QA sin problemas.
+
 ## 18/10/2026 · La propuesta a Ribentek es el anuncio, y la toma 5 cambia de frase
 
 - **Pedido del dueño**: las láminas para Ribentek eran demasiado. Sacar lo de facturar (no se factura), las cuentas y el texto. Mostrar el recorrido entero (el ingreso, abrir el tablero, el chat al costado) como lo muestra el anuncio, y usar el anuncio mismo, con lo que es solo para ellos.
