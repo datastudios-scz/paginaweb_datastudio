@@ -2,7 +2,29 @@
 
 Formato: contexto → decisión → consecuencias. Las decisiones nuevas van arriba.
 
-## ADR-020 · La propuesta a un socio es una página en láminas: la de Ribentek (17/10/2026)
+## ADR-020 · La propuesta a un socio es una página en láminas: la de Ribentek (17/10/2026, revisada el 18/10)
+
+- **Revisión del dueño (18/10/2026): la propuesta es el anuncio.** Las láminas eran demasiado.
+  - Pidió sacar lo de que Data Studio le factura a Ribentek: no se factura.
+  - Pidió sacar los cálculos: «no son tontos, no necesitan eso».
+  - Pidió sacar el texto, y que se viera el recorrido entero, del ingreso al tablero y al chat al costado, como en el anuncio.
+  - Su frase: «todo eso de anuncios es perfecto también para ellos, úsalo el mismo».
+- **Cómo quedó**: `/propuestas/portal-bi-ribentek/` muestra el anuncio en su versión para socios (`<Anuncio variante="socio" />`), a pantalla completa. Se reproduce solo y vuelve a empezar. El formato sigue a la pantalla: 16:9 acostada y 9:16 parada.
+  - Las tomas 1 a 7 son las mismas.
+  - La ráfaga cuenta lo que hacemos nosotros: «Nosotros lo instalamos», «Lo dejamos funcionando», «Y lo mantenemos al día» y «Tú vendes y cobras». El código propio y el «lo instalas tú» son del otro camino de compra.
+  - Una toma nueva, la 10, dice «A ti te cobramos US$ 60 al mes, por cliente», «Tu precio lo pones tú» y «La IA la paga cada cliente, a su proveedor».
+  - El cierre firma «Data Studio × Ribentek».
+  - Dura 62 s. El motor toma la duración del reloj de `anuncio.css`, así que no puede quedar distinta del CSS.
+- Las láminas, sus piezas (`src/components/propuesta/`, `propuesta.css` y `propuesta.ts`) y la calculadora del margen se borraron. Lo que sigue abajo es la primera versión, por la historia.
+- El banco del anuncio suma la versión para socios:
+  - cada toma a su tiempo;
+  - que dure lo mismo para el script, el reloj y el título;
+  - que no diga «factura» en ninguna parte;
+  - que elija el formato según la pantalla;
+  - el cuadro quieto con movimiento reducido.
+
+**La primera versión (17/10):**
+
 
 - **Contexto**: el dueño pidió la primera propuesta de `/propuestas/`, para **Ribentek**, una empresa de Santa Cruz que trabaja IA (Claude, Gemini), agentes, Odoo y software a medida, y que le revende servicios. El pedido:
   - que la tomen y se la ofrezcan a sus clientes;

@@ -19,6 +19,9 @@
  *  · Ninguna regla mezcla transform con translate, rotate o scale: el minificador borra la suelta.
  *  · La toma 6 entra en cada formato: sin tapar el subtítulo ni la firma, y en 9:16 sobre el 79 %.
  *  · La página: se reproduce sola, pausa con espacio, cambia de formato sin dejar de reproducir.
+ *  · La versión para socios (/propuestas/portal-bi-ribentek/, ADR-020): sus tomas a su tiempo,
+ *    lo que dura, que no prometa facturar (no se factura), el formato según la pantalla y el
+ *    cuadro quieto con movimiento reducido.
  *  · Cero errores de consola y cero violaciones de la CSP.
  * Sale con código 1 si algo falla. Usa Edge o Chrome del sistema, como qa.mjs.
  */
@@ -127,7 +130,7 @@ const tomaVisible = (p) =>
   p.evaluate(() =>
     [...document.querySelectorAll('.an-escena')]
       .filter((e) => getComputedStyle(e).visibility === 'visible')
-      .map((e) => [...e.classList].find((c) => /^an-s\d$/.test(c))),
+      .map((e) => [...e.classList].find((c) => /^an-s\d+$/.test(c))),
   );
 
 const ESPERADO = [
@@ -505,6 +508,73 @@ console.log('La página');
   ok((await reloj()) - t4 > 1000, 'cambia a 16:9 sin dejar de reproducir');
   ok(p.errores.length === 0, `sin errores ni CSP${p.errores.length ? ` (${p.errores.join(' | ')})` : ''}`);
   await p.context().close();
+}
+
+/* La versión para quien revende (ADR-020): el mismo anuncio, con lo que hacemos nosotros en la
+   ráfaga, lo que le cobramos (la toma 10) y el cierre firmado para el socio. Dura más */
+console.log('La versión para socios');
+{
+  const SOCIO = `${BASE}/propuestas/portal-bi-ribentek/`;
+  const ESPERADO_SOCIO = [
+    [1.0, 'an-s1'],
+    [8.5, 'an-s2'],
+    [17.0, 'an-s4'],
+    [22.0, 'an-s5'],
+    [32.0, 'an-s6'],
+    [47.0, 'an-s8'],
+    [53.0, 'an-s10'],
+    [59.5, 'an-s9'],
+  ];
+  for (const [formato, [w, h]] of Object.entries({ '9x16': FORMATOS['9x16'], '16x9': FORMATOS['16x9'] })) {
+    const p = await abrir({ viewport: { width: w, height: h } }, `${SOCIO}?render=1&formato=${formato}`);
+    const mal = [];
+    for (const [t, toma] of ESPERADO_SOCIO) {
+      await ir(p, t);
+      const vis = await tomaVisible(p);
+      if (!(vis.length === 1 && vis[0] === toma)) mal.push(`${t} s: ${vis.join(', ') || 'nada'} (debe ser ${toma})`);
+    }
+    ok(!mal.length, `${formato}: cada toma a su tiempo, con la del precio antes del cierre${mal.length ? ` (${mal.join('; ')})` : ''}`);
+    await ir(p, 51.2);
+    const a = await p.screenshot();
+    await ir(p, 20.0);
+    await ir(p, 51.2);
+    const b = await p.screenshot();
+    const ab = await iguales(a, b);
+    ok(ab.ok, `${formato}: el precio entrando, a 51,2 s, da el mismo cuadro dos veces (${ab.distintos} píxeles distintos en mancha)`);
+    ok(p.errores.length === 0, `${formato}: sin errores ni CSP${p.errores.length ? ` (${p.errores.join(' | ')})` : ''}`);
+    await p.context().close();
+  }
+  /* Lo que dice, y lo que no: el dueño no factura, así que la página no lo puede prometer */
+  const p = await abrir({ viewport: { width: 1440, height: 900 } }, SOCIO);
+  const dice = await p.evaluate(() => ({
+    script: window.__anuncio.duracion,
+    reloj: Number(document.querySelector('[data-a="reloj"]').getAnimations()[0].effect.getTiming().duration),
+    titulo: document.querySelector('.an-barra__nombre').textContent.trim(),
+    cortes: [...document.querySelectorAll('.an-corte .an-h1')].map((e) => e.textContent.replace(/\s+/g, ' ').trim()),
+    precio: document.querySelector('.an-precio__n').textContent.replace(/\s+/g, ''),
+    firma: document.querySelector('.an-url').textContent.trim(),
+    factura: /factur/i.test(document.body.innerText + document.body.innerHTML),
+    formato: document.querySelector('.an-lienzo').dataset.formato,
+  }));
+  ok(dice.script === 62000 && dice.reloj === 62000 && dice.titulo.endsWith('62 s'),
+    `dura lo mismo para el script, el reloj y el título (${dice.script} ms, ${dice.reloj} ms, «${dice.titulo}»)`);
+  ok(dice.cortes.join(' | ') === 'Nosotros lo instalamos. | Lo dejamos funcionando. | Y lo mantenemos al día. | Tú vendes y cobras.',
+    `la ráfaga cuenta lo que hacemos nosotros («${dice.cortes.join(' | ')}»)`);
+  ok(dice.precio === 'US$60' && dice.firma === 'Data Studio × Ribentek', `el precio y la firma del socio (${dice.precio}, «${dice.firma}»)`);
+  ok(!dice.factura, 'no dice «factura» en ninguna parte (no se factura)');
+  ok(dice.formato === '16x9', `en una pantalla acostada elige 16:9 solo (${dice.formato})`);
+  ok(p.errores.length === 0, `sin errores ni CSP${p.errores.length ? ` (${p.errores.join(' | ')})` : ''}`);
+  await p.context().close();
+  const tel = await abrir({ viewport: { width: 390, height: 844 } }, SOCIO);
+  const ftel = await tel.evaluate(() => document.querySelector('.an-lienzo').dataset.formato);
+  ok(ftel === '9x16', `en un teléfono parado elige 9:16 (${ftel})`);
+  await tel.context().close();
+  /* Con movimiento reducido queda quieto en el cierre armado, un segundo antes del final */
+  const quieto = await abrir({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' }, SOCIO);
+  const vis = await tomaVisible(quieto);
+  const firma = await quieto.evaluate(() => Number(getComputedStyle(document.querySelector('.an-url')).opacity));
+  ok(vis.length === 1 && vis[0] === 'an-s9' && firma === 1, `con movimiento reducido queda en el cierre (${vis.join(', ') || 'nada'}, firma con opacidad ${firma})`);
+  await quieto.context().close();
 }
 
 await comparador.context().close();

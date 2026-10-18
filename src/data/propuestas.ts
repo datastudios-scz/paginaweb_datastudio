@@ -37,7 +37,7 @@ export const PROPUESTAS: Propuesta[] = [
     para: 'Ribentek',
     fecha: '2026-10-17',
     descripcion:
-      'Que Ribentek revenda el Portal BI a sus clientes: el ahorro de licencias, los tableros en un solo lugar, la IA al costado del tablero, cómo trabajamos juntos y su margen. Un recorrido en 12 láminas.',
+      'El anuncio del Portal BI con lo que es para Ribentek: el recorrido entero, del ingreso al chat con IA al costado del tablero; nosotros lo instalamos y lo dejamos funcionando, y les cobramos US$ 60 al mes por cliente.',
     tipo: 'pagina',
     href: '/propuestas/portal-bi-ribentek/',
   },

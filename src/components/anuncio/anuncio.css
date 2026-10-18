@@ -232,6 +232,43 @@
   color: var(--color-salvia);
 }
 
+/* La página del socio (/propuestas/portal-bi-ribentek/): solo el anuncio, sin el panel de
+   descargas; arriba, a quién va dirigido */
+.an-sala--sola {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.an-barra__firma {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--peso-semi);
+  color: var(--color-salvia);
+  white-space: nowrap;
+}
+
+.an-barra__firma svg {
+  width: 1.4rem;
+  height: 1.4rem;
+  color: var(--color-verde-claro);
+}
+
+/* El título queda para los lectores de pantalla: la firma ya dice para quién es */
+.an--socio .an-barra__nombre {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+.an--socio .an-barra {
+  justify-content: space-between;
+}
+
 @media (max-width: 52rem) {
   .an-sala {
     grid-template-columns: minmax(0, 1fr);
@@ -402,12 +439,19 @@
   --vi-r: 5%;
 }
 
-/* El reloj que lee el script: dura lo que el anuncio */
+/* El reloj que lee el script: dura lo que el anuncio. El script toma la duración de acá, así
+   que es el único lugar donde se cambia (la versión para socios dura más) */
 .an-reloj {
   position: absolute;
   width: 0;
   height: 0;
-  animation: an-reloj 55s linear both;
+  animation: an-reloj var(--duracion, 55s) linear both;
+}
+
+/* La versión para quien revende (ADR-020): después de la ráfaga, una toma con lo que le
+   cobramos (la 10), y recién ahí el cierre */
+.an-lienzo--socio {
+  --duracion: 62s;
 }
 
 /* El fondo oscuro: dos luces que se mueven despacio (las tomas claras lo tapan) */
@@ -2980,11 +3024,16 @@
   max-width: calc(1300 * var(--u));
 }
 
-/* ═══ 9 · CIERRE (50,5 s – fin) ═══════════════════════════════════════════════════════ */
+/* ═══ 9 · CIERRE (50,5 s – fin; para el socio, 56,3 s – fin) ═════════════════════════════ */
 .an-s9 {
   --a: 50.5s;
   --z: 56s;
   background: radial-gradient(90% 65% at 50% 40%, #0a8f83, #037a70 50%, #005a52);
+}
+
+.an-lienzo--socio .an-s9 {
+  --a: 56.3s;
+  --z: 63s;
 }
 
 .an-cierre {
@@ -3212,6 +3261,84 @@
 }
 
 .an-lienzo[data-formato='16x9'] .an-s9-titulo {
+  max-width: none;
+}
+
+/* ═══ 10 · SOLO PARA EL SOCIO: lo que le cobramos (50,5 – 56,3 s) ══════════════════════
+   El número, grande y solo; después, que su precio lo pone él y que la IA la paga el cliente.
+   Sin cuentas: el dueño no quiere hacerle números a un socio que los sabe hacer */
+.an-s10 {
+  --a: 50.5s;
+  --z: 56.3s;
+}
+
+.an-barras--3 {
+  --a: 55.95s;
+  --z: 56.85s;
+  --c1: var(--ab);
+  --c2: var(--vc);
+}
+
+.an-precio {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(16 * var(--u));
+  padding: 0 8%;
+  text-align: center;
+  animation: an-sale 0.3s var(--entra) calc(var(--a) + 5.35s) forwards;
+}
+
+.an-precio__a {
+  animation: an-entra 0.45s var(--sale) calc(var(--a) + 0.55s) both;
+}
+
+/* En Poppins y no en la letra de datos: su cero lleva una barra, y «60» se leía «6Ø» */
+.an-precio__n {
+  font-size: calc(300 * var(--u));
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  color: var(--vc);
+  text-shadow: 0 0 calc(90 * var(--u)) rgb(77 207 193 / 0.45);
+  font-variant-numeric: tabular-nums;
+  animation: an-pop 0.6s var(--resorte) calc(var(--a) + 0.85s) both;
+}
+
+.an-precio__n span {
+  margin-right: 0.1em;
+  font-size: 0.4em;
+  letter-spacing: -0.02em;
+  vertical-align: 0.95em;
+}
+
+.an-precio__por {
+  animation: an-entra 0.45s var(--sale) calc(var(--a) + 1.35s) both;
+}
+
+.an-precio__linea {
+  width: calc(160 * var(--u));
+  height: calc(4 * var(--u));
+  margin: calc(22 * var(--u)) 0 calc(8 * var(--u));
+  border-radius: calc(2 * var(--u));
+  background: rgb(206 217 189 / 0.4);
+  animation: an-crece-x 0.5s var(--sale) calc(var(--a) + 2.2s) both;
+}
+
+.an-precio__tu {
+  --o: 2.45s;
+}
+
+.an-precio__ia {
+  max-width: calc(820 * var(--u));
+  color: var(--sa);
+  animation: an-entra 0.45s var(--sale) calc(var(--a) + 3.1s) both;
+}
+
+.an-lienzo[data-formato='16x9'] .an-precio__ia {
   max-width: none;
 }
 

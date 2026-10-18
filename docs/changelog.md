@@ -1,5 +1,18 @@
 # Bitácora de cambios
 
+## 18/10/2026 · La propuesta a Ribentek es el anuncio, y la toma 5 cambia de frase
+
+- **Pedido del dueño**: las láminas para Ribentek eran demasiado. Sacar lo de facturar (no se factura), las cuentas y el texto. Mostrar el recorrido entero (el ingreso, abrir el tablero, el chat al costado) como lo muestra el anuncio, y usar el anuncio mismo, con lo que es solo para ellos.
+- **`/propuestas/portal-bi-ribentek/`** es ahora el anuncio en su versión para socios, a pantalla completa, sin parar. El formato sigue a la pantalla: 16:9 acostada y 9:16 parada.
+  - La ráfaga dice «Nosotros lo instalamos», «Lo dejamos funcionando», «Y lo mantenemos al día» y «Tú vendes y cobras».
+  - Una toma nueva: «A ti te cobramos US$ 60 al mes, por cliente», «Tu precio lo pones tú» y «La IA la paga cada cliente, a su proveedor».
+  - El cierre firma «Data Studio × Ribentek».
+  - Dura 62 s. Detalle en ADR-020.
+- Se borraron las láminas, sus cinco piezas, su CSS y su script.
+- **El anuncio, toma 5**: al dueño no le gustó «Power BI de verdad, sin cuenta de Power BI»; la imagen, sí. Ahora dice «Abre tu tablero. Completo, con sus filtros.», que es el paso del recorrido que se ve: un toque en la tarjeta y el reporte se dibuja.
+- **Motor**: la duración sale del reloj del CSS (una sola fuente). Funciona sin selector de formato y sin alguno de los controles, y con movimiento reducido queda un segundo antes del final, dure lo que dure.
+- Banco del anuncio y QA sin problemas.
+
 ## 17/10/2026 · La propuesta del Portal BI para Ribentek
 
 - **Pedido del dueño**: la primera propuesta de `/propuestas/`, para su socio Ribentek. Tiene que mostrar el Portal BI con movimiento, contado como una historia, para que lo revendan a sus clientes. Decisión y criterios en ADR-020.

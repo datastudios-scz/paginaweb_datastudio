@@ -52,9 +52,8 @@
 │   │   │                        los recorridos animados: RecorridoMarco.astro (el marco de la página, común),
 │   │   │                        RecorridoPantalla.astro (tu equipo) y RecorridoAdmin.astro (el administrador), 1280 × 760;
 │   │   │                        recorrido.css (lo común), recorrido-pantalla.css y recorrido-admin.css (cada pantalla)
-│   │   ├── propuesta/           Las piezas de la propuesta a Ribentek: Caos (los reportes regados), VistaPersonas,
-│   │   │                        PanelAdmin, Modelo (cómo trabajamos) y Margen (la calculadora del socio)
-│   │   ├── anuncio/             Anuncio.astro + anuncio.css: el anuncio de 55 s para redes (nueve tomas, cuatro formatos);
+│   │   ├── anuncio/             Anuncio.astro + anuncio.css: el anuncio de 55 s para redes (nueve tomas, cuatro formatos), y su
+│   │   │                        variante «socio» de 62 s para quien lo revende (la propuesta a Ribentek, ADR-020);
 │   │   │                        AnuncioReporte.astro: el cuerpo del reporte, que comparten la toma 5 y la 6;
 │   │   │                        AnuncioPortal.astro: el portal por dentro (menú y tableros), del gancho y la toma 4;
 │   │   │                        datos.ts: las tarjetas de ejemplo y los trazos de sus íconos
@@ -75,7 +74,6 @@
 │   │                            recorrido.ts y recorrido-admin.ts (el guion de cada recorrido),
 │   │                            anuncio.ts (línea de tiempo del anuncio: reproducir, pausar, ir a un instante exacto)
 │   └── styles/                  tokens.css (diseño), global.css (base y utilidades), producto.css (clases prod-* de las subpáginas),
-│                                propuesta.css (clases pr-* de las propuestas en láminas, con su script propuesta.ts),
 │                                ocultas.css (clases oc-* de las páginas ocultas, con su marco PaginaOculta.astro)
 ├── astro.config.mjs             Sitio, fuentes, CSP, sitemap
 └── CLAUDE.md                    Reglas para agentes de IA que trabajen en el repo
@@ -90,7 +88,7 @@
 | `/portal-bi/como-funciona/` | `src/pages/portal-bi/como-funciona.astro` | Recorrido animado de un minuto: la pantalla del portal (`RecorridoPantalla`) con cámara, cursor y narración por pasos. Sin encabezado ni pie (`Base` con `inmersiva`). Con `#ver` arranca solo (ADR-015) |
 | `/portal-bi/como-funciona/administrador/` | `src/pages/portal-bi/como-funciona/administrador.astro` | Recorrido animado del administrador (72 s): el panel (`RecorridoAdmin`) con el mismo motor y el mismo marco. Se llega desde la sección del panel en `/portal-bi/` y desde el cierre del otro recorrido; con `#ver` arranca solo (ADR-017) |
 | `/anuncios/` | `src/pages/anuncios/index.astro` | **Oculta**: los anuncios para redes, el más nuevo primero, con «Ver y grabar» y los MP4 (`src/data/anuncios.ts`) |
-| `/propuestas/portal-bi-ribentek/` | `src/pages/propuestas/portal-bi-ribentek.astro` | **Oculta**: la propuesta a Ribentek para revender el Portal BI, en 12 láminas con una ruta abajo (ADR-020) |
+| `/propuestas/portal-bi-ribentek/` | `src/pages/propuestas/portal-bi-ribentek.astro` | **Oculta**: la propuesta a Ribentek para revender el Portal BI: el anuncio en su versión para socios, sin parar (ADR-020) |
 | `/propuestas/` | `src/pages/propuestas/index.astro` | **Oculta**: las propuestas a socios y clientes, cada una con su botón (`src/data/propuestas.ts`). Las páginas propias van en `src/pages/propuestas/` y quedan ocultas solas |
 | `/portal-bi/anuncio/` | `src/pages/portal-bi/anuncio.astro` | **Oculta** (noindex, fuera del sitemap, sin enlaces): el anuncio de 55 s para redes en 9:16, 4:5, 1:1 y 16:9, con las descargas en MP4 del release `anuncio-portal-bi` de GitHub (ADR-016) |
 | `/social-metrics-bi/` | `src/pages/social-metrics-bi.astro` | Métricas de redes en Power BI: vista de publicaciones, recorrido de los datos, tablero completo, acceso, implementación, tratamiento de datos y preguntas |

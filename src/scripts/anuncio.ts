@@ -12,7 +12,6 @@
  * CSP: nada de atributos style; las medidas y los textos se cambian por CSSOM/DOM.
  */
 
-const DURACION = 55000;
 const FORMATOS = ['9x16', '4x5', '1x1', '16x9'] as const;
 type Formato = (typeof FORMATOS)[number];
 
@@ -30,6 +29,9 @@ function iniciar(raiz: HTMLElement) {
     base.querySelector(`[data-a="${r}"]`) as T;
   const lienzo = $('lienzo');
   const reloj = $('reloj');
+  /* Lo que dura el anuncio lo dice el reloj de anuncio.css (--duracion): 55 s el de redes, más el
+     de los socios. Un solo lugar, para que el script y el CSS no puedan quedar distintos */
+  const DURACION = Number(reloj.getAnimations()[0]?.effect?.getTiming().duration) || 55000;
   const parametros = new URLSearchParams(location.search);
   const grabando = parametros.has('render');
   const reducido = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -193,25 +195,29 @@ function iniciar(raiz: HTMLElement) {
     dibujar(t);
   }).observe(lienzo);
 
-  /* ── Controles ────────────────────────────────────────────────────────────────── */
-  const botonPausa = $<HTMLButtonElement>('pausa');
+  /* ── Controles (la página los pone; si alguno no está, se sigue sin él) ─────────────── */
+  const boton = (r: string) => raiz.querySelector<HTMLButtonElement>(`[data-a="${r}"]`);
+  const botonPausa = boton('pausa');
+  const botonReiniciar = boton('reiniciar');
+  const botonCompleta = boton('completa');
   function rotular() {
+    if (!botonPausa) return;
     const accion = jugando ? 'Pausar' : 'Reproducir';
     botonPausa.setAttribute('aria-label', accion);
     botonPausa.title = `${accion} (espacio)`;
   }
-  botonPausa.addEventListener('click', () => (jugando ? pausar() : jugar()));
-  $('reiniciar').addEventListener('click', () => {
+  botonPausa?.addEventListener('click', () => (jugando ? pausar() : jugar()));
+  botonReiniciar?.addEventListener('click', () => {
     const seguia = jugando;
     pausar();
     ir(0);
     if (seguia || reducido) jugar();
   });
-  $('completa').addEventListener('click', () => {
+  botonCompleta?.addEventListener('click', () => {
     if (document.fullscreenElement) document.exitFullscreen();
     else lienzo.requestFullscreen().catch(() => {});
   });
-  if (!document.fullscreenEnabled) $('completa').hidden = true;
+  if (botonCompleta && !document.fullscreenEnabled) botonCompleta.hidden = true;
   document.addEventListener('keydown', (e) => {
     if ((e.target as HTMLElement).closest('button, a, input') || e.altKey || e.ctrlKey || e.metaKey) return;
     if (e.key === ' ') {
@@ -227,8 +233,14 @@ function iniciar(raiz: HTMLElement) {
   });
 
   /* ── Arranque ─────────────────────────────────────────────────────────────────── */
+  /* Con data-formato-auto (la página del socio, que no tiene selector) el formato sigue a la
+     pantalla: acostada, 16:9; parada, 9:16. Y cambia si se gira el teléfono */
+  const auto = raiz.hasAttribute('data-formato-auto');
+  const acostada = matchMedia('(orientation: landscape)');
+  const segunPantalla = (): Formato => (acostada.matches ? '16x9' : '9x16');
   const pedido0 = parametros.get('formato') as Formato | null;
-  const formato: Formato = pedido0 && FORMATOS.includes(pedido0) ? pedido0 : '9x16';
+  const formato: Formato = pedido0 && FORMATOS.includes(pedido0) ? pedido0 : auto ? segunPantalla() : '9x16';
+  if (auto && !pedido0) acostada.addEventListener('change', () => ponerFormato(segunPantalla()));
   lienzo.dataset.formato = formato;
   for (const b of botonesFormato) b.setAttribute('aria-pressed', String(b.dataset.formatoBoton === formato));
   for (const a of document.querySelectorAll<HTMLAnchorElement>('[data-a="descarga-actual"]')) {
@@ -253,8 +265,9 @@ function iniciar(raiz: HTMLElement) {
     /* En la página se reproduce solo (es un video); grabando o con movimiento reducido, no */
     if (!grabando && !reducido) jugar();
     else {
-      /* Con movimiento reducido queda quieto en el cierre ya armado: logo, fichas, botón y URL */
-      ir(grabando ? 0 : 54000);
+      /* Con movimiento reducido queda quieto en el cierre ya armado (un segundo antes del final):
+         logo, fichas, botón y URL */
+      ir(grabando ? 0 : DURACION - 1000);
       raiz.dataset.pausa = '';
       rotular();
     }

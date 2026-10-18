@@ -17,6 +17,10 @@
  * `--u` (1/1080 del lado corto del lienzo), así que la misma pieza sirve en 9:16, 4:5, 1:1 y
  * 16:9; lo que cambia por formato es dónde va cada bloque.
  *
+ * La variante «socio» es el mismo anuncio para quien lo revende (la propuesta a Ribentek,
+ * ADR-020): la ráfaga dice lo que hacemos nosotros, una toma más dice lo que le cobramos y el
+ * cierre firma «Data Studio × Ribentek». Dura más: el motor toma la duración del reloj.
+ *
  * Reglas del sitio que aplican acá: el monto que NO es el precio va tachado en rojo y con
  * palabras ("sin el portal pagarías", ver PRODUCT.md); solo afirmaciones respaldadas; los
  * datos del reporte y del chat son de ejemplo (los mismos de las maquetas).
@@ -28,7 +32,43 @@ import { CONTACTO } from '../../data/sitio';
 import { LOGO_BARRAS, LOGO_WORDMARK } from '../../data/logo';
 import { miles } from '../../scripts/formato';
 
+interface Props {
+  /** «publico»: el anuncio para redes. «socio»: el mismo, para quien lo revende. */
+  variante?: 'publico' | 'socio';
+}
+
+const { variante = 'publico' } = Astro.props;
+const socio = variante === 'socio';
+
 const PERSONAS = 1000;
+
+/* Lo que Data Studio le cobra a un socio, por cliente y por mes (lo definió el dueño) */
+const PRECIO_SOCIO = 60;
+
+/* La ráfaga: cuatro razones, una por tiempo. Para el socio cuenta lo que hacemos nosotros, que
+   es lo que compra: él vende y cobra; nosotros lo instalamos, lo dejamos funcionando y lo
+   mantenemos. (El código propio y el «lo instalas tú» son del otro camino de compra.) */
+const ICONO = {
+  codigo: 'M17 14 7 24l10 10M31 14l10 10-10 10M27 9l-6 30',
+  tabla: 'M12 8h24a4 4 0 0 1 4 4v24a4 4 0 0 1-4 4H12a4 4 0 0 1-4-4V12a4 4 0 0 1 4-4ZM8 19h32M8 29h32M19 8v32',
+  llave: 'M30 8a10 10 0 0 0-9.6 12.8L8 33.2V40h6.8l12.4-12.4A10 10 0 1 0 30 8Z',
+  check: 'M10 25.5 19.5 35 38 14',
+  anda: 'M24 6a18 18 0 1 0 0 36 18 18 0 0 0 0-36ZM20.5 16.5v15l12-7.5Z',
+  ronda: 'M36.5 18.5A14 14 0 0 0 11.6 15.4M11.5 29.5A14 14 0 0 0 36.4 32.6M11 8.5v7h7M37 39.5v-7h-7',
+};
+const CORTES = socio
+  ? [
+      { ico: ICONO.llave, texto: 'Nosotros lo instalamos.' },
+      { ico: ICONO.anda, texto: 'Lo dejamos funcionando.' },
+      { ico: ICONO.ronda, texto: 'Y lo mantenemos al día.' },
+      { ico: ICONO.check, texto: 'Tú vendes y cobras.' },
+    ]
+  : [
+      { ico: ICONO.codigo, texto: 'El código es tuyo.' },
+      { ico: ICONO.tabla, texto: 'Excel: tú decides quién descarga.' },
+      { ico: ICONO.llave, texto: 'Lo instalas tú o lo instalamos.' },
+      { ico: ICONO.check, texto: 'Nunca más una licencia por persona.' },
+    ];
 
 /* Un titular partido en palabras con ranura: la animación las sube de a una (w0, w1…). */
 const esc = (t: string) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -97,7 +137,7 @@ const pct = (v: number) => `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v).toF
 const CONSULTAS = ['ventas de 2025 y 2026', 'tickets de cada año', 'ticket promedio'];
 ---
 
-<div class="an-lienzo" data-a="lienzo" data-formato="9x16" data-movimiento-propio aria-hidden="true">
+<div class:list={['an-lienzo', { 'an-lienzo--socio': socio }]} data-a="lienzo" data-formato="9x16" data-movimiento-propio aria-hidden="true">
   <!-- El reloj: una animación lineal de 55 s que el script lee para saber en qué segundo va -->
   <i class="an-reloj" data-a="reloj"></i>
 
@@ -249,11 +289,11 @@ const CONSULTAS = ['ventas de 2025 y 2026', 'tickets de cada año', 'ticket prom
     </div>
   </section>
 
-  <!-- ═══ 5 · POWER BI ADENTRO: el reporte se dibuja ═══ -->
+  <!-- ═══ 5 · EL TABLERO: un toque en la tarjeta y el reporte se dibuja, completo ═══ -->
   <section class="an-escena an-s5">
     <div class="an-texto">
-      <p class="an-h1 an-s5-titulo" set:html={titular('Power BI de verdad,')} />
-      <p class="an-h2 an-s5-sub" set:html={titular('sin cuenta de Power BI.')} />
+      <p class="an-h1 an-s5-titulo" set:html={titular('Abre tu tablero.')} />
+      <p class="an-h2 an-s5-sub" set:html={titular('Completo, con sus filtros.')} />
     </div>
     <div class="an-visual an-s5-visual">
       <div class="an-ui an-ventana an-reporte">
@@ -386,28 +426,35 @@ const CONSULTAS = ['ventas de 2025 y 2026', 'tickets de cada año', 'ticket prom
     </div>
   </section>
 
-  <!-- ═══ 8 · RÁFAGA: cuatro razones, una por tiempo ═══ -->
+  <!-- ═══ 8 · RÁFAGA: cuatro razones, una por tiempo (las del socio, si es para él) ═══ -->
   <section class="an-escena an-s8">
-    <div class="an-corte an-corte--1">
-      <svg class="an-corte__ico" viewBox="0 0 48 48"><path d="M17 14 7 24l10 10M31 14l10 10-10 10M27 9l-6 30" pathLength="1" /></svg>
-      <p class="an-h1" set:html={titular('El código es tuyo.')} />
-    </div>
-    <div class="an-corte an-corte--2">
-      <svg class="an-corte__ico" viewBox="0 0 48 48"><path d="M12 8h24a4 4 0 0 1 4 4v24a4 4 0 0 1-4 4H12a4 4 0 0 1-4-4V12a4 4 0 0 1 4-4ZM8 19h32M8 29h32M19 8v32" pathLength="1" /></svg>
-      <p class="an-h1" set:html={titular('Excel: tú decides quién descarga.')} />
-    </div>
-    <div class="an-corte an-corte--3">
-      <svg class="an-corte__ico" viewBox="0 0 48 48"><path d="M30 8a10 10 0 0 0-9.6 12.8L8 33.2V40h6.8l12.4-12.4A10 10 0 1 0 30 8Z" pathLength="1" /></svg>
-      <p class="an-h1" set:html={titular('Lo instalas tú o lo instalamos.')} />
-    </div>
-    <div class="an-corte an-corte--4">
-      <svg class="an-corte__ico" viewBox="0 0 48 48"><path d="M10 25.5 19.5 35 38 14" pathLength="1" /></svg>
-      <p class="an-h1" set:html={titular('Nunca más una licencia por persona.')} />
-    </div>
+    {CORTES.map((c, i) => (
+      <div class={`an-corte an-corte--${i + 1}`}>
+        <svg class="an-corte__ico" viewBox="0 0 48 48"><path d={c.ico} pathLength="1" /></svg>
+        <p class="an-h1" set:html={titular(c.texto)} />
+      </div>
+    ))}
   </section>
 
-  <!-- Las barras otra vez, para entrar al cierre -->
+  <!-- Las barras otra vez, para entrar al cierre (o, para el socio, a lo que le cobramos) -->
   <div class="an-barras an-barras--2"><i></i><i></i><i></i><i></i></div>
+
+  {socio && (
+    <>
+      <!-- ═══ 10 · SOLO PARA EL SOCIO: lo que le cobramos ═══ -->
+      <section class="an-escena an-s10">
+        <div class="an-precio">
+          <p class="an-h3 an-precio__a">A ti te cobramos</p>
+          <p class="an-precio__n"><span>US$</span>{PRECIO_SOCIO}</p>
+          <p class="an-h2 an-precio__por">al mes, por cliente.</p>
+          <i class="an-precio__linea"></i>
+          <p class="an-h2 an-precio__tu" set:html={titular('Tu precio lo pones tú.')} />
+          <p class="an-h3 an-precio__ia">La IA la paga cada cliente, a su proveedor.</p>
+        </div>
+      </section>
+      <div class="an-barras an-barras--3"><i></i><i></i><i></i><i></i></div>
+    </>
+  )}
 
   <!-- ═══ 9 · CIERRE: la marca y a dónde escribir ═══ -->
   <section class="an-escena an-s9">
@@ -435,7 +482,7 @@ const CONSULTAS = ['ventas de 2025 y 2026', 'tickets de cada año', 'ticket prom
         <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.3-.5 0-1 .2-3.3-.7-2.8-1.1-4.6-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.9s.7-2.1 1-2.4c.3-.3.6-.3.8-.3h.6c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.4 0 .6l-.4.6-.5.5c-.2.2-.3.3-.1.6.2.3.8 1.4 1.8 2.2 1.2 1.1 2.3 1.4 2.6 1.6.3.1.5.1.7-.1l1-1.2c.2-.3.4-.2.7-.1l2 1c.3.1.5.2.5.3.1.2.1.8-.1 1.4Z" /></svg>
         <span>Escríbenos: {CONTACTO.telefonoVisible}</span>
       </p>
-      <p class="an-url">datastudio.es/portal-bi</p>
+      <p class="an-url">{socio ? 'Data Studio × Ribentek' : 'datastudio.es/portal-bi'}</p>
     </div>
   </section>
 
