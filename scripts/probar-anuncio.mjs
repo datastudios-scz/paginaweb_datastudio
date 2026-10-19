@@ -19,6 +19,8 @@
  *  · Ninguna regla mezcla transform con translate, rotate o scale: el minificador borra la suelta.
  *  · La toma 6 entra en cada formato: sin tapar el subtítulo ni la firma, y en 9:16 sobre el 79 %.
  *  · La página: se reproduce sola, pausa con espacio, cambia de formato sin dejar de reproducir.
+ *  · Mientras corre, todo va con el reloj: al avanzar de página, al seguir después de una pausa y
+ *    al cambiar de formato. play() rebobinaba lo ya terminado y la toma 1 volvía a pasar encima.
  *  · La versión para socios (/propuestas/portal-bi-ribentek/, ADR-020): sus tomas a su tiempo,
  *    lo que dura, que no prometa facturar (no se factura), el título, el formato según la pantalla
  *    y las páginas: cada una se arma y se queda quieta, nada avanza solo, y «Siguiente», volver,
@@ -134,6 +136,41 @@ const tomaVisible = (p) =>
       .filter((e) => getComputedStyle(e).visibility === 'visible')
       .map((e) => [...e.classList].find((c) => /^an-s\d+$/.test(c))),
   );
+
+/* Mientras corre, cada animación del lienzo marca el tiempo del reloj, o ya terminó (y quieta se
+   ve igual). Es la promesa del motor: un solo video. play() sobre una animación terminada la
+   REBOBINA a 0 (auto-rewind), y la toma 1 volvía a pasar encima de lo que se estaba viendo: lo
+   vio el dueño en la propuesta por páginas (18/10/2026). Una rebobinada queda segundos fuera del
+   reloj; los 250 ms de tolerancia dejan pasar lo que tarda Chrome en arrancar en el compositor
+   las que mueven transform (medido: 50 ms después de cambiar de formato), que no se ve */
+async function corriendoAlDia(p, duracionMs) {
+  const instantes = [];
+  const fin = Date.now() + duracionMs;
+  while (Date.now() < fin) {
+    await p.waitForTimeout(350);
+    instantes.push(
+      await p.evaluate(() => {
+        const t = Number(document.querySelector('[data-a="reloj"]').getAnimations()[0].currentTime);
+        const fuera = [];
+        for (const a of document.querySelector('.an-lienzo').getAnimations({ subtree: true })) {
+          if (a.playState === 'idle') continue;
+          const ct = Number(a.currentTime);
+          const termina = Number(a.effect.getComputedTiming().endTime);
+          if (Math.abs(ct - t) < 250 || (ct >= termina && t >= termina)) continue;
+          fuera.push(`${a.animationName} en ${Math.round(ct)} ms`);
+        }
+        return { t: Math.round(t), fuera };
+      }),
+    );
+  }
+  const malos = instantes.filter((i) => i.fuera.length);
+  return {
+    ok: instantes.length > 2 && !malos.length,
+    detalle: malos.length
+      ? `${malos.length} de ${instantes.length} instantes mal; a ${malos[0].t} ms, ${malos[0].fuera.length} fuera del reloj: ${malos[0].fuera.slice(0, 3).join(', ')}`
+      : `${instantes.length} instantes`,
+  };
+}
 
 const ESPERADO = [
   [1.0, 'an-s1'],
@@ -508,6 +545,15 @@ console.log('La página');
   const t4 = await reloj();
   await p.waitForTimeout(1500);
   ok((await reloj()) - t4 > 1000, 'cambia a 16:9 sin dejar de reproducir');
+  /* Seguir después de una pausa con la toma 1 terminada hace rato, y cambiar de formato
+     corriendo: antes, en los dos casos, la toma 1 volvía a pasar encima */
+  await p.click('[data-a="pausa"]');
+  await ir(p, 20);
+  await p.click('[data-a="pausa"]');
+  const sigue = await corriendoAlDia(p, 1500);
+  await p.click('[data-formato-boton="1x1"]');
+  const cambia = await corriendoAlDia(p, 1500);
+  ok(sigue.ok && cambia.ok, `al seguir después de una pausa y al cambiar de formato corriendo, todo va con el reloj (${sigue.detalle}; ${cambia.detalle})`);
   ok(p.errores.length === 0, `sin errores ni CSP${p.errores.length ? ` (${p.errores.join(' | ')})` : ''}`);
   await p.context().close();
 }
@@ -637,6 +683,17 @@ console.log('La versión para socios');
   await p.waitForTimeout(200);
   e = await estado(p);
   ok(e.pagina === 0 && e.t < 2500 && !e.quieta && e.sinAnterior, `Inicio vuelve a la primera y la arma (${e.t} ms)`);
+
+  /* Mientras una página se arma, todo va con el reloj. Las páginas 3 y 16 arrancan con la toma 1
+     terminada hace rato: era donde volvía a pasar encima, y las fotos de cada final no lo veían
+     (al llegar al final, el motor vuelve a poner todo en su lugar) */
+  await p.waitForTimeout(2600);
+  await p.click('[data-a="pagina"] >> nth=2');
+  const p3 = await corriendoAlDia(p, 3500);
+  await p.waitForTimeout(500);
+  await p.click('[data-a="pagina"] >> nth=15');
+  const p16 = await corriendoAlDia(p, 5200);
+  ok(p3.ok && p16.ok, `mientras una página se arma, todo va con el reloj: la toma 1 no vuelve a pasar encima (página 3: ${p3.detalle}; página 16: ${p16.detalle})`);
 
   /* El final de cada página es un cuadro para leer: una toma entera, nunca el cruce de dos. Los
      cortes de PAGINAS se eligieron mirándolos; esto avisa si una toma se corre y deja uno a medias */

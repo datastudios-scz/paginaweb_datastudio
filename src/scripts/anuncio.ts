@@ -80,14 +80,24 @@ function iniciar(raiz: HTMLElement) {
     dibujar(t);
   }
 
+  /** Pone a correr desde `t` las animaciones que todavía tienen algo que hacer. Las que ya
+      terminaron se quedan quietas en `t`, que se ve igual que dejarlas correr: play() sobre una
+      animación terminada la REBOBINA a 0 (auto-rewind, lo pide la especificación de Web
+      Animations), y la toma 1 volvía a pasar encima de lo que se estaba viendo. Lo vio el dueño
+      en la propuesta por páginas, al avanzar; en el anuncio pasaba al seguir después de una
+      pausa, al adelantar con las flechas o al cambiar de formato. */
+  function soltar() {
+    for (const a of animaciones()) {
+      a.currentTime = t;
+      if (t < Number(a.effect?.getComputedTiming().endTime ?? Infinity)) a.play();
+    }
+  }
+
   function jugar() {
     if (jugando) return;
     jugando = true;
     if (t >= DURACION - 20) ir(0);
-    for (const a of animaciones()) {
-      a.currentTime = t;
-      a.play();
-    }
+    soltar();
     delete raiz.dataset.pausa;
     rotular();
     const cuadro = () => {
@@ -101,7 +111,7 @@ function iniciar(raiz: HTMLElement) {
       if (t >= DURACION) {
         /* Como en las redes: vuelve a empezar solo */
         ir(0);
-        for (const a of animaciones()) a.play();
+        soltar();
       }
       dibujar(t);
       pedido = requestAnimationFrame(cuadro);

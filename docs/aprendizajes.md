@@ -4,6 +4,20 @@ Cada entrada: **síntoma → causa → solución → cómo evitarlo**.
 
 ## La propuesta por páginas (18/10/2026)
 
+### `play()` sobre una animación que ya terminó la rebobina a 0
+- **Síntoma**: el dueño, en la propuesta por páginas: «mientras avanzo, sale encima de todas la primera diapositiva». Las tarjetas de «¿Me pasas el reporte?» pasaban por encima de cada página mientras se armaba, y al terminar la página desaparecían.
+- **Causa**: para reproducir, el motor hacía `a.currentTime = t; a.play()` con cada animación. Según la especificación de Web Animations, `play()` sobre una animación terminada (su tiempo ya pasó su final) la rebobina a 0: es el *auto-rewind*. Al abrir una página en el segundo 6,1, todo lo de la toma 1, que termina a los 3 s, volvía a empezar.
+- **Solución**: `soltar()`, en `anuncio.ts`, pone a correr solo lo que todavía tiene algo que hacer. Lo que ya terminó queda quieto en `t`, que se ve igual que dejarlo correr.
+- **También pasaba en el anuncio público**, desde que existe el motor: al seguir después de una pausa, al adelantar con las flechas mientras corre o al cambiar de formato.
+- **Por qué no lo vio el banco**:
+  - Miraba cada página quieta, en su final, y al llegar al final el motor vuelve a poner todo en su lugar: las fotos de los finales salían perfectas.
+  - La página pública se pausaba a los 2,4 s, antes de que terminara la toma 1.
+- **Evitarlo**:
+  - El banco ahora comprueba **mientras corre** que cada animación marque el tiempo del reloj o ya haya terminado (`corriendoAlDia`). Lo comprueba al avanzar de página, al seguir después de una pausa y al cambiar de formato.
+  - Volviendo a poner el defecto, fallan las dos comprobaciones: en la página 3 hay 50 animaciones fuera del reloj (la ventana de la toma 1 marca 333 ms con el reloj en 6.433).
+  - Mirar el cuadro final de algo animado no prueba la animación. Hay que mirar lo que la persona ve mientras pasa.
+- **Lo que queda, y no es esto**: al cambiar de formato mientras corre, las animaciones de `transform` arrancan unos 50 ms detrás del reloj. Es lo que tarda Chrome en arrancarlas en el compositor después de volver a pintar las capas. No se ve, y una rebobinada queda segundos fuera, no milisegundos: la comprobación tolera 250 ms.
+
 ### Con `overflow-x: clip` en el body, el ancho del documento no dice si algo se sale
 - **Síntoma**: a 320 px, mi medición daba `document.documentElement.scrollWidth` = 320, y el QA marcó el título, el anuncio y la barra de páginas de 0 a 322.
 - **Causa**: `global.css` pone `overflow-x: clip` en `html` y `body`. El documento recorta lo que sobra y mide lo mismo que la pantalla aunque algo se salga. Y la grilla de la página no tenía columnas propias: su única columna medía lo que su hijo más ancho, la barra de páginas, cuyos botones no bajaban de 322 px.

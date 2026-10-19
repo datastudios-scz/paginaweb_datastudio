@@ -1,5 +1,13 @@
 # Bitácora de cambios
 
+## 18/10/2026 · Arreglo: la toma 1 pasaba encima de cada página de la propuesta
+
+- **Lo vio el dueño**: en la propuesta a Ribentek, mientras avanzaba, la primera escena aparecía encima de todas las páginas.
+- **Causa**: `play()` rebobina a 0 una animación que ya terminó, y el motor se lo pedía a todas al reproducir. Pasaba también en el anuncio público, al seguir después de una pausa, al adelantar con las flechas o al cambiar de formato.
+- **Arreglo** (`soltar()` en `anuncio.ts`): solo corre lo que todavía tiene algo que hacer. Detalle en aprendizajes.
+- **Banco**: dos comprobaciones nuevas, mientras corre. Volviendo a poner el defecto, fallan las dos. Quedan 140 comprobaciones, y el banco y el QA salen sin problemas.
+- El video no cambia: se graba con `ir()`, que no usa `play()`.
+
 ## 18/10/2026 · La propuesta a Ribentek va por páginas, con título arriba
 
 - **Pedido del dueño**: un título arriba («nuevo producto de DataStudio, listo para ser vendido por Ribentek») y que no corra todo de golpe. Lo demás queda como está: cada cosa con su página, y ellos deciden cuándo avanzar o volver.
