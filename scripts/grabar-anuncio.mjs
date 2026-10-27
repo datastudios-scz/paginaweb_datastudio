@@ -2,6 +2,11 @@
  * Graba el anuncio del Portal BI a MP4, cuadro por cuadro (ADR-016).
  *   1) npm run build
  *   2) npm run anuncio:video  [-- --formatos 9x16,1x1] [--fps 60] [--crf 18] [--salida carpeta] [--base URL]
+ *                             [--pagina /anuncios/power-bi/] [--nombre power-bi-licencia] [--portada 2]
+ *
+ * Por defecto graba el anuncio de 55 s (/portal-bi/anuncio/, archivos portal-bi-*, portada a
+ * los 2,45 s). Con --pagina, --nombre y --portada graba otro con el mismo motor: el de «Power BI
+ * primero» (ADR-021) lo graba así su Action, una vez por apertura.
  *
  * No graba la pantalla: abre /portal-bi/anuncio/?render=1 en Chrome al tamaño exacto del
  * formato, lleva el anuncio a cada instante (window.__anuncio.ir) y le saca una foto. Así no
@@ -39,6 +44,10 @@ const FPS = Number(opcion('fps', '60'));
 const CRF = Number(opcion('crf', '18'));
 const SALIDA = opcion('salida', 'videos-anuncio');
 const pedidos = opcion('formatos', Object.keys(FORMATOS).join(',')).split(',');
+const PAGINA = opcion('pagina', '/portal-bi/anuncio/');
+const NOMBRE = opcion('nombre', 'portal-bi');
+/* El instante de la portada (la miniatura): el gancho armado */
+const PORTADA = Number(opcion('portada', '2.45'));
 
 for (const f of pedidos) {
   if (!FORMATOS[f]) {
@@ -69,7 +78,7 @@ if (!ejecutable) {
 /** Un servidor mínimo de dist/: la página solo pide su HTML, un módulo JS y dos fuentes. */
 async function servirDist() {
   const raiz = resolve('dist');
-  if (!existsSync(resolve(raiz, 'portal-bi/anuncio/index.html'))) {
+  if (!existsSync(resolve(raiz, `.${PAGINA}index.html`))) {
     console.error('El sitio no está compilado: corre `npm run build` primero (o pasa --base con un servidor).');
     process.exit(1);
   }
@@ -113,7 +122,7 @@ for (const formato of pedidos) {
   const errores = [];
   pagina.on('pageerror', (e) => errores.push(e.message));
   pagina.on('console', (m) => m.type() === 'error' && errores.push(m.text()));
-  await pagina.goto(`${BASE}/portal-bi/anuncio/?render=1&formato=${formato}`, { waitUntil: 'networkidle' });
+  await pagina.goto(`${BASE}${PAGINA}?render=1&formato=${formato}`, { waitUntil: 'networkidle' });
   await pagina.evaluate(() => window.__anuncio.listo);
   const duracion = await pagina.evaluate(() => window.__anuncio.duracion);
   const cuadros = Math.round((duracion / 1000) * FPS);
@@ -133,12 +142,13 @@ for (const formato of pedidos) {
     return Buffer.from(data, 'base64');
   };
 
-  /* La portada: el gancho armado (el pedido y los siete reportes a la vista, antes de que el
-     globo vuelva a vibrar a los 2,55 s y el portal se lo trague todo a los 2,9 s). ADR-019 */
-  await ir(2450);
-  writeFileSync(`${SALIDA}/portal-bi-portada-${formato}.jpg`, await pagina.screenshot({ type: 'jpeg', quality: 92 }));
+  /* La portada: el gancho armado. En el de 55 s, el pedido y los siete reportes a la vista, antes
+     de que el globo vuelva a vibrar a los 2,55 s y el portal se lo trague todo a los 2,9 s
+     (ADR-019); cada anuncio pasa el suyo con --portada */
+  await ir(PORTADA * 1000);
+  writeFileSync(`${SALIDA}/${NOMBRE}-portada-${formato}.jpg`, await pagina.screenshot({ type: 'jpeg', quality: 92 }));
 
-  const destino = `${SALIDA}/portal-bi-anuncio-${formato}.mp4`;
+  const destino = `${SALIDA}/${NOMBRE}-anuncio-${formato}.mp4`;
   const ffmpeg = spawn(
     'ffmpeg',
     [

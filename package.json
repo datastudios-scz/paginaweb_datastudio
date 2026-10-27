@@ -16,6 +16,7 @@
     "recorrido": "node scripts/probar-recorrido.mjs",
     "anuncio:video": "node scripts/grabar-anuncio.mjs",
     "anuncio:probar": "node scripts/probar-anuncio.mjs",
+    "anuncio:probar-pbi": "node scripts/probar-anuncio-pbi.mjs",
     "astro": "astro"
   },
   "dependencies": {

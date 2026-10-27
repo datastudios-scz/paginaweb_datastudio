@@ -1,0 +1,76 @@
+# Graba el anuncio «Power BI primero» (ADR-021) a MP4, las dos aperturas en los cuatro formatos, y
+# los publica como archivos del release `anuncio-power-bi`. Como el de 55 s (anuncio.yml, ADR-016):
+# los videos NO viven en el repositorio; las páginas ocultas /anuncios/power-bi/ y
+# /anuncios/power-bi-ia/ enlazan a esos archivos.
+#
+# Corre en Windows a propósito: las maquetas de Power BI y del chat usan Segoe UI, que en Linux no
+# existe. Cada acción está fijada a un commit SHA, igual que en deploy.yml y anuncio.yml.
+name: Grabar el anuncio Power BI primero
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/components/anuncio/**'
+      - 'src/scripts/anuncio.ts'
+      - 'src/pages/anuncios/power-bi.astro'
+      - 'src/pages/anuncios/power-bi-ia.astro'
+      - 'src/data/**'
+      - 'src/styles/**'
+      - 'src/layouts/Base.astro'
+      - 'scripts/grabar-anuncio.mjs'
+      - '.github/workflows/anuncio-power-bi.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: anuncio-power-bi
+  cancel-in-progress: true
+
+jobs:
+  grabar:
+    runs-on: windows-2025
+    timeout-minutes: 60
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Preparar Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Instalar dependencias exactas del lockfile
+        run: npm ci --no-audit --no-fund
+
+      - name: Compilar
+        run: npm run build
+
+      - name: Instalar ffmpeg
+        run: choco install ffmpeg --no-progress -y
+
+      # Cada apertura con su portada: el gancho armado, antes de que el candado se abra (2 s)
+      - name: Grabar la apertura «licencia»
+        run: npm run anuncio:video -- --pagina /anuncios/power-bi/ --nombre power-bi-licencia --portada 2 --salida videos-power-bi
+
+      - name: Grabar la apertura «ia»
+        run: npm run anuncio:video -- --pagina /anuncios/power-bi-ia/ --nombre power-bi-ia --portada 2 --salida videos-power-bi
+
+      - name: Publicar en el release anuncio-power-bi
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          if ! gh release view anuncio-power-bi >/dev/null 2>&1; then
+            gh release create anuncio-power-bi --target "$GITHUB_SHA" \
+              --title "Anuncio «Power BI primero»" --notes "Se reemplaza solo."
+          fi
+          gh release upload anuncio-power-bi videos-power-bi/* --clobber
+          gh release edit anuncio-power-bi --notes "Videos del anuncio «Power BI primero» de datastudio.es/anuncios/power-bi/ (apertura licencia) y /anuncios/power-bi-ia/ (apertura ia): MP4 de 21 s, 60 cps, BT.709, y su portada por formato. Grabados del commit $GITHUB_SHA. Se vuelven a grabar solos cada vez que cambia el anuncio."
+          ls -la videos-power-bi

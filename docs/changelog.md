@@ -1,5 +1,16 @@
 # Bitácora de cambios
 
+## 26/10/2026 · Anuncio nuevo: «Power BI primero», 21 s y dos aperturas
+
+- **Por qué**: en la primera campaña pagada la gente miró 3 o 4 s del anuncio de 55 s y casi nadie llegó al producto. El dueño pidió un video que empiece por Power BI, para que lo mire ese público y la segmentación salga más barata. Detalle en ADR-021.
+- **El anuncio** (`AnuncioPowerBI.astro` + `anuncio-pbi.css`): cinco tomas en 21 s, lo importante antes del segundo 10, en los cuatro formatos.
+  - Dos aperturas con el mismo cuerpo, para probarlas una contra otra: «licencia» (el aviso de Power BI Pro y la gente bloqueada) e «ia» (los tableros que responden preguntas).
+  - Después: el candado se abre (1.000 licencias → 1), la IA al costado del tablero, la ráfaga con «Desde US$ 59 al mes» y el cierre con el WhatsApp.
+- **Las páginas**: `/anuncios/power-bi/` y `/anuncios/power-bi-ia/`, ocultas, con selector de apertura y de formato y las descargas (`SalaAnuncio.astro`). Aparecen arriba en `/anuncios/`.
+- **Los videos**: la Action «Grabar el anuncio Power BI primero» los graba al release `anuncio-power-bi`. `grabar-anuncio.mjs` acepta `--pagina`, `--nombre` y `--portada`; sin ellos graba el de 55 s igual que antes.
+- **El de 55 s no cambia**: queda para quien ya vio algo (retargeting) y para la web.
+- **Banco**: `npm run anuncio:probar-pbi`, 95 comprobaciones. Encontró dos defectos antes de publicar, ya arreglados (aprendizajes). El banco del de 55 s y el QA salen sin problemas.
+
 ## 18/10/2026 · Arreglo: la toma 1 pasaba encima de cada página de la propuesta
 
 - **Lo vio el dueño**: en la propuesta a Ribentek, mientras avanzaba, la primera escena aparecía encima de todas las páginas.

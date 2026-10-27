@@ -2,6 +2,36 @@
 
 Formato: contexto → decisión → consecuencias. Las decisiones nuevas van arriba.
 
+## ADR-021 · «Power BI primero»: un anuncio de 21 s que segmenta solo, con dos aperturas (26/10/2026)
+
+- **Contexto**: la primera campaña pagada (20 al 24/10, US$ 39,43, leída con el conector de Meta Ads) trajo 29 conversaciones de WhatsApp a US$ 1,36, y ninguna venta. Lo que mostraron los datos:
+  - el tiempo promedio de reproducción fue de 3 a 4 s: solo 1 de cada 5 impresiones pasó de los 3 s, y 1 de cada 8 de esas llegó a la mitad, donde aparece la IA. El producto se veía después de que la gente se iba;
+  - 6 de 7 conversaciones leídas no pasaron del botón: curiosidad, no intención;
+  - los intereses de la segmentación traían estudiantes (Excel, SQL, aprendizaje automático).
+  - El dueño propuso un video que empiece tocando Power BI, «para que solo ese público lo vea», y que segmentar por el video saliera más barato.
+- **Decisión**: un anuncio aparte (el de 55 s queda intacto, para quien ya vio algo: retargeting y la web), de **21 s**, con lo importante antes del segundo 10:
+  1. **0 – 2,9 s, el gancho**, en dos aperturas con el mismo cuerpo:
+     - «licencia»: el aviso de Power BI que todo usuario conoce («Necesitas una licencia de Power BI Pro / para ver este reporte»), el reporte borroso detrás y la gente que choca contra él (Ventas, Operaciones, Gerencia y «+997»). A los 2,05 s el candado se abre;
+     - «ia»: «Tus tableros de Power BI ahora responden preguntas.», el tablero de ventas, la pregunta y la respuesta del chat.
+  2. **2,3 – 7,8 s, la recompensa**: el portal se traga el gancho y se abre como un iris. «Para 1.000 personas: 1.000 licencias (tachado) 1 licencia.», el sello «1 licencia de Power BI» y la misma gente entrando con su tilde.
+  3. **7,65 – 13,3 s, el plus**: «+ Y ahora tus datos HABLAN» y el reporte con el chat abierto a su costado (la pregunta, los pasos, la respuesta y el gráfico del de 55 s). Sin cámara: el chat ocupa casi todo el ancho y se lee en un teléfono.
+  4. **13,2 – 17,7 s, la ráfaga**: «Con tu marca.», «También en el celular.», «Lo instalamos por ti.», «Desde US$ 59 al mes.».
+  5. **17,45 – 21 s, el cierre**: el logo, «Power BI para toda tu empresa.», el lema, el WhatsApp y la dirección.
+- **Neuromarketing**:
+  - *La creatividad segmenta*: «Power BI» en el primer cuadro, en palabras y en su amarillo. Se detiene quien lo usa; Meta aprende de quién se detiene. Por eso la próxima campaña va sin la lista de intereses.
+  - *Un dolor que se ve, no que se calcula*: el aviso de la licencia lo reconoce quien lo vio alguna vez, sin leer cifras.
+  - *La recompensa antes de los 5 s*: el candado se abre y entra toda la empresa; la cuenta 1.000 → 1 se lee como una etiqueta tachada.
+  - *Continuidad*: la gente del muro es la misma que entra (las mismas iniciales y colores).
+  - *El precio filtra*: «Desde US$ 59 al mes» en la ráfaga, para que escriba quien puede comprar (ver contenido.md).
+  - *Una prueba que puede perder*: las dos aperturas comparten el cuerpo desde el segundo 2,3. Con el mismo público y el mismo presupuesto, gana la que traiga más conversaciones que respondan (no la de más reacciones). Si las dos traen lo mismo, el gancho no era el problema.
+- **Lo que reusa, sin copiarlo**: el motor (`anuncio.ts`), la base de estilos (`anuncio.css`: lienzo, formatos, tomas, tipografía cinética, cortina, ráfaga, cierre) y las maquetas del portal, el reporte y el chat. Lo propio vive en `AnuncioPowerBI.astro` y `anuncio-pbi.css`; la página, en `SalaAnuncio.astro`.
+- **Consecuencias**:
+  - Dos páginas ocultas (`/anuncios/power-bi/` y `/anuncios/power-bi-ia/`), dentro de `/anuncios/`: sin indexar, fuera del sitemap, en el QA.
+  - Los MP4 los graba la Action «Grabar el anuncio Power BI primero» (`anuncio-power-bi.yml`) en el release `anuncio-power-bi`. `grabar-anuncio.mjs` aprendió `--pagina`, `--nombre` y `--portada`; sin ellos graba el de 55 s como siempre.
+  - Banco propio, `npm run anuncio:probar-pbi`: las dos aperturas en los cuatro formatos (tomas, determinismo, primer cuadro, portada, absorción, zonas seguras, cierre, página, movimiento reducido, CSP). Encontró dos defectos antes de publicar (ver aprendizajes).
+  - Es la primera pieza que publica un precio (contenido.md). La web todavía no lo muestra.
+  - Las maquetas siguen al producto: si el chat del portal cambia sus rótulos, cambian también acá (ADR-014).
+
 ## ADR-020 · La propuesta a un socio es el anuncio, por páginas: la de Ribentek (17/10/2026, revisada dos veces el 18/10)
 
 - **Segunda revisión del dueño (18/10/2026): por páginas, y con título.** Sus palabras: «que no corra todo de golpe, que sea tal como está, está perfecto, pero cada cosa con su paginación para que ellos decidan cuándo avanzar de escena/página o volver». Y arriba, un título: «nuevo producto de DataStudio, listo para ser vendido por Ribentek».

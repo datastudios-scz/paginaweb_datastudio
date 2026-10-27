@@ -1,0 +1,118 @@
+---
+/**
+ * La sala del anuncio «Power BI primero» (ADR-021): la barra con el formato y los controles, el
+ * lienzo y el panel de descargas. Es la misma herramienta que /portal-bi/anuncio/ (ADR-016),
+ * con un selector más: la apertura, que es otra página (/anuncios/power-bi/ y
+ * /anuncios/power-bi-ia/), así cada una se graba y se comparte por su dirección.
+ *
+ * Páginas OCULTAS: dentro de /anuncios/ (src/data/ocultas.mjs), sin indexar y fuera del sitemap.
+ * Los MP4 los graba la Action «Grabar el anuncio Power BI primero» y quedan en el release
+ * `anuncio-power-bi`; los botones enlazan ahí.
+ */
+import Base from '../../layouts/Base.astro';
+import Icono from '../Icono.astro';
+import AnuncioPowerBI from './AnuncioPowerBI.astro';
+import { FORMATOS, videoPowerBi, portadaPowerBi, type Apertura } from '../../data/anuncios';
+import './anuncio.css';
+import './anuncio-pbi.css';
+
+interface Props {
+  apertura: Apertura;
+}
+
+const { apertura } = Astro.props;
+const VIDEO = videoPowerBi(apertura);
+const PORTADA = portadaPowerBi(apertura);
+const APERTURAS = [
+  { id: 'licencia', nombre: 'Licencia', href: '/anuncios/power-bi/', uso: 'Abre con el aviso de la licencia de Power BI Pro' },
+  { id: 'ia', nombre: 'IA', href: '/anuncios/power-bi-ia/', uso: 'Abre con los tableros que responden preguntas' },
+] as const;
+const nombre = apertura === 'licencia' ? 'licencia' : 'IA';
+---
+
+<Base
+  titulo={`Anuncio «Power BI primero» (${nombre}) · Data Studio`}
+  descripcion="Anuncio de 21 segundos del Portal BI para redes sociales."
+  imagen="/og/portal-bi.png"
+  inmersiva
+  indexar={false}
+>
+  <div class="an" data-a="raiz">
+    <header class="an-barra">
+      <a class="an-barra__volver" href="/anuncios/" aria-label="Volver a los anuncios">
+        <Icono nombre="anterior" />
+        <span>Anuncios</span>
+      </a>
+      <h1 class="an-barra__nombre">Power BI primero · apertura {nombre} · 21 s</h1>
+      <nav class="an-aperturas" aria-label="Apertura del anuncio">
+        {APERTURAS.map((a) => (
+          <a class="an-formato" href={a.href} title={a.uso} aria-current={a.id === apertura ? 'page' : undefined}>{a.nombre}</a>
+        ))}
+      </nav>
+      <div class="an-formatos" role="group" aria-label="Formato del video">
+        {FORMATOS.map((f) => (
+          <button type="button" class="an-formato" data-formato-boton={f.id} aria-pressed={f.id === '9x16' ? 'true' : 'false'} title={f.uso}>
+            {f.nombre}
+          </button>
+        ))}
+      </div>
+      <div class="an-controles">
+        <button type="button" class="an-control" data-a="pausa" aria-label="Pausar" title="Pausar (espacio)">
+          <span class="an-control__pausar"><Icono nombre="pausa" /></span>
+          <span class="an-control__seguir"><Icono nombre="reproducir" /></span>
+        </button>
+        <button type="button" class="an-control" data-a="reiniciar" aria-label="Desde el principio" title="Desde el principio">
+          <Icono nombre="reiniciar" />
+        </button>
+        <button type="button" class="an-control" data-a="completa" aria-label="Pantalla completa" title="Pantalla completa (para grabarlo)">
+          <Icono nombre="expandir" />
+        </button>
+      </div>
+    </header>
+
+    <div class="an-sala">
+      <div class="an-marco">
+        <AnuncioPowerBI apertura={apertura} />
+      </div>
+
+      <aside class="an-panel" aria-labelledby="an-panel-titulo">
+        <h2 id="an-panel-titulo">Descargar el video</h2>
+        <p>MP4 de 60 cuadros por segundo, listo para subir. Uno por formato:</p>
+        <ul class="an-descargas">
+          {FORMATOS.map((f) => (
+            <li>
+              <a class="an-descarga" href={VIDEO(f.id)} download>
+                <span>{f.nombre} · {f.uso}</span>
+                <small>{f.px}</small>
+              </a>
+            </li>
+          ))}
+        </ul>
+        <p>
+          Y la portada de cada uno (el gancho armado, para elegirla como miniatura):
+          <a class="enlace" data-a="descarga-actual" data-molde={PORTADA('{f}')} href={PORTADA('9x16')} download>la del formato que estás viendo</a>.
+        </p>
+        <h2>Las dos aperturas</h2>
+        <p>
+          Desde el segundo 2,3 son el mismo anuncio: solo cambia el gancho. Súbelas con el mismo
+          público y el mismo presupuesto, y quédate con la que traiga más conversaciones que
+          respondan, no la de más reacciones.
+        </p>
+        <h2>Música</h2>
+        <p>
+          No trae audio: en las redes casi todo se mira sin sonido. Los cortes caen cada medio
+          segundo, así que cualquier tema a <strong>120 BPM</strong> calza.
+        </p>
+        <h2>Grabarlo tú mismo</h2>
+        <p>
+          Elige el formato, toca pantalla completa y graba la pantalla: el anuncio vuelve a empezar
+          solo al terminar. Espacio pausa; las flechas avanzan o retroceden un segundo.
+        </p>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    import '../../scripts/anuncio';
+  </script>
+</Base>

@@ -2,6 +2,33 @@
 
 Cada entrada: **síntoma → causa → solución → cómo evitarlo**.
 
+## El anuncio «Power BI primero» (26/10/2026)
+
+### Un contador que cambia el ancho de una pieza mueve a las vecinas, y el script ya midió
+- **Síntoma**: el banco, en los cuatro formatos de la apertura «licencia»: «el portal se traga las 5 piezas… la más lejana a 21,7 px» del centro de la ventana.
+- **Causa**: la pastilla «+997» cuenta desde «+0», y con cada número cambiaba su ancho. Como la fila de la gente va centrada, todas las pastillas se corrían. El script mide cuánto viaja cada pieza (`--hx`, `--hy`) con el anuncio en el segundo 0, cuando la pastilla decía «+0»; cuando el portal se las traga ya dice «+997».
+- **Solución**: el número ocupa siempre lo mismo (`min-width: 4ch` en la letra de datos).
+- **Cómo evitarlo**: lo que el script mide una sola vez no puede depender de algo que cambia con el tiempo. Un contador al lado de algo que se mide va con ancho fijo.
+
+### En 9:16, lo que llena la zona de abajo se mide contra el 79 %
+- **Síntoma**: el banco: el chat de la toma 3 terminaba en 1.526 px de 1.517, sobre los botones de Reels.
+- **Causa**: la zona visual de 9:16 llega al 79,5 % (`--vi-b: 20,5 %`) y el chat ocupa todo su alto.
+- **Solución**: en esa toma, `--vi-b: 21 %`. Lo que llena la zona hasta abajo tiene que terminar en el 79 %.
+
+### Un comentario HTML suelto dentro de una condición de Astro no compila
+- **Síntoma**: `astro build`: «CompilerError: Unexpected token» en la línea de la condición.
+- **Causa**: `{cond ? ( <!-- … --> <section>…</section> ) : …}` son dos nodos donde la expresión espera uno.
+- **Solución**: envolver cada rama en un fragmento, `<> … </>`.
+
+### Detrás de un aviso, un reporte del mismo tamaño se lee como una sombra corrida
+- **Síntoma**: en la hoja de contactos, el reporte borroso detrás del aviso de la licencia parecía una sombra mal puesta.
+- **Causa**: era apenas más grande que el aviso y estaba centrado en otro punto: asomaba de un solo lado.
+- **Solución**: el recuadro centrado en el aviso y el reporte un 32 % más grande que él, con menos desenfoque. Ahora asoma parejo por los cuatro lados, como detrás de un aviso de verdad. Arriba, una franja oscura para que la firma no quede sobre el reporte.
+
+### Un nombre de marca no se parte en dos renglones
+- **Síntoma**: en 16:9, la columna del titular partía «de Power / BI ahora».
+- **Solución**: `white-space: nowrap` en «Power BI» y un punto menos de letra en esa columna.
+
 ## La propuesta por páginas (18/10/2026)
 
 ### `play()` sobre una animación que ya terminó la rebobina a 0

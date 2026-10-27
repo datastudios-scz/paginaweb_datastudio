@@ -1,0 +1,331 @@
+---
+/**
+ * El anuncio «Power BI primero» (/anuncios/power-bi/ y /anuncios/power-bi-ia/): 21 segundos y
+ * cinco tomas (ADR-021). Nace de lo que midió la campaña de octubre: la gente miraba 3 o 4
+ * segundos del de 55 s, y el producto aparecía después. Este dice «Power BI» en el primer
+ * cuadro —se detiene quien lo usa y sigue de largo quien no, así el video segmenta solo— y
+ * cuenta lo importante antes del segundo 10.
+ *
+ * Dos aperturas con el mismo cuerpo, para que el mercado decida qué gancho funciona:
+ *  · «licencia»: el aviso de Power BI que todo usuario conoce («Necesitas una licencia de Power
+ *    BI Pro para ver este reporte») y la gente que choca contra él;
+ *  · «ia»: «Tus tableros de Power BI ahora responden preguntas.» y el chat contestando.
+ * Después, igual en las dos: el portal abre el candado (1.000 licencias → 1), la IA al costado
+ * del tablero, la ráfaga (marca, celular, lo instalamos, desde US$ 59 al mes) y el cierre.
+ *
+ * Usa el motor del anuncio de 55 s (src/scripts/anuncio.ts) y su base de estilos (anuncio.css):
+ * tomas con su ventana --a/--z, todo el movimiento en @keyframes contados desde el segundo 0 y
+ * tamaños en --u. Las maquetas del portal, del reporte y del chat son las mismas (una sola copia
+ * del producto, ADR-014). Lo propio vive en anuncio-pbi.css.
+ */
+import AnuncioPortal from './AnuncioPortal.astro';
+import AnuncioReporte from './AnuncioReporte.astro';
+import { PBI } from './datos';
+import { CONTACTO } from '../../data/sitio';
+import { LOGO_BARRAS, LOGO_WORDMARK } from '../../data/logo';
+
+interface Props {
+  /** El gancho de los primeros 2,5 s. El resto del anuncio es el mismo. */
+  apertura?: 'licencia' | 'ia';
+}
+
+const { apertura = 'licencia' } = Astro.props;
+
+/* Un titular partido en palabras con ranura: la animación las sube de a una (w0, w1…) */
+const esc = (t: string) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const titular = (texto: string) =>
+  texto
+    .split(' ')
+    .map((w, k) => `<span class="an-p w${k}"><span>${esc(w)}</span></span>`)
+    .join(' ');
+
+/* La gente que choca contra el aviso (apertura «licencia») y que después entra al portal: las
+   mismas iniciales y los mismos colores en las dos tomas, para que se lea como la misma gente.
+   Tres áreas y el resto en un número: 3 + 997 = 1.000 */
+const PERSONAS = [
+  { id: 1, inicial: 'V', nombre: 'Ventas' },
+  { id: 2, inicial: 'O', nombre: 'Operaciones' },
+  { id: 3, inicial: 'G', nombre: 'Gerencia' },
+];
+const RESTO = 997;
+
+/* Los trazos de siempre: candado (el arco va aparte, porque se abre), tilde e IA */
+const ARCO = 'M8 10.5V8a4 4 0 0 1 8 0v2.5';
+const TILDE = 'M5 12.5 10 17.5 19 7';
+const DESTELLO = 'M12 2l1.9 5.6L19.5 9l-5.6 1.9L12 16.5l-1.9-5.6L4.5 9l5.6-1.4z';
+
+/* El lema (ADR-018), con el «+», las palabras que suben y el chip de IA, como en el de 55 s */
+const CHISPA = 'M12 0C12.7 6.7 17.3 11.3 24 12 17.3 12.7 12.7 17.3 12 24 11.3 17.3 6.7 12.7 0 12 6.7 11.3 11.3 6.7 12 0Z';
+const chispa = (donde: string) =>
+  `<svg class="an-chip-ia__chispa an-chip-ia__chispa--${donde}" viewBox="0 0 24 24"><path d="${CHISPA}" /></svg>`;
+const LEMA =
+  '<span class="an-lema__mas">+</span>' +
+  ['Y', 'ahora', 'tus', 'datos'].map((w, k) => `<span class="an-p w${k}"><span>${w}</span></span>`).join(' ') +
+  ' <span class="an-lema__fin"><span class="an-p w4 an-lema__hablan"><span>hablan</span></span>' +
+  `<span class="an-chip-ia">${chispa('adentro')}IA${chispa('arriba')}${chispa('abajo')}</span></span>`;
+
+/* El chat de la toma 3: la primera pregunta del de 55 s, con sus mismos datos de ejemplo
+   (ADR-013): siete sucursales, tres sobre el promedio ponderado de +7,9 %, Aeropuerto primero */
+const PREGUNTA = '¿Qué sucursales crecieron más que el promedio?';
+const PROMEDIO = 7.9;
+const CRECIMIENTO = [
+  ['Aeropuerto', 18.4],
+  ['Norte', 11.2],
+  ['Centro', 9.1],
+  ['Plaza Mayor', 5.6],
+  ['Costanera', 3.3],
+  ['Sur', -3.3],
+  ['Parque Industrial', -7.4],
+] as const;
+const pct = (v: number) => `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v).toFixed(1).replace('.', ',')} %`;
+
+/* La apertura «ia»: el tablero de ventas que contesta. Las barras son las ventas de cada
+   sucursal del reporte (las mismas de AnuncioReporte); se enciende la de Aeropuerto, la que
+   más creció, cuando llega la respuesta */
+const BARRAS_IA = [
+  ['Centro', 20],
+  ['Plaza Mayor', 17],
+  ['Norte', 15],
+  ['Aeropuerto', 13],
+  ['Costanera', 11],
+  ['Sur', 4],
+] as const;
+
+/* La ráfaga: una idea por golpe de un segundo, el último un poco más largo. Habla del plan en
+   que lo hacemos nosotros (el precio que filtra curiosos); el del código se cuenta en el chat */
+const ICONO = {
+  marca: 'M9 25.5 23.5 11H37v13.5L22.5 39ZM31 17.2v.01',
+  celular: 'M17 6h14a3 3 0 0 1 3 3v30a3 3 0 0 1-3 3H17a3 3 0 0 1-3-3V9a3 3 0 0 1 3-3ZM21.5 36h5',
+  llave: 'M30 8a10 10 0 0 0-9.6 12.8L8 33.2V40h6.8l12.4-12.4A10 10 0 1 0 30 8Z',
+  moneda: 'M24 6a18 18 0 1 0 0 36 18 18 0 0 0 0-36ZM29.5 18.4c-1.1-1.6-3-2.5-5.4-2.5-3 0-5.1 1.5-5.1 3.7 0 5.6 10.8 2.9 10.8 8.7 0 2.3-2.2 3.9-5.5 3.9-2.5 0-4.6-1-5.8-2.7M24 12.4v3.5M24 31.9v3.6',
+};
+const CORTES = [
+  { ico: ICONO.marca, texto: 'Con tu marca.' },
+  { ico: ICONO.celular, texto: 'También en el celular.' },
+  { ico: ICONO.llave, texto: 'Lo instalamos por ti.' },
+  { ico: ICONO.moneda, texto: 'Desde US$ 59 al mes.' },
+];
+---
+
+<div class:list={['an-lienzo', 'an-lienzo--pbi', `an-lienzo--pbi-${apertura}`]} data-a="lienzo" data-formato="9x16" data-movimiento-propio aria-hidden="true">
+  <!-- El reloj: una animación lineal de 21 s que el script lee para saber en qué segundo va -->
+  <i class="an-reloj" data-a="reloj"></i>
+
+  <!-- Fondo vivo de las tomas oscuras -->
+  <div class="an-fondo"><i></i><i></i></div>
+
+  {apertura === 'licencia' ? (
+    <>
+    <!-- ═══ 1 · EL MURO (0 – 2,9 s): el aviso que todo usuario de Power BI conoce ═══
+         El primer cuadro ya es el gancho (la miniatura). Detrás, el reporte que no se puede
+         ver; delante, la gente que choca contra el aviso, una por pulso, y el resto en un
+         número. A los 2,05 s el candado se abre y el portal se lo traga todo (data-a="absorbe":
+         el script mide cuánto viaja cada pieza hasta el centro de la ventana de la toma 2). -->
+    <section class="an-escena pb-s1 pb-s1--licencia">
+      <div class="pb-muro">
+        <div class="an-ui an-ventana pb-muro__rep">
+          <div class="an-ui__in">
+            <div class="an-ventana__barra"><i></i><i></i><i></i><span>app.powerbi.com</span></div>
+            <AnuncioReporte />
+          </div>
+        </div>
+      </div>
+      <div class="pb-aviso" data-a="absorbe">
+        <div class="pb-aviso__centro">
+          <div class="pb-aviso__caja">
+            <span class="pb-aviso__ico">
+              <svg viewBox="0 0 41.5 41.5"><path d={PBI} /></svg>
+              <i class="pb-candado">
+                <svg viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2" /><path class="pb-candado__arco" d={ARCO} /></svg>
+              </i>
+            </span>
+            <p class="pb-aviso__t">Necesitas una licencia de Power BI Pro</p>
+            <p class="pb-aviso__s">para ver este reporte</p>
+            <span class="pb-aviso__botones"><b>Actualizar a Pro</b><em>Cancelar</em></span>
+          </div>
+        </div>
+      </div>
+      <div class="pb-gente">
+        {PERSONAS.map((p) => (
+          <span class={`pb-persona pb-persona--${p.id}`} data-a="absorbe">
+            <span class="pb-persona__in">
+              <i>{p.inicial}</i>
+              {p.nombre}
+              <svg class="pb-persona__no" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2" /><path d={ARCO} /></svg>
+            </span>
+          </span>
+        ))}
+        <span class="pb-persona pb-persona--4" data-a="absorbe">
+          <span class="pb-persona__in pb-persona__in--resto">
+            <span data-a="kpi" data-signo="+" data-desde="0" data-hasta={String(RESTO)} data-en="1.5" data-dur="0.45">+{RESTO}</span>
+          </span>
+        </span>
+      </div>
+    </section>
+    </>
+  ) : (
+    <>
+    <!-- ═══ 1 · LA PREGUNTA (0 – 2,9 s): el tablero de Power BI que contesta ═══
+         El titular ya está en el primer cuadro (la miniatura). Llega la pregunta, la IA escribe
+         y contesta, y se enciende la barra de la respuesta. A los 2,35 s el portal se lo traga
+         todo, como en la otra apertura. -->
+    <section class="an-escena pb-s1 pb-s1--ia">
+      <div class="an-texto pb-s1-texto">
+        <p class="an-h1 pb-s1-titular">Tus tableros de <span class="pb-amarillo">Power BI</span> ahora responden preguntas.</p>
+      </div>
+      <div class="pb-charla">
+        <div class="pb-pieza pb-pieza--tablero" data-a="absorbe">
+          <div class="pb-tablero">
+            <p class="pb-tablero__cab"><svg viewBox="0 0 41.5 41.5"><path d={PBI} /></svg>Ventas por sucursal</p>
+            <div class="pb-tablero__barras">
+              {BARRAS_IA.map(([n, alto], i) => (
+                <span class:list={['pb-tablero__barra', `pb-alto-${alto}`, { 'pb-tablero__barra--si': n === 'Aeropuerto' }]}>
+                  <i></i>
+                  <em>{n.split(' ')[0]}</em>
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div class="pb-pieza pb-pieza--yo" data-a="absorbe">
+          <p class="pb-burbuja pb-burbuja--yo">¿Qué sucursal creció más?</p>
+        </div>
+        <div class="pb-pieza pb-pieza--ia" data-a="absorbe">
+          <div class="pb-burbuja pb-burbuja--ia">
+            <span class="pb-burbuja__de"><svg viewBox="0 0 24 24"><path d={DESTELLO} /></svg>Chat IA</span>
+            <span class="pb-puntos"><i></i><i></i><i></i></span>
+            <span class="pb-burbuja__r"><b>Aeropuerto</b> lidera: <b>+18,4 %</b></span>
+          </div>
+        </div>
+      </div>
+    </section>
+    </>
+  )}
+
+  <!-- ═══ 2 · EL CANDADO SE ABRE (2,3 – 7,8 s): una licencia para toda la empresa ═══
+       Lo que se tragó la toma 1 sale ordenado: el portal con los tableros. Al lado, la cuenta
+       que importa, sin aritmética: 1.000 licencias tachadas y una sola. La misma gente del
+       muro entra con su tilde. -->
+  <section class="an-escena pb-s2">
+    <div class="an-texto">
+      <p class="an-h3 pb-s2-para">Para 1.000 personas:</p>
+      <p class="an-h2 pb-s2-no"><span>1.000 licencias</span><i class="pb-s2-tacha"></i></p>
+      <p class="an-h1 pb-s2-una" set:html={titular('1 licencia.')} />
+    </div>
+    <div class="an-visual pb-s2-visual">
+      <i class="pb-s2-halo"></i>
+      <i class="pb-s2-destello"></i>
+      <i class="pb-s2-centro" data-a="destino"></i>
+      <div class="an-ui an-ventana pb-s2-ventana">
+        <div class="an-ui__in">
+          <div class="an-ventana__barra"><i></i><i></i><i></i><span>portal.tuempresa.com/tableros</span><em>Datos de ejemplo</em></div>
+          <AnuncioPortal tarjeta="pb-t--" ia />
+        </div>
+        <span class="pb-sello"><svg viewBox="0 0 41.5 41.5"><path d={PBI} /></svg>1 licencia de Power BI</span>
+        <div class="pb-adentro">
+          {PERSONAS.map((p) => (
+            <span class={`pb-cara pb-cara--${p.id}`}>
+              {p.inicial}
+              <i><svg viewBox="0 0 24 24"><path d={TILDE} /></svg></i>
+            </span>
+          ))}
+          <b class="pb-adentro__resto"><span data-a="kpi" data-signo="+" data-desde="0" data-hasta={String(RESTO)} data-en="4.75" data-dur="0.6">+{RESTO}</span></b>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Las cuatro barras del logo como cortina (de la 2 a la 3) -->
+  <div class="an-barras pb-barras--1"><i></i><i></i><i></i><i></i></div>
+
+  <!-- ═══ 3 · LA IA AL COSTADO DEL TABLERO (7,65 – 13,3 s) ═══
+       El lema y, debajo, el reporte con el chat abierto a su costado, como en el portal: la
+       pregunta, los pasos del chat (los rótulos de views/modules/chat.ejs del Portal BI), la
+       respuesta y su gráfico con el promedio. Sin cámara: el chat ya es grande. -->
+  <section class="an-escena pb-s3">
+    <div class="an-texto">
+      <p class="an-h1 pb-s3-titulo an-lema" set:html={LEMA} />
+      <p class="an-h3 pb-s3-sub">Pregúntale lo que el tablero no muestra.</p>
+    </div>
+    <div class="an-visual pb-s3-visual">
+      <div class="an-ui an-ventana pb-s3-rep">
+        <div class="an-ui__in">
+          <div class="an-ventana__barra"><i></i><i></i><i></i><span>portal.tuempresa.com/visor</span><em>Datos de ejemplo</em></div>
+          <AnuncioReporte />
+        </div>
+      </div>
+      <div class="pb-s3-chat">
+        <div class="pb-s3-chat__in">
+          <div class="an-s6-cab">
+            <span class="an-s6-cab__ico"><svg viewBox="0 0 24 24"><path d={DESTELLO} /></svg></span>
+            <span class="an-s6-cab__id"><b>Ventas por sucursal</b><span>Pregunta sobre los datos de este tablero</span></span>
+          </div>
+          <div class="pb-s3-hilo">
+            <p class="an-s6-yo">{PREGUNTA}</p>
+            <div class="an-s6-pasos">
+              <span class="an-s6-paso pb-paso--1"><i></i>Leyendo la estructura del modelo</span>
+              <span class="an-s6-paso pb-paso--2"><i></i>Redactando la consulta</span>
+              <span class="an-s6-paso pb-paso--3"><i></i>Consultando Power BI</span>
+            </div>
+            <p class="an-s6-resp"><b>3 de 7</b> sucursales crecieron más que el promedio. <b>Aeropuerto</b> lidera: <b>+18,4 %</b>.</p>
+            <div class="an-s6-graf">
+              <p class="an-s6-graf__t">Crecimiento contra 2025<span class="an-s6-graf__ley"><i></i>promedio {pct(PROMEDIO)}</span></p>
+              <div class="an-s6-graf__filas">
+                {CRECIMIENTO.map(([n, v], i) => (
+                  <div class:list={['an-s6-fila', `an-s6-fila--${i + 1}`, { 'an-s6-fila--arriba': v > PROMEDIO, 'an-s6-fila--neg': v < 0 }]}>
+                    <span class="an-s6-fila__n">{n}</span>
+                    <span class="an-s6-fila__b"><i></i></span>
+                    <span class="an-s6-fila__v">{pct(v)}</span>
+                  </div>
+                ))}
+                <i class="an-s6-graf__prom"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ 4 · RÁFAGA (13,2 – 17,66 s): cuatro golpes de un segundo ═══ -->
+  <section class="an-escena pb-s4">
+    {CORTES.map((c, i) => (
+      <div class={`an-corte an-corte--${i + 1}`}>
+        <svg class="an-corte__ico" viewBox="0 0 48 48"><path d={c.ico} pathLength="1" /></svg>
+        <p class="an-h1" set:html={titular(c.texto)} />
+      </div>
+    ))}
+  </section>
+
+  <!-- Las barras otra vez, para entrar al cierre -->
+  <div class="an-barras pb-barras--2"><i></i><i></i><i></i><i></i></div>
+
+  <!-- ═══ 5 · CIERRE (17,45 s – fin): la marca y a dónde escribir ═══ -->
+  <section class="an-escena pb-s5">
+    <div class="an-cierre">
+      <div class="an-logo">
+        <svg class="an-logo__icono" viewBox="0 0 1893 1895">
+          <path class="an-logo__pantalla" d="M0 1107V130A130 130 0 0 1 130 0h1633a130 130 0 0 1 130 130v977Z" />
+          {LOGO_BARRAS.map((b, i) => (
+            <rect class={`an-logo__barra an-logo__barra--${i + 1}`} x={b.x} y={b.y} width="233" height={b.alto} />
+          ))}
+          <path class="an-logo__pie" d="M0 1181h1893v201a120 120 0 0 1-120 120h-669v153h273a120 120 0 0 1 120 120v120H396v-120a120 120 0 0 1 120-120h273v-153H120A120 120 0 0 1 0 1382ZM596.5 1260h70a41.5 41.5 0 0 1 0 83h-70a41.5 41.5 0 0 1 0-83ZM911.5 1260h70a41.5 41.5 0 0 1 0 83h-70a41.5 41.5 0 0 1 0-83ZM1226.5 1260h70a41.5 41.5 0 0 1 0 83h-70a41.5 41.5 0 0 1 0-83Z" fill-rule="evenodd" />
+        </svg>
+        <svg class="an-logo__wordmark" viewBox="0 0 4733 484"><path d={LOGO_WORDMARK} /></svg>
+      </div>
+      <p class="an-h1 an-s9-titulo" set:html={titular('Power BI para toda tu empresa.')} />
+      <p class="an-h3 an-s9-lema an-lema" set:html={LEMA} />
+      <p class="an-cta">
+        <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.3-.5 0-1 .2-3.3-.7-2.8-1.1-4.6-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.9s.7-2.1 1-2.4c.3-.3.6-.3.8-.3h.6c.2 0 .4 0 .6.5l.9 2.1c.1.2.1.4 0 .6l-.4.6-.5.5c-.2.2-.3.3-.1.6.2.3.8 1.4 1.8 2.2 1.2 1.1 2.3 1.4 2.6 1.6.3.1.5.1.7-.1l1-1.2c.2-.3.4-.2.7-.1l2 1c.3.1.5.2.5.3.1.2.1.8-.1 1.4Z" /></svg>
+        <span>Escríbenos: {CONTACTO.telefonoVisible}</span>
+      </p>
+      <p class="an-url">datastudio.es/portal-bi</p>
+    </div>
+  </section>
+
+  <!-- La firma: chica, arriba, mientras dura el anuncio (el cierre trae la grande) -->
+  <div class="an-firma">
+    <svg viewBox="0 0 28 28"><rect x="3" y="14" width="5" height="11" rx="1.2" /><rect x="11.5" y="8" width="5" height="17" rx="1.2" /><rect x="20" y="3" width="5" height="22" rx="1.2" /></svg>
+    <span>Portal BI</span>
+  </div>
+</div>
