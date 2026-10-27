@@ -28,11 +28,14 @@ const APERTURAS = [
   { id: 'ia', nombre: 'IA', href: '/anuncios/power-bi-ia/', uso: 'Abre con los tableros que responden preguntas' },
 ] as const;
 const nombre = apertura === 'licencia' ? 'licencia' : 'IA';
+/* La apertura «ia» dura un segundo más (--t0 en anuncio-pbi.css): el banco comprueba que esto
+   coincida con el reloj */
+const SEGUNDOS = apertura === 'ia' ? 22 : 21;
 ---
 
 <Base
   titulo={`Anuncio «Power BI primero» (${nombre}) · Data Studio`}
-  descripcion="Anuncio de 21 segundos del Portal BI para redes sociales."
+  descripcion={`Anuncio de ${SEGUNDOS} segundos del Portal BI para redes sociales.`}
   imagen="/og/portal-bi.png"
   inmersiva
   indexar={false}
@@ -43,7 +46,7 @@ const nombre = apertura === 'licencia' ? 'licencia' : 'IA';
         <Icono nombre="anterior" />
         <span>Anuncios</span>
       </a>
-      <h1 class="an-barra__nombre">Power BI primero · apertura {nombre} · 21 s</h1>
+      <h1 class="an-barra__nombre">Power BI primero · apertura {nombre} · {SEGUNDOS} s</h1>
       <nav class="an-aperturas" aria-label="Apertura del anuncio">
         {APERTURAS.map((a) => (
           <a class="an-formato" href={a.href} title={a.uso} aria-current={a.id === apertura ? 'page' : undefined}>{a.nombre}</a>
@@ -94,9 +97,10 @@ const nombre = apertura === 'licencia' ? 'licencia' : 'IA';
         </p>
         <h2>Las dos aperturas</h2>
         <p>
-          Desde el segundo 2,3 son el mismo anuncio: solo cambia el gancho. Súbelas con el mismo
-          público y el mismo presupuesto, y quédate con la que traiga más conversaciones que
-          respondan, no la de más reacciones.
+          Después del gancho son el mismo anuncio (la apertura «IA» dura un segundo más, para que
+          se vea a la IA escribir y contestar). Súbelas con el mismo público y el mismo
+          presupuesto, y quédate con la que traiga más conversaciones que respondan, no la de más
+          reacciones.
         </p>
         <h2>Música</h2>
         <p>

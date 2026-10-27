@@ -2,7 +2,14 @@
 
 Formato: contexto → decisión → consecuencias. Las decisiones nuevas van arriba.
 
-## ADR-021 · «Power BI primero»: un anuncio de 21 s que segmenta solo, con dos aperturas (26/10/2026)
+## ADR-021 · «Power BI primero»: un anuncio de 21 s que segmenta solo, con dos aperturas (26/10/2026, revisado el mismo día)
+
+- **Revisión del dueño (26/10/2026)**: la primera escena de la apertura «ia» «no vende, se ve súper básico». Pidió «Potencia tu Power BI con IA», un tablero de Power BI con el chip que se toca, como en el de 55 s, y que se vea a la IA escribir y contestar. Y que no salga ningún precio.
+  - **La apertura «ia», rehecha**: el titular «Potencia tu Power BI con IA» («IA» como el chip violeta del producto) y la ventana del visor con el reporte y la lengüeta «Chat IA» llamando desde el primer cuadro. Un toque, el chat se abre al costado (el reporte se encaja), la cámara entra al chat, la IA escribe «¿Qué sucursal creció más?», muestra sus tres pasos y contesta «Aeropuerto lidera: +18,4 %, más del doble del promedio.» con el dato grande. Son las piezas de la toma 6 del de 55 s, con sus tiempos.
+  - **Dura un segundo más (22 s)** para que la respuesta se lea. El cuerpo es el mismo de la apertura «licencia», corrido ese segundo (`--t0`), así la comparación sigue siendo entre ganchos.
+  - **No se la traga el portal**: sube y se apaga mientras se abre la luz del portal. Encoger el chat ya agrandado por la cámara salía distinto según desde qué instante se llegaba, y la cámara arranca recién cuando se fue la lengüeta (su texto va girado). Ver aprendizajes.
+  - **Sin precios**: la ráfaga cierra con «El código es tuyo.» y «Nunca más una licencia por persona.» (las del de 55 s). El banco comprueba que no aparezca ninguno.
+  - La apertura «licencia» no cambió.
 
 - **Contexto**: la primera campaña pagada (20 al 24/10, US$ 39,43, leída con el conector de Meta Ads) trajo 29 conversaciones de WhatsApp a US$ 1,36, y ninguna venta. Lo que mostraron los datos:
   - el tiempo promedio de reproducción fue de 3 a 4 s: solo 1 de cada 5 impresiones pasó de los 3 s, y 1 de cada 8 de esas llegó a la mitad, donde aparece la IA. El producto se veía después de que la gente se iba;
@@ -12,24 +19,24 @@ Formato: contexto → decisión → consecuencias. Las decisiones nuevas van arr
 - **Decisión**: un anuncio aparte (el de 55 s queda intacto, para quien ya vio algo: retargeting y la web), de **21 s**, con lo importante antes del segundo 10:
   1. **0 – 2,9 s, el gancho**, en dos aperturas con el mismo cuerpo:
      - «licencia»: el aviso de Power BI que todo usuario conoce («Necesitas una licencia de Power BI Pro / para ver este reporte»), el reporte borroso detrás y la gente que choca contra él (Ventas, Operaciones, Gerencia y «+997»). A los 2,05 s el candado se abre;
-     - «ia»: «Tus tableros de Power BI ahora responden preguntas.», el tablero de ventas, la pregunta y la respuesta del chat.
+     - «ia»: primero, «Tus tableros de Power BI ahora responden preguntas.», el tablero de ventas, la pregunta y la respuesta del chat. Rehecha el mismo día (ver la revisión, arriba).
   2. **2,3 – 7,8 s, la recompensa**: el portal se traga el gancho y se abre como un iris. «Para 1.000 personas: 1.000 licencias (tachado) 1 licencia.», el sello «1 licencia de Power BI» y la misma gente entrando con su tilde.
   3. **7,65 – 13,3 s, el plus**: «+ Y ahora tus datos HABLAN» y el reporte con el chat abierto a su costado (la pregunta, los pasos, la respuesta y el gráfico del de 55 s). Sin cámara: el chat ocupa casi todo el ancho y se lee en un teléfono.
-  4. **13,2 – 17,7 s, la ráfaga**: «Con tu marca.», «También en el celular.», «Lo instalamos por ti.», «Desde US$ 59 al mes.».
+  4. **13,2 – 17,7 s, la ráfaga**: «Con tu marca.», «También en el celular.», «El código es tuyo.», «Nunca más una licencia por persona.» (la primera versión decía «Lo instalamos por ti.» y «Desde US$ 59 al mes.»; el dueño sacó el precio).
   5. **17,45 – 21 s, el cierre**: el logo, «Power BI para toda tu empresa.», el lema, el WhatsApp y la dirección.
 - **Neuromarketing**:
   - *La creatividad segmenta*: «Power BI» en el primer cuadro, en palabras y en su amarillo. Se detiene quien lo usa; Meta aprende de quién se detiene. Por eso la próxima campaña va sin la lista de intereses.
   - *Un dolor que se ve, no que se calcula*: el aviso de la licencia lo reconoce quien lo vio alguna vez, sin leer cifras.
   - *La recompensa antes de los 5 s*: el candado se abre y entra toda la empresa; la cuenta 1.000 → 1 se lee como una etiqueta tachada.
   - *Continuidad*: la gente del muro es la misma que entra (las mismas iniciales y colores).
-  - *El precio filtra*: «Desde US$ 59 al mes» en la ráfaga, para que escriba quien puede comprar (ver contenido.md).
+  - *Sin precio*: la primera versión lo ponía para filtrar curiosos; el dueño no quiere precios en el anuncio. Se dan en el chat.
   - *Una prueba que puede perder*: las dos aperturas comparten el cuerpo desde el segundo 2,3. Con el mismo público y el mismo presupuesto, gana la que traiga más conversaciones que respondan (no la de más reacciones). Si las dos traen lo mismo, el gancho no era el problema.
 - **Lo que reusa, sin copiarlo**: el motor (`anuncio.ts`), la base de estilos (`anuncio.css`: lienzo, formatos, tomas, tipografía cinética, cortina, ráfaga, cierre) y las maquetas del portal, el reporte y el chat. Lo propio vive en `AnuncioPowerBI.astro` y `anuncio-pbi.css`; la página, en `SalaAnuncio.astro`.
 - **Consecuencias**:
   - Dos páginas ocultas (`/anuncios/power-bi/` y `/anuncios/power-bi-ia/`), dentro de `/anuncios/`: sin indexar, fuera del sitemap, en el QA.
   - Los MP4 los graba la Action «Grabar el anuncio Power BI primero» (`anuncio-power-bi.yml`) en el release `anuncio-power-bi`. `grabar-anuncio.mjs` aprendió `--pagina`, `--nombre` y `--portada`; sin ellos graba el de 55 s como siempre.
   - Banco propio, `npm run anuncio:probar-pbi`: las dos aperturas en los cuatro formatos (tomas, determinismo, primer cuadro, portada, absorción, zonas seguras, cierre, página, movimiento reducido, CSP). Encontró dos defectos antes de publicar (ver aprendizajes).
-  - Es la primera pieza que publica un precio (contenido.md). La web todavía no lo muestra.
+  - No publica precios (pedido del dueño): ni el anuncio ni la web los muestran.
   - Las maquetas siguen al producto: si el chat del portal cambia sus rótulos, cambian también acá (ADR-014).
 
 ## ADR-020 · La propuesta a un socio es el anuncio, por páginas: la de Ribentek (17/10/2026, revisada dos veces el 18/10)

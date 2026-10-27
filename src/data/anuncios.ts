@@ -53,7 +53,7 @@ export const ANUNCIOS: Anuncio[] = [
     producto: 'Portal BI',
     titulo: 'Power BI primero · apertura «licencia»',
     descripcion:
-      'Abre con el aviso de Power BI que todo usuario conoce («Necesitas una licencia de Power BI Pro») y la gente que choca contra él. El candado se abre: 1.000 licencias tachadas y una sola, la IA al costado del tablero, «desde US$ 59 al mes» y el WhatsApp. Para probarla contra la apertura «ia» con el mismo público.',
+      'Abre con el aviso de Power BI que todo usuario conoce («Necesitas una licencia de Power BI Pro») y la gente que choca contra él. El candado se abre: 1.000 licencias tachadas y una sola, la IA al costado del tablero, la ráfaga y el WhatsApp. Para probarla contra la apertura «ia» con el mismo público.',
     fecha: '2026-10-26',
     duracion: '21 s',
     pagina: '/anuncios/power-bi/',
@@ -64,9 +64,9 @@ export const ANUNCIOS: Anuncio[] = [
     producto: 'Portal BI',
     titulo: 'Power BI primero · apertura «ia»',
     descripcion:
-      'Abre con «Tus tableros de Power BI ahora responden preguntas.» y el chat contestando. Desde el segundo 2,3 es el mismo anuncio que la apertura «licencia»: se suben las dos y gana la que trae más conversaciones que responden.',
+      'Abre con «Potencia tu Power BI con IA»: el tablero de Power BI, un toque en la lengüeta «Chat IA», el chat que se abre al costado y la IA que escribe la pregunta y contesta con el dato. Después es el mismo anuncio que la apertura «licencia», un segundo más tarde: se suben las dos y gana la que trae más conversaciones que responden.',
     fecha: '2026-10-26',
-    duracion: '21 s',
+    duracion: '22 s',
     pagina: '/anuncios/power-bi-ia/',
     descargas: FORMATOS.map((f) => ({ formato: f.nombre, uso: f.uso, px: f.px, href: videoPowerBi('ia')(f.id) })),
   },

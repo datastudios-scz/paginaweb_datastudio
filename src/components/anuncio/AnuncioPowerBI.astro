@@ -9,9 +9,13 @@
  * Dos aperturas con el mismo cuerpo, para que el mercado decida qué gancho funciona:
  *  · «licencia»: el aviso de Power BI que todo usuario conoce («Necesitas una licencia de Power
  *    BI Pro para ver este reporte») y la gente que choca contra él;
- *  · «ia»: «Tus tableros de Power BI ahora responden preguntas.» y el chat contestando.
+ *  · «ia»: «Potencia tu Power BI con IA»: el tablero de Power BI con la lengüeta «Chat IA», un
+ *    toque, el chat se abre al costado y la IA escribe, piensa y contesta (como la toma 6 del de
+ *    55 s, que el dueño pidió de modelo). Dura un segundo más para que se la vea responder: el
+ *    cuerpo es el mismo, corrido ese segundo (--t0 en anuncio-pbi.css, T0 acá).
  * Después, igual en las dos: el portal abre el candado (1.000 licencias → 1), la IA al costado
- * del tablero, la ráfaga (marca, celular, lo instalamos, desde US$ 59 al mes) y el cierre.
+ * del tablero, la ráfaga (marca, celular, el código es tuyo, nunca más una licencia por persona)
+ * y el cierre. Sin precios: el dueño no quiere que salgan en el anuncio (26/10/2026).
  *
  * Usa el motor del anuncio de 55 s (src/scripts/anuncio.ts) y su base de estilos (anuncio.css):
  * tomas con su ventana --a/--z, todo el movimiento en @keyframes contados desde el segundo 0 y
@@ -30,6 +34,10 @@ interface Props {
 }
 
 const { apertura = 'licencia' } = Astro.props;
+
+/* Cuánto se corre el cuerpo del anuncio: la apertura «ia» dura un segundo más. Lo mismo que
+   --t0 en anuncio-pbi.css; acá corre lo que el script escribe según el tiempo (los contadores) */
+const T0 = apertura === 'ia' ? 1 : 0;
 
 /* Un titular partido en palabras con ranura: la animación las sube de a una (w0, w1…) */
 const esc = (t: string) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -79,31 +87,23 @@ const CRECIMIENTO = [
 ] as const;
 const pct = (v: number) => `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.abs(v).toFixed(1).replace('.', ',')} %`;
 
-/* La apertura «ia»: el tablero de ventas que contesta. Las barras son las ventas de cada
-   sucursal del reporte (las mismas de AnuncioReporte); se enciende la de Aeropuerto, la que
-   más creció, cuando llega la respuesta */
-const BARRAS_IA = [
-  ['Centro', 20],
-  ['Plaza Mayor', 17],
-  ['Norte', 15],
-  ['Aeropuerto', 13],
-  ['Costanera', 11],
-  ['Sur', 4],
-] as const;
+/* La apertura «ia»: la pregunta que la IA escribe y contesta en el gancho. Los datos son los de
+   la toma 3 (ADR-013): Aeropuerto creció +18,4 %, más del doble del promedio ponderado (+7,9 %) */
+const PREGUNTA_IA = '¿Qué sucursal creció más?';
 
-/* La ráfaga: una idea por golpe de un segundo, el último un poco más largo. Habla del plan en
-   que lo hacemos nosotros (el precio que filtra curiosos); el del código se cuenta en el chat */
+/* La ráfaga: una idea por golpe de un segundo, el último un poco más largo. Sin precios (pedido
+   del dueño, 26/10/2026): cierra con la promesa del producto */
 const ICONO = {
   marca: 'M9 25.5 23.5 11H37v13.5L22.5 39ZM31 17.2v.01',
   celular: 'M17 6h14a3 3 0 0 1 3 3v30a3 3 0 0 1-3 3H17a3 3 0 0 1-3-3V9a3 3 0 0 1 3-3ZM21.5 36h5',
-  llave: 'M30 8a10 10 0 0 0-9.6 12.8L8 33.2V40h6.8l12.4-12.4A10 10 0 1 0 30 8Z',
-  moneda: 'M24 6a18 18 0 1 0 0 36 18 18 0 0 0 0-36ZM29.5 18.4c-1.1-1.6-3-2.5-5.4-2.5-3 0-5.1 1.5-5.1 3.7 0 5.6 10.8 2.9 10.8 8.7 0 2.3-2.2 3.9-5.5 3.9-2.5 0-4.6-1-5.8-2.7M24 12.4v3.5M24 31.9v3.6',
+  codigo: 'M17 14 7 24l10 10M31 14l10 10-10 10M27 9l-6 30',
+  check: 'M10 25.5 19.5 35 38 14',
 };
 const CORTES = [
   { ico: ICONO.marca, texto: 'Con tu marca.' },
   { ico: ICONO.celular, texto: 'También en el celular.' },
-  { ico: ICONO.llave, texto: 'Lo instalamos por ti.' },
-  { ico: ICONO.moneda, texto: 'Desde US$ 59 al mes.' },
+  { ico: ICONO.codigo, texto: 'El código es tuyo.' },
+  { ico: ICONO.check, texto: 'Nunca más una licencia por persona.' },
 ];
 ---
 
@@ -165,36 +165,53 @@ const CORTES = [
     </>
   ) : (
     <>
-    <!-- ═══ 1 · LA PREGUNTA (0 – 2,9 s): el tablero de Power BI que contesta ═══
-         El titular ya está en el primer cuadro (la miniatura). Llega la pregunta, la IA escribe
-         y contesta, y se enciende la barra de la respuesta. A los 2,35 s el portal se lo traga
-         todo, como en la otra apertura. -->
+    <!-- ═══ 1 · POTENCIA TU POWER BI CON IA (0 – 4 s): el chat que se abre y contesta ═══
+         El primer cuadro ya es el gancho (la miniatura): el titular y el tablero de Power BI con
+         la lengüeta «Chat IA» llamando. Un toque, el chat se abre al costado (el reporte se
+         encaja en lo que queda, como en el portal), la cámara entra al chat y la IA escribe la
+         pregunta, muestra sus pasos (los rótulos de chat.ejs del Portal BI) y contesta con el
+         dato. Las mismas piezas que la toma 6 del de 55 s. A los 3,35 s todo sube y se apaga
+         mientras la luz del portal se abre en el centro (ver anuncio-pbi.css: por qué acá no se
+         lo traga). -->
     <section class="an-escena pb-s1 pb-s1--ia">
       <div class="an-texto pb-s1-texto">
-        <p class="an-h1 pb-s1-titular">Tus tableros de <span class="pb-amarillo">Power BI</span> ahora responden preguntas.</p>
+        <p class="an-h1 pb-s1-titular">Potencia tu <span class="pb-amarillo">Power BI</span> con <span class="pb-chip"><svg class="pb-chip__chispa" viewBox="0 0 24 24"><path d={CHISPA} /></svg>IA</span></p>
       </div>
-      <div class="pb-charla">
-        <div class="pb-pieza pb-pieza--tablero" data-a="absorbe">
-          <div class="pb-tablero">
-            <p class="pb-tablero__cab"><svg viewBox="0 0 41.5 41.5"><path d={PBI} /></svg>Ventas por sucursal</p>
-            <div class="pb-tablero__barras">
-              {BARRAS_IA.map(([n, alto], i) => (
-                <span class:list={['pb-tablero__barra', `pb-alto-${alto}`, { 'pb-tablero__barra--si': n === 'Aeropuerto' }]}>
-                  <i></i>
-                  <em>{n.split(' ')[0]}</em>
-                </span>
-              ))}
+      <div class="an-visual pb-ia">
+        <div class="an-ui an-ventana pb-ia__ventana">
+          <div class="an-ui__in">
+            <div class="an-ventana__barra"><i></i><i></i><i></i><span>portal.tuempresa.com/visor</span><em>Datos de ejemplo</em></div>
+            <div class="an-s6-escena">
+              <div class="an-s6-rep"><AnuncioReporte /></div>
+              <span class="an-s6-lengueta"><svg viewBox="0 0 24 24"><path d={DESTELLO} /></svg><b>Chat IA</b></span>
+              <i class="an-toque an-s6-toque"></i>
+              <div class="an-s6-panel">
+                <div class="an-s6-cab">
+                  <span class="an-s6-cab__ico"><svg viewBox="0 0 24 24"><path d={DESTELLO} /></svg></span>
+                  <span class="an-s6-cab__id"><b>Ventas por sucursal</b><span>Pregunta sobre los datos de este tablero</span></span>
+                </div>
+                <div class="an-s6-hilo">
+                  <div class="pb-ia__hilo">
+                    <p class="an-s6-yo">{PREGUNTA_IA}</p>
+                    <div class="an-s6-pasos">
+                      <span class="an-s6-paso pb-ia-paso--1"><i></i>Leyendo la estructura del modelo</span>
+                      <span class="an-s6-paso pb-ia-paso--2"><i></i>Redactando la consulta</span>
+                      <span class="an-s6-paso pb-ia-paso--3"><i></i>Consultando Power BI</span>
+                    </div>
+                    <p class="an-s6-resp"><b>Aeropuerto</b> lidera: <b>+18,4 %</b>, más del doble del promedio.</p>
+                    <div class="pb-ia__dato"><span>Aeropuerto · contra 2025</span><b>+18,4 %</b></div>
+                  </div>
+                </div>
+                <div class="an-s6-campo">
+                  <span class="an-s6-input">
+                    <span class="an-s6-ph">Pregunta algo sobre estos datos…</span>
+                    <span class="an-s6-txt"><span data-a="tipeo" data-texto={PREGUNTA_IA} data-en="1.15" data-fin="1.75"></span></span>
+                    <i class="an-s6-caret"></i>
+                  </span>
+                  <span class="an-s6-enviar"><svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7" /></svg></span>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-        <div class="pb-pieza pb-pieza--yo" data-a="absorbe">
-          <p class="pb-burbuja pb-burbuja--yo">¿Qué sucursal creció más?</p>
-        </div>
-        <div class="pb-pieza pb-pieza--ia" data-a="absorbe">
-          <div class="pb-burbuja pb-burbuja--ia">
-            <span class="pb-burbuja__de"><svg viewBox="0 0 24 24"><path d={DESTELLO} /></svg>Chat IA</span>
-            <span class="pb-puntos"><i></i><i></i><i></i></span>
-            <span class="pb-burbuja__r"><b>Aeropuerto</b> lidera: <b>+18,4 %</b></span>
           </div>
         </div>
       </div>
@@ -229,7 +246,7 @@ const CORTES = [
               <i><svg viewBox="0 0 24 24"><path d={TILDE} /></svg></i>
             </span>
           ))}
-          <b class="pb-adentro__resto"><span data-a="kpi" data-signo="+" data-desde="0" data-hasta={String(RESTO)} data-en="4.75" data-dur="0.6">+{RESTO}</span></b>
+          <b class="pb-adentro__resto"><span data-a="kpi" data-signo="+" data-desde="0" data-hasta={String(RESTO)} data-en={String(4.75 + T0)} data-dur="0.6">+{RESTO}</span></b>
         </div>
       </div>
     </div>

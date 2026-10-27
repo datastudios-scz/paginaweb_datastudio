@@ -4,45 +4,55 @@
  *
  * Se apoya en anuncio.css: el lienzo y sus cuatro formatos, las tomas con su ventana --a/--z, la
  * tipografía cinética, las maquetas del portal, del reporte y del chat, la cortina de barras, la
- * ráfaga y el cierre. Acá va solo lo propio: los tiempos de este anuncio (21 s) y las piezas
- * nuevas (el aviso de la licencia y la gente que choca contra él, la pregunta de la apertura
- * «ia», el chat de costado). Las mismas reglas: todo en @keyframes con retardo absoluto, sin
- * transiciones, tamaños en --u, y ninguna regla que mezcle transform con translate, rotate o
- * scale (el minificador borraría uno; lo comprueba el banco).
+ * ráfaga y el cierre. Acá va solo lo propio: los tiempos de este anuncio (21 s; 22 s con la
+ * apertura «ia») y las piezas nuevas (el aviso de la licencia y la gente que choca contra él, el
+ * chat que se abre en la apertura «ia», el chat de costado de la toma 3). Las mismas reglas: todo
+ * en @keyframes con retardo absoluto, sin transiciones, tamaños en --u, y ninguna regla que
+ * mezcle transform con translate, rotate o scale (el minificador borraría uno; lo comprueba el
+ * banco).
  *
  * Neuromarketing (ADR-021): «Power BI» en el primer cuadro, en palabras y en el amarillo que
  * el público reconoce —la creatividad hace la segmentación—; un dolor que se ve, no que se
- * calcula (el aviso de la licencia); la recompensa antes de los 5 s (el candado se abre y
- * entra toda la empresa); la IA como el plus, al costado del tablero; y el precio en la ráfaga,
- * para que escriba quien puede comprar.
+ * calcula (el aviso de la licencia), o la IA trabajando sobre un tablero de verdad (la apertura
+ * «ia»); la recompensa antes de los 5 s (el candado se abre y entra toda la empresa); la IA como
+ * el plus, al costado del tablero. Sin precios (pedido del dueño, 26/10/2026).
  */
 
 /* ═══════════════════════════════════════════════════════════════════════════════════
-   EL LIENZO: 21 s
+   EL LIENZO: 21 s, y 22 s con la apertura «ia»
+   --t0 corre todo el cuerpo (de la toma 2 al cierre): la apertura «ia» dura un segundo más,
+   para que se vea a la IA escribir y contestar. El cuerpo es el mismo en las dos, solo corrido.
+   Todo lo que va después del gancho cuenta su tiempo desde --t0 (y en AnuncioPowerBI.astro, los
+   contadores desde T0)
    ═══════════════════════════════════════════════════════════════════════════════════ */
 .an-lienzo--pbi {
-  --duracion: 21s;
+  --t0: 0s;
+  --duracion: calc(21s + var(--t0));
+}
+
+.an-lienzo--pbi-ia {
+  --t0: 1s;
 }
 
 .an-lienzo--pbi .an-fondo i {
-  animation-duration: 21s;
+  animation-duration: calc(21s + var(--t0));
 }
 
 /* La firma: tinta sobre los cortes claros de la ráfaga (el 2 y el 4) y se va con la cortina */
 .an-lienzo--pbi .an-firma {
   animation:
     an-entra 0.5s var(--sale) -0.4s both,
-    an-tinta 1ms step-end 14.2s forwards,
-    an-blanca 1ms step-end 15.2s forwards,
-    an-tinta 1ms step-end 16.2s forwards,
-    an-sale 0.3s var(--entra) 17.1s forwards;
+    an-tinta 1ms step-end calc(14.2s + var(--t0)) forwards,
+    an-blanca 1ms step-end calc(15.2s + var(--t0)) forwards,
+    an-tinta 1ms step-end calc(16.2s + var(--t0)) forwards,
+    an-sale 0.3s var(--entra) calc(17.1s + var(--t0)) forwards;
 }
 
-/* ═══ 1 · LAS DOS APERTURAS (0 – 3 s) ═══════════════════════════════════════════════
+/* ═══ 1 · LAS DOS APERTURAS (0 – 3 s; la «ia», 0 – 4 s) ═══════════════════════════════
    Por encima de la toma 2: lo que vuela pasa sobre el portal chico y se hunde en su centro */
 .pb-s1 {
   --a: 0s;
-  --z: 3s;
+  --z: calc(3s + var(--t0));
   z-index: 3;
 }
 
@@ -340,17 +350,17 @@
 .pb-persona--3 { --en: 1s; --tt: 0.05s; --cara: var(--pe); --cara-t: #fff; }
 .pb-persona--4 { --en: 1.45s; --tt: 0.08s; }
 
-/* ── «ia»: la pregunta ── */
+/* ── «ia»: potencia tu Power BI con IA ──
+   El titular arriba y, debajo, el tablero con su chat: las piezas de la toma 6 del de 55 s
+   (anuncio.css, an-s6-*) con los tiempos de esta apertura. La lengüeta llama desde el primer
+   cuadro · toque 0,45 · el chat se abre 0,62 (la lengüeta se va a los 0,95) · la cámara entra
+   0,95 – 1,6 · la pregunta se escribe 1,15 – 1,75 · enviar 1,78 · burbuja 1,85 · pasos 2 /
+   2,15 / 2,3 · respuesta 2,5 · el dato 2,68 · todo sube y se apaga 3,35 */
 .pb-s1-texto {
-  animation: an-sale 0.3s var(--entra) 2.3s forwards;
+  animation: an-sale 0.3s var(--entra) 3.3s forwards;
 }
 
 .pb-s1-titular {
-  font-size: calc(var(--h1) * 0.92);
-}
-
-/* En 16:9 la columna es angosta: un punto menos, para que entre en cuatro renglones */
-.an-lienzo[data-formato='16x9'] .pb-s1-titular {
   font-size: calc(var(--h1) * 0.8);
 }
 
@@ -360,218 +370,180 @@
   white-space: nowrap;
 }
 
-/* Debajo del titular, la charla: el tablero, la pregunta y la respuesta. En 16:9 va a la
-   derecha, como todo lo visual */
-.pb-charla {
-  position: absolute;
-  top: var(--ch-t);
-  bottom: var(--ch-b);
-  left: var(--vi-l);
-  right: var(--vi-r);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: calc(26 * var(--u));
-}
-
-/* --ch-*: la zona de la charla; --ba-h: el alto de las barras; --bu: la letra de las burbujas */
-.an-lienzo[data-formato='9x16'] .pb-s1 {
-  --ch-t: 39%;
-  --ch-b: 20.5%;
-  --ba-h: calc(290 * var(--u));
-  --bu: calc(46 * var(--u));
-}
-
-.an-lienzo[data-formato='4x5'] .pb-s1 {
-  --ch-t: 41%;
-  --ch-b: 4.5%;
-  --ba-h: calc(250 * var(--u));
-  --bu: calc(44 * var(--u));
-}
-
-.an-lienzo[data-formato='1x1'] .pb-s1 {
-  --ch-t: 37%;
-  --ch-b: 3.5%;
-  --ba-h: calc(180 * var(--u));
-  --bu: calc(38 * var(--u));
-}
-
-.an-lienzo[data-formato='16x9'] .pb-s1 {
-  --ch-t: 9%;
-  --ch-b: 9%;
-  --ba-h: calc(290 * var(--u));
-  --bu: calc(44 * var(--u));
-}
-
-.pb-pieza {
-  display: flex;
-  animation: an-traga 0.5s var(--chupa) calc(2.35s + var(--tt, 0s)) forwards;
-}
-
-.pb-pieza--tablero { --tt: 0.05s; }
-.pb-pieza--yo { --tt: 0s; justify-content: flex-end; }
-.pb-pieza--ia { --tt: 0.03s; }
-
-.pb-tablero {
-  display: grid;
-  gap: calc(22 * var(--u));
-  width: min(100%, calc(980 * var(--u)));
-  padding: calc(28 * var(--u)) calc(32 * var(--u)) calc(24 * var(--u));
-  border-radius: calc(28 * var(--u));
-  background: #fff;
-  box-shadow: 0 calc(30 * var(--u)) calc(70 * var(--u)) rgb(0 0 0 / 0.45);
-  font-family: 'Segoe UI', system-ui, sans-serif;
-  color: #252423;
-  animation: an-pop 0.45s var(--resorte) -0.7s both;
-}
-
-.pb-tablero__cab {
-  display: flex;
-  align-items: center;
-  gap: calc(16 * var(--u));
-  font-size: calc(42 * var(--u));
-  font-weight: 600;
-}
-
-.pb-tablero__cab svg {
-  width: calc(58 * var(--u));
-  height: calc(58 * var(--u));
-  fill: var(--pbi);
-}
-
-.pb-tablero__barras {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  align-items: end;
-  gap: calc(18 * var(--u));
-  height: var(--ba-h);
-}
-
-.pb-tablero__barra {
-  display: grid;
-  grid-template-rows: 1fr auto;
-  gap: calc(8 * var(--u));
-  height: 100%;
-}
-
-.pb-tablero__barra i {
-  align-self: end;
-  height: var(--h);
-  border-radius: calc(6 * var(--u)) calc(6 * var(--u)) 0 0;
-  background: #c7cfd9;
-}
-
-.pb-tablero__barra em {
-  overflow: hidden;
-  font-size: calc(23 * var(--u));
-  font-style: normal;
-  text-align: center;
-  text-overflow: clip;
-  white-space: nowrap;
-  color: #605e5c;
-}
-
-/* La barra de la respuesta se enciende en el violeta de la IA cuando llega la respuesta */
-.pb-tablero__barra--si i {
-  animation: pb-enciende 0.35s ease 1.05s forwards;
-}
-
-.pb-tablero__barra--si em {
-  font-weight: 700;
-  color: #4338ca;
-}
-
-.pb-alto-20 { --h: 100%; }
-.pb-alto-17 { --h: 85%; }
-.pb-alto-15 { --h: 75%; }
-.pb-alto-13 { --h: 65%; }
-.pb-alto-11 { --h: 55%; }
-.pb-alto-4 { --h: 20%; }
-
-.pb-burbuja {
-  max-width: 92%;
-  padding: calc(24 * var(--u)) calc(34 * var(--u));
-  font-size: var(--bu);
-  line-height: 1.25;
-}
-
-.pb-burbuja--yo {
-  border-radius: calc(36 * var(--u)) calc(36 * var(--u)) calc(8 * var(--u)) calc(36 * var(--u));
-  background: #4f46e5;
-  box-shadow: 0 calc(20 * var(--u)) calc(50 * var(--u)) rgb(79 70 229 / 0.45);
-  font-weight: 500;
-  color: #fff;
-  animation: an-pop 0.42s var(--resorte) -0.3s both;
-}
-
-/* La respuesta: primero los tres puntos de «escribiendo», después el dato */
-.pb-burbuja--ia {
-  display: grid;
-  justify-items: start;
-  gap: calc(10 * var(--u));
-  border-radius: calc(36 * var(--u)) calc(36 * var(--u)) calc(36 * var(--u)) calc(8 * var(--u));
-  background: #fff;
-  box-shadow:
-    0 0 0 calc(4 * var(--u)) #a5b4fc,
-    0 calc(20 * var(--u)) calc(50 * var(--u)) rgb(0 0 0 / 0.4);
-  color: #111827;
-  animation: an-pop 0.42s var(--resorte) 0.25s both;
-}
-
-.pb-burbuja__de {
+/* «IA» como el chip del producto: el violeta de la IA, con su chispa que late */
+.pb-chip {
   display: inline-flex;
   align-items: center;
-  gap: calc(8 * var(--u));
-  font-size: calc(26 * var(--u));
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  color: #4338ca;
+  gap: 0.1em;
+  padding: 0.04em 0.26em 0.08em 0.18em;
+  border-radius: 0.26em;
+  background: linear-gradient(135deg, #4f46e5, #8b5cf6);
+  box-shadow:
+    inset 0 0 0 calc(3 * var(--u)) rgb(255 255 255 / 0.22),
+    0 0.16em 0.6em rgb(99 102 241 / 0.6);
+  line-height: 1;
+  white-space: nowrap;
+  vertical-align: 0.04em;
 }
 
-.pb-burbuja__de svg {
-  width: calc(30 * var(--u));
-  height: calc(30 * var(--u));
-  fill: #6366f1;
+.pb-chip__chispa {
+  width: 0.62em;
+  height: 0.62em;
+  fill: #fff;
+  animation: an-late 2.4s ease-in-out infinite;
 }
 
-.pb-puntos {
+/* La zona del tablero y la cámara, por formato. La cámara apunta al centro del chat (77 %, 53 %
+   de la ventana, como en el de 55 s) y lo agranda hasta llenar el alto que queda debajo del
+   titular sin tocarlo (con la barra de la ventana incluida) y, en 9:16, sin bajar del 79 %. En
+   16:9 el titular va en una columna angosta y la ventana entra entera, sin cámara */
+/* Las cuentas (9:16): el chat termina en el 79 % y su borde de arriba, con la barra de la
+   ventana, queda unos 15 px debajo del titular. El banco mide que no lo pise: con 1,618 lo
+   tocaba por 10 px */
+.an-lienzo[data-formato='9x16'] .pb-s1--ia {
+  --vi-t: 27%;
+  --vi-b: 21%;
+  --cam-tx: -27.08%;
+  --cam-ty: -1.78%;
+  --cam-s: 1.58;
+}
+
+.an-lienzo[data-formato='4x5'] .pb-s1--ia {
+  --vi-t: 26.5%;
+  --vi-b: 4.5%;
+  --cam-tx: -27.08%;
+  --cam-ty: 0.78%;
+  --cam-s: 1.47;
+}
+
+.an-lienzo[data-formato='1x1'] .pb-s1--ia {
+  --vi-t: 27%;
+  --vi-b: 3.5%;
+  --cam-tx: -27.08%;
+  --cam-ty: -0.11%;
+  --cam-s: 1.2;
+}
+
+.an-lienzo[data-formato='16x9'] .pb-s1--ia {
+  --tx-r: 64%;
+  --vi-t: 9%;
+  --vi-b: 9%;
+  --vi-l: 38%;
+  --vi-r: 4%;
+  --cam-tx: 0%;
+  --cam-ty: 0%;
+  --cam-s: 1;
+}
+
+/* El gancho se va hacia arriba mientras la luz del portal se abre en el centro. Acá no se lo
+   traga el portal, como en «licencia»: encoger una capa con texto que la cámara ya agrandó sale
+   distinta según desde qué instante se llega (el banco: 1.012 px en 1:1, y 13.000 a 24.000 con
+   will-change), y el video se graba cuadro por cuadro. Subir y apagarse sale igual siempre */
+.pb-ia {
+  animation: an-sale 0.3s var(--entra) 3.35s forwards;
+}
+
+/* La cámara arranca cuando la lengüeta ya se fue: su texto va girado, y una capa girada que cambia
+   de escala sale distinta según desde qué instante se llega (el banco, en 4:5: 1.084 px) */
+.pb-ia__ventana {
+  transform-origin: 77.08% 53.44%;
+  animation: pb-camara 0.65s var(--suave) 0.95s forwards;
+}
+
+/* El reporte ya está dibujado: es un tablero de verdad desde el primer cuadro */
+.pb-s1--ia .an-barrash__r,
+.pb-s1--ia .an-lineas polyline {
+  animation: none;
+}
+
+/* La lengüeta llama desde el primer cuadro, se aprieta y tira del chat */
+.pb-s1--ia .an-s6-lengueta {
+  animation:
+    an-s6-asoma 0.45s var(--sale) -0.6s forwards,
+    an-s6-aprieta 0.2s ease 0.45s,
+    an-s6-arrastra 0.5s var(--sale) 0.62s forwards,
+    an-desaparece 0.2s ease 0.75s forwards;
+}
+
+.pb-s1--ia .an-s6-lengueta::after {
+  animation: an-s6-llama 0.6s ease-out -0.3s 2 both;
+}
+
+.pb-s1--ia .an-s6-toque {
+  animation: an-toque 0.45s ease-out 0.45s forwards;
+}
+
+.pb-s1--ia .an-s6-rep {
+  animation: an-s6-encaja 0.5s var(--sale) 0.62s forwards;
+}
+
+.pb-s1--ia .an-s6-panel {
+  animation: an-s6-abre 0.5s var(--sale) 0.62s forwards;
+}
+
+/* La conversación va abajo, contra el campo, como en cualquier chat: arriba queda el aire */
+.pb-s1--ia .an-s6-hilo {
   display: flex;
-  gap: calc(10 * var(--u));
-  height: calc(50 * var(--u));
-  align-items: center;
-  animation: an-oculta 1ms step-end 0.95s forwards;
+  flex-direction: column;
+  justify-content: flex-end;
 }
 
-.pb-puntos i {
-  width: calc(16 * var(--u));
-  height: calc(16 * var(--u));
-  border-radius: 50%;
-  background: #a5b4fc;
-  animation: pb-salta 0.6s ease-in-out infinite;
+.pb-ia__hilo {
+  display: flex;
+  flex-direction: column;
+  gap: calc(12 * var(--m));
+  padding: calc(14 * var(--m)) calc(16 * var(--m)) calc(16 * var(--m));
 }
 
-.pb-puntos i:nth-child(2) { animation-delay: 0.1s; }
-.pb-puntos i:nth-child(3) { animation-delay: 0.2s; }
-
-/* En la misma celda que los puntos: cuando ellos se van, entra el dato */
-.pb-puntos,
-.pb-burbuja__r {
-  grid-area: 2 / 1;
+.pb-s1--ia .an-s6-yo {
+  --yo: 1.85s;
 }
 
-.pb-burbuja__r {
-  animation: an-entra 0.35s var(--sale) 0.95s both;
+.pb-ia-paso--1 { --pe: 2s; --pk: 2.15s; }
+.pb-ia-paso--2 { --pe: 2.15s; --pk: 2.3s; }
+.pb-ia-paso--3 { --pe: 2.3s; --pk: 2.45s; }
+
+.pb-s1--ia .an-s6-resp {
+  --rs: 2.5s;
 }
 
-.pb-burbuja__r b {
+.pb-s1--ia .an-s6-enviar {
+  animation: an-pulsa 0.3s ease 1.78s;
+}
+
+/* El dato, grande: el premio de la pregunta */
+.pb-ia__dato {
+  display: grid;
+  justify-items: start;
+  gap: calc(4 * var(--m));
+  align-self: flex-start;
+  padding: calc(12 * var(--m)) calc(18 * var(--m)) calc(14 * var(--m));
+  border: calc(2 * var(--m)) solid #c7d2fe;
+  border-radius: calc(14 * var(--m));
+  background: linear-gradient(180deg, #eef2ff, #ffffff 75%);
+  transform-origin: 0 50%;
+  animation: an-pop 0.45s var(--resorte) 2.68s both;
+}
+
+.pb-ia__dato span {
+  font-size: calc(13 * var(--m));
+  font-weight: 600;
+  color: #4b5563;
+}
+
+.pb-ia__dato b {
+  font-size: calc(54 * var(--m));
   font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
   color: #4338ca;
+  font-variant-numeric: tabular-nums;
 }
 
 /* ═══ 2 · EL CANDADO SE ABRE (2,3 – 7,82 s) ═════════════════════════════════════════ */
 .pb-s2 {
-  --a: 2.3s;
-  --z: 7.82s;
+  --a: calc(2.3s + var(--t0));
+  --z: calc(7.82s + var(--t0));
 }
 
 .pb-s2-para {
@@ -791,15 +763,15 @@
 
 /* ── La cortina de las cuatro barras del logo (anuncio.css), con los tiempos de este ── */
 .an-barras.pb-barras--1 {
-  --a: 7.3s;
-  --z: 8.2s;
+  --a: calc(7.3s + var(--t0));
+  --z: calc(8.2s + var(--t0));
   --c1: var(--ve);
   --c2: var(--vc);
 }
 
 .an-barras.pb-barras--2 {
-  --a: 17.1s;
-  --z: 18s;
+  --a: calc(17.1s + var(--t0));
+  --z: calc(18s + var(--t0));
   --c1: var(--ab);
   --c2: var(--vc);
 }
@@ -810,8 +782,8 @@
    Tiempos desde --a: lema 0,35 · subtítulo 0,95 · reporte 0,15 · chat 0,4 · pregunta 1,1 ·
    pasos 1,45 / 1,7 / 1,95 · respuesta 2,35 · gráfico 2,5 · promedio 3,15 */
 .pb-s3 {
-  --a: 7.65s;
-  --z: 13.3s;
+  --a: calc(7.65s + var(--t0));
+  --z: calc(13.3s + var(--t0));
 }
 
 .pb-s3::before {
@@ -957,8 +929,8 @@
 
 /* ═══ 4 · RÁFAGA (13,2 – 17,66 s): los cortes de anuncio.css, de un segundo ═════════════ */
 .pb-s4 {
-  --a: 13.2s;
-  --z: 17.66s;
+  --a: calc(13.2s + var(--t0));
+  --z: calc(17.66s + var(--t0));
 }
 
 .pb-s4 .an-corte--1 { --c: 0s; --cz: 1s; }
@@ -968,8 +940,8 @@
 
 /* ═══ 5 · CIERRE (17,45 s – fin): el de anuncio.css, con su --a ═════════════════════ */
 .pb-s5 {
-  --a: 17.45s;
-  --z: 22s;
+  --a: calc(17.45s + var(--t0));
+  --z: calc(22s + var(--t0));
   background: radial-gradient(90% 65% at 50% 40%, #0a8f83, #037a70 50%, #005a52);
 }
 
@@ -1031,6 +1003,12 @@
 @keyframes pb-salta {
   0%, 100% { transform: none; opacity: 0.5; }
   40% { transform: translateY(-40%); opacity: 1; }
+}
+
+/* La cámara de la apertura «ia»: del tablero entero al chat (--cam-*, por formato) */
+@keyframes pb-camara {
+  from { transform: none; }
+  to { transform: translate(var(--cam-tx), var(--cam-ty)) scale(var(--cam-s)); }
 }
 
 @keyframes pb-desde-derecha {

@@ -1,5 +1,12 @@
 # Bitácora de cambios
 
+## 26/10/2026 · «Power BI primero»: la apertura «ia», rehecha, y sin precios
+
+- **Pedido del dueño**: la primera escena de la apertura «ia» «no vende, se ve súper básico». Quiso «Potencia tu Power BI con IA», el tablero con el chip que se toca, como en el de 55 s, y ver a la IA escribir y contestar. Y que no salga ningún precio.
+- **La apertura «ia»**: el titular con «IA» como chip violeta; el visor con el reporte y la lengüeta «Chat IA» llamando; el toque, el chat que se abre al costado, la cámara que entra, la pregunta que se escribe, los tres pasos y la respuesta con el dato grande. Dura 22 s: el cuerpo es el mismo, corrido un segundo (`--t0`).
+- **Sin precios**: la ráfaga cierra con «El código es tuyo.» y «Nunca más una licencia por persona.».
+- **Banco**: comprueba la pregunta escribiéndose, el chat con la cámara adentro sin tapar el titular, que el gancho se vaya antes del portal y que no haya precios. Encontró tres defectos antes de publicar (aprendizajes). El banco del de 55 s y el QA salen sin problemas.
+
 ## 26/10/2026 · Anuncio nuevo: «Power BI primero», 21 s y dos aperturas
 
 - **Por qué**: en la primera campaña pagada la gente miró 3 o 4 s del anuncio de 55 s y casi nadie llegó al producto. El dueño pidió un video que empiece por Power BI, para que lo mire ese público y la segmentación salga más barata. Detalle en ADR-021.

@@ -33,7 +33,7 @@ Todo se vende e implementa **de forma remota**. El contacto comercial es por Wha
 
 - Sitio estático Astro 7 en GitHub Pages, CSP estricta (sin estilos en línea ni recursos externos).
 - Rutas registradas en plataformas que no se pueden romper: `/privacidad/`, `/terminos/`, `/oauth/tiktok/`, archivo de Google.
-- Precios: los del Portal BI están confirmados (dueño, 23/10/2026): US$ 400 el código y la guía, pago único y de uso libre, y US$ 59 al mes el plan en que Data Studio lo despliega y lo mantiene (el cliente pone su licencia Pro y su IA). Por ahora solo los muestra el anuncio «Power BI primero» (ADR-021); la web no. Los demás no están confirmados y no se publican.
+- Precios: los del Portal BI están confirmados (dueño, 23/10/2026): US$ 400 el código y la guía, pago único y de uso libre, y US$ 59 al mes el plan en que Data Studio lo despliega y lo mantiene (el cliente pone su licencia Pro y su IA). No se publican ni en la web ni en los anuncios (el dueño sacó el precio del anuncio «Power BI primero» el 26/10/2026): se dan en el chat. Los demás no están confirmados.
 - En la preventa no se nombra la tecnología del portal (pedido del dueño, 23/10/2026): «es nuestra, hasta que lo compren». Los requisitos se dicen sin detalle técnico.
 - **Montos que NO son el precio** (por ejemplo, lo que costarían las licencias sin el portal) se muestran tachados y en rojo (`<s class="monto-no">`, en `global.css`), siempre con palabras que lo digan ("sin el portal pagarías…"). Pedido del dueño: nadie debe leer un monto de referencia como el precio del producto.
 

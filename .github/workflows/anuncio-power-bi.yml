@@ -54,12 +54,13 @@ jobs:
       - name: Instalar ffmpeg
         run: choco install ffmpeg --no-progress -y
 
-      # Cada apertura con su portada: el gancho armado, antes de que el candado se abra (2 s)
+      # Cada apertura con su portada: en «licencia», el muro armado antes de que el candado se abra
+      # (2 s); en «ia», el chat ya con la respuesta y el dato (3,2 s)
       - name: Grabar la apertura «licencia»
         run: npm run anuncio:video -- --pagina /anuncios/power-bi/ --nombre power-bi-licencia --portada 2 --salida videos-power-bi
 
       - name: Grabar la apertura «ia»
-        run: npm run anuncio:video -- --pagina /anuncios/power-bi-ia/ --nombre power-bi-ia --portada 2 --salida videos-power-bi
+        run: npm run anuncio:video -- --pagina /anuncios/power-bi-ia/ --nombre power-bi-ia --portada 3.2 --salida videos-power-bi
 
       - name: Publicar en el release anuncio-power-bi
         shell: bash

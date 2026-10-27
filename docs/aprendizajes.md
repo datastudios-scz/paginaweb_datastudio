@@ -4,6 +4,21 @@ Cada entrada: **síntoma → causa → solución → cómo evitarlo**.
 
 ## El anuncio «Power BI primero» (26/10/2026)
 
+### Encoger una capa con texto que la cámara ya agrandó no da siempre el mismo cuadro, y `will-change` lo empeora
+- **Síntoma**: el banco, en la apertura «ia» rehecha: a mitad del tragado, el mismo instante daba 1.012 píxeles distintos en 1:1 según desde dónde se llegaba.
+- **Lo que no sirvió**: `will-change` en la capa que encoge. Fijó la rasterización en el estado en que se creó la capa, que también depende de desde dónde se llega: pasaron a ser 13.000 a 24.000 píxeles en los cuatro formatos, y se rompió el instante de la cámara.
+- **Solución**: en esa apertura el gancho no encoge. Sube y se apaga (`an-sale`, sin escala) mientras se abre la luz del portal. En la apertura «licencia» se lo sigue tragando: ahí nada estaba agrandado por una cámara.
+- **Cómo evitarlo**: dentro de algo escalado por una cámara, no animar otra escala. Para salir de una toma así, mover y apagar.
+
+### Una capa girada no puede cambiar de escala mientras se ve
+- **Síntoma**: en 4:5, a 1,1 s, 1.084 píxeles distintos: la lengüeta «Chat IA» (su texto va girado) se apagaba mientras la cámara ya agrandaba la ventana.
+- **Solución**: la lengüeta se va (0,75 – 0,95 s) antes de que arranque la cámara (0,95 s). Es la misma regla que el gancho del de 55 s: nada gira mientras cambia de escala.
+
+### Una comprobación tiene que buscar la afirmación, no el símbolo
+- **Síntoma**: «el anuncio no muestra ningún precio» daba rojo sin precio a la vista.
+- **Causa**: buscaba «US$», y el reporte de ejemplo dice «Ventas (US$)», que es un rótulo.
+- **Solución**: busca precios de verdad (un monto en dólares, «al mes», «/mes», «pago único»).
+
 ### Un contador que cambia el ancho de una pieza mueve a las vecinas, y el script ya midió
 - **Síntoma**: el banco, en los cuatro formatos de la apertura «licencia»: «el portal se traga las 5 piezas… la más lejana a 21,7 px» del centro de la ventana.
 - **Causa**: la pastilla «+997» cuenta desde «+0», y con cada número cambiaba su ancho. Como la fila de la gente va centrada, todas las pastillas se corrían. El script mide cuánto viaja cada pieza (`--hx`, `--hy`) con el anuncio en el segundo 0, cuando la pastilla decía «+0»; cuando el portal se las traga ya dice «+997».

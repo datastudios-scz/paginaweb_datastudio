@@ -12,7 +12,12 @@
  *  · El primer cuadro ya es el gancho y dice «Power BI»: es la miniatura, y lo que hace que el
  *    video segmente solo (ADR-021).
  *  · La portada (la foto que se ofrece como miniatura): todo lo que hay que leer, entero y
- *    adentro; en 9:16, sobre el 79 % (más abajo van los botones de Reels y TikTok).
+ *    adentro; en 9:16, sobre el 79 % (más abajo van los botones de Reels y TikTok). En la
+ *    apertura «ia», el chat con la cámara adentro: entero, sin tapar el titular, con la respuesta
+ *    y el dato a la vista; y antes, la pregunta escribiéndose.
+ *  · La apertura «ia» dura un segundo más y corre todo el cuerpo ese segundo (--t0): cada
+ *    comprobación del cuerpo se corre igual.
+ *  · Sin precios: el dueño no quiere que salgan en el anuncio (26/10/2026).
  *  · El portal se traga todo hasta el centro exacto de su ventana (lo mide el script).
  *  · La toma 2: el titular no pisa la ventana, y la gente que entra queda en el cuadro.
  *  · La toma 3: el chat entra entero (con su última fila) y no pisa el titular ni el subtítulo.
@@ -29,7 +34,8 @@ import { chromium } from 'playwright-core';
 const BASE = process.argv.slice(2).find((a) => a.startsWith('http')) ?? 'http://localhost:4321';
 const APERTURAS = { licencia: '/anuncios/power-bi/', ia: '/anuncios/power-bi-ia/' };
 const FORMATOS = { '9x16': [1080, 1920], '4x5': [1080, 1350], '1x1': [1080, 1080], '16x9': [1920, 1080] };
-const DURACION = 21000;
+/* Cuánto se corre el cuerpo en cada apertura (--t0 en anuncio-pbi.css) */
+const CORRIDO = { licencia: 0, ia: 1 };
 
 const ejecutable = [
   'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
@@ -124,25 +130,27 @@ const tomaVisible = (p) =>
       .map((e) => [...e.classList].find((c) => /^pb-s\d$/.test(c))),
   );
 
-const ESPERADO = [
-  [1.0, 'pb-s1'],
-  [5.0, 'pb-s2'],
-  [10.5, 'pb-s3'],
-  [13.7, 'pb-s4'],
-  [16.5, 'pb-s4'],
-  [20.0, 'pb-s5'],
-];
-
-/* Instantes que se prueban dos veces: la gente llegando con su número corriendo (o la respuesta
-   de la IA escribiéndose), el portal a mitad de tragárselos y el gráfico del chat creciendo */
-const coma = (s) => String(s).replace('.', ',');
+/* Instantes que se prueban dos veces: la gente llegando con su número corriendo (o la cámara
+   entrando al chat), el portal a mitad de tragárselos y el gráfico del chat creciendo */
+const coma = (s) => String(Math.round(s * 100) / 100).replace('.', ',');
 
 for (const [apertura, ruta] of Object.entries(APERTURAS)) {
   console.log(`Apertura «${apertura}», por formato`);
-  const LLEGA = apertura === 'licencia' ? 1.7 : 0.8;
-  const TRAGA = apertura === 'licencia' ? 2.6 : 2.55;
-  const TRAGADO = apertura === 'licencia' ? 2.99 : 2.95;
-  const GRAFICO = 10.6;
+  const T0 = CORRIDO[apertura];
+  const DURACION = 21000 + T0 * 1000;
+  const ESPERADO = [
+    [1.0, 'pb-s1'],
+    [5.0 + T0, 'pb-s2'],
+    [10.5 + T0, 'pb-s3'],
+    [13.7 + T0, 'pb-s4'],
+    [16.5 + T0, 'pb-s4'],
+    [20.0 + T0, 'pb-s5'],
+  ];
+  const LLEGA = apertura === 'licencia' ? 1.7 : 1.1;
+  const TRAGA = apertura === 'licencia' ? 2.6 : 3.5;
+  const TRAGADO = apertura === 'licencia' ? 2.99 : 3.95;
+  const PORTADA = apertura === 'licencia' ? 2.0 : 3.2;
+  const GRAFICO = 10.6 + T0;
   for (const [formato, [w, h]] of Object.entries(FORMATOS)) {
     const p = await abrir({ viewport: { width: w, height: h } }, `${BASE}${ruta}?render=1&formato=${formato}`);
     const piso = formato === '9x16' ? Math.round(h * 0.79) : h;
@@ -185,10 +193,17 @@ for (const [apertura, ruta] of Object.entries(APERTURAS)) {
     ok(/Power BI/.test(primero.texto) && primero.opacidad === 1 && primero.dentro,
       `${formato}: el primer cuadro ya es el gancho y dice Power BI («${primero.texto.slice(0, 60)}»${primero.dentro ? '' : ', SE SALE DEL CUADRO'})`);
 
+    /* En la apertura «ia», la pregunta se escribe letra por letra antes de enviarse */
+    if (apertura === 'ia') {
+      await ir(p, 1.5);
+      const escrito = await p.evaluate(() => document.querySelector('.pb-s1--ia [data-a="tipeo"]').textContent);
+      ok(escrito.length > 4 && escrito.length < 25, `${formato}: a 1,5 s la IA está escribiendo la pregunta («${escrito}»)`);
+    }
+
     /* La portada: lo que hay que leer, entero y adentro */
-    await ir(p, 2.0);
+    await ir(p, PORTADA);
     const portada = await p.evaluate(([apertura, piso]) => {
-      const dentro = (r) => r.left >= 0 && r.top >= 0 && r.right <= innerWidth && r.bottom <= piso + 1;
+      const dentro = (r) => r.left >= -1 && r.top >= -1 && r.right <= innerWidth + 1 && r.bottom <= piso + 1;
       const escala = (el) => {
         const t = getComputedStyle(el).transform;
         return t === 'none' ? 1 : new DOMMatrixReadOnly(t).a;
@@ -196,30 +211,50 @@ for (const [apertura, ruta] of Object.entries(APERTURAS)) {
       const piezas =
         apertura === 'licencia'
           ? ['.pb-aviso__caja', ...[1, 2, 3, 4].map((k) => `.pb-persona--${k} .pb-persona__in`)]
-          : ['.pb-tablero', '.pb-burbuja--yo', '.pb-burbuja--ia'];
+          : ['.pb-s1--ia .an-s6-panel'];
       const fuera = [];
       const chicas = [];
       for (const sel of piezas) {
         const el = document.querySelector(sel);
         if (!dentro(el.getBoundingClientRect())) fuera.push(sel);
-        if (Math.abs(escala(el) - 1) > 0.03) chicas.push(sel);
+        if (apertura === 'licencia' && Math.abs(escala(el) - 1) > 0.03) chicas.push(sel);
       }
-      const dato =
-        apertura === 'licencia'
-          ? document.querySelector('.pb-persona--4 [data-a="kpi"]').textContent.trim()
-          : Number(getComputedStyle(document.querySelector('.pb-burbuja__r')).opacity) === 1 && Number(getComputedStyle(document.querySelector('.pb-puntos')).opacity) === 0
-            ? 'respuesta a la vista'
-            : 'SIN RESPUESTA';
-      return { fuera, chicas, dato };
+      if (apertura === 'licencia') {
+        return { fuera, chicas, dato: document.querySelector('.pb-persona--4 [data-a="kpi"]').textContent.trim(), pisa: 0 };
+      }
+      /* El chat con la cámara adentro no tapa el titular: ni el panel ni la barra de la ventana */
+      const rg = document.createRange();
+      rg.selectNodeContents(document.querySelector('.pb-s1-titular'));
+      const t = rg.getBoundingClientRect();
+      const barra = document.querySelector('.pb-ia__ventana .an-ventana__barra').getBoundingClientRect();
+      const panel = document.querySelector('.pb-s1--ia .an-s6-panel').getBoundingClientRect();
+      const cruce = (a, b) => Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left)) * Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
+      const datoEl = document.querySelector('.pb-ia__dato');
+      const listo =
+        Number(getComputedStyle(document.querySelector('.pb-s1--ia .an-s6-resp')).opacity) === 1 &&
+        Math.abs(escala(datoEl) - 1) < 0.02 &&
+        document.querySelector('.pb-s1--ia [data-a="tipeo"]').textContent === '';
+      return { fuera, chicas, dato: listo ? 'respuesta y dato a la vista' : 'SIN RESPUESTA', pisa: Math.round(cruce(t, barra) + cruce(t, panel)) };
     }, [apertura, piso]);
-    const datoBien = apertura === 'licencia' ? portada.dato === '+997' : portada.dato === 'respuesta a la vista';
-    ok(!portada.fuera.length && !portada.chicas.length && datoBien,
+    const datoBien = apertura === 'licencia' ? portada.dato === '+997' : portada.dato === 'respuesta y dato a la vista';
+    ok(!portada.fuera.length && !portada.chicas.length && datoBien && portada.pisa === 0,
       `${formato}: la portada trae todo entero y adentro${formato === '9x16' ? ', sobre el 79 %' : ''} (${portada.dato}` +
-        `${portada.fuera.length ? `; afuera: ${portada.fuera.join(', ')}` : ''}${portada.chicas.length ? `; a medio entrar: ${portada.chicas.join(', ')}` : ''})`);
+        `${portada.fuera.length ? `; afuera: ${portada.fuera.join(', ')}` : ''}${portada.chicas.length ? `; a medio entrar: ${portada.chicas.join(', ')}` : ''}${portada.pisa ? `; TAPA EL TITULAR: ${portada.pisa} px²` : ''})`);
+
+    /* La apertura «ia» no se la traga el portal: sube y se apaga (ver anuncio-pbi.css). A los
+       3,95 s tiene que haberse ido entera, titular y chat */
+    if (apertura === 'ia') {
+      await ir(p, TRAGADO);
+      const fuera = await p.evaluate(() => ({
+        chat: Number(getComputedStyle(document.querySelector('.pb-ia')).opacity),
+        titular: Number(getComputedStyle(document.querySelector('.pb-s1-texto')).opacity),
+      }));
+      ok(fuera.chat < 0.01 && fuera.titular < 0.01, `${formato}: el gancho se fue antes de que se abra el portal (opacidad del chat ${fuera.chat}, del titular ${fuera.titular})`);
+    }
 
     /* El portal se traga todo hasta el centro exacto de su ventana */
     await ir(p, TRAGADO);
-    const tragado = await p.evaluate(() => {
+    const tragado = apertura === 'ia' ? null : await p.evaluate(() => {
       const centro = (el) => {
         const q = el.getBoundingClientRect();
         return { x: (q.left + q.right) / 2, y: (q.top + q.bottom) / 2 };
@@ -232,11 +267,13 @@ for (const [apertura, ruta] of Object.entries(APERTURAS)) {
         opacidad: Math.max(...piezas.map((el) => Number(getComputedStyle(el).opacity))),
       };
     });
-    ok(tragado.cuantas >= 3 && tragado.lejos < 4 && tragado.opacidad < 0.01,
-      `${formato}: el portal se traga las ${tragado.cuantas} piezas hasta el centro de su ventana (la más lejana a ${tragado.lejos.toFixed(1)} px, opacidad ${tragado.opacidad})`);
+    if (tragado) {
+      ok(tragado.cuantas >= 3 && tragado.lejos < 4 && tragado.opacidad < 0.01,
+        `${formato}: el portal se traga las ${tragado.cuantas} piezas hasta el centro de su ventana (la más lejana a ${tragado.lejos.toFixed(1)} px, opacidad ${tragado.opacidad})`);
+    }
 
     /* La toma 2: el titular no pisa la ventana; la ventana, el sello y la gente, en el cuadro */
-    await ir(p, 6.0);
+    await ir(p, 6.0 + T0);
     const toma2 = await p.evaluate((piso) => {
       const r = (sel) => document.querySelector(sel).getBoundingClientRect();
       const dentro = (b) => b.left >= 0 && b.top >= 0 && b.right <= innerWidth && b.bottom <= piso + 1;
@@ -257,7 +294,7 @@ for (const [apertura, ruta] of Object.entries(APERTURAS)) {
       `${formato}: la toma 2 entra entera (aire con el titular ${toma2.aire} px, gente hasta ${toma2.abajo} de ${piso} px, ${toma2.resto})`);
 
     /* La toma 3: el chat entero en el cuadro, con su última fila, y sin pisar el texto */
-    await ir(p, 12.5);
+    await ir(p, 12.5 + T0);
     const toma3 = await p.evaluate((piso) => {
       const r = (sel) => document.querySelector(sel).getBoundingClientRect();
       const chat = r('.pb-s3-chat');
@@ -280,7 +317,7 @@ for (const [apertura, ruta] of Object.entries(APERTURAS)) {
       `${formato}: el chat entra entero con su última fila y no pisa el texto (termina en ${toma3.abajo} de ${piso} px, letra de la pregunta ${toma3.letra.toFixed(1)} px, cruce ${toma3.pisa} px²)`);
 
     /* El cierre */
-    await ir(p, 20.0);
+    await ir(p, 20.0 + T0);
     const cierre = await p.evaluate(() => {
       const cta = document.querySelector('.pb-s5 .an-cta');
       const url = document.querySelector('.pb-s5 .an-url');
@@ -308,7 +345,10 @@ for (const [apertura, ruta] of Object.entries(APERTURAS)) {
       descargas: [...document.querySelectorAll('.an-descarga')].map((a) => a.href),
       actual: document.querySelector('.an-aperturas [aria-current="page"]')?.getAttribute('href'),
       aperturas: document.querySelectorAll('.an-aperturas a').length,
+      /* Un precio, no un rótulo: el reporte de ejemplo dice «Ventas (US$)» y eso no es un precio */
+      precio: /US\$\s*\d|\bal mes\b|\/\s*mes\b|pago único/i.test(document.querySelector('.an-lienzo').textContent),
     }));
+    ok(!dice.precio, 'el anuncio no muestra ningún precio (pedido del dueño)');
     ok(dice.script === DURACION && dice.reloj === DURACION && dice.titulo.endsWith(`${DURACION / 1000} s`),
       `la duración coincide: script ${dice.script} ms, reloj ${dice.reloj} ms, título «${dice.titulo}»`);
     const molde = new RegExp(`^https://github\\.com/[^/]+/[^/]+/releases/download/anuncio-power-bi/power-bi-${apertura}-anuncio-(9x16|4x5|1x1|16x9)\\.mp4$`);
