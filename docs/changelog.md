@@ -1,5 +1,28 @@
 # Bitácora de cambios
 
+## 02/11/2026 · Anuncio nuevo: «A tu Power BI le faltan 3 cosas», 24 s
+
+- **Por qué**:
+  - la primera venta: el comprador valoró los roles y el chat con IA;
+  - el dueño no quería otro anuncio que muestre el chat dos veces.
+  Detalle en ADR-022.
+- **El anuncio** (`AnuncioTresCosas.astro` + `anuncio-3c.css`): una lista con tres renglones tapados que se destapan de a uno, en los cuatro formatos:
+  1. el ahorro: 1.000 licencias que bajan a 1;
+  2. el control total: la misma ventana vista por Gerencia, por Ventas con su filtro y por un cliente con páginas ocultas y en solo lectura;
+  3. la IA, como lo mejor de todo.
+  Después, la lista con sus tres tildes y el cierre con «Pide tu demo». Sin precios.
+- **La página**: `/anuncios/tres-cosas/`, oculta, con el selector de formato y las descargas. Aparece primera en `/anuncios/`.
+- **Los videos**: los graba la Action «Grabar el anuncio 3 cosas» en el release `anuncio-tres-cosas`.
+- **El motor**: `medir()` ya no supone que todo anuncio tiene un gancho que se traga.
+- **Bancos**:
+  - `npm run anuncio:probar-3c` sale sin problemas. Saboteado dos veces, falló las dos.
+  - El QA y el banco del de 55 s, sin problemas.
+  - El de «Power BI primero» falla a veces, y eso ya pasaba antes:
+    - el mismo instante (4:5, apertura «ia», 3,5 s) sale con 540 a 1.624 píxeles distintos;
+    - repetido 30 veces, salió distinto 11 sin el cambio del motor y 6 con él;
+    - ese anuncio tiene destino, así que la guarda nueva ni corre ahí.
+    Pendiente en aprendizajes.
+
 ## 26/10/2026 · «Power BI primero»: la apertura «ia», rehecha, y sin precios
 
 - **Pedido del dueño**: la primera escena de la apertura «ia» «no vende, se ve súper básico». Quiso «Potencia tu Power BI con IA», el tablero con el chip que se toca, como en el de 55 s, y ver a la IA escribir y contestar. Y que no salga ningún precio.

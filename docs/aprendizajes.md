@@ -2,6 +2,36 @@
 
 Cada entrada: **síntoma → causa → solución → cómo evitarlo**.
 
+## El anuncio «3 cosas» (02/11/2026)
+
+### Lo que dentro de una maqueta se ve chico, en un teléfono no existe
+- **Síntoma**: en la toma del control, el filtro «Sucursal: Norte», los candados de las páginas y «Solo lectura» estaban en la ventana del visor y bien hechos. En la hoja de contactos de 9:16 no se leían: miden lo que mide un rótulo de Power BI dentro de una ventana de 994 px.
+- **Solución**: lo que la escena tiene que decir va también afuera, en grande (`--u`). Un rótulo encima de la ventana cambia con cada persona: «Ve todo», «Solo la sucursal Norte», «2 páginas ocultas · solo lectura». La ventana muestra que es verdad; el rótulo lo dice.
+- **Cómo evitarlo**: mirar cada toma a la escala del teléfono antes de darla por buena. Si el mensaje vive en algo de la maqueta, repetirlo en el tamaño del anuncio.
+
+### La cámara se calcula midiendo, no a ojo
+- **Contexto**: la cámara de la toma de la IA agranda el chat hasta llenar lo que queda entre el titular y el piso (el 79 % en 9:16), sin pasarse del ancho.
+- **Cómo**: se mide la ventana sin cámara y el borde de abajo del texto del titular. Con eso se despeja la escala y el corrimiento: la escala es lo que entra de alto o de ancho, lo que sea menor. Con los valores copiados de «Power BI primero» el chat quedaba más chico de lo que entraba, porque su titular es otro.
+- **El banco lo vigila**: con la escala agrandada a propósito (1,8 en vez de 1,594), el chat bajaba hasta 1.580 de 1.517 px y pisaba el titular. Falló.
+
+### Un banco en verde una vez no prueba que el cuadro sea siempre el mismo
+- **Síntoma**: corriendo todos los bancos antes de publicar este anuncio, el de «Power BI primero» falló en 4:5 a los 3,5 s, en la apertura «ia» (540 píxeles distintos). Al repetirlo, falló 2 de 3 veces; el 26/10 había salido sin problemas.
+- **Lo que parecía**: la guarda nueva del motor (`medir()` sin destino). No podía ser: ese anuncio tiene destino, la guarda ni corre ahí.
+- **Lo que se midió**: ese instante solo, 30 veces (5 navegadores, 6 vueltas cada uno). Salió distinto 11 veces sin el cambio y 6 con él, con 540, 1.084 o 1.624 píxeles. La falla es de antes, intermitente, y depende del navegador más que del código.
+- **Dónde está**: a 3,5 s el gancho «IA» sube y se apaga (`an-sale`) con la ventana agrandada por la cámara. Es la familia de ADR-021: una capa escalada por una cámara, debajo de otra que se anima.
+- **Pendiente**: que la cámara se deshaga antes de que el gancho se vaya, o que el gancho se vaya con un corte. El video se graba avanzando cuadro por cuadro, que no es el camino del salto que prueba el banco; no se vio defecto en el MP4.
+- **Cómo evitarlo**: ante un rojo intermitente, repetir el instante muchas veces, con y sin el cambio, antes de culpar o absolver al cambio. Y un verde de una sola corrida en un instante delicado no es evidencia. Con el anuncio nuevo se hizo la misma prueba: la cámara a mitad de camino (14,2 s) y el gancho (0,6 s), en 9:16 y 4:5, 30 veces cada uno. Salieron **0 distintos de 120**. Su toma de la IA termina con un corte, no con una salida animada.
+
+### En Windows, Python escribe CRLF en modo texto
+- **Síntoma**: después de reemplazar unas líneas con un script de Python, `git` avisaba que el archivo tenía CRLF. Eran archivos LF de este repositorio.
+- **Causa**: `open(…, 'w')` en Windows convierte cada `\n` en `\r\n`.
+- **Solución**: leer y escribir en binario (`'rb'` / `'wb'`) o con `newline=''`, y comprobar el fin de línea después.
+
+### Git Bash convierte una ruta del sitio en una ruta de Windows
+- **Síntoma**: el script de fotos navegaba a `http://127.0.0.1:55163C:/Program Files/Git/anuncios/tres-cosas/`.
+- **Causa**: Git Bash (MSYS) traduce cualquier argumento que empiece con `/` a una ruta de Windows antes de pasárselo a Node.
+- **Solución**: `MSYS_NO_PATHCONV=1` delante del comando, o pasar la URL completa.
+
 ## El anuncio «Power BI primero» (26/10/2026)
 
 ### Encoger una capa con texto que la cámara ya agrandó no da siempre el mismo cuadro, y `will-change` lo empeora

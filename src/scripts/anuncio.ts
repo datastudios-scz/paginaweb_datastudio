@@ -246,6 +246,8 @@ function iniciar(raiz: HTMLElement) {
   }
 
   function medir() {
+    /* Un anuncio sin gancho que se traga (el de las 3 cosas) no tiene destino */
+    if (!destino) return;
     const d = centro(destino);
     for (const el of absorbidos) {
       const p = centro(el);

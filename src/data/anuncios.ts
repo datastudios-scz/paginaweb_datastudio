@@ -31,6 +31,12 @@ const RELEASE_POWER_BI = 'https://github.com/datastudios-scz/paginaweb_datastudi
 export const videoPowerBi = (apertura: Apertura) => (f: string) => `${RELEASE_POWER_BI}/power-bi-${apertura}-anuncio-${f}.mp4`;
 export const portadaPowerBi = (apertura: Apertura) => (f: string) => `${RELEASE_POWER_BI}/power-bi-${apertura}-portada-${f}.jpg`;
 
+/** El anuncio «A tu Power BI le faltan 3 cosas» (ADR-022): sus videos en el release
+    `anuncio-tres-cosas` que graba la Action «Grabar el anuncio 3 cosas». */
+const RELEASE_TRES_COSAS = 'https://github.com/datastudios-scz/paginaweb_datastudio/releases/download/anuncio-tres-cosas';
+export const videoTresCosas = (f: string) => `${RELEASE_TRES_COSAS}/tres-cosas-anuncio-${f}.mp4`;
+export const portadaTresCosas = (f: string) => `${RELEASE_TRES_COSAS}/tres-cosas-portada-${f}.jpg`;
+
 export interface Anuncio {
   /** Identificador estable (se usa como ancla: /anuncios/#portal-bi). */
   id: string;
@@ -48,6 +54,17 @@ export interface Anuncio {
 }
 
 export const ANUNCIOS: Anuncio[] = [
+  {
+    id: 'tres-cosas',
+    producto: 'Portal BI',
+    titulo: 'A tu Power BI le faltan 3 cosas',
+    descripcion:
+      'Una lista con tres renglones tapados que se destapan de a uno: el ahorro (1.000 licencias que bajan a 1), el control total (la misma ventana vista por Gerencia, por Ventas con su filtro y por un cliente con páginas ocultas y solo lectura) y, como lo mejor de todo, la IA que escribe y contesta. Cada cosa se muestra una vez. Nace de lo que valoró el primer comprador: los roles y el chat.',
+    fecha: '2026-11-02',
+    duracion: '24 s',
+    pagina: '/anuncios/tres-cosas/',
+    descargas: FORMATOS.map((f) => ({ formato: f.nombre, uso: f.uso, px: f.px, href: videoTresCosas(f.id) })),
+  },
   {
     id: 'power-bi-licencia',
     producto: 'Portal BI',

@@ -2,6 +2,56 @@
 
 Formato: contexto → decisión → consecuencias. Las decisiones nuevas van arriba.
 
+## ADR-022 · «A tu Power BI le faltan 3 cosas»: un anuncio que muestra cada cosa una vez (02/11/2026)
+
+- **Contexto**:
+  - La primera campaña cerró con US$ 57,34, 44 conversaciones de WhatsApp y **una venta**: el código y la guía.
+  - El comprador es gerente de una empresa en Bolivia. Dijo que lo que más le interesó fueron **los roles (darle solo lectura a algunos) y el chat con IA**. Ningún anuncio mostraba lo primero.
+  - El dueño no quedó conforme con «Power BI primero» (ADR-021) porque **muestra el chat dos veces**: en la apertura «ia» y en la toma 3.
+  - Pidió un anuncio de «3 cosas que le faltan a tu Power BI», general (no solo para gerentes):
+    1. el ahorro, dejar de pagar por cada usuario;
+    2. el control total, filtrar, ocultar o mostrar a cada usuario o cliente solo lo que debe;
+    3. como lo mejor de todo, la IA, con el chip que se toca.
+- **Decisión**: un anuncio aparte, de **24 s**. Los otros dos quedan intactos.
+  1. **0 – 2,75 s, el gancho**: «A tu Power BI le faltan 3 cosas.» y una lista «Tu Power BI» con tres renglones tapados, que brillan como algo que carga. Lleva la cuenta «0 de 3» en rojo y tres casillas vacías que llaman sobre el pulso. El primer cuadro ya está entero.
+  2. **2,5 – 7 s, 1 · Ahorro**: «Deja de pagar por cada usuario.» y un medidor con dos filas:
+     - las licencias de Power BI bajan de 1.000 a 1 (la barra roja se encoge a una astilla amarilla);
+     - las personas con acceso se quedan en 1.000;
+     - y el sello «999 licencias que ya no pagas».
+  3. **7 – 12 s, 2 · Control total**: «Tú decides qué ve cada persona.» La misma ventana del visor vista por tres personas:
+     - Gerencia la ve entera;
+     - Ventas, con el filtro «Sucursal: Norte», y las demás sucursales se apagan;
+     - el cliente, sin dos páginas (con candado) y en solo lectura.
+     Encima, un rótulo grande con lo que ve cada uno: dentro de la ventana, en un teléfono, el filtro y el candado no se leen. Y los verbos «Filtra. Oculta. Muestra solo lo que debe.», uno con cada cambio.
+  4. **12 – 18 s, 3 · Lo mejor de todo: «Potenciado por IA»**: la lengüeta «Chat IA», el toque, el chat que se abre, la cámara que entra, la pregunta que se escribe, los pasos y la respuesta con el dato. Es la única vez que aparece el chat.
+  5. **18 – 20,2 s, «Ahora sí, no le falta nada.»**: la lista otra vez, destapada, con una tilde por pulso y «3 de 3» en verde.
+  6. **20,2 s – fin, el cierre**: el logo, «Power BI para toda tu empresa.», las fichas «1 licencia», «Control total», «Potenciado por IA» y «El código es tuyo», «Pide tu demo» con el WhatsApp, y la dirección.
+- **Neuromarketing**:
+  - *Un bucle abierto*: «faltan 3» y tres renglones tapados. Quien empieza una lista quiere terminarla, y la lista se cierra recién al final, con sus tres tildes.
+  - *Dónde está*: un avance de tres círculos arriba, del lado opuesto a la firma, dice en qué cosa va.
+  - *De lo general a lo deseado*: el ahorro le sirve a cualquiera; el control es lo que valoró el comprador; la IA va última como «lo mejor de todo», porque el final es lo que más se recuerda.
+  - *Cada cosa una vez*: ninguna escena repite a otra.
+  - *Sin promesas que un filtro no cumple*: dice qué ve cada persona, nunca que los datos queden aislados. El banco falla con «seguro», «aislado», «protegido» o «privado».
+  - *Español neutro*, para América y España, y *sin precios*.
+- **Lo que reusa, sin copiarlo**:
+  - el motor (`anuncio.ts`);
+  - la base de estilos (`anuncio.css`);
+  - el reporte (`AnuncioReporte.astro`);
+  - las piezas del chat de la toma 6;
+  - la cortina y el cierre.
+  Lo propio vive en `AnuncioTresCosas.astro` y `anuncio-3c.css`, y la página en `src/pages/anuncios/tres-cosas.astro`.
+- **Consecuencias**:
+  - Una página oculta más, `/anuncios/tres-cosas/`, dentro de `/anuncios/`: sin indexar, fuera del sitemap y en el QA.
+  - Los MP4 los graba la Action «Grabar el anuncio 3 cosas» (`anuncio-tres-cosas.yml`) en el release `anuncio-tres-cosas`. La portada es el gancho armado, a 1,6 s.
+  - Banco propio, `npm run anuncio:probar-3c`, en los cuatro formatos:
+    - las tomas a su tiempo y el determinismo, incluida la cámara a mitad de camino;
+    - el primer cuadro y la portada;
+    - cada toma entera y sin pisar su texto;
+    - sin precios y sin promesas de seguridad;
+    - la página y el movimiento reducido.
+    Se lo saboteó dos veces (la cámara agrandada de más y la palabra «seguros»), y falló las dos.
+  - El motor aprendió a funcionar sin un gancho que se traga (`medir()` sin destino).
+
 ## ADR-021 · «Power BI primero»: un anuncio de 21 s que segmenta solo, con dos aperturas (26/10/2026, revisado el mismo día)
 
 - **Revisión del dueño (26/10/2026)**: la primera escena de la apertura «ia» «no vende, se ve súper básico». Pidió «Potencia tu Power BI con IA», un tablero de Power BI con el chip que se toca, como en el de 55 s, y que se vea a la IA escribir y contestar. Y que no salga ningún precio.

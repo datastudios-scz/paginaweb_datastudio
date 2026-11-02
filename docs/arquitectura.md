@@ -40,6 +40,7 @@
 │   │                            el de 55 s por defecto, otro con --pagina, --nombre y --portada)
 │   ├── probar-anuncio.mjs       Banco del anuncio de 55 s: tomas en su ventana, cuadros deterministas, escala, página (`npm run anuncio:probar`)
 │   ├── probar-anuncio-pbi.mjs   Banco de «Power BI primero»: las dos aperturas en los cuatro formatos (`npm run anuncio:probar-pbi`)
+│   ├── probar-anuncio-3c.mjs    Banco de «A tu Power BI le faltan 3 cosas», en los cuatro formatos (`npm run anuncio:probar-3c`)
 │   ├── capturas-scroll.mjs      Capturas del viewport en varias posiciones de scroll, con movimiento (portada → telón)
 │   └── cortar-capturas.mjs      Corta capturas de página completa en tramos
 ├── src/
@@ -61,7 +62,9 @@
 │   │   │                        AnuncioPortal.astro: el portal por dentro (menú y tableros), del gancho y la toma 4;
 │   │   │                        datos.ts: las tarjetas de ejemplo y los trazos de sus íconos;
 │   │   │                        AnuncioPowerBI.astro + anuncio-pbi.css: «Power BI primero», 21 s y dos aperturas
-│   │   │                        (ADR-021), sobre la misma base; SalaAnuncio.astro: su página (barra, lienzo y descargas)
+│   │   │                        (ADR-021), sobre la misma base; SalaAnuncio.astro: su página (barra, lienzo y descargas);
+│   │   │                        AnuncioTresCosas.astro + anuncio-3c.css: «A tu Power BI le faltan 3 cosas», 24 s
+│   │   │                        (ADR-022), sobre la misma base; su página es src/pages/anuncios/tres-cosas.astro
 │   │   ├── social/              MaquetaTablero (variantes completa, compacta y publicaciones)
 │   │   ├── tienda/              Catalogo (tienda de ejemplo, variantes completa y compacta)
 │   │   └── consultoria/         Flujo (recorrido de los datos) y Consolidado (héroe: planillas → reporte)

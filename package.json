@@ -17,6 +17,7 @@
     "anuncio:video": "node scripts/grabar-anuncio.mjs",
     "anuncio:probar": "node scripts/probar-anuncio.mjs",
     "anuncio:probar-pbi": "node scripts/probar-anuncio-pbi.mjs",
+    "anuncio:probar-3c": "node scripts/probar-anuncio-3c.mjs",
     "astro": "astro"
   },
   "dependencies": {
