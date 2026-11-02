@@ -1,7 +1,8 @@
-# Graba el anuncio «A tu Power BI le faltan 3 cosas» (ADR-022) a MP4 en los cuatro formatos y los
-# publica como archivos del release `anuncio-tres-cosas`. Como los otros (anuncio.yml, ADR-016;
+# Graba el anuncio «A tu Power BI le faltan 3 cosas» (ADR-022), sus dos versiones (la A y la B,
+# cinemática), a MP4 en los cuatro formatos y los publica como archivos del release
+# `anuncio-tres-cosas`. Como los otros (anuncio.yml, ADR-016;
 # anuncio-power-bi.yml, ADR-021): los videos NO viven en el repositorio; la página oculta
-# /anuncios/tres-cosas/ enlaza a esos archivos.
+# /anuncios/tres-cosas/ y /anuncios/tres-cosas-b/ enlazan a esos archivos.
 #
 # Corre en Windows a propósito: las maquetas de Power BI y del chat usan Segoe UI, que en Linux no
 # existe. Cada acción está fijada a un commit SHA, igual que en deploy.yml y anuncio.yml.
@@ -13,7 +14,9 @@ on:
     paths:
       - 'src/components/anuncio/**'
       - 'src/scripts/anuncio.ts'
+      - 'src/scripts/efectos-3c.ts'
       - 'src/pages/anuncios/tres-cosas.astro'
+      - 'src/pages/anuncios/tres-cosas-b.astro'
       - 'src/data/**'
       - 'src/styles/**'
       - 'src/layouts/Base.astro'
@@ -53,9 +56,13 @@ jobs:
       - name: Instalar ffmpeg
         run: choco install ffmpeg --no-progress -y
 
-      # La portada: el gancho armado, con la lista y sus tres renglones tapados (1,6 s)
-      - name: Grabar el anuncio
+      # La portada de cada versión: el gancho armado a los 1,6 s (la lista con sus renglones
+      # tapados en la A; el tablero con sus tres huecos en la B)
+      - name: Grabar la versión A
         run: npm run anuncio:video -- --pagina /anuncios/tres-cosas/ --nombre tres-cosas --portada 1.6 --salida videos-tres-cosas
+
+      - name: Grabar la versión B (cinemática)
+        run: npm run anuncio:video -- --pagina /anuncios/tres-cosas-b/ --nombre tres-cosas-b --portada 1.6 --salida videos-tres-cosas
 
       - name: Publicar en el release anuncio-tres-cosas
         shell: bash
@@ -68,5 +75,5 @@ jobs:
               --title "Anuncio «A tu Power BI le faltan 3 cosas»" --notes "Se reemplaza solo."
           fi
           gh release upload anuncio-tres-cosas videos-tres-cosas/* --clobber
-          gh release edit anuncio-tres-cosas --notes "Videos del anuncio «A tu Power BI le faltan 3 cosas» de datastudio.es/anuncios/tres-cosas/: MP4 de 24 s, 60 cps, BT.709, y su portada por formato. Grabados del commit $GITHUB_SHA. Se vuelven a grabar solos cada vez que cambia el anuncio."
+          gh release edit anuncio-tres-cosas --notes "Videos del anuncio «A tu Power BI le faltan 3 cosas» de datastudio.es/anuncios/tres-cosas/ (versión A) y /anuncios/tres-cosas-b/ (versión B, cinemática): MP4 de 24 s, 60 cps, BT.709, y su portada por formato. Grabados del commit $GITHUB_SHA. Se vuelven a grabar solos cada vez que cambia el anuncio."
           ls -la videos-tres-cosas

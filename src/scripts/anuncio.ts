@@ -27,6 +27,9 @@ declare global {
       formato: () => string;
       paginas: { total: number; actual: () => number; siguiente: () => void; anterior: () => void; abrir: (k: number) => void };
     };
+    /* Lo que un anuncio dibuja en un <canvas> según el tiempo (las partículas de la versión
+       cinemática de las 3 cosas, efectos-3c.ts): una función por efecto, que recibe el segundo */
+    __efectos?: ((s: number) => void)[];
   }
 }
 
@@ -224,6 +227,8 @@ function iniciar(raiz: HTMLElement) {
       const hasta = Number(tipeo.dataset.fin);
       tipeo.textContent = s >= hasta + 0.1 ? '' : texto.slice(0, Math.round(texto.length * acotar((s - desde) / (hasta - desde), 0, 1)));
     }
+    /* Lo que se dibuja en un lienzo: también en función del tiempo, nunca del reloj de la máquina */
+    for (const efecto of window.__efectos ?? []) efecto(s);
   }
 
   /* ── El gancho: el portal se traga los reportes ───────────────────────────────── */

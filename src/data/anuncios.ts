@@ -36,6 +36,9 @@ export const portadaPowerBi = (apertura: Apertura) => (f: string) => `${RELEASE_
 const RELEASE_TRES_COSAS = 'https://github.com/datastudios-scz/paginaweb_datastudio/releases/download/anuncio-tres-cosas';
 export const videoTresCosas = (f: string) => `${RELEASE_TRES_COSAS}/tres-cosas-anuncio-${f}.mp4`;
 export const portadaTresCosas = (f: string) => `${RELEASE_TRES_COSAS}/tres-cosas-portada-${f}.jpg`;
+/** La versión B, la cinemática: en el mismo release */
+export const videoTresCosasB = (f: string) => `${RELEASE_TRES_COSAS}/tres-cosas-b-anuncio-${f}.mp4`;
+export const portadaTresCosasB = (f: string) => `${RELEASE_TRES_COSAS}/tres-cosas-b-portada-${f}.jpg`;
 
 export interface Anuncio {
   /** Identificador estable (se usa como ancla: /anuncios/#portal-bi). */
@@ -55,9 +58,20 @@ export interface Anuncio {
 
 export const ANUNCIOS: Anuncio[] = [
   {
+    id: 'tres-cosas-b',
+    producto: 'Portal BI',
+    titulo: 'A tu Power BI le faltan 3 cosas · versión B, cinemática',
+    descripcion:
+      'El mismo guion que la versión A, con otro nivel de movimiento: el tablero de Power BI flotando en 3D con tres huecos; mil licencias que implotan en una sola licencia dorada y mil personas que se encienden alrededor; el nodo «Tú» con un cable de luz a cada persona; una revelación antes de la IA; y al final las tres piezas que vuelan y encajan en los huecos. Los cambios de toma, con barridos de luz.',
+    fecha: '2026-11-02',
+    duracion: '24 s',
+    pagina: '/anuncios/tres-cosas-b/',
+    descargas: FORMATOS.map((f) => ({ formato: f.nombre, uso: f.uso, px: f.px, href: videoTresCosasB(f.id) })),
+  },
+  {
     id: 'tres-cosas',
     producto: 'Portal BI',
-    titulo: 'A tu Power BI le faltan 3 cosas',
+    titulo: 'A tu Power BI le faltan 3 cosas · versión A',
     descripcion:
       'Una lista con tres renglones tapados que se destapan de a uno: el ahorro (1.000 licencias que bajan a 1), el control total (la misma ventana vista por Gerencia, por Ventas con su filtro y por un cliente con páginas ocultas y solo lectura) y, como lo mejor de todo, la IA que escribe y contesta. Cada cosa se muestra una vez. Nace de lo que valoró el primer comprador: los roles y el chat.',
     fecha: '2026-11-02',

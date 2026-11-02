@@ -1,5 +1,24 @@
 # Bitácora de cambios
 
+## 02/11/2026 · «3 cosas», versión B: la cinemática
+
+- **Pedido del dueño**: «una segunda opción con alto render y alto motion graphics, para que al volver yo decida cuál sale». Mismo guion que la A. Detalle en ADR-022.
+- **Lo nuevo**:
+  - el tablero en 3D con tres huecos;
+  - mil licencias que implotan en una licencia dorada, y mil personas en anillos;
+  - el nodo «Tú» con un cable de luz a cada persona;
+  - una revelación con estrella y rayos antes de la IA;
+  - el aura del chat y el dato que cuenta;
+  - las tres piezas que encajan en los huecos;
+  - barridos de luz entre tomas y chispas de fondo.
+- **Archivos**: `AnuncioTresCosasB.astro`, `AnuncioTableroHuecos.astro`, `anuncio-3c-b.css`, `src/scripts/efectos-3c.ts` y la página `/anuncios/tres-cosas-b/`. Las dos páginas tienen el selector A/B.
+- **El motor**: llama en cada cuadro a lo que una página registra en `window.__efectos`. Así un `<canvas>` se dibuja según el tiempo, igual que los contadores.
+- **El banco** (`npm run anuncio:probar-3c`) prueba las dos versiones. Su comparación descarta ahora líneas de hasta 2 px: el borde de la ventana agrandada por la cámara se suaviza distinto según desde dónde se llega, en 1:1 y 4:5 y en las dos versiones. Sigue viendo un cambio de un solo dígito: 166 píxeles en mancha contra un umbral de 117. La A prueba también el chat ya agrandado (15,9 s).
+- **Los otros bancos**:
+  - el QA, sin problemas;
+  - el de «Power BI primero», con su falla intermitente de siempre (aprendizajes);
+  - el de 55 s falla en una prueba de reproducción **en tiempo real** («al seguir después de una pausa… todo va con el reloj»: unos 440 ms de atraso). Falla igual con el commit ya publicado (`c51d76a`), que a las 12:00 había pasado. Probablemente es la laptop en batería (21 %, descargando), que frena los temporizadores, aunque no está probado. No toca los videos, que se graban cuadro por cuadro. Repetir enchufado.
+
 ## 02/11/2026 · Anuncio nuevo: «A tu Power BI le faltan 3 cosas», 24 s
 
 - **Por qué**:

@@ -51,6 +51,21 @@ Formato: contexto → decisión → consecuencias. Las decisiones nuevas van arr
     - la página y el movimiento reducido.
     Se lo saboteó dos veces (la cámara agrandada de más y la palabra «seguros»), y falló las dos.
   - El motor aprendió a funcionar sin un gancho que se traga (`medir()` sin destino).
+- **La versión B, cinemática** (el mismo día, a pedido del dueño: «una segunda opción con alto render y alto motion graphics, para que al volver yo decida cuál sale»). Tiene el mismo guion, las mismas tres cosas y los mismos titulares; cambia el movimiento:
+  - **El gancho**: un tablero de Power BI que flota en 3D con tres huecos numerados donde faltan las piezas. Los huecos laten de a uno y el tablero orbita (solo giro, nunca escala).
+  - **1 · Ahorro**: mil licencias de verdad, una por una, en una grilla de 40 × 25 que llega en ola mientras la cuenta sube a 1.000. Implotan en espiral, con estela, hasta una sola licencia dorada, con destello y onda. Alrededor se encienden mil personas en seis anillos que giran. Lo dibuja un lienzo, `src/scripts/efectos-3c.ts`.
+  - **2 · Control total**: la toma de la A, con un nodo «Tú» arriba y un cable de luz a cada persona. Con cada cambio, un pulso baja por el cable de quien mira y una luz cruza la ventana, que se endereza en 3D.
+  - **Una revelación** antes de la IA (11,9 – 12,95 s): se apaga la toma, chispas que convergen, una estrella con rayos que giran, una onda y «Y lo mejor de todo…».
+  - **3 · IA**: la toma de la A, con un aura de luz que gira alrededor de la ventana, el dato que cuenta hasta +18,4 % y ocho chispas que se abren.
+  - **Ahora sí**: el tablero del gancho otra vez. Las tres piezas («1 licencia», «Control total», «IA») vuelan, encajan en los huecos con un resorte, destellan y se ganan su tilde. Cierra el bucle con la misma imagen con que se abrió.
+  - **Entre tomas**, barridos de luz: una franja inclinada cruza el cuadro y el borde del recorte de la toma que entra va por su centro (`--izq` y `--der`, propiedades registradas). Chispas de fondo en todo el anuncio y una viñeta suave.
+- **Cómo se mantiene grabable**:
+  - El lienzo se dibuja en función del segundo que le pasa el motor (`window.__efectos`), con semillas fijas: el mismo instante da siempre el mismo cuadro.
+  - El banco de las 3 cosas prueba las dos versiones (`--solo A|B`), y en la B además:
+    - que el lienzo pinte;
+    - que la estrella se vea en el centro;
+    - que las tres piezas queden quietas con su tilde.
+  - Reusa los estilos y los tiempos de la A (`anuncio-3c.css`), y lo propio vive en `anuncio-3c-b.css` y `AnuncioTableroHuecos.astro`. La página es `/anuncios/tres-cosas-b/`; las dos páginas tienen un selector A/B. Los MP4 los graba la misma Action, en el mismo release (`tres-cosas-b-anuncio-<formato>.mp4`).
 
 ## ADR-021 · «Power BI primero»: un anuncio de 21 s que segmenta solo, con dos aperturas (26/10/2026, revisado el mismo día)
 

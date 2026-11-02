@@ -4,6 +4,28 @@ Cada entrada: **síntoma → causa → solución → cómo evitarlo**.
 
 ## El anuncio «3 cosas» (02/11/2026)
 
+### El reset del sitio le pone `max-width: 100%` a todo svg
+- **Síntoma**: en la revelación de la versión B se veían los rayos y la onda, y no la estrella. Medía 0 de ancho.
+- **Causa**: la estrella es un `<svg>` dentro de un punto de 0 × 0 (el centro de la escena). El reset del sitio le pone a todo svg `max-width: 100%`, y el 100 % de 0 es 0. Los rayos son `<i>` y no tienen ese tope.
+- **Solución**: `max-width: none` en ese svg, con el porqué al lado. El banco comprueba que la estrella tenga ancho y esté en el centro.
+
+### Un lienzo también puede ir cuadro por cuadro
+- **Contexto**: las mil licencias que implotan no se pueden hacer con mil elementos del DOM. La CSP no deja poner sus posiciones en atributos `style`, y mil reglas de CSS no tienen sentido.
+- **Cómo**: un `<canvas>` que se dibuja en función del segundo, nunca del reloj de la máquina. El motor llama a `window.__efectos` en cada cuadro, y los números «al azar» salen de una semilla fija. El banco lo prueba como a todo lo demás: el mismo instante, dos veces, con un salto en el medio, en la grilla, la implosión y los anillos. Sale igual.
+
+### La CSP del sitio también frena las pruebas
+- **Síntoma**: para aislar una falla, el script de prueba inyectaba CSS con `addStyleTag` y la página lo rechazaba (la directiva `style-src`).
+- **Solución**: cambiar el estilo por el CSSOM (`el.style.setProperty`), que la CSP permite. Es la misma razón por la que el motor mide y escribe con CSSOM.
+
+### Una línea de 2 px en el borde de algo que la cámara agrandó no es contenido
+- **Síntoma**: en la versión B, 1:1, a 16,6 s, el mismo instante daba 1.049 px distintos, siempre en la segunda vuelta.
+- **Lo que se midió**:
+  - las diferencias eran dos filas de píxeles en el borde de arriba de la ventana agrandada;
+  - sin el aura y sin las chispas seguía pasando (1.084 px);
+  - en la versión A pasaba lo mismo, a 15,9 s, en 1:1 y en 4:5; su banco no lo veía porque no probaba ese instante.
+- **Solución**: la comparación del banco de las 3 cosas descarta líneas de hasta 2 px (cuenta un píxel solo si es parte de una mancha de 3 × 3). Se comprobó que sigue viendo el cambio de un dígito del dato (166 px contra un umbral de 117), y la A prueba ahora también el chat ya agrandado.
+- **Cómo evitarlo**: probar cada toma también cuando su cámara ya terminó, no solo a mitad de camino.
+
 ### Lo que dentro de una maqueta se ve chico, en un teléfono no existe
 - **Síntoma**: en la toma del control, el filtro «Sucursal: Norte», los candados de las páginas y «Solo lectura» estaban en la ventana del visor y bien hechos. En la hoja de contactos de 9:16 no se leían: miden lo que mide un rótulo de Power BI dentro de una ventana de 994 px.
 - **Solución**: lo que la escena tiene que decir va también afuera, en grande (`--u`). Un rótulo encima de la ventana cambia con cada persona: «Ve todo», «Solo la sucursal Norte», «2 páginas ocultas · solo lectura». La ventana muestra que es verdad; el rótulo lo dice.

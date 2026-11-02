@@ -1097,8 +1097,29 @@
   background: radial-gradient(90% 65% at 50% 40%, #0a8f83, #037a70 50%, #005a52);
 }
 
-/* ═══ LA PÁGINA ═══════════════════════════════════════════════════════════════════════ */
-/* (la sala es la de anuncio.css: barra, formatos, controles y panel de descargas) */
+/* ═══ LA PÁGINA ═══════════════════════════════════════════════════════════════════════
+   La sala es la de anuncio.css (barra, formatos, controles y panel de descargas). Esto es el
+   selector de versión: A (esta) y B (la cinemática, anuncio-3c-b.css), cada una en su página */
+.an-versiones {
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border: 1px solid rgb(206 217 189 / 0.18);
+  border-radius: var(--radio-pill);
+}
+
+.an-versiones .an-formato {
+  display: grid;
+  place-items: center;
+  font-family: var(--font-texto);
+  text-decoration: none;
+}
+
+.an-versiones .an-formato[aria-current='page'] {
+  background: var(--color-verde-claro);
+  color: var(--color-abismo);
+}
+
 
 /* ═══════════════════════════════════════════════════════════════════════════════════
    LOS MOVIMIENTOS PROPIOS
