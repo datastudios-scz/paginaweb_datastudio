@@ -24,21 +24,11 @@ const RELEASE_PORTAL_BI = 'https://github.com/datastudios-scz/paginaweb_datastud
 export const videoPortalBi = (f: string) => `${RELEASE_PORTAL_BI}/portal-bi-anuncio-${f}.mp4`;
 export const portadaPortalBi = (f: string) => `${RELEASE_PORTAL_BI}/portal-bi-portada-${f}.jpg`;
 
-/** El anuncio «Power BI primero» (ADR-021): dos aperturas, sus videos en el release `anuncio-power-bi`
-    que graba la Action «Grabar el anuncio Power BI primero». */
-export type Apertura = 'licencia' | 'ia';
-const RELEASE_POWER_BI = 'https://github.com/datastudios-scz/paginaweb_datastudio/releases/download/anuncio-power-bi';
-export const videoPowerBi = (apertura: Apertura) => (f: string) => `${RELEASE_POWER_BI}/power-bi-${apertura}-anuncio-${f}.mp4`;
-export const portadaPowerBi = (apertura: Apertura) => (f: string) => `${RELEASE_POWER_BI}/power-bi-${apertura}-portada-${f}.jpg`;
-
 /** El anuncio «A tu Power BI le faltan 3 cosas» (ADR-022): sus videos en el release
     `anuncio-tres-cosas` que graba la Action «Grabar el anuncio 3 cosas». */
 const RELEASE_TRES_COSAS = 'https://github.com/datastudios-scz/paginaweb_datastudio/releases/download/anuncio-tres-cosas';
 export const videoTresCosas = (f: string) => `${RELEASE_TRES_COSAS}/tres-cosas-anuncio-${f}.mp4`;
 export const portadaTresCosas = (f: string) => `${RELEASE_TRES_COSAS}/tres-cosas-portada-${f}.jpg`;
-/** La versión B, la cinemática: en el mismo release */
-export const videoTresCosasB = (f: string) => `${RELEASE_TRES_COSAS}/tres-cosas-b-anuncio-${f}.mp4`;
-export const portadaTresCosasB = (f: string) => `${RELEASE_TRES_COSAS}/tres-cosas-b-portada-${f}.jpg`;
 
 export interface Anuncio {
   /** Identificador estable (se usa como ancla: /anuncios/#portal-bi). */
@@ -58,48 +48,15 @@ export interface Anuncio {
 
 export const ANUNCIOS: Anuncio[] = [
   {
-    id: 'tres-cosas-b',
-    producto: 'Portal BI',
-    titulo: 'A tu Power BI le faltan 3 cosas · versión B, cinemática',
-    descripcion:
-      'El mismo guion que la versión A, con otro nivel de movimiento: el tablero de Power BI flotando en 3D con tres huecos; mil licencias que implotan en una sola licencia dorada y mil personas que se encienden alrededor; el nodo «Tú» con un cable de luz a cada persona; una revelación antes de la IA; y al final las tres piezas que vuelan y encajan en los huecos. Los cambios de toma, con barridos de luz.',
-    fecha: '2026-11-02',
-    duracion: '24 s',
-    pagina: '/anuncios/tres-cosas-b/',
-    descargas: FORMATOS.map((f) => ({ formato: f.nombre, uso: f.uso, px: f.px, href: videoTresCosasB(f.id) })),
-  },
-  {
     id: 'tres-cosas',
     producto: 'Portal BI',
-    titulo: 'A tu Power BI le faltan 3 cosas · versión A',
+    titulo: 'A tu Power BI le faltan 3 cosas',
     descripcion:
-      'Una lista con tres renglones tapados que se destapan de a uno: el ahorro (1.000 licencias que bajan a 1), el control total (la misma ventana vista por Gerencia, por Ventas con su filtro y por un cliente con páginas ocultas y solo lectura) y, como lo mejor de todo, la IA que escribe y contesta. Cada cosa se muestra una vez. Nace de lo que valoró el primer comprador: los roles y el chat.',
+      'Abre con los tres pilares a la vista: ahorro, control total y potenciado con IA. Después, una toma para cada uno: 1.000 licencias que bajan a 1; la misma ventana vista por Gerencia, por Ventas con su filtro y por un cliente con páginas ocultas y solo lectura; y el chat, que contesta una pregunta simple y una difícil, con dos consultas y un gráfico de pesas. Nace de lo que valoró el primer comprador: los roles y el chat.',
     fecha: '2026-11-02',
-    duracion: '24 s',
+    duracion: '30 s',
     pagina: '/anuncios/tres-cosas/',
     descargas: FORMATOS.map((f) => ({ formato: f.nombre, uso: f.uso, px: f.px, href: videoTresCosas(f.id) })),
-  },
-  {
-    id: 'power-bi-licencia',
-    producto: 'Portal BI',
-    titulo: 'Power BI primero · apertura «licencia»',
-    descripcion:
-      'Abre con el aviso de Power BI que todo usuario conoce («Necesitas una licencia de Power BI Pro») y la gente que choca contra él. El candado se abre: 1.000 licencias tachadas y una sola, la IA al costado del tablero, la ráfaga y el WhatsApp. Para probarla contra la apertura «ia» con el mismo público.',
-    fecha: '2026-10-26',
-    duracion: '21 s',
-    pagina: '/anuncios/power-bi/',
-    descargas: FORMATOS.map((f) => ({ formato: f.nombre, uso: f.uso, px: f.px, href: videoPowerBi('licencia')(f.id) })),
-  },
-  {
-    id: 'power-bi-ia',
-    producto: 'Portal BI',
-    titulo: 'Power BI primero · apertura «ia»',
-    descripcion:
-      'Abre con «Potencia tu Power BI con IA»: el tablero de Power BI, un toque en la lengüeta «Chat IA», el chat que se abre al costado y la IA que escribe la pregunta y contesta con el dato. Después es el mismo anuncio que la apertura «licencia», un segundo más tarde: se suben las dos y gana la que trae más conversaciones que responden.',
-    fecha: '2026-10-26',
-    duracion: '22 s',
-    pagina: '/anuncios/power-bi-ia/',
-    descargas: FORMATOS.map((f) => ({ formato: f.nombre, uso: f.uso, px: f.px, href: videoPowerBi('ia')(f.id) })),
   },
   {
     id: 'portal-bi',

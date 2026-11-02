@@ -4,6 +4,12 @@ Formato: contexto → decisión → consecuencias. Las decisiones nuevas van arr
 
 ## ADR-022 · «A tu Power BI le faltan 3 cosas»: un anuncio que muestra cada cosa una vez (02/11/2026)
 
+- **Lo que eligió el dueño** (el mismo día, al ver las dos): **la versión A**. Pidió borrar la B y «Power BI primero» (ADR-021) «para que no consuma espacio»; se borraron sus páginas, su código, su Action, su banco y sus videos del release. Y cambió tres cosas de la A, que quedó en **30 s**:
+  - **El gancho muestra los tres pilares con su texto**, en vez de renglones tapados: «si un gerente ve desde la entrada que ya dice "Ahorro", le va a interesar». Dura 4,75 s (dos más), para leer el mapa de lo que viene: los pilares se iluminan de a uno.
+  - **El segundo pilar** lo pidió como «seguridad y control total». Dice **«Control total»**: el portal decide qué ve cada uno, pero el token del visor no está acotado a un reporte (docs/seguridad.md del portal), y prometer seguridad sería prometer de más. El tercero dice «Potenciado **con** IA», como lo escribió el dueño.
+  - **El chat contesta una segunda pregunta, difícil**: «Compara cada sucursal contra 2025: ¿quién subió y quién bajó?». Hace dos consultas («Consulta 1 de 2», «2 de 2», como las muestra el chat) y contesta «5 de 7 subieron; Sur y Parque Industrial bajaron. Aeropuerto sumó +127,8 mil.» con un **gráfico de pesas** (el dumbbell del portal: antes contra después), una fila por sucursal. Es una forma que el chat del portal dibuja de verdad (`services/grafico.js`). Los datos son los de ejemplo, cuadrados: las ventas 2026 del reporte y el crecimiento de cada sucursal dan las de 2025.
+- **Y un defecto que vio el dueño**: en «Tú decides…», los rótulos «Ve todo», «Solo la sucursal Norte» y «2 páginas ocultas» se encimaban. Solo pasaba **reproduciendo en la página**, no en el video: los cambios de 1 ms con `step-end` no llegaban a cambiar (ver aprendizajes). Ahora van con `step-start`, en este anuncio y en la base (`anuncio.css`), donde también fallaban en vivo la firma y el login del de 55 s. El banco lo prueba en vivo.
+
 - **Contexto**:
   - La primera campaña cerró con US$ 57,34, 44 conversaciones de WhatsApp y **una venta**: el código y la guía.
   - El comprador es gerente de una empresa en Bolivia. Dijo que lo que más le interesó fueron **los roles (darle solo lectura a algunos) y el chat con IA**. Ningún anuncio mostraba lo primero.
@@ -68,6 +74,8 @@ Formato: contexto → decisión → consecuencias. Las decisiones nuevas van arr
   - Reusa los estilos y los tiempos de la A (`anuncio-3c.css`), y lo propio vive en `anuncio-3c-b.css` y `AnuncioTableroHuecos.astro`. La página es `/anuncios/tres-cosas-b/`; las dos páginas tienen un selector A/B. Los MP4 los graba la misma Action, en el mismo release (`tres-cosas-b-anuncio-<formato>.mp4`).
 
 ## ADR-021 · «Power BI primero»: un anuncio de 21 s que segmenta solo, con dos aperturas (26/10/2026, revisado el mismo día)
+
+- **Retirado el 02/11/2026** a pedido del dueño, junto con la versión B de ADR-022: se borraron sus páginas (`/anuncios/power-bi/` y `/anuncios/power-bi-ia/`), su código, su Action, su banco y el release `anuncio-power-bi`. Lo que se aprendió acá sigue en aprendizajes y en el anuncio de las 3 cosas, que reusa sus piezas.
 
 - **Revisión del dueño (26/10/2026)**: la primera escena de la apertura «ia» «no vende, se ve súper básico». Pidió «Potencia tu Power BI con IA», un tablero de Power BI con el chip que se toca, como en el de 55 s, y que se vea a la IA escribir y contestar. Y que no salga ningún precio.
   - **La apertura «ia», rehecha**: el titular «Potencia tu Power BI con IA» («IA» como el chip violeta del producto) y la ventana del visor con el reporte y la lengüeta «Chat IA» llamando desde el primer cuadro. Un toque, el chat se abre al costado (el reporte se encaja), la cámara entra al chat, la IA escribe «¿Qué sucursal creció más?», muestra sus tres pasos y contesta «Aeropuerto lidera: +18,4 %, más del doble del promedio.» con el dato grande. Son las piezas de la toma 6 del de 55 s, con sus tiempos.

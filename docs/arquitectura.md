@@ -10,7 +10,7 @@
 | Fuentes | Poppins (400/500/600/700) y DM Mono (500), woff2 latinos autoalojados | Sin Google Fonts: más rápido, privado y determinista |
 | Hosting | GitHub Pages con dominio propio `datastudio.es` | Ya existía; gratis; HTTPS |
 | Publicación | GitHub Actions (`.github/workflows/deploy.yml`) en cada push a `main` | Build reproducible con `npm ci` |
-| Videos del anuncio | GitHub Actions (`.github/workflows/anuncio.yml`, Windows) → release `anuncio-portal-bi`; el de «Power BI primero», `anuncio-power-bi.yml` → release `anuncio-power-bi` | Fuera del repositorio y del sitio (ADR-016, ADR-021) |
+| Videos del anuncio | GitHub Actions (`.github/workflows/anuncio.yml`, Windows) → release `anuncio-portal-bi`; el de las 3 cosas, `anuncio-tres-cosas.yml` → release `anuncio-tres-cosas` | Fuera del repositorio y del sitio (ADR-016, ADR-022) |
 | Node | 24 LTS (`.nvmrc`); Astro 7 exige ≥ 22.12 | Ver [despliegue.md](despliegue.md) para el entorno local |
 
 ## Estructura
@@ -20,7 +20,7 @@
 ├── .github/
 │   ├── workflows/deploy.yml     Compila y publica en Pages (acciones fijadas por SHA)
 │   ├── workflows/anuncio.yml    Graba el anuncio a MP4 (en Windows) y lo publica en el release anuncio-portal-bi
-│   ├── workflows/anuncio-power-bi.yml  Graba el de «Power BI primero» (las dos aperturas) al release anuncio-power-bi
+│   ├── workflows/anuncio-tres-cosas.yml  Graba el de las 3 cosas al release anuncio-tres-cosas
 │   └── dependabot.yml           Actualizaciones semanales de npm y acciones
 ├── docs/                        Esta documentación
 ├── marca y logos/               Logos originales en PNG (fuente de verdad de la marca)
@@ -39,8 +39,7 @@
 │   ├── grabar-anuncio.mjs       Graba un anuncio a MP4 cuadro por cuadro con Chrome + ffmpeg; sirve dist/ por su cuenta (`npm run anuncio:video`;
 │   │                            el de 55 s por defecto, otro con --pagina, --nombre y --portada)
 │   ├── probar-anuncio.mjs       Banco del anuncio de 55 s: tomas en su ventana, cuadros deterministas, escala, página (`npm run anuncio:probar`)
-│   ├── probar-anuncio-pbi.mjs   Banco de «Power BI primero»: las dos aperturas en los cuatro formatos (`npm run anuncio:probar-pbi`)
-│   ├── probar-anuncio-3c.mjs    Banco de «A tu Power BI le faltan 3 cosas», sus dos versiones en los cuatro formatos (`npm run anuncio:probar-3c`)
+│   ├── probar-anuncio-3c.mjs    Banco de «A tu Power BI le faltan 3 cosas» en los cuatro formatos, grabando y en vivo (`npm run anuncio:probar-3c`)
 │   ├── capturas-scroll.mjs      Capturas del viewport en varias posiciones de scroll, con movimiento (portada → telón)
 │   └── cortar-capturas.mjs      Corta capturas de página completa en tramos
 ├── src/
@@ -61,12 +60,8 @@
 │   │   │                        AnuncioReporte.astro: el cuerpo del reporte, que comparten la toma 5 y la 6;
 │   │   │                        AnuncioPortal.astro: el portal por dentro (menú y tableros), del gancho y la toma 4;
 │   │   │                        datos.ts: las tarjetas de ejemplo y los trazos de sus íconos;
-│   │   │                        AnuncioPowerBI.astro + anuncio-pbi.css: «Power BI primero», 21 s y dos aperturas
-│   │   │                        (ADR-021), sobre la misma base; SalaAnuncio.astro: su página (barra, lienzo y descargas);
-│   │   │                        AnuncioTresCosas.astro + anuncio-3c.css: «A tu Power BI le faltan 3 cosas», 24 s
-│   │   │                        (ADR-022), sobre la misma base; su página es src/pages/anuncios/tres-cosas.astro;
-│   │   │                        AnuncioTresCosasB.astro + anuncio-3c-b.css + AnuncioTableroHuecos.astro: su versión B,
-│   │   │                        cinemática (página tres-cosas-b.astro); las partículas, en src/scripts/efectos-3c.ts
+│   │   │                        AnuncioTresCosas.astro + anuncio-3c.css: «A tu Power BI le faltan 3 cosas», 30 s
+│   │   │                        (ADR-022), sobre la misma base; su página es src/pages/anuncios/tres-cosas.astro
 │   │   ├── social/              MaquetaTablero (variantes completa, compacta y publicaciones)
 │   │   ├── tienda/              Catalogo (tienda de ejemplo, variantes completa y compacta)
 │   │   └── consultoria/         Flujo (recorrido de los datos) y Consolidado (héroe: planillas → reporte)
@@ -98,7 +93,7 @@
 | `/portal-bi/como-funciona/` | `src/pages/portal-bi/como-funciona.astro` | Recorrido animado de un minuto: la pantalla del portal (`RecorridoPantalla`) con cámara, cursor y narración por pasos. Sin encabezado ni pie (`Base` con `inmersiva`). Con `#ver` arranca solo (ADR-015) |
 | `/portal-bi/como-funciona/administrador/` | `src/pages/portal-bi/como-funciona/administrador.astro` | Recorrido animado del administrador (72 s): el panel (`RecorridoAdmin`) con el mismo motor y el mismo marco. Se llega desde la sección del panel en `/portal-bi/` y desde el cierre del otro recorrido; con `#ver` arranca solo (ADR-017) |
 | `/anuncios/` | `src/pages/anuncios/index.astro` | **Oculta**: los anuncios para redes, el más nuevo primero, con «Ver y grabar» y los MP4 (`src/data/anuncios.ts`) |
-| `/anuncios/power-bi/` y `/anuncios/power-bi-ia/` | `src/pages/anuncios/power-bi.astro`, `power-bi-ia.astro` | **Ocultas**: el anuncio «Power BI primero» (21 s; 22 s con la apertura «ia») con su apertura «licencia» o «ia», en los cuatro formatos, con las descargas del release `anuncio-power-bi` (ADR-021) |
+| `/anuncios/tres-cosas/` | `src/pages/anuncios/tres-cosas.astro` | **Oculta**: el anuncio «A tu Power BI le faltan 3 cosas» (30 s) en los cuatro formatos, con las descargas del release `anuncio-tres-cosas` (ADR-022) |
 | `/propuestas/portal-bi-ribentek/` | `src/pages/propuestas/portal-bi-ribentek.astro` | **Oculta**: la propuesta a Ribentek para revender el Portal BI: el anuncio en su versión para socios, en 17 páginas que avanza quien mira (ADR-020) |
 | `/propuestas/` | `src/pages/propuestas/index.astro` | **Oculta**: las propuestas a socios y clientes, cada una con su botón (`src/data/propuestas.ts`). Las páginas propias van en `src/pages/propuestas/` y quedan ocultas solas |
 | `/portal-bi/anuncio/` | `src/pages/portal-bi/anuncio.astro` | **Oculta** (noindex, fuera del sitemap, sin enlaces): el anuncio de 55 s para redes en 9:16, 4:5, 1:1 y 16:9, con las descargas en MP4 del release `anuncio-portal-bi` de GitHub (ADR-016) |

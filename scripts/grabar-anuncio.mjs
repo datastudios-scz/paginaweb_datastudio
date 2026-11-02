@@ -2,7 +2,7 @@
  * Graba el anuncio del Portal BI a MP4, cuadro por cuadro (ADR-016).
  *   1) npm run build
  *   2) npm run anuncio:video  [-- --formatos 9x16,1x1] [--fps 60] [--crf 18] [--salida carpeta] [--base URL]
- *                             [--pagina /anuncios/power-bi/] [--nombre power-bi-licencia] [--portada 2]
+ *                             [--pagina /anuncios/tres-cosas/] [--nombre tres-cosas] [--portada 1.6]
  *
  * Por defecto graba el anuncio de 55 s (/portal-bi/anuncio/, archivos portal-bi-*, portada a
  * los 2,45 s). Con --pagina, --nombre y --portada graba otro con el mismo motor: el de «Power BI

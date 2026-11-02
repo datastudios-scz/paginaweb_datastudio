@@ -1,19 +1,26 @@
 ---
 /**
- * El anuncio «A tu Power BI le faltan 3 cosas» (/anuncios/tres-cosas/): 24 segundos (ADR-022).
+ * El anuncio «A tu Power BI le faltan 3 cosas» (/anuncios/tres-cosas/): 30 segundos (ADR-022).
  *
  * Nace de la primera venta: el comprador dijo que lo que más le interesó fueron los roles (darle
  * solo lectura a algunos) y el chat con IA, y ningún anuncio mostraba lo primero. Y de una queja
  * del dueño sobre «Power BI primero»: muestra el chat dos veces. Acá cada cosa se muestra UNA vez.
  *
- * La estructura es una lista con tres renglones tapados (un bucle abierto: quien ve «faltan 3
- * cosas» se queda a ver cuáles son) que se destapan de a uno:
+ * La estructura es una lista con los tres pilares a la vista desde el primer cuadro (el mapa de
+ * lo que se va a ver: quien lee «Ahorro» se queda), con sus casillas vacías, y una toma para cada
+ * uno:
  *  1 · Ahorro: deja de pagar por cada usuario (1.000 licencias que bajan a 1, y la gente con
  *      acceso que no baja);
  *  2 · Control total: tú decides qué ve cada persona (la misma ventana vista por Gerencia, por
  *      Ventas con su filtro y por un cliente con páginas ocultas y solo lectura);
- *  3 · Lo mejor de todo, potenciado por IA: el chip, el toque, el chat que escribe y contesta.
+ *  3 · Lo mejor de todo, potenciado con IA: el chip, el toque, el chat que escribe y contesta, y
+ *      una segunda pregunta difícil que el chat resuelve con dos consultas y un gráfico de
+ *      pesas (2025 contra 2026 en cada sucursal): el valor del chat a la vista.
  * Y la lista otra vez, con sus tres tildes («Ahora sí, no le falta nada.»), antes del cierre.
+ *
+ * El dueño pidió «seguridad y control total» para el segundo pilar. Dice «Control total»: el
+ * portal decide qué ve cada uno, pero el token del visor no está acotado a un reporte (ver
+ * docs/seguridad.md del portal), y prometer seguridad sería prometer de más.
  *
  * Solo promete lo que el portal hace: qué tablero y qué página ve cada uno, con qué filtro. No
  * dice que los datos queden aislados por persona (eso no lo garantiza un filtro de Power BI, ver
@@ -45,7 +52,7 @@ const frase = (...partes: (string | [string, string])[]) => {
 const COSAS = [
   { n: 1, titulo: 'Ahorro', texto: '1 licencia para toda tu empresa' },
   { n: 2, titulo: 'Control total', texto: 'Tú decides qué ve cada persona' },
-  { n: 3, titulo: 'Potenciado por IA', texto: 'Le preguntas y te responde' },
+  { n: 3, titulo: 'Potenciado con IA', texto: 'Le preguntas y te responde' },
 ];
 
 /* Los trazos */
@@ -70,19 +77,37 @@ const QUIEN = [
 /* La toma 4: la pregunta que la IA escribe y contesta. Los datos son los del reporte de ejemplo
    (ADR-013): Aeropuerto creció +18,4 %, más del doble del promedio ponderado (+7,9 %) */
 const PREGUNTA = '¿Qué sucursal creció más?';
+
+/* La segunda: la difícil. El chat hace dos consultas y contesta con un gráfico de pesas (el
+   «dumbbell» del portal: antes contra después). Los mismos datos de ejemplo, cuadrados (ADR-013):
+   las ventas 2026 del reporte y el crecimiento de cada sucursal dan las de 2025 (2026 / (1 + g)),
+   y las siete suman el +7,9 % del indicador. En miles; el eje va de 0 a 1.300 */
+const PREGUNTA_2 = 'Compara cada sucursal contra 2025: ¿quién subió y quién bajó?';
+const CONSULTAS = ['ventas de 2025 por sucursal', 'ventas de 2026 por sucursal'];
+const PESAS = [
+  ['Aeropuerto', 694.5, 822.3, 18.4],
+  ['Norte', 841.5, 935.8, 11.2],
+  ['Centro', 1157.1, 1262.4, 9.1],
+  ['Plaza Mayor', 986.0, 1041.2, 5.6],
+  ['Costanera', 686.3, 708.9, 3.3],
+  ['Sur', 277.7, 268.5, -3.3],
+  ['Parque Industrial', 191.1, 177.0, -7.4],
+] as const;
+const pct = (v: number) => `${v > 0 ? '+' : '−'}${Math.abs(v).toFixed(1).replace('.', ',')} %`;
 ---
 
 <div class="an-lienzo an-lienzo--tc" data-a="lienzo" data-formato="9x16" data-movimiento-propio aria-hidden="true">
-  <!-- El reloj: una animación lineal de 24 s que el script lee para saber en qué segundo va -->
+  <!-- El reloj: una animación lineal de 30 s que el script lee para saber en qué segundo va -->
   <i class="an-reloj" data-a="reloj"></i>
 
   <!-- Fondo vivo de las tomas oscuras -->
   <div class="an-fondo"><i></i><i></i></div>
 
-  <!-- ═══ 1 · EL GANCHO (0 – 2,75 s): «A tu Power BI le faltan 3 cosas.» ═══
+  <!-- ═══ 1 · EL GANCHO (0 – 4,75 s): «A tu Power BI le faltan 3 cosas.» ═══
        El primer cuadro ya lo dice (y dice Power BI, que es lo que segmenta). Debajo, la lista con
-       sus tres renglones tapados, que llegan de a uno sobre el pulso; el primero se ilumina justo
-       antes del corte: es el que se destapa ahora. -->
+       los tres pilares a la vista —el mapa de lo que viene— y sus casillas vacías. Se iluminan de
+       a uno para guiar la lectura, y el primero se queda encendido justo antes del corte: es el
+       que viene ahora. -->
   <section class="an-escena tc-s1">
     <div class="an-texto tc-s1-texto">
       <p class="an-h1 tc-s1-titular">A tu <span class="tc-amarillo">Power BI</span> le faltan <span class="tc-tres">3 cosas.</span></p>
@@ -97,7 +122,7 @@ const PREGUNTA = '¿Qué sucursal creció más?';
         {COSAS.map((c) => (
           <div class={`tc-item tc-item--${c.n}`}>
             <span class="tc-item__n">{c.n}</span>
-            <span class="tc-item__tapa"><i></i><i></i></span>
+            <span class="tc-item__txt"><b>{c.titulo}</b><em>{c.texto}</em></span>
             <span class="tc-item__caja"></span>
           </div>
         ))}
@@ -105,7 +130,7 @@ const PREGUNTA = '¿Qué sucursal creció más?';
     </div>
   </section>
 
-  <!-- ═══ 2 · AHORRO (2,5 – 7 s): deja de pagar por cada usuario ═══
+  <!-- ═══ 2 · AHORRO (4,5 – 9 s): deja de pagar por cada usuario ═══
        Dos medidas, una debajo de la otra: las licencias que harían falta (una por persona) bajan
        de 1.000 a 1; la gente con acceso no baja. Lo que se ahorra se lee sin hacer ninguna
        cuenta, y sin precio (pedido del dueño). -->
@@ -120,7 +145,7 @@ const PREGUNTA = '¿Qué sucursal creció más?';
         <div class="tc-fila tc-fila--lic">
           <span class="tc-fila__ico"><svg viewBox="0 0 41.5 41.5"><path d={PBI} /></svg></span>
           <span class="tc-fila__t">Licencias de Power BI</span>
-          <b class="tc-fila__v"><span data-a="kpi" data-desde={String(PERSONAS)} data-hasta="1" data-en="3.9" data-dur="1.1">1.000</span></b>
+          <b class="tc-fila__v"><span data-a="kpi" data-desde={String(PERSONAS)} data-hasta="1" data-en="5.9" data-dur="1.1">1.000</span></b>
           <span class="tc-fila__barra"><i></i></span>
         </div>
         <div class="tc-fila tc-fila--gente">
@@ -134,7 +159,7 @@ const PREGUNTA = '¿Qué sucursal creció más?';
     </div>
   </section>
 
-  <!-- ═══ 3 · CONTROL TOTAL (7 – 12 s): tú decides qué ve cada persona ═══
+  <!-- ═══ 3 · CONTROL TOTAL (9 – 14 s): tú decides qué ve cada persona ═══
        La misma ventana del visor, vista por tres personas. Gerencia la ve entera; Ventas, con su
        filtro (Sucursal: Norte); el cliente, sin las páginas que no le tocan y en solo lectura.
        Los verbos del subtítulo llegan con cada cambio: filtra, oculta, muestra. -->
@@ -174,15 +199,17 @@ const PREGUNTA = '¿Qué sucursal creció más?';
     </div>
   </section>
 
-  <!-- ═══ 4 · LO MEJOR DE TODO: POTENCIADO POR IA (12 – 18 s) ═══
+  <!-- ═══ 4 · LO MEJOR DE TODO: POTENCIADO CON IA (14 – 24 s) ═══
        El plus, y la única vez que se ve el chat: el tablero con la lengüeta «Chat IA» que llama,
        un toque, el chat se abre al costado (el reporte se encaja, como en el portal), la cámara
        entra y la IA escribe la pregunta, muestra sus pasos (los rótulos de chat.ejs del Portal BI)
-       y contesta con el dato. Las piezas de la toma 6 del de 55 s, con estos tiempos. -->
+       y contesta con el dato. Después, la difícil: dos consultas («Consulta n de 2», como las
+       muestra el chat) y el gráfico de pesas. Un turno por pregunta, como en el de 55 s: al enviar
+       la segunda, el hilo sube un turno entero. -->
   <section class="an-escena tc-s4">
     <div class="an-texto tc-s4-texto">
       <span class="tc-paso tc-paso--ia"><b>3</b>Lo mejor de todo</span>
-      <p class="an-h1 tc-s4-titulo"><span class="an-p w0"><span>Potenciado</span></span> <span class="an-p w1"><span>por</span></span> <span class="tc-chip"><svg class="tc-chip__chispa" viewBox="0 0 24 24"><path d={CHISPA} /></svg>IA</span></p>
+      <p class="an-h1 tc-s4-titulo"><span class="an-p w0"><span>Potenciado</span></span> <span class="an-p w1"><span>con</span></span> <span class="tc-chip"><svg class="tc-chip__chispa" viewBox="0 0 24 24"><path d={CHISPA} /></svg>IA</span></p>
     </div>
     <div class="an-visual tc-ia">
       <div class="an-ui an-ventana tc-ia__ventana">
@@ -198,21 +225,51 @@ const PREGUNTA = '¿Qué sucursal creció más?';
                 <span class="an-s6-cab__id"><b>Ventas por sucursal</b><span>Pregunta sobre los datos de este tablero</span></span>
               </div>
               <div class="an-s6-hilo">
-                <div class="tc-ia__hilo">
-                  <p class="an-s6-yo">{PREGUNTA}</p>
-                  <div class="an-s6-pasos">
-                    <span class="an-s6-paso tc-ia-paso--1"><i></i>Leyendo la estructura del modelo</span>
-                    <span class="an-s6-paso tc-ia-paso--2"><i></i>Redactando la consulta</span>
-                    <span class="an-s6-paso tc-ia-paso--3"><i></i>Consultando Power BI</span>
+                <div class="an-s6-hilo__in">
+                  <div class="an-s6-turno tc-turno--1">
+                    <p class="an-s6-yo">{PREGUNTA}</p>
+                    <div class="an-s6-pasos">
+                      <span class="an-s6-paso tc-ia-paso--1"><i></i>Leyendo la estructura del modelo</span>
+                      <span class="an-s6-paso tc-ia-paso--2"><i></i>Redactando la consulta</span>
+                      <span class="an-s6-paso tc-ia-paso--3"><i></i>Consultando Power BI</span>
+                    </div>
+                    <p class="an-s6-resp"><b>Aeropuerto</b> lidera: <b>+18,4 %</b>, más del doble del promedio.</p>
+                    <div class="tc-ia__dato"><span>Aeropuerto · contra 2025</span><b>+18,4 %</b></div>
                   </div>
-                  <p class="an-s6-resp"><b>Aeropuerto</b> lidera: <b>+18,4 %</b>, más del doble del promedio.</p>
-                  <div class="tc-ia__dato"><span>Aeropuerto · contra 2025</span><b>+18,4 %</b></div>
+                  <div class="an-s6-turno tc-turno--2">
+                    <p class="an-s6-yo">{PREGUNTA_2}</p>
+                    <div class="an-s6-pasos">
+                      {CONSULTAS.map((c, i) => (
+                        <span class={`an-s6-paso an-s6-consulta tc-ia-c--${i + 1}`}><i></i><b>Consulta {i + 1} de {CONSULTAS.length}</b><em>{c}</em></span>
+                      ))}
+                    </div>
+                    <p class="an-s6-resp"><b>5 de 7</b> subieron; <b>Sur</b> y <b>Parque Industrial</b> bajaron. <b>Aeropuerto</b> sumó <b>+127,8 mil</b>.</p>
+                    <div class="tc-pesas">
+                      <p class="tc-pesas__t">Ventas por sucursal · miles<span class="tc-pesas__ley"><i class="tc-pesas__antes"></i>2025<i class="tc-pesas__ahora"></i>2026</span></p>
+                      <div class="tc-pesas__filas">
+                        <i class="tc-pesas__guia tc-pesas__guia--1"></i>
+                        <i class="tc-pesas__guia tc-pesas__guia--2"></i>
+                        <i class="tc-pesas__guia tc-pesas__guia--3"></i>
+                        {PESAS.map(([n, , , v], i) => (
+                          <div class:list={['tc-pesa', `tc-pesa--${i + 1}`, { 'tc-pesa--baja': v < 0 }]}>
+                            <span class="tc-pesa__n">{n}</span>
+                            <span class="tc-pesa__pista"><i class="tc-pesa__barra"></i><i class="tc-pesa__antes"></i><i class="tc-pesa__ahora"></i></span>
+                            <span class="tc-pesa__v">{pct(v)}</span>
+                          </div>
+                        ))}
+                        <p class="tc-pesas__eje"><span>0</span><span>650</span><span>1.300</span></p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
               <div class="an-s6-campo">
                 <span class="an-s6-input">
                   <span class="an-s6-ph">Pregunta algo sobre estos datos…</span>
-                  <span class="an-s6-txt"><span data-a="tipeo" data-texto={PREGUNTA} data-en="14" data-fin="14.6"></span></span>
+                  <span class="an-s6-txt">
+                    <span data-a="tipeo" data-texto={PREGUNTA} data-en="16" data-fin="16.6"></span>
+                    <span data-a="tipeo" data-texto={PREGUNTA_2} data-en="18.7" data-fin="19.9"></span>
+                  </span>
                   <i class="an-s6-caret"></i>
                 </span>
                 <span class="an-s6-enviar"><svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7" /></svg></span>
@@ -224,7 +281,7 @@ const PREGUNTA = '¿Qué sucursal creció más?';
     </div>
   </section>
 
-  <!-- ═══ 5 · AHORA SÍ (18 – 20,2 s): la lista otra vez, con sus tres tildes ═══
+  <!-- ═══ 5 · AHORA SÍ (24 – 26,3 s): la lista otra vez, con sus tres tildes ═══
        Cierra el bucle que abrió el gancho: los mismos renglones, ahora con lo que dicen, y una
        tilde por pulso. -->
   <section class="an-escena tc-s5">
@@ -252,7 +309,7 @@ const PREGUNTA = '¿Qué sucursal creció más?';
   <!-- Las cuatro barras del logo como cortina, para entrar al cierre -->
   <div class="an-barras tc-barras"><i></i><i></i><i></i><i></i></div>
 
-  <!-- ═══ 6 · CIERRE (20,2 s – fin): la marca, las tres cosas y a dónde escribir ═══ -->
+  <!-- ═══ 6 · CIERRE (26,3 s – fin): la marca, las tres cosas y a dónde escribir ═══ -->
   <section class="an-escena tc-s6">
     <div class="an-cierre">
       <div class="an-logo">
@@ -269,7 +326,7 @@ const PREGUNTA = '¿Qué sucursal creció más?';
       <ul class="an-fichas">
         <li>1 licencia</li>
         <li>Control total</li>
-        <li>Potenciado por IA</li>
+        <li>Potenciado con IA</li>
         <li>El código es tuyo</li>
       </ul>
       <p class="an-cta">

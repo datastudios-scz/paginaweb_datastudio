@@ -797,13 +797,18 @@
   font-weight: 600;
   letter-spacing: -0.01em;
   color: rgb(255 255 255 / 0.92);
+  /* Los cambios de 1 ms van con step-start, no step-end: reproduciendo en la página, una
+     animación terminada queda con un progreso de 0,99999999 (la coma flotante del retardo), y
+     step-end devuelve ahí el valor de PARTIDA. La firma no cambiaba de color y el login no
+     cambiaba de marca; grabando no pasaba, porque el motor lleva el reloj más allá del final.
+     step-start salta al valor final apenas empieza (aprendizajes) */
   animation:
     an-entra 0.5s var(--sale) -0.4s both,
-    an-tinta 1ms step-end 15s forwards,
-    an-blanca 1ms step-end 24.8s forwards,
-    an-tinta 1ms step-end 45.5s forwards,
-    an-blanca 1ms step-end 47s forwards,
-    an-tinta 1ms step-end 48.5s forwards,
+    an-tinta 1ms step-start 15s forwards,
+    an-blanca 1ms step-start 24.8s forwards,
+    an-tinta 1ms step-start 45.5s forwards,
+    an-blanca 1ms step-start 47s forwards,
+    an-tinta 1ms step-start 48.5s forwards,
     an-sale 0.3s var(--entra) 50.1s forwards;
 }
 
@@ -1674,8 +1679,8 @@
   background: rgb(0 57 78 / 0.16);
   animation:
     an-gira 6s linear calc(var(--a) - 2s) infinite,
-    an-ola-b 1ms step-end calc(var(--a) + 1.4s) forwards,
-    an-ola-c 1ms step-end calc(var(--a) + 2.8s) forwards;
+    an-ola-b 1ms step-start calc(var(--a) + 1.4s) forwards,
+    an-ola-c 1ms step-start calc(var(--a) + 2.8s) forwards;
 }
 
 .an-login__ola--2 {
@@ -1684,8 +1689,8 @@
   background: rgb(77 207 193 / 0.26);
   animation:
     an-gira 7s linear calc(var(--a) - 3s) infinite,
-    an-ola2-b 1ms step-end calc(var(--a) + 1.4s) forwards,
-    an-ola2-c 1ms step-end calc(var(--a) + 2.8s) forwards;
+    an-ola2-b 1ms step-start calc(var(--a) + 1.4s) forwards,
+    an-ola2-c 1ms step-start calc(var(--a) + 2.8s) forwards;
 }
 
 .an-login__marca {
@@ -1707,7 +1712,7 @@
 .an-login__marca--a {
   color: #037a70;
   fill: #037a70;
-  animation: an-oculta 1ms step-end calc(var(--a) + 1.4s) forwards;
+  animation: an-oculta 1ms step-start calc(var(--a) + 1.4s) forwards;
 }
 
 .an-login__marca--b,
@@ -1722,14 +1727,14 @@
   color: #14213d;
   fill: #14213d;
   animation:
-    an-muestra 1ms step-end calc(var(--a) + 1.4s) forwards,
-    an-oculta 1ms step-end calc(var(--a) + 2.8s) forwards;
+    an-muestra 1ms step-start calc(var(--a) + 1.4s) forwards,
+    an-oculta 1ms step-start calc(var(--a) + 2.8s) forwards;
 }
 
 .an-login__marca--c {
   color: #1d6b47;
   fill: #1d6b47;
-  animation: an-muestra 1ms step-end calc(var(--a) + 2.8s) forwards;
+  animation: an-muestra 1ms step-start calc(var(--a) + 2.8s) forwards;
 }
 
 .an-login__marca--b .an-login__marca-in {
@@ -1780,8 +1785,8 @@
   text-transform: uppercase;
   color: #fff;
   animation:
-    an-boton-b 1ms step-end calc(var(--a) + 1.4s) forwards,
-    an-boton-c 1ms step-end calc(var(--a) + 2.8s) forwards;
+    an-boton-b 1ms step-start calc(var(--a) + 1.4s) forwards,
+    an-boton-c 1ms step-start calc(var(--a) + 2.8s) forwards;
 }
 
 /* ═══ 4 · CADA UNO VE LO SUYO (15 – 19,75 s) ══════════════════════════════════════════ */

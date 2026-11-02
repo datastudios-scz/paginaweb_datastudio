@@ -1,5 +1,15 @@
 # Bitácora de cambios
 
+## 02/11/2026 · «3 cosas»: queda la A, con los pilares a la vista y una pregunta difícil
+
+- **Lo que pidió el dueño** (ADR-022):
+  - **Se queda la versión A.** Se borraron la B y «Power BI primero»: páginas, componentes, estilos, Action, banco, el script de las partículas, el gancho del motor que las dibujaba y sus videos.
+  - **El gancho muestra los tres pilares** (Ahorro, Control total, Potenciado con IA) con su texto, más lento (4,75 s): el mapa de lo que viene.
+  - **El chat contesta una segunda pregunta**, con dos consultas y un gráfico de pesas de las siete sucursales. El anuncio pasa a 30 s.
+- **Arreglo**: en «Tú decides…» los rótulos se encimaban reproduciendo en la página (no en el video). Los cambios de 1 ms pasan de `step-end` a `step-start`, también en `anuncio.css`, donde la firma y el login del de 55 s tenían el mismo defecto en vivo.
+- **El banco** prueba el anuncio también **en vivo**: la firma en tinta sobre la toma clara y un solo rótulo a la vez. Saboteado con el `step-end` de vuelta, falla, y muestra lo mismo que vio el dueño: «Ve todo + Solo la sucursal Norte + 2 páginas ocultas». También falla si vuelve un cambio de 1 ms con `step-end` a cualquiera de los dos CSS.
+- **Los bancos**: el QA, el del de 55 s (también su prueba en tiempo real, la que fallaba con la laptop en batería) y el de las 3 cosas, sin problemas.
+
 ## 02/11/2026 · «3 cosas», versión B: la cinemática
 
 - **Pedido del dueño**: «una segunda opción con alto render y alto motion graphics, para que al volver yo decida cuál sale». Mismo guion que la A. Detalle en ADR-022.

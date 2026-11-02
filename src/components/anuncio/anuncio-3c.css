@@ -4,37 +4,42 @@
  *
  * Se apoya en anuncio.css: el lienzo y sus cuatro formatos, las tomas con su ventana --a/--z, la
  * tipografía cinética, las maquetas del reporte y del chat, la cortina de barras y el cierre. Acá
- * va lo propio: los tiempos de este anuncio (24 s) y sus piezas (la lista de las tres cosas, el
+ * va lo propio: los tiempos de este anuncio (30 s) y sus piezas (la lista de las tres cosas, el
  * medidor de licencias, la misma ventana vista por tres personas y el avance de arriba). Las
  * mismas reglas: todo en @keyframes con retardo absoluto, sin transiciones, tamaños en --u, y
  * ninguna regla que mezcle transform con translate, rotate o scale (el minificador borraría uno;
  * lo comprueba el banco).
  *
- * Neuromarketing (ADR-022): «Power BI» en el primer cuadro (la creatividad segmenta); una lista
- * con tres renglones tapados, que abre un bucle y se cierra recién al final, con sus tres tildes
- * (quien ve «faltan 3» se queda a ver cuáles); un avance arriba que dice en cuál va; cada cosa
- * mostrada una vez, de la más general a la más deseada: ahorro, control y la IA como «lo mejor de
- * todo», justo antes del cierre (el final es lo que más se recuerda). Sin precios.
+ * Neuromarketing (ADR-022): «Power BI» en el primer cuadro (la creatividad segmenta); la lista
+ * con los tres pilares a la vista desde el primer cuadro —el mapa de lo que viene: quien lee
+ * «Ahorro» se queda— y sus casillas vacías, que se cierran recién al final, con sus tres tildes;
+ * un avance arriba que dice en cuál va; cada cosa mostrada una vez, de la más general a la más
+ * deseada: ahorro, control y la IA como «lo mejor de todo», con una pregunta difícil que muestra
+ * cuánto vale el chat, justo antes del cierre (el final es lo que más se recuerda). Sin precios.
+ *
+ * Los cambios de 1 ms (an-tinta, an-oculta…) van con step-start, no step-end: reproduciendo en
+ * la página, una animación terminada queda con un progreso de 0,99999999 (coma flotante del
+ * retardo) y step-end devuelve el valor de partida. Ver anuncio.css y aprendizajes.
  */
 
 /* ═══════════════════════════════════════════════════════════════════════════════════
    EL LIENZO: 24 s
    ═══════════════════════════════════════════════════════════════════════════════════ */
 .an-lienzo--tc {
-  --duracion: 24s;
+  --duracion: 30s;
 }
 
 .an-lienzo--tc .an-fondo i {
-  animation-duration: 24s;
+  animation-duration: 30s;
 }
 
 /* La firma y el avance: tinta sobre la toma clara (la 2) y blancos el resto */
 .an-lienzo--tc .an-firma {
   animation:
     an-entra 0.5s var(--sale) -0.4s both,
-    an-tinta 1ms step-end 2.5s forwards,
-    an-blanca 1ms step-end 7s forwards,
-    an-sale 0.3s var(--entra) 19.8s forwards;
+    an-tinta 1ms step-start 4.5s forwards,
+    an-blanca 1ms step-start 9s forwards,
+    an-sale 0.3s var(--entra) 25.9s forwards;
 }
 
 /* Del otro lado de la firma, a su altura: tres círculos, uno por cosa, que se encienden cuando
@@ -48,10 +53,10 @@
   gap: calc(12 * var(--u));
   color: rgb(255 255 255 / 0.92);
   animation:
-    an-entra 0.4s var(--sale) 2.6s both,
-    an-tinta 1ms step-end 2.5s forwards,
-    an-blanca 1ms step-end 7s forwards,
-    an-sale 0.3s var(--entra) 17.8s forwards;
+    an-entra 0.4s var(--sale) 4.6s both,
+    an-tinta 1ms step-start 4.5s forwards,
+    an-blanca 1ms step-start 9s forwards,
+    an-sale 0.3s var(--entra) 23.8s forwards;
 }
 
 .tc-avance__p {
@@ -68,9 +73,9 @@
   animation: tc-avanza 0.35s var(--resorte) var(--ta) forwards;
 }
 
-.tc-avance__p--1 { --ta: 2.65s; }
-.tc-avance__p--2 { --ta: 7.1s; }
-.tc-avance__p--3 { --ta: 12.1s; }
+.tc-avance__p--1 { --ta: 4.65s; }
+.tc-avance__p--2 { --ta: 9.1s; }
+.tc-avance__p--3 { --ta: 14.1s; }
 
 /* En 16:9 la firma va a la izquierda del texto; el avance, a la derecha de la imagen */
 .an-lienzo[data-formato='16x9'] .tc-avance {
@@ -238,19 +243,20 @@
   color: #4b5563;
 }
 
-/* ═══ 1 · EL GANCHO (0 – 2,75 s) ════════════════════════════════════════════════════
+/* ═══ 1 · EL GANCHO (0 – 4,75 s) ════════════════════════════════════════════════════
    El primer cuadro ya está entero (es lo primero que se ve mientras uno pasa el dedo): el
-   titular y la lista con sus tres renglones tapados. Lo que se mueve: el brillo de lo tapado,
-   las tres casillas vacías que llaman de a una sobre el pulso, la cuenta «0 de 3» que tiembla, y
-   el renglón 1 que se ilumina justo antes del corte: es el que se destapa ahora */
+   titular y la lista con los tres pilares a la vista, el mapa de lo que viene (pedido del dueño:
+   quien lee «Ahorro» se queda). Dura dos segundos más que antes, para leerla. Lo que se mueve:
+   cada pilar se ilumina por turno y su casilla vacía llama (0,7 / 1,7 / 2,7), la cuenta «0 de 3»
+   tiembla, y el pilar 1 se queda encendido justo antes del corte: es el que viene ahora */
 .tc-s1 {
   --a: 0s;
-  --z: 2.75s;
+  --z: 4.75s;
 }
 
 .tc-s1-texto,
 .tc-s1-visual {
-  animation: an-sale 0.3s var(--entra) 2.42s forwards;
+  animation: an-sale 0.3s var(--entra) 4.42s forwards;
 }
 
 .tc-s1-titular {
@@ -271,18 +277,25 @@
   animation: tc-llama 0.5s ease-out var(--ll) both;
 }
 
-.tc-s1 .tc-item--1 .tc-item__caja { --ll: 0.5s; }
-.tc-s1 .tc-item--2 .tc-item__caja { --ll: 1s; }
-.tc-s1 .tc-item--3 .tc-item__caja { --ll: 1.5s; }
+.tc-s1 .tc-item--1 { --ll: 0.7s; }
+.tc-s1 .tc-item--2 { --ll: 1.7s; }
+.tc-s1 .tc-item--3 { --ll: 2.7s; }
+
+/* Cada pilar se ilumina en su turno (y se apaga), para leerlos de a uno */
+.tc-s1 .tc-item {
+  animation: tc-resalta 1s ease var(--ll) both;
+}
 
 .tc-s1 .tc-item--1 {
-  animation: tc-foco 0.4s var(--sale) 2s forwards;
+  animation:
+    tc-resalta 1s ease var(--ll) both,
+    tc-foco 0.4s var(--sale) 4s forwards;
 }
 
 .tc-s1 .tc-lista__cuenta {
   animation:
-    an-zumba 0.32s var(--suave) 0.3s,
-    an-zumba 0.32s var(--suave) 1.8s;
+    an-zumba 0.32s var(--suave) 0.35s,
+    an-zumba 0.32s var(--suave) 3.6s;
 }
 
 /* Por formato: el titular arriba y la lista en lo que queda; en 9:16, sobre el 79 % */
@@ -313,8 +326,8 @@
    medidor 0,35 · las barras 0,85 · la cuenta baja de 1.000 a 1 entre 1,4 y 2,5 (data-en en el
    .astro) · se pone verde 2,4 · el sello 2,6 · el subtítulo 2,9 */
 .tc-s2 {
-  --a: 2.5s;
-  --z: 7s;
+  --a: 4.5s;
+  --z: 9s;
   background:
     radial-gradient(70% 50% at 70% 65%, #ffffff, transparent 75%),
     var(--pa);
@@ -543,8 +556,8 @@
    ventana 0,15 · las personas 0,45 / 0,53 / 0,61 · Gerencia la ve entera 0,9 · Ventas con su
    filtro 1,9 · el cliente sin dos páginas y en solo lectura 3,1 · «Muestra solo lo que debe» 4 */
 .tc-s3 {
-  --a: 7s;
-  --z: 12s;
+  --a: 9s;
+  --z: 14s;
 }
 
 .tc-s3::before {
@@ -659,7 +672,7 @@
   color: #fff;
   animation:
     an-entra 0.3s var(--sale) calc(var(--a) + var(--e1)) both,
-    an-oculta 1ms step-end calc(var(--a) + var(--e2)) forwards;
+    an-oculta 1ms step-start calc(var(--a) + var(--e2)) forwards;
 }
 
 .tc-estado__e svg {
@@ -820,14 +833,17 @@
   --vi-b: 2.5%;
 }
 
-/* ═══ 4 · LO MEJOR DE TODO: POTENCIADO POR IA (12 – 18 s) ═══════════════════════════════
+/* ═══ 4 · LO MEJOR DE TODO: POTENCIADO CON IA (14 – 24 s) ═══════════════════════════════
    Las piezas de la toma 6 del de 55 s (anuncio.css, an-s6-*), con estos tiempos desde --a: la
    lengüeta asoma 0,4 y llama · toque 1,25 · el chat se abre 1,42 (la lengüeta se va a los
    1,55) · la cámara entra 1,85 – 2,5 · la pregunta se escribe 2 – 2,6 · enviar 2,63 · burbuja
-   2,7 · pasos 2,85 / 3 / 3,15 · respuesta 3,35 · el dato 3,55 · se lee hasta el corte */
+   2,7 · pasos 2,85 / 3 / 3,15 · respuesta 3,35 · el dato 3,55.
+   La segunda, la difícil: se escribe 4,7 – 5,9 (la primera sigue a la vista) · enviar 5,95 · el
+   hilo sube un turno 6 · burbuja 6,1 · consultas 6,4 / 6,75 · respuesta 7 · el gráfico de pesas
+   7,1, las pesas se abren 7,2 – 7,9 · se lee hasta el corte (unos 2 s) */
 .tc-s4 {
-  --a: 12s;
-  --z: 18s;
+  --a: 14s;
+  --z: 24s;
 }
 
 .tc-s4::before {
@@ -966,22 +982,32 @@
   animation: an-s6-abre 0.5s var(--sale) calc(var(--a) + 1.42s) forwards;
 }
 
-/* La conversación va abajo, contra el campo, como en cualquier chat */
-.tc-s4 .an-s6-hilo {
-  display: flex;
-  flex-direction: column;
+/* Un turno por pregunta, cada uno del alto del hilo (los de anuncio.css). En el primero la
+   conversación va abajo, contra el campo, como en cualquier chat; al enviar la segunda, el hilo
+   sube un turno entero */
+.tc-turno--1 {
   justify-content: flex-end;
+  gap: calc(12 * var(--m));
+  padding-bottom: calc(16 * var(--m));
 }
 
-.tc-ia__hilo {
-  display: flex;
-  flex-direction: column;
-  gap: calc(12 * var(--m));
-  padding: calc(14 * var(--m)) calc(16 * var(--m)) calc(16 * var(--m));
+.tc-s4 .an-s6-hilo__in {
+  animation: an-s6-sube 0.6s var(--suave) calc(var(--a) + 6s) forwards;
 }
 
 .tc-s4 .an-s6-yo {
   --yo: 2.7s;
+}
+
+.tc-s4 .tc-turno--2 .an-s6-yo {
+  --yo: 6.1s;
+}
+
+.tc-ia-c--1 { --pe: 6.4s; --pk: 6.7s; }
+.tc-ia-c--2 { --pe: 6.75s; --pk: 7.05s; }
+
+.tc-s4 .tc-turno--2 .an-s6-resp {
+  --rs: 7s;
 }
 
 .tc-ia-paso--1 { --pe: 2.85s; --pk: 3s; }
@@ -993,7 +1019,9 @@
 }
 
 .tc-s4 .an-s6-enviar {
-  animation: an-pulsa 0.3s ease calc(var(--a) + 2.63s);
+  animation:
+    an-pulsa 0.3s ease calc(var(--a) + 2.63s),
+    an-pulsa 0.3s ease calc(var(--a) + 5.95s);
 }
 
 /* El dato, grande: el premio de la pregunta */
@@ -1025,12 +1053,178 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* ═══ 5 · AHORA SÍ (18 – 20,2 s) ════════════════════════════════════════════════════
+/* ── El gráfico de pesas de la segunda pregunta (el «dumbbell» del portal: antes contra
+   después). Una fila por sucursal, de la que más creció a la que más cayó: el punto gris es
+   2025, el violeta 2026 (rojo si cayó), y la barra entre los dos. Eje de 0 a 1.300 mil; dónde
+   va cada punto, por fila (--x0, --x1: sin atributos style, CSP). El punto de 2026 sale del de
+   2025 y corre hasta su lugar ── */
+.tc-pesas {
+  padding: calc(10 * var(--m)) calc(12 * var(--m)) calc(8 * var(--m));
+  border: calc(1.5 * var(--m)) solid #e5e7eb;
+  border-radius: calc(12 * var(--m));
+  background: #fff;
+  animation: an-entra 0.35s var(--sale) calc(var(--a) + 7.1s) both;
+}
+
+.tc-pesas__t {
+  display: flex;
+  align-items: center;
+  margin: 0 0 calc(8 * var(--m));
+  font-size: calc(12.5 * var(--m));
+  font-weight: 600;
+  color: #4b5563;
+}
+
+.tc-pesas__ley {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(5 * var(--m));
+  margin-left: auto;
+  font-size: calc(11.5 * var(--m));
+  font-weight: 600;
+  color: #6b7280;
+}
+
+.tc-pesas__ley i {
+  width: calc(10 * var(--m));
+  height: calc(10 * var(--m));
+  margin-left: calc(6 * var(--m));
+  border-radius: 50%;
+}
+
+.tc-pesas__antes {
+  background: #9ca3af;
+}
+
+.tc-pesas__ahora {
+  background: #4f46e5;
+}
+
+.tc-pesas__filas {
+  position: relative;
+  display: grid;
+  gap: calc(6 * var(--m));
+}
+
+.tc-pesa {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: calc(118 * var(--m)) 1fr calc(54 * var(--m));
+  align-items: center;
+  gap: calc(8 * var(--m));
+  height: calc(22 * var(--m));
+}
+
+.tc-pesa__n {
+  font-size: calc(13 * var(--m));
+  text-align: right;
+  white-space: nowrap;
+  color: #4b5563;
+}
+
+.tc-pesa__pista {
+  position: relative;
+  height: 100%;
+}
+
+/* La barra entre los dos años: crece desde 2025 hacia 2026 */
+.tc-pesa__barra {
+  position: absolute;
+  top: 50%;
+  left: min(var(--x0), var(--x1));
+  width: max(var(--x1) - var(--x0), var(--x0) - var(--x1));
+  height: calc(4 * var(--m));
+  margin-top: calc(-2 * var(--m));
+  border-radius: calc(2 * var(--m));
+  background: linear-gradient(90deg, #c7d2fe, #6366f1);
+  transform-origin: 0 50%;
+  animation: an-crece-x 0.55s var(--sale) calc(var(--a) + 7.25s + var(--pd)) both;
+}
+
+.tc-pesa--baja .tc-pesa__barra {
+  background: linear-gradient(90deg, #ef4444, #fecaca);
+  transform-origin: 100% 50%;
+}
+
+.tc-pesa__antes,
+.tc-pesa__ahora {
+  position: absolute;
+  top: 50%;
+  width: calc(13 * var(--m));
+  height: calc(13 * var(--m));
+  margin: calc(-6.5 * var(--m)) 0 0 calc(-6.5 * var(--m));
+  border-radius: 50%;
+  box-shadow: 0 0 0 calc(2 * var(--m)) #fff;
+}
+
+.tc-pesa__antes {
+  left: var(--x0);
+  background: #9ca3af;
+  animation: an-pop 0.3s var(--resorte) calc(var(--a) + 7.2s + var(--pd)) both;
+}
+
+.tc-pesa__ahora {
+  left: var(--x1);
+  background: #4f46e5;
+  animation: tc-pesa-corre 0.55s var(--sale) calc(var(--a) + 7.25s + var(--pd)) both;
+}
+
+.tc-pesa--baja .tc-pesa__ahora {
+  background: #dc2626;
+}
+
+.tc-pesa__v {
+  font-family: var(--font-datos);
+  font-size: calc(12.5 * var(--m));
+  font-weight: 600;
+  white-space: nowrap;
+  color: #4338ca;
+  animation: an-aparece 0.3s ease calc(var(--a) + 7.6s + var(--pd)) both;
+}
+
+.tc-pesa--baja .tc-pesa__v {
+  color: #b91c1c;
+}
+
+/* Dónde va cada punto, en % del eje (0 a 1.300 mil), y su turno */
+.tc-pesa--1 { --x0: 53.42%; --x1: 63.25%; --pd: 0s; }
+.tc-pesa--2 { --x0: 64.73%; --x1: 71.98%; --pd: 0.05s; }
+.tc-pesa--3 { --x0: 89.01%; --x1: 97.11%; --pd: 0.1s; }
+.tc-pesa--4 { --x0: 75.85%; --x1: 80.09%; --pd: 0.15s; }
+.tc-pesa--5 { --x0: 52.79%; --x1: 54.53%; --pd: 0.2s; }
+.tc-pesa--6 { --x0: 21.36%; --x1: 20.65%; --pd: 0.25s; }
+.tc-pesa--7 { --x0: 14.7%; --x1: 13.62%; --pd: 0.3s; }
+
+/* Las guías del eje (0, 650 y 1.300) y sus números, debajo de las filas */
+.tc-pesas__guia {
+  position: absolute;
+  top: 0;
+  bottom: calc(18 * var(--m));
+  left: calc(126 * var(--m) + (100% - 188 * var(--m)) * var(--g));
+  border-left: calc(1.5 * var(--m)) dashed #e5e7eb;
+}
+
+.tc-pesas__guia--1 { --g: 0; }
+.tc-pesas__guia--2 { --g: 0.5; }
+.tc-pesas__guia--3 { --g: 1; }
+
+.tc-pesas__eje {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 calc(54 * var(--m)) 0 calc(118 * var(--m));
+  padding: 0 calc(2 * var(--m));
+  font-family: var(--font-datos);
+  font-size: calc(10.5 * var(--m));
+  color: #9ca3af;
+}
+
+/* ═══ 5 · AHORA SÍ (24 – 26,3 s) ════════════════════════════════════════════════════
    La lista otra vez, destapada. Tiempos desde --a: titular 0,1 · la lista 0,1 · una tilde por
    pulso 0,55 / 0,8 / 1,05 · «3 de 3» y el aro verde 1,2 */
 .tc-s5 {
-  --a: 18s;
-  --z: 20.2s;
+  --a: 24s;
+  --z: 26.3s;
 }
 
 .tc-s5-titulo {
@@ -1084,46 +1278,35 @@
 
 /* ── La cortina de las cuatro barras del logo (anuncio.css), para entrar al cierre ── */
 .an-barras.tc-barras {
-  --a: 19.8s;
-  --z: 20.7s;
+  --a: 25.9s;
+  --z: 26.8s;
   --c1: var(--ab);
   --c2: var(--vc);
 }
 
-/* ═══ 6 · CIERRE (20,2 s – fin): el de anuncio.css, con su --a ═══════════════════════ */
+/* ═══ 6 · CIERRE (26,3 s – fin): el de anuncio.css, con su --a ═══════════════════════ */
 .tc-s6 {
-  --a: 20.2s;
-  --z: 25s;
+  --a: 26.3s;
+  --z: 31s;
   background: radial-gradient(90% 65% at 50% 40%, #0a8f83, #037a70 50%, #005a52);
 }
-
-/* ═══ LA PÁGINA ═══════════════════════════════════════════════════════════════════════
-   La sala es la de anuncio.css (barra, formatos, controles y panel de descargas). Esto es el
-   selector de versión: A (esta) y B (la cinemática, anuncio-3c-b.css), cada una en su página */
-.an-versiones {
-  display: flex;
-  gap: 0.25rem;
-  padding: 0.25rem;
-  border: 1px solid rgb(206 217 189 / 0.18);
-  border-radius: var(--radio-pill);
-}
-
-.an-versiones .an-formato {
-  display: grid;
-  place-items: center;
-  font-family: var(--font-texto);
-  text-decoration: none;
-}
-
-.an-versiones .an-formato[aria-current='page'] {
-  background: var(--color-verde-claro);
-  color: var(--color-abismo);
-}
-
 
 /* ═══════════════════════════════════════════════════════════════════════════════════
    LOS MOVIMIENTOS PROPIOS
    ═══════════════════════════════════════════════════════════════════════════════════ */
+/* Un pilar del gancho se ilumina en su turno y se apaga */
+@keyframes tc-resalta {
+  0%, 100% { background-color: #f2f5f0; box-shadow: inset 0 0 0 0 transparent; }
+  25%, 70% { background-color: #e0f5f2; box-shadow: inset 0 0 0 calc(4 * var(--q)) var(--vc); }
+}
+
+/* El punto de 2026 sale del de 2025 y corre hasta su lugar */
+@keyframes tc-pesa-corre {
+  from { left: var(--x0); opacity: 0; }
+  20% { opacity: 1; }
+  to { left: var(--x1); opacity: 1; }
+}
+
 /* La casilla vacía llama: un aro que se abre */
 @keyframes tc-llama {
   from { box-shadow: inset 0 0 0 calc(4 * var(--q)) #c5cec1, 0 0 0 0 rgb(77 207 193 / 0.9); }

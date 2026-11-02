@@ -15,7 +15,7 @@ import '../../components/anuncio/anuncio.css';
 import '../../components/anuncio/anuncio-3c.css';
 
 /* El banco comprueba que esto coincida con el reloj (--duracion en anuncio-3c.css) */
-const SEGUNDOS = 24;
+const SEGUNDOS = 30;
 ---
 
 <Base
@@ -31,11 +31,7 @@ const SEGUNDOS = 24;
         <Icono nombre="anterior" />
         <span>Anuncios</span>
       </a>
-      <h1 class="an-barra__nombre">A tu Power BI le faltan 3 cosas · versión A · {SEGUNDOS} s</h1>
-      <nav class="an-versiones" aria-label="Versión del anuncio">
-        <a class="an-formato" href="/anuncios/tres-cosas/" title="La lista con sus tres renglones" aria-current="page">A</a>
-        <a class="an-formato" href="/anuncios/tres-cosas-b/" title="Cinemática: el tablero en 3D, las mil licencias que implotan">B</a>
-      </nav>
+      <h1 class="an-barra__nombre">A tu Power BI le faltan 3 cosas · {SEGUNDOS} s</h1>
       <div class="an-formatos" role="group" aria-label="Formato del video">
         {FORMATOS.map((f) => (
           <button type="button" class="an-formato" data-formato-boton={f.id} aria-pressed={f.id === '9x16' ? 'true' : 'false'} title={f.uso}>
@@ -76,7 +72,7 @@ const SEGUNDOS = 24;
           ))}
         </ul>
         <p>
-          Y la portada de cada uno (la lista con sus tres renglones tapados, para elegirla como
+          Y la portada de cada uno (el titular y la lista con los tres pilares, para elegirla como
           miniatura):
           <a class="enlace" data-a="descarga-actual" data-molde={portadaTresCosas('{f}')} href={portadaTresCosas('9x16')} download>la del formato que estás viendo</a>.
         </p>

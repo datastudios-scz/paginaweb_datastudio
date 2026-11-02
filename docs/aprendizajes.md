@@ -4,6 +4,12 @@ Cada entrada: **síntoma → causa → solución → cómo evitarlo**.
 
 ## El anuncio «3 cosas» (02/11/2026)
 
+### Un cambio de 1 ms con `step-end` no cambia nada reproduciendo en vivo
+- **Síntoma**: el dueño vio en «Tú decides…» los tres rótulos encimados («Ve todo», «Solo la sucursal Norte», «2 páginas ocultas»). En las hojas de contactos y en el video estaban bien, uno por vez.
+- **Causa**: cada rótulo se apaga con `an-oculta 1ms step-end … forwards`. Reproduciendo en la página, cuando esa animación termina queda con un progreso de **0,99999999** (la coma flotante del retardo, `calc(var(--a) + var(--e2))`), y `step-end` (`steps(1, end)`) devuelve el valor de PARTIDA para todo progreso menor que 1: el rótulo nunca se apagaba. Grabando no pasa, porque el motor lleva el reloj más allá del final y el progreso es 1 exacto. Lo mismo le pasaba a la firma (no se ponía en tinta sobre las tomas claras) y al login del de 55 s, desde siempre.
+- **Solución**: `step-start`, que salta al valor final apenas empieza el milisegundo y no depende de llegar a 1. Grabando, el cambio cae a lo sumo un milisegundo antes: el mismo cuadro.
+- **Cómo evitarlo**: el banco de las 3 cosas reproduce el anuncio en vivo y mira lo que se ve, y falla si vuelve un `1ms step-end` a `anuncio.css` o `anuncio-3c.css`. **Lo que se prueba cuadro por cuadro no prueba lo que se ve reproduciendo**: son dos caminos del navegador.
+
 ### El reset del sitio le pone `max-width: 100%` a todo svg
 - **Síntoma**: en la revelación de la versión B se veían los rayos y la onda, y no la estrella. Medía 0 de ancho.
 - **Causa**: la estrella es un `<svg>` dentro de un punto de 0 × 0 (el centro de la escena). El reset del sitio le pone a todo svg `max-width: 100%`, y el 100 % de 0 es 0. Los rayos son `<i>` y no tienen ese tope.
