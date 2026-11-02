@@ -53,9 +53,10 @@ jobs:
       - name: Instalar ffmpeg
         run: choco install ffmpeg --no-progress -y
 
-      # La portada: el gancho armado, con los tres pilares a la vista (2 s)
+      # La portada: el gancho armado, con los tres pilares a la vista y «Ahorro» encendido (1,2 s):
+      # lo primero que tiene que leer un gerente
       - name: Grabar el anuncio
-        run: npm run anuncio:video -- --pagina /anuncios/tres-cosas/ --nombre tres-cosas --portada 2 --salida videos-tres-cosas
+        run: npm run anuncio:video -- --pagina /anuncios/tres-cosas/ --nombre tres-cosas --portada 1.2 --salida videos-tres-cosas
 
       - name: Publicar en el release anuncio-tres-cosas
         shell: bash

@@ -191,8 +191,8 @@ for (const [formato, [w, h]] of Object.entries(FORMATOS)) {
   ok(/Power BI/.test(primero.texto) && primero.dentro && primero.pilares.join('|') === PILARES.join('|'),
     `${formato}: el primer cuadro ya es el gancho, con los tres pilares («${primero.texto}»; ${primero.pilares.join(', ')}${primero.dentro ? '' : '; SE SALE DEL CUADRO'})`);
 
-  /* La portada (2 s): el titular y la lista enteros, adentro y sin pisarse */
-  await ir(p, 2.0);
+  /* La portada (1,2 s, con «Ahorro» encendido): el titular y la lista enteros, adentro y sin pisarse */
+  await ir(p, 1.2);
   const portada = await p.evaluate((piso) => {
     const t = window.__texto('.tc-s1-titular');
     const l = window.__r('.tc-s1 .tc-lista');
