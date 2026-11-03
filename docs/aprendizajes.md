@@ -4,6 +4,12 @@ Cada entrada: **síntoma → causa → solución → cómo evitarlo**.
 
 ## El anuncio «3 cosas» (02/11/2026)
 
+### Un chat que sube un turno entero de golpe parece reiniciarse
+- **Síntoma**: el dueño: «hace un zoom el chat y luego salta a su inicio». La cámara estaba quieta (medido en vivo); lo que saltaba era el hilo.
+- **Causa**: el hilo de dos turnos subía los 462 de golpe al enviar la segunda pregunta: la primera desaparecía entera y el turno nuevo arrancaba vacío arriba. Se lee como un chat que vuelve a empezar.
+- **Solución**: el hilo baja siguiendo lo que llega, por tramos medidos (burbuja, consultas, respuesta, gráfico). Lo anterior se va de a poco hacia arriba.
+- **Cómo evitarlo**: en una maqueta de chat, desplazar el hilo lo justo para que lo último que llegó quede abajo y a la vista, no por turnos enteros.
+
 ### Un cambio de 1 ms con `step-end` no cambia nada reproduciendo en vivo
 - **Síntoma**: el dueño vio en «Tú decides…» los tres rótulos encimados («Ve todo», «Solo la sucursal Norte», «2 páginas ocultas»). En las hojas de contactos y en el video estaban bien, uno por vez.
 - **Causa**: cada rótulo se apaga con `an-oculta 1ms step-end … forwards`. Reproduciendo en la página, cuando esa animación termina queda con un progreso de **0,99999999** (la coma flotante del retardo, `calc(var(--a) + var(--e2))`), y `step-end` (`steps(1, end)`) devuelve el valor de PARTIDA para todo progreso menor que 1: el rótulo nunca se apagaba. Grabando no pasa, porque el motor lleva el reloj más allá del final y el progreso es 1 exacto. Lo mismo le pasaba a la firma (no se ponía en tinta sobre las tomas claras) y al login del de 55 s, desde siempre.

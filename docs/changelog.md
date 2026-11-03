@@ -1,5 +1,12 @@
 # Bitácora de cambios
 
+## 02/11/2026 · «3 cosas»: el chat ya no parece reiniciarse
+
+- **Lo vio el dueño**: en la escena de la IA, después del zoom, el chat «saltaba a su inicio».
+- **Causa**: al enviar la segunda pregunta, el hilo subía un turno entero de golpe. La primera conversación desaparecía y el chat quedaba un instante vacío, como recién abierto. La cámara no se movía: se midió en vivo, quieta hasta el final de la toma.
+- **Arreglo**: el hilo baja siguiendo lo que llega —la burbuja, las dos consultas, la respuesta, el gráfico— y la primera conversación se va yendo hacia arriba, como en un chat de verdad (`tc-hilo-sigue`, medido en `--m`: igual en los cuatro formatos).
+- **Banco**: sin problemas. El instante 21,5 s, con el hilo bajando, repetido 15 veces en 1:1: 0 píxeles distintos.
+
 ## 02/11/2026 · «3 cosas»: queda la A, con los pilares a la vista y una pregunta difícil
 
 - **Lo que pidió el dueño** (ADR-022):

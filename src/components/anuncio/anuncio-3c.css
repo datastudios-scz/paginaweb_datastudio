@@ -838,9 +838,9 @@
    lengüeta asoma 0,4 y llama · toque 1,25 · el chat se abre 1,42 (la lengüeta se va a los
    1,55) · la cámara entra 1,85 – 2,5 · la pregunta se escribe 2 – 2,6 · enviar 2,63 · burbuja
    2,7 · pasos 2,85 / 3 / 3,15 · respuesta 3,35 · el dato 3,55.
-   La segunda, la difícil: se escribe 4,7 – 5,9 (la primera sigue a la vista) · enviar 5,95 · el
-   hilo sube un turno 6 · burbuja 6,1 · consultas 6,4 / 6,75 · respuesta 7 · el gráfico de pesas
-   7,1, las pesas se abren 7,2 – 7,9 · se lee hasta el corte (unos 2 s) */
+   La segunda, la difícil: se escribe 4,7 – 5,9 (la primera sigue a la vista) · enviar 5,95 ·
+   burbuja 6,1 · consultas 6,4 / 6,75 · respuesta 7 · el gráfico de pesas 7,1, las pesas se abren
+   7,2 – 7,9 · el hilo baja siguiendo todo eso, 6 – 7,8 · se lee hasta el corte (unos 2 s) */
 .tc-s4 {
   --a: 14s;
   --z: 24s;
@@ -983,8 +983,10 @@
 }
 
 /* Un turno por pregunta, cada uno del alto del hilo (los de anuncio.css). En el primero la
-   conversación va abajo, contra el campo, como en cualquier chat; al enviar la segunda, el hilo
-   sube un turno entero */
+   conversación va abajo, contra el campo, como en cualquier chat. Con la segunda, el hilo baja
+   SIGUIENDO lo que llega —la burbuja, las consultas, la respuesta, el gráfico— y la primera se
+   va yendo hacia arriba, como en un chat de verdad. Antes subía el turno entero de golpe al
+   enviar, y el chat quedaba un instante vacío: parecía que volvía a empezar (lo vio el dueño) */
 .tc-turno--1 {
   justify-content: flex-end;
   gap: calc(12 * var(--m));
@@ -992,7 +994,7 @@
 }
 
 .tc-s4 .an-s6-hilo__in {
-  animation: an-s6-sube 0.6s var(--suave) calc(var(--a) + 6s) forwards;
+  animation: tc-hilo-sigue 1.8s linear calc(var(--a) + 6s) forwards;
 }
 
 .tc-s4 .an-s6-yo {
@@ -1298,6 +1300,18 @@
 @keyframes tc-resalta {
   0%, 100% { background-color: #f2f5f0; box-shadow: inset 0 0 0 0 transparent; }
   25%, 70% { background-color: #e0f5f2; box-shadow: inset 0 0 0 calc(4 * var(--q)) var(--vc); }
+}
+
+/* El hilo del chat baja siguiendo lo que llega en el segundo turno: hasta dejar a la vista la
+   burbuja (termina a 77 del comienzo del turno, + 16 de aire), las consultas (121), la respuesta
+   (176) y el gráfico, que entra desde abajo hasta dejar el turno entero arriba (462, el alto del
+   hilo). Medido en --m: es igual en los cuatro formatos */
+@keyframes tc-hilo-sigue {
+  0% { transform: none; animation-timing-function: var(--suave); }
+  22%, 33% { transform: translateY(calc(-93 * var(--m))); animation-timing-function: var(--suave); }
+  52%, 58% { transform: translateY(calc(-137 * var(--m))); animation-timing-function: var(--suave); }
+  67% { transform: translateY(calc(-192 * var(--m))); animation-timing-function: var(--suave); }
+  100% { transform: translateY(calc(-462 * var(--m))); }
 }
 
 /* El punto de 2026 sale del de 2025 y corre hasta su lugar */
