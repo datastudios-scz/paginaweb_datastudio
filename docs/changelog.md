@@ -1,5 +1,22 @@
 # Bitácora de cambios
 
+## 09/11/2026 · La página del agente, completa
+
+- **Lo pidió el dueño:** «no habla de demo, no habla del chat de IA, no sabe temas técnicos».
+- **Secciones nuevas:**
+  - «Cómo vender, paso a paso»: abrir con las dos preguntas, dar su cuenta, ofrecer la demo, el precio
+    y el «quiero comprar»;
+  - «El chat con IA, en detalle», con las funciones que ya publica `/portal-bi/`;
+  - la demo, contada: qué se prueba y que los datos son de ejemplo;
+  - «Preguntas técnicas»: instalación, servidor, actualizaciones, ingreso, panel, registro, Premium y
+    Fabric, y soporte.
+- **Premium por usuario** (`PRECIO_PREMIUM_USUARIO_USD`, US$ 24) entra en `sitio.ts`. Es la segunda
+  referencia con la que el dueño arma la cuenta del ahorro.
+- **Lo que no promete:** la instalación «en dos horas» figura en `/portal-bi/` como cifra sin
+  confirmar, y el agente no la usa. Tampoco promete RLS de verdad con Premium por usuario: hace falta
+  capacidad.
+- **QA** sin problemas.
+
 ## 08/11/2026 · La página que lee el agente de WhatsApp
 
 - **`/agente/portal-bi/`** es una página oculta con lo que el agente de IA de Meta necesita para

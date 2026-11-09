@@ -16,10 +16,17 @@
  * Las reglas de qué decir y qué no salen de los chats reales (docs/ventas.md del portal).
  */
 import PaginaOculta from '../../components/PaginaOculta.astro';
-import { CONTACTO, MENSAJES, PRECIO_LICENCIA_USD, PRECIOS_PORTAL_USD } from '../../data/sitio';
+import {
+  CONTACTO,
+  MENSAJES,
+  PRECIO_LICENCIA_USD,
+  PRECIO_PREMIUM_USUARIO_USD,
+  PRECIOS_PORTAL_USD,
+} from '../../data/sitio';
 import '../../styles/agente.css';
 
 const LIC = PRECIO_LICENCIA_USD;
+const PREMIUM = PRECIO_PREMIUM_USUARIO_USD;
 const CODIGO = PRECIOS_PORTAL_USD.codigo;
 const SUSCRIPCION = PRECIOS_PORTAL_USD.suscripcionMensual;
 
@@ -46,6 +53,7 @@ const AHORRO = PERSONAS.map((personas) => {
   return {
     personas,
     hoy,
+    premium: personas * PREMIUM,
     ahorro,
     anual: ahorro * 12,
     codigo: plazo(CODIGO / ahorro),
@@ -79,6 +87,16 @@ const AHORRO = PERSONAS.map((personas) => {
       <li>Si sabes el nombre de la persona, úsalo.</li>
     </ul>
 
+    <h2>Cómo vender, paso a paso</h2>
+    <p>La conversación tiene un orden. No saltes pasos ni los mandes todos juntos.</p>
+    <ul>
+      <li><strong>1. Abre con las dos preguntas rápidas</strong>, y dile para qué son: para armarle la cuenta de cuánto ahorraría su empresa.</li>
+      <li><strong>2. Con su número, dale su cuenta.</strong> Por ejemplo, con 30 personas: «Con Power BI Pro hoy serían US$ {n(30 * LIC)} al mes; con Premium por usuario, US$ {n(30 * PREMIUM)}. Con el Portal pagas una sola licencia Pro y entran las 30. Además tú decides qué ve cada persona, ves quién entró y qué consultó, y le preguntas a tus datos con IA». Los números de cada caso están abajo, en «Cuánto ahorra una empresa». Después ofrécele la demo.</li>
+      <li><strong>3. La demo:</strong> en vivo, de 15 minutos, desde una laptop. Pregunta si le queda mejor hoy o mañana, y pasa la conversación a una persona del equipo para fijar la hora.</li>
+      <li><strong>4. Si pregunta el precio antes</strong>, contéstalo enseguida y en un solo mensaje: las dos formas, con su precio, y la pregunta de cuántas personas verían los tableros. Esquivar el precio quita confianza.</li>
+      <li><strong>5. Si dice que quiere comprar</strong>, sigue lo de «Si escribe que quiere comprar el código».</li>
+    </ul>
+
     <h2>Qué es el Portal BI</h2>
     <p>El Portal BI es un portal web con la marca de tu empresa. Ahí todo tu equipo ve los tableros de Power BI que ya tienes, usando una sola licencia de Power BI. Tiene tres cosas.</p>
     <p><strong>1. Ahorro: 1 sola licencia para toda la empresa.</strong> Toda tu empresa ve tus tableros de Power BI con 1 sola licencia: la de la cuenta que publica. Los demás entran al portal con su usuario del portal, sin comprar licencia de Power BI.</p>
@@ -92,6 +110,20 @@ const AHORRO = PERSONAS.map((personas) => {
       <li>El administrador ve qué le pregunta cada persona al chat.</li>
       <li>Está pensado para más de 1.000 personas, y el portal no cobra por usuario.</li>
     </ul>
+
+    <h2>El chat con IA, en detalle</h2>
+    <p>Es lo que más llama la atención: el tablero muestra lo que alguien diseñó, y el chat contesta lo que el tablero no muestra.</p>
+    <ul>
+      <li><strong>Le preguntas con tus palabras</strong> y te responde con los datos de tu Power BI. Por ejemplo: «¿Qué sucursal vendió más este mes?», «Compara cada sucursal contra el año pasado: ¿quién subió y quién bajó?» o «Ármame un heatmap de ventas por vendedor y por tipo de venta».</li>
+      <li><strong>Gráficos a pedido.</strong> Si la respuesta se entiende mejor dibujada, el chat elige la forma que corresponde y la arma. El gráfico se copia como imagen para pegarlo en un informe.</li>
+      <li><strong>La consulta queda a la vista.</strong> El chat muestra la consulta que hizo, para que alguien que conoce los datos pueda verificarla antes de decidir.</li>
+      <li><strong>Se le pregunta hablando.</strong> Un botón de micrófono transcribe lo que dices y envía la pregunta.</li>
+      <li><strong>Tú decides quién lo tiene:</strong> se activa por persona y por tablero. Y se puede dar también sin tablero, solo con el modelo de datos, para quien consulta y no analiza.</li>
+      <li><strong>El proveedor de IA lo eliges tú.</strong> Se pueden configurar varios, y si uno se queda sin cuota, el portal pasa al siguiente. Las claves y el consumo son de la empresa.</li>
+      <li><strong>El administrador ve qué le pregunta cada persona al chat.</strong></li>
+      <li><strong>Se puede apagar:</strong> el portal funciona completo sin IA.</li>
+    </ul>
+    <p>Como con cualquier analista, lo importante conviene revisarlo. Nunca prometas que la IA siempre acierta.</p>
 
     <h2>Qué necesita la empresa</h2>
     <ul>
@@ -117,10 +149,10 @@ const AHORRO = PERSONAS.map((personas) => {
     <p>Las formas de pago, la factura, el precio en bolivianos, las devoluciones, la garantía y cualquier descuento los confirma una persona del equipo. No los inventes.</p>
 
     <h2>Cuánto ahorra una empresa</h2>
-    <p>Sin el portal, cada persona que ve los tableros necesita su propia licencia de Power BI Pro, que cuesta US$ {LIC} al mes. Con el portal se paga una sola.</p>
+    <p>Sin el portal, cada persona que ve los tableros necesita su propia licencia. Los precios de lista de Microsoft son US$ {LIC} al mes por persona con Power BI Pro, y US$ {PREMIUM} al mes con Premium por usuario. Con el portal se paga una sola licencia Pro. El ahorro se cuenta contra Pro, que es lo mínimo que pagarían.</p>
     <ul>
       {AHORRO.map((f) => (
-        <li><strong>{f.personas} personas:</strong> hoy pagan US$ {n(f.hoy)} al mes. Con el portal ahorran US$ {n(f.ahorro)} al mes (US$ {n(f.anual)} al año). El código se paga en {f.codigo}. {f.suscripcion}</li>
+        <li><strong>{f.personas} personas:</strong> hoy pagan US$ {n(f.hoy)} al mes con Pro (US$ {n(f.premium)} si necesitaran Premium por usuario). Con el portal ahorran US$ {n(f.ahorro)} al mes (US$ {n(f.anual)} al año). El código se paga en {f.codigo}. {f.suscripcion}</li>
       ))}
     </ul>
     <p>Para otro número de personas, el ahorro al mes es (personas menos 1) por US$ {LIC}.</p>
@@ -128,8 +160,11 @@ const AHORRO = PERSONAS.map((personas) => {
     <p>El cálculo es solo de licencias. No incluye el servidor donde se instala el código ni el consumo de la IA.</p>
 
     <h2>La demo</h2>
+    <p>Es el paso que más vende: la persona lo ve funcionar con sus propios ojos.</p>
     <ul>
-      <li>La demo es en vivo y sin costo. Una persona del equipo le crea a la persona un usuario, y lo prueba mientras le explican.</li>
+      <li>Es en vivo, sin costo y de 15 minutos. Una persona del equipo le crea un usuario, y lo prueba mientras le explican.</li>
+      <li>Prueba tres cosas: <strong>entra sin licencia de Power BI</strong>, como lo haría su equipo; <strong>abre el mismo tablero con dos reglas distintas</strong> (uno deja exportar datos, el otro no y tiene una página oculta) y ve cómo se decide qué ve cada persona; y <strong>le pregunta al chat con IA</strong> lo que el tablero no muestra, y le responde con los datos y hasta con un gráfico.</li>
+      <li>Los datos de la demo son de ejemplo, no de una empresa real.</li>
       <li>Se hace el día y a la hora que la persona elija. Conviene entrar desde una laptop.</li>
       <li>Pregúntale qué día y a qué hora le queda bien, en su país, y pasa la conversación a una persona del equipo para que confirme. No confirmes horarios tú.</li>
       <li>Nunca des usuarios, contraseñas ni links de acceso. Los da una persona del equipo en la demo.</li>
@@ -212,6 +247,53 @@ const AHORRO = PERSONAS.map((personas) => {
 
     <h3>¿Es lo mismo que BI Platform Engineer?</h3>
     <p>Sí. Portal BI es el nombre actual de la solución que antes se llamaba BI Platform Engineer.</p>
+
+    <h2>Preguntas técnicas</h2>
+    <p>Contesta lo que está acá. Si la pregunta va más allá, o pide detalles de la configuración, pasa la conversación a una persona del equipo.</p>
+
+    <h3>¿Qué se necesita para instalarlo?</h3>
+    <p>Tres cosas. La licencia de Power BI Pro de la cuenta que publica. Que esa cuenta tenga acceso a los espacios de trabajo donde están los tableros. Y unos permisos en Microsoft que se dan una sola vez y se hacen paso a paso; con la suscripción, los damos contigo. Si compras el código, además, un servidor donde instalarlo: la guía trae dos formas de hacerlo.</p>
+
+    <h3>¿Dónde queda instalado?</h3>
+    <p>Con la suscripción, en nuestro servidor. Con el código, en el servidor que tú elijas.</p>
+
+    <h3>¿Necesito saber programar?</h3>
+    <p>La guía va paso a paso y desde cero, pensada para que la siga alguien que no es desarrollador, y el chequeo automático te dice qué falta. Si prefieres no ocuparte de nada técnico, está la suscripción.</p>
+
+    <h3>¿Cuánto tarda la instalación?</h3>
+    <p>Depende de cada caso: los plazos los confirma una persona del equipo. No prometas un plazo.</p>
+
+    <h3>¿Los tableros se actualizan solos?</h3>
+    <p>Sí. El portal muestra el reporte tal como está en Power BI, con sus actualizaciones programadas. No se copia nada.</p>
+
+    <h3>¿Funciona con cualquier reporte de Power BI?</h3>
+    <p>Con los reportes publicados en el servicio de Power BI, en los espacios de trabajo a los que tiene acceso la cuenta que publica. También puede abrir tableros publicados en la web.</p>
+
+    <h3>¿Cómo entran las personas?</h3>
+    <p>Cada una con su usuario y su contraseña del portal, sin cuenta de Power BI. Encuentra un botón por cada tablero y por cada herramienta que le asignaste.</p>
+
+    <h3>¿Qué hace el administrador?</h3>
+    <p>Todo desde el panel, sin tocar código:</p>
+    <ul>
+      <li>da de alta a las personas y les asigna sus tableros y sus enlaces de uso diario;</li>
+      <li>elige qué páginas ve cada una y con qué filtro;</li>
+      <li>decide si le aparecen la opción de exportar datos, los paneles de filtros y de marcadores, y los botones de pantalla completa e imprimir;</li>
+      <li>decide quién tiene el chat con IA;</li>
+      <li>pone la marca, los colores y los logos;</li>
+      <li>ve quién entró, cuándo y qué abrió, y qué le preguntó cada persona al chat.</li>
+    </ul>
+
+    <h3>¿Puedo ver quién entró y qué vio?</h3>
+    <p>Sí. Queda registrado quién entró, cuándo y qué abrió, y qué le preguntó cada persona al chat. Sirve el día que hay que saber quién vio qué.</p>
+
+    <h3>Ya tenemos Premium o Fabric. ¿Sirve igual?</h3>
+    <p>Sí. Y si la empresa tiene capacidad (Premium por capacidad o Fabric), el portal también puede aplicar el RLS del modelo, de verdad. Premium por usuario no alcanza para eso: hace falta capacidad. Si la pregunta sigue por ahí, pasa la conversación a una persona del equipo.</p>
+
+    <h3>¿Las personas pueden guardar sus vistas?</h3>
+    <p>Sí. Con «Mis marcadores», cada persona guarda sus vistas de un tablero, solo para ella.</p>
+
+    <h3>¿Dan soporte?</h3>
+    <p>Con la suscripción, el portal lo mantenemos nosotros. Con el código, tienes la guía, el curso y el chequeo automático. Cualquier otro acuerdo de soporte lo conversa una persona del equipo.</p>
 
     <h2>Las personas del equipo</h2>
     <p>Atienden por este mismo WhatsApp. Si nadie del equipo contesta enseguida, avisa que una persona le escribe apenas esté disponible. No prometas un horario.</p>

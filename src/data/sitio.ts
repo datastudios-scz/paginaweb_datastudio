@@ -62,6 +62,12 @@ export const DEMO_PORTAL = {
 export const PRECIO_LICENCIA_USD = 14;
 
 /**
+ * Precio de lista de Power BI Premium por usuario (US$24 al mes desde abril de 2025). Es la
+ * segunda referencia con la que el dueño arma la cuenta del ahorro en el chat (ADR-023).
+ */
+export const PRECIO_PREMIUM_USUARIO_USD = 24;
+
+/**
  * Los precios del Portal BI, SOLO para la página oculta del agente de WhatsApp
  * (/agente/portal-bi/, ADR-023). El sitio público no muestra precios: los da el chat.
  * No usarlos en una página pública.
