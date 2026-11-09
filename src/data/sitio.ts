@@ -62,6 +62,13 @@ export const DEMO_PORTAL = {
 export const PRECIO_LICENCIA_USD = 14;
 
 /**
+ * Los precios del Portal BI, SOLO para la página oculta del agente de WhatsApp
+ * (/agente/portal-bi/, ADR-023). El sitio público no muestra precios: los da el chat.
+ * No usarlos en una página pública.
+ */
+export const PRECIOS_PORTAL_USD = { codigo: 400, suscripcionMensual: 59 } as const;
+
+/**
  * Las cuatro soluciones, en el orden de las cuatro barras del logo.
  * `altura` replica la proporción exacta de las barras del ícono (473/626/786/473 px).
  * `href` apunta a la subpágina de cada producto: el inicio solo distribuye.

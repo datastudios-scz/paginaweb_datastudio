@@ -13,6 +13,7 @@ export const PAGINAS_OCULTAS = [
   '/anuncios/', // los anuncios para redes, ordenados (src/data/anuncios.ts)
   '/propuestas/', // las propuestas a socios y clientes (src/data/propuestas.ts)
   '/portal-bi/anuncio/', // la herramienta del anuncio del Portal BI (ADR-016)
+  '/agente/portal-bi/', // lo que lee el agente de IA de WhatsApp (ADR-023)
 ];
 
 /** ¿Esta dirección (absoluta o relativa) cae dentro de una página oculta? */

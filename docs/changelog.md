@@ -1,5 +1,14 @@
 # Bitácora de cambios
 
+## 08/11/2026 · La página que lee el agente de WhatsApp
+
+- **`/agente/portal-bi/`** es una página oculta con lo que el agente de IA de Meta necesita para
+  atender por WhatsApp sobre el Portal BI (ADR-023).
+- **Los precios** van en `sitio.ts` (`PRECIOS_PORTAL_USD`), solo para esta página. La lista del ahorro
+  se calcula.
+- **QA:** la página entra en la lista de `qa.mjs` y en `ocultas.mjs`. El build y el QA salieron sin
+  problemas: 14 páginas en 6 anchos, y las 4 páginas ocultas siguen ocultas.
+
 ## 02/11/2026 · «3 cosas»: el chat ya no parece reiniciarse
 
 - **Lo vio el dueño**: en la escena de la IA, después del zoom, el chat «saltaba a su inicio».

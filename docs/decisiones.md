@@ -2,6 +2,33 @@
 
 Formato: contexto → decisión → consecuencias. Las decisiones nuevas van arriba.
 
+## ADR-023 · Lo que sabe el agente de WhatsApp vive en una página oculta: `/agente/portal-bi/` (08/11/2026)
+
+- **Contexto.** WhatsApp Business permite un agente de IA de Meta que contesta solo. Aprende de
+  documentos subidos o de una página web: según su propio asistente, la extracción es automática y
+  «puede tardar un poco». El dueño prefirió una ruta del sitio «para controlarlo todo desde ahí».
+- **La decisión.** Una página oculta: está en `ocultas.mjs`, sin indexar, fuera del sitemap y sin
+  enlaces desde páginas públicas.
+  - **Va en texto**, porque Meta pide texto y listas, nada dentro de imágenes.
+  - **Los números salen de `sitio.ts`:** `PRECIO_LICENCIA_USD`, el nuevo `PRECIOS_PORTAL_USD`,
+    `CONTACTO` y `MENSAJES.portalCompra`.
+  - **La lista del ahorro se calcula** para 5 a 200 personas. En los chats de noviembre, las
+    cuentas hechas a mano salieron mal justo en el mensaje del ahorro.
+- **Lo que no va.** Nada que el agente no pueda repetir a un cliente: ni cómo está construido el
+  portal, ni nombres de clientes, ni acuerdos con socios.
+- **Los precios son una excepción consciente** a «sin precios en el sitio»
+  ([contenido.md](contenido.md)). El agente los dice en el chat, que es donde se dan. Oculta no es
+  privada: quien tenga la dirección los ve, igual que en la propuesta a Ribentek (ADR-020).
+- **Las reglas salen de 23 chats reales** (`docs/ventas.md` del portal):
+  - las dos preguntas rápidas para abrir;
+  - qué hacer ante «quiero comprar el código»;
+  - RLS y Microsoft, sin prometer de más;
+  - nunca «seguridad».
+- **Consecuencias.**
+  - Cambiar la página no cambia al agente en el momento: hay que pedirle que la vuelva a leer.
+  - Antes de activarlo con clientes, hay que correr las pruebas de `docs/agente-whatsapp.md` del portal.
+  - La página entra en el QA (`qa.mjs`).
+
 ## ADR-022 · «A tu Power BI le faltan 3 cosas»: un anuncio que muestra cada cosa una vez (02/11/2026)
 
 - **Lo que eligió el dueño** (el mismo día, al ver las dos): **la versión A**. Pidió borrar la B y «Power BI primero» (ADR-021) «para que no consuma espacio»; se borraron sus páginas, su código, su Action, su banco y sus videos del release. Y cambió tres cosas de la A, que quedó en **30 s**:
