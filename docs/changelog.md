@@ -1,5 +1,13 @@
 # Bitácora de cambios
 
+## 09/11/2026 · Propuesta a Ribentek: la licencia de Power BI también la paga el cliente
+
+- **Lo pidió el dueño:** en la página 16 («US$ 60 al mes, por cliente») faltaba decir que la licencia
+  de Power BI la pone el cliente.
+- **La última frase de la toma 10** pasó de «La IA la paga cada cliente, a su proveedor» a «La licencia
+  de Power BI y la IA las paga cada cliente». Es una sola línea: no cambian los tiempos ni los cortes
+  de las páginas.
+
 ## 09/11/2026 · La página del agente, completa
 
 - **Lo pidió el dueño:** «no habla de demo, no habla del chat de IA, no sabe temas técnicos».

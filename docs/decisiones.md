@@ -161,6 +161,7 @@ Formato: contexto → decisión → consecuencias. Las decisiones nuevas van arr
   - Las tomas 1 a 7 son las mismas.
   - La ráfaga cuenta lo que hacemos nosotros: «Nosotros lo instalamos», «Lo dejamos funcionando», «Y lo mantenemos al día» y «Tú vendes y cobras». El código propio y el «lo instalas tú» son del otro camino de compra.
   - Una toma nueva, la 10, dice «A ti te cobramos US$ 60 al mes, por cliente», «Tu precio lo pones tú» y «La IA la paga cada cliente, a su proveedor».
+    - Desde el 09/11/2026, la última frase es «La licencia de Power BI y la IA las paga cada cliente» (página 16). El dueño lo pidió porque faltaba la licencia, que también la pone el cliente.
   - El cierre firma «Data Studio × Ribentek».
   - Dura 62 s. El motor toma la duración del reloj de `anuncio.css`, así que no puede quedar distinta del CSS.
 - Las láminas, sus piezas (`src/components/propuesta/`, `propuesta.css` y `propuesta.ts`) y la calculadora del margen se borraron. Lo que sigue abajo es la primera versión, por la historia.
