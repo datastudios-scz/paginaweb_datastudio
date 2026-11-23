@@ -20,8 +20,8 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/sitemap": "3.7.4",
-    "astro": "7.3.5"
+    "@astrojs/sitemap": "3.7.6",
+    "astro": "7.4.13"
   },
   "devDependencies": {
     "playwright-core": "1.63.0",
